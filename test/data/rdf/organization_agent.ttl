@@ -2,39 +2,39 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 
-<http://testing.fr/cubicweb/authorityrecord/C123#hierarchical_to_P243> a rico:AgentHierarchicalRelation ;
-    rico:agentHierarchicalRelationHasSource <http://testing.fr/cubicweb/agent/{{agent_eid}}> ;
-    rico:agentHierarchicalRelationHasTarget <http://testing.fr/cubicweb/authorityrecord/P243#agent> .
+<https://testing.cubicweb/authorityrecord/C123#hierarchical_to_P243> a rico:AgentHierarchicalRelation ;
+    rico:agentHierarchicalRelationHasSource <https://testing.cubicweb/agent/{{agent_eid}}> ;
+    rico:agentHierarchicalRelationHasTarget <https://testing.cubicweb/authorityrecord/P243#agent> .
 
-<http://testing.fr/cubicweb/authorityrecord/P123#agent> rico:agentIsSourceOfAgentHierarchicalRelation <http://testing.fr/cubicweb/authorityrecord/P123#hierarchical_to_C123> ;
-    rico:hasOrHadSubordinate <http://testing.fr/cubicweb/agent/{{agent_eid}}> .
+<https://testing.cubicweb/authorityrecord/P123#agent> rico:agentIsSourceOfAgentHierarchicalRelation <https://testing.cubicweb/authorityrecord/P123#hierarchical_to_C123> ;
+    rico:hasOrHadSubordinate <https://testing.cubicweb/agent/{{agent_eid}}> .
 
-<http://testing.fr/cubicweb/authorityrecord/P123#hierarchical_to_C123> a rico:AgentHierarchicalRelation ;
-    rico:agentHierarchicalRelationHasSource <http://testing.fr/cubicweb/authorityrecord/P123#agent> ;
-    rico:agentHierarchicalRelationHasTarget <http://testing.fr/cubicweb/agent/{{agent_eid}}> .
+<https://testing.cubicweb/authorityrecord/P123#hierarchical_to_C123> a rico:AgentHierarchicalRelation ;
+    rico:agentHierarchicalRelationHasSource <https://testing.cubicweb/authorityrecord/P123#agent> ;
+    rico:agentHierarchicalRelationHasTarget <https://testing.cubicweb/agent/{{agent_eid}}> .
 
-<http://testing.fr/cubicweb/authorityrecord/P243#agent> rico:agentIsTargetOfAgentHierarchicalRelation <http://testing.fr/cubicweb/authorityrecord/C123#hierarchical_to_P243> ;
-    rico:isOrWasSubordinateTo <http://testing.fr/cubicweb/agent/{{agent_eid}}> .
+<https://testing.cubicweb/authorityrecord/P243#agent> rico:agentIsTargetOfAgentHierarchicalRelation <https://testing.cubicweb/authorityrecord/C123#hierarchical_to_P243> ;
+    rico:isOrWasSubordinateTo <https://testing.cubicweb/agent/{{agent_eid}}> .
 
-<http://testing.fr/cubicweb/agent/{{agent_eid}}> a rico:Agent,
+<https://testing.cubicweb/agent/{{agent_eid}}> a rico:Agent,
         rico:CorporateBody ;
-    rico:agentIsSourceOfAgentHierarchicalRelation <http://testing.fr/cubicweb/authorityrecord/C123#hierarchical_to_P243> ;
-    rico:agentIsTargetOfAgentHierarchicalRelation <http://testing.fr/cubicweb/authorityrecord/P123#hierarchical_to_C123> ;
+    rico:agentIsSourceOfAgentHierarchicalRelation <https://testing.cubicweb/authorityrecord/C123#hierarchical_to_P243> ;
+    rico:agentIsTargetOfAgentHierarchicalRelation <https://testing.cubicweb/authorityrecord/P123#hierarchical_to_C123> ;
     rico:beginningDate "2010-01-01"^^xsd:date ;
     rico:endDate "2050-05-02"^^xsd:date ;
     rico:hasOrHadAgentName [ a rico:AgentName ;
-            rico:isOrWasAgentNameOf <http://testing.fr/cubicweb/agent/{{agent_eid}}> ;
+            rico:isOrWasAgentNameOf <https://testing.cubicweb/agent/{{agent_eid}}> ;
             rico:textualValue "Entreprise" ;
             rico:type "authorized" ] ;
     rico:hasOrHadAgentName [ a rico:AgentName ;
-            rico:isOrWasAgentNameOf <http://testing.fr/cubicweb/agent/{{agent_eid}}> ;
+            rico:isOrWasAgentNameOf <https://testing.cubicweb/agent/{{agent_eid}}> ;
             rico:textualValue "PouletCorp" ;
             rico:usedFromDate "2019-12-12"^^xsd:date ;
             rico:usedToDate "2021-01-01"^^xsd:date ;
             rico:type "alternative" ] ;
-    rico:hasOrHadSubordinate <http://testing.fr/cubicweb/authorityrecord/P243#agent> ;
-    rico:isOrWasDescribedBy <http://testing.fr/cubicweb/authorityrecord/C123> ;
-    rico:isOrWasSubordinateTo <http://testing.fr/cubicweb/authorityrecord/P123#agent> ;
+    rico:hasOrHadSubordinate <https://testing.cubicweb/authorityrecord/P243#agent> ;
+    rico:isOrWasDescribedBy <https://testing.cubicweb/authorityrecord/C123> ;
+    rico:isOrWasSubordinateTo <https://testing.cubicweb/authorityrecord/P123#agent> ;
     rico:name "Entreprise",
         "Entreprise Corp", "PouletCorp";
     rdfs:label "Entreprise Corp" .

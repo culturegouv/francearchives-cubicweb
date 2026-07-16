@@ -36,12 +36,13 @@ from PIL import Image
 import unittest
 
 from cubicweb import Binary
-from cubicweb.devtools import testlib
+from cubicweb_web.devtools.testlib import WebCWTC
+
 from cubicweb_francearchives.cssimages import static_css_dir, HERO_SIZES
 from cubicweb_francearchives.testutils import S3BfssStorageTestMixin
 
 
-class ImageTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
+class ImageTests(S3BfssStorageTestMixin, WebCWTC):
     def setup_database(self):
         self.static_dir = static_css_dir(self.config.static_directory)
 

@@ -1,13 +1,35 @@
-<div class="rdf-download-container">
-  <div class="dropdown rdf-download">
-    <button class="white-button" type="button" id="rdfDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-      {{_("Download RDF")}}
-      <i id="rdf-logo"></i>
-    </button>
-    <ul class="dropdown-menu" aria-labelledby="rdfDropdown">
-      {% for url, name in rdf_formats %}
-        <li><a class="dropdown-item" href="{{url}}">{{name}}</a></li>
-      {% endfor %}
-    </ul>
-  </div>
+{% macro rdf_download_button(entity, rdf_formats, lang, _) %}
+<div class="fr-dropdown dropdown fr-mb-8v">
+  <button class="fr-dropdown__btn fr-btn fr-btn--tertiary" aria-controls="rdfswitch" aria-expanded="false">
+    {{ _("Download RDF") }}
+  </button>
+  <div class="fr-collapse fr-dropdown__menu fr-menu" id="rdfswitch">
+      <ul class="fr-menu__list">
+        {% for url, extension, name in rdf_formats %}
+        <li>
+          <a id="download-rdf-{{ extension}}-{{ entity.eid}}"
+             class="fr-dropdown__item fr-link--download {%- if eulerian %} eulerian-button{% endif -%}"
+             download="{{ entity.rest_path().replace('/', '_') }}_rdf.{{ extension }}"
+             data-fr-assess-file="bytes"
+             {% if lang != "fr" -%}
+             hreflang="fr"
+             {% endif -%}
+             href="{{ url }}"
+             {%- if eulerian %}
+             title="{{ _("Donwload in format") }}{{ _(":") }}{{ name }}"
+             data-eulerian-actionname = "download_rdf_{{ heading_hierarchy }}"
+             data-eulerian-actionlabel = "download_rdf,{{ eulerian.page_type }},{{ eulerian.type_doc }},{{ eulerian.document_title }}_rdf,{{ eulerian.service_code }}"
+             data-eulerian-headinghierarchy="{{ heading_hierarchy }}"
+             data-eulerian-componenthierarchy="main_>_section_>_list_>_link"
+             data-eulerian-componentlabel="{{ eulerian.document_title }}"
+             {% endif -%}
+          >
+            {{ name }}
+            <span class="fr-link__detail">{{ name }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+   </div>
 </div>
+{%endmacro%}

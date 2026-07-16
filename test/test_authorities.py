@@ -74,6 +74,32 @@ class GroupAuthoritiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
             ]
             self.assertEqual(locations[0], self.location_label)
 
+    def test_ungroup_geongname(self):
+        """
+        Triyng: Ungroup an index
+        Expecting: authority_history table is updated
+        """
+        with self.admin_access.cnx() as cnx:
+            fc_rql = "Any X WHERE X is FAComponent, X did D, D unitid %(u)s"
+            self.import_filepath(cnx, "ir_data/FRAD054_0000000407.xml")
+            fc = cnx.execute(fc_rql, {"u": "31 Fi 47-185"}).one()
+            location = [ie.authority[0] for ie in fc.reverse_index if ie.cw_etype == "Geogname"][0]
+            self.assertEqual(location.label, self.location_label)
+            self.assertCountEqual([], get_authority_history(cnx))
+            geogname = location.reverse_authority[0]
+            locs = set([eid for eid, in cnx.find("LocationAuthority")])
+            # ungroup the Geogname
+            geogname.new_authority()
+            cnx.commit()
+            # the newly created LocationAuthority
+            loc_eid = list(set([eid for eid, in cnx.find("LocationAuthority")]) - locs)[0]
+            self.assertCountEqual(
+                [
+                    (fc.finding_aid[0].stable_id, "geogname", geogname.label, "index", loc_eid),
+                ],
+                get_authority_history(cnx),
+            )
+
     def group_locations(self, cnx, loc1, loc2):
         expected_count = len(loc1.reverse_authority) + len(loc2.reverse_authority)
         loc1.group([loc2.eid])
@@ -186,9 +212,8 @@ class GroupAuthoritiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
                     {
                         "authfilenumber": None,
                         "authority": main_auth.eid,
+                        "authtype": "SubjectAuthority",
                         "label": "Léningrad",
-                        "normalized": "leningrad",
-                        "role": "index",
                         "type": "subject",
                     }
                 ],
@@ -201,8 +226,7 @@ class GroupAuthoritiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
                         "authfilenumber": None,
                         "authority": main_auth.eid,
                         "label": "Léningrad",
-                        "normalized": "leningrad",
-                        "role": "index",
+                        "authtype": "SubjectAuthority",
                         "type": "subject",
                     }
                 ],
@@ -238,8 +262,7 @@ class GroupAuthoritiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
                         "authfilenumber": None,
                         "authority": main_auth.eid,
                         "label": "Léningrad",
-                        "normalized": "leningrad",
-                        "role": "index",
+                        "authtype": "SubjectAuthority",
                         "type": "subject",
                     }
                 ],
@@ -251,9 +274,8 @@ class GroupAuthoritiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
                     {
                         "authfilenumber": None,
                         "authority": main_auth.eid,
+                        "authtype": "SubjectAuthority",
                         "label": "Léningrad",
-                        "normalized": "leningrad",
-                        "role": "index",
                         "type": "subject",
                     }
                 ],

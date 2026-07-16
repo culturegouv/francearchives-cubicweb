@@ -1,8 +1,8 @@
 {
   "@context": {
-    "schema": "http://schema.org/"
+    "schema": "https://schema.org/"
   },
-  "@id": "http://testing.fr/cubicweb/service/{{eid}}",
+  "@id": "https://testing.cubicweb/service/{{eid}}",
   "@type": "schema:ArchiveOrganization",
   "schema:address":{
     "@type": "schema:PostalAddress",
@@ -16,7 +16,7 @@
   "schema:legalName": "s1",
   "schema:openingHours": "op-period",
   "schema:subOrganization": {
-    "@id": "http://testing.fr/cubicweb/service/{{eidSub}}"
+    "@id": "https://testing.cubicweb/service/{{eidSub}}"
   },
   "schema:telephone": "s1-phone",
   "schema:url": "http://www.s1.fr"

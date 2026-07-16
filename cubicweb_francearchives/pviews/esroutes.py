@@ -90,9 +90,9 @@ def suggest_view(request):
         build_url_kwargs["es_escategory"] = es_categories
 
     for cw_etype in ("AgentAuthority", "LocationAuthority", "SubjectAuthority"):
-        search = Search(
-            doc_type="_doc", extra={"size": 15}, index="{}_suggest".format(cwconfig["index-name"])
-        ).sort("-count")
+        search = Search(extra={"size": 15}, index="{}_suggest".format(cwconfig["index-name"])).sort(
+            "-count"
+        )
         must = [
             {"match": {"text": {"query": query_string, "operator": "and"}}},
             # do not show authorities without related documents
@@ -174,6 +174,14 @@ if FEATURE_SPARQL:
         view = viewsreg.select("sparql-yasgui", cwreq, rset=None)
         return Response(viewsreg.main_template(cwreq, "main-template", rset=None, view=view))
 
+    @view_config(route_name="sparnatural", request_method=("GET", "HEAD"))
+    def sparql_sparnatural(request):
+        cwreq = request.cw_request
+        cwreq.form.setdefault("vid", "sparnatural")
+        viewsreg = cwreq.vreg["views"]
+        view = viewsreg.select("sparnatural", cwreq, rset=None)
+        return Response(viewsreg.main_template(cwreq, "main-template", rset=None, view=view))
+
 
 def json_config(**settings):
     """Wraps view_config for JSON rendering."""
@@ -209,7 +217,7 @@ if FEATURE_ADVANCED_SEARCH:
                     )
                 )
             try:
-                return es.search(index=index, body=request.json_body)
+                return es.search(index=index, body=request.json_body).body
             except Exception as err:
                 cwreq.error("[advanced seach] %s" % err)
                 raise JSONBadRequest(jsonapi_error(status=501, details=err))
@@ -230,4 +238,5 @@ def includeme(config):
         config.add_route("advanced_search", r"/advanced_search/{index}")
     if FEATURE_SPARQL:
         config.add_route("sparql-yasgui", "/sparql")
+        config.add_route("sparnatural", "/requeteurnaturel")
     config.scan(__name__)

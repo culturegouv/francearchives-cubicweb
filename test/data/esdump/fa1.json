@@ -1,0 +1,31 @@
+{
+    "acquisition_info": "acquisition_info",
+    "alltext": "description titleproper abstract note",
+    "cw_etype": "FindingAid",
+    "dates": {"gte": 1234, "lte": 1245},
+    "did": {"unitid": "unitid", "unittitle": "unittitle"},
+    "eadid": "FRAD084_xxx",
+    "eid": {{eid}},
+    "escategory": "archives",
+    "fa_stable_id": "FA1",
+    "digitized": true,
+    "digitized_all": ["digitized", "digitized-iiif"],
+    "index_entries": [
+        {"authfilenumber": null, "authority": {{originator}},
+         "label": "originators", "type":"corpname", "authtype":"AgentAuthority"},
+        {"authfilenumber": null, "authority": {{loutre}},
+         "label": "loutre", "type":"subject", "authtype":"SubjectAuthority"}
+    ],
+    "scopecontent": "scopecontent",
+    "service": {
+        "code": "FRAD084",
+        "eid": {{service_eid}},
+        "level": "{{service_level}}",
+        "title": "AD Vaucluse"
+    },
+    "sortdate": "1234-01-01",
+    "stable_id": "FA1",
+    "startyear": 1234,
+    "stopyear": 1245,
+    "originators": ["Originators"]
+}

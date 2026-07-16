@@ -49,11 +49,17 @@ class PolibTests(BaseTestCase):
         self.assertEqual("auteurfr", po_dicts["fr"][("", "NominaRecord")].msgstr)
         self.assertEqual("auteurfr", po_dicts["en"][("", "NominaRecord")].msgstr)
         self.assertEqual("auteurde", po_dicts["de"][("", "NominaRecord")].msgstr)
+        self.assertEqual("nameservfr", po_dicts["fr"][("Service", "name")].msgstr)
         self.assertEqual("nameservde", po_dicts["de"][("Service", "name")].msgstr)
+        self.assertEqual("Aide à la recherche", po_dicts["fr"][("", "SearchHelp")].msgstr)
+        self.assertEqual("SearchHelp", po_dicts["en"][("", "SearchHelp")].msgstr)
+        self.assertEqual("Suchhilfe", po_dicts["de"][("", "SearchHelp")].msgstr)
+        self.assertEqual("Ayuda para la búsqueda", po_dicts["es"][("", "SearchHelp")].msgstr)
         self.assertEqual("namesecten", po_dicts["en"][("Section", "name")].msgstr)
         self.assertEqual("Article", po_dicts["fr"][("", "BaseContent")].msgstr)
         self.assertEqual("Content", po_dicts["en"][("", "BaseContent")].msgstr)
-        self.assertEqual("Article", po_dicts["de"][("", "BaseContent")].msgstr)
+        self.assertEqual("Artikel", po_dicts["de"][("", "BaseContent")].msgstr)
+        self.assertEqual("Artículo", po_dicts["es"][("", "BaseContent")].msgstr)
 
     def test_schema_msgid_filtered(self):
         po_files = i18n.all_pofiles()

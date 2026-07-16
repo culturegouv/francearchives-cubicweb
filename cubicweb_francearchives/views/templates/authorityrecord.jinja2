@@ -1,78 +1,87 @@
-{% from "./mixins.jinja2" import index_values, sharelinks, content_metadata -%}
-<section id="document" class="authorityrecord-view finding-document document-view">
-  <div class="page-main-content">
-    {%- block head -%}
-    <h1><span class="visually-hidden">{{ _(entity.__regid__) }} : </span>{{ entity.dc_title() }}</h1>
-    <div class="document__actions">
-      {{  sharelinks(sharelinks_data, _) }}
-    </div>
-    {%- endblock -%}
-    {%- block metadata -%}
-    {{ content_metadata(metadata, _) }}
-    {%- endblock -%}
-
-    {%- block subhead -%}
-    {%- endblock -%}
-
-    {%- set publisher_title = entity.publisher_title -%}
-    <div class="left-col">
-      <div class="main-properties {%if class %}{{ class }}{% endif %}">
-        {% for propname, value in main_props -%}
-        <div class="row indexes-values">
-          <div class="index-value-title"><h2 class="no-style">{{ propname }}</h2></div>
-          {% if value %}
-          <div class="index-value-text">{{ value }}</div>
-          {% endif %}
+{%- set heading_hierarchy = eulerian.document_title+"_>_auteur_de_notice" %}
+{% from "./mixins.jinja2" import document_values,  sharelinks, rdf_download_button -%}
+{%- set lang_attr='lang="{}"'.format(entity.lang) if entity.lang != lang else "" -%}
+<section class="fr-container fa-inventory">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fa-inventory-content fr-col-12 fr-col-lg-7 fr-col-offset-lg-1--right">
+      <div class="fa-inventory-content__title fr-mb-12v" {{ lang_attr }}>
+        <h1>{{ entity.dc_title() }}</h1>
+      </div>
+      <div class="fr-mb-8v fr-pt-6v fa-inventory-content__context">
+         {%- for label, values in metadata -%}
+         <div class="fr-grid-row fr-grid-row--gutters">
+          <h2 class="fr-col-md-4 fr-text--md fr-text--bold fr-my-0">{{ label.capitalize() }}</h2>
+          <div class="fr-col-md-8 fr-mb-2v">
+          {%- if not values | is_list %}
+            <p class="fr-mb-0" {{ lang_attr }}>{{ values }}</p>
+          {% else %}
+            {{ list(values, "fa-links--entity-props", lang_attr, _) }}
+          {%- endif -%}
+          </div>
         </div>
-        {% endfor -%}
+      {%- endfor -%}
+      </div>
+      <div class="fr-col-12 fr-mb-18v">
+        {{ document_values(main_props, lang_attr ) }}
       </div>
     </div>
-
-    <div class="clearfix"></div>
-    {% if faqs %}
-    {% from "./mixins.jinja2" import modalfaq %}
-    {{  modalfaq(faqs, _) }}
-    {% endif %}
+    <div id="eac-context-actions" class="fr-col-12 fr-col-lg-4">
+      <div class="fa-inventory-utils">
+        <div class="fa-inventory-utils__address">
+          {%- if publisher -%}
+          {% set publisher_title = entity.publisher_title %}
+          <h2 class="fr-h4">{{ _('Notice author ') }}</h2>
+          <p class="fr-text--lg" {{ lang_attr }}>{{ publisher.title | e }}</p>
+          <div class="fr-btns-group">
+            {% if publisher.site_url %}
+            <a href="{{ publisher.site_url }}"
+               class="eulerian-button fr-btn"
+               title="{{ publisher_title }} {{ _('- New window') }}"
+               data-eulerian-actionname="site_access_{{ heading_hierarchy | e }}"
+               data-eulerian-actionlabel="site_access,{{ eulerian.page_type }},{{ eulerian.type_doc }},voir_le_site_d_origine,{{ eulerian.service_code | e }}"
+               data-eulerian-headinghierarchy="{{ heading_hierarchy | e }}"
+               data-eulerian-componenthierarchy="main_>_section_>_link"
+               data-eulerian-componentlabel="voir_le_site_d_origine"
+               data-eulerian-componentvalue={{ publisher.site_url }}
+               target="_blank" rel="noopener noreferrer nofollow external" >{{ publisher.site_label | e }}
+            </a>
+            {% endif %}
+              {% if publisher.contact_url %}
+            <a class="fr-btn fr-btn--secondary"
+               href="{{ publisher.contact_url }}">{{ publisher.contact_label | e }}</a>
+            {% endif %}
+          </div>
+          {%- endif -%}
+        </div>
+        <div class="fa-inventory-utils__eac_downloads">
+          <a class="fr-link fr-link--download eulerian-button" href="{{ csv_props.url }}"
+             download="true"
+             {% if lang != "fr" -%}
+             hreflang="fr"
+             {% endif -%}
+             {% if csv_props.target_blank %}
+             target="_blank" rel="noopener noreferrer nofollow"
+             {% endif %}
+             {% if csv_props.title %}
+             title="{{ csv_props.title | e }}"
+             {% endif %}
+             data-eulerian-actionname="download_csv_{{ heading_hierarchy | e }}"
+             data-eulerian-actionlabel="download_csv,{{ eulerian.page_type }},{{ eulerian.type_doc }},{{ eulerian.document_title | e }}_csv,{{ eulerian.service_code | e }}"
+             data-eulerian-headinghierarchy="{{ heading_hierarchy | e }}"
+             data-eulerian-componenthierarchy="main_>_section_>_button"
+             data-eulerian-componentlabel="{{ eulerian.document_title | e }}"
+          >
+            {{ csv_props.link }}
+            <span class="fr-link__detail">CSV – {{ _('approximately') }} {{  csv_props.size }}</span>
+          </a>
+          <div class="fr-col-12 fr-col-sm-8 fr-col-md-12 fr-pt-4v">
+           {{ rdf_download_button(entity, rdf_formats, lang, _) }}
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="ir-right-sidebar right-col">
-    {%- if publisher -%}
-    <div class="ir-location">
-      <div class="ir-location__header">
-        <h2>{{ _('Notice author ') }}{{_(':')}}</h2>
-        <p class="publisher-title">{{ publisher.title }}</p>
-      </div>
-      <div class="ir-location__buttons">
-        {% if publisher.site_url %}
-        <a href="{{ publisher.site_url }}"
-           title="{{ publisher_title }} {{ _('- New window') }}"
-           {% if publisher.xiti %}
-           data-xiti-level="C"
-           data-xiti-type="{{ publisher.xiti.type }}"
-           data-xiti-name="{{ publisher.xiti.access_site}}"
-           data-xiti-n2="{{ publisher.xiti.n2}}"
-           {% endif %}
-           target="_blank" rel="noopener noreferrer nofollow" >{{ publisher.site_label }}
-          <i class="fa fa-external-link" aria-hidden="true"></i>
-        </a>
-        {% endif %}
-        {% if publisher.contact_url %}
-        <a class="service-url-button white-button" href="{{ publisher.contact_url }}">{{ publisher.contact_label }}</a>
-        {% endif %}
-      </div>
-      {%- endif -%}
-      <div class="ir-location__buttons">
-        <a class="csv-download-button white-button" href="{{ csv_props.url | e }}"
-           {% if csv_props.target_blank %}
-           target="_blank" rel="noopener noreferrer nofollow"
-           {% endif %}
-           {% if csv_props.title %}
-           title="{{ csv_props.title }}"
-           {% endif %}
-        >
-          {{ csv_props.link }}
-        </a>
-        {% include "rdf-download-button.jinja2"%}
-      </div>
-    </div>
+  <div class="fr-pt-8v">
+    {{ sharelinks(sharelinks_data, eulerian.document_title, "main_>_section_>_links", _) }}
   </div>
 </section>

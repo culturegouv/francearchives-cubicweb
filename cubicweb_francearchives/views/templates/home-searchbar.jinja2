@@ -1,0 +1,34 @@
+{% from "./mixins.jinja2" import searchbar -%}
+<div id="homepage__header" class="{% if is_nomina %}fr-background-action-high--green-emeraude{% else %}fr-background-action-high--blue-france{% endif %}">
+  <div id="hero-images">
+    <div class="hero-images--item hero-images--item__visible">
+      <img class="hero-images--image hero-images--image__lowres"
+           src="{{ heroimage.hero_src }}" alt=""
+           data-highres-xl="{{ heroimage.hero_xl_src }}"
+           data-highres-lg="{{ heroimage.hero_lg_src }}"
+           data-highres-md="{{ heroimage.hero_md_src }}"
+           data-highres-sm="{{ heroimage.hero_sm_src }}"
+           data-highres-xs="{{ heroimage.hero_xs_src }}"
+           aria-hidden="true"
+      >
+      <div class="homepage__header-banner">
+        <div class="fr-container">
+          <h1 class="homepage__header-banner--moto homepage__header-banner--moto-{{ lang }}">{{ homepage_title }}</h1>
+          {% if mission_link %}
+          {% set label = picklabel(mission_link.labels, lang) %}
+          <a class="homepage__header-banner--link"
+             href="{{ mission_link.url | format(base_url=base_url+'/')}}">{{ label }}
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if is_nomina %}
+    {%- include "nomina-searchbar.jinja2" -%}
+  {% else %}
+    {%- include "main-searchbar.jinja2" -%}
+  {% endif %}
+</div>
+
+

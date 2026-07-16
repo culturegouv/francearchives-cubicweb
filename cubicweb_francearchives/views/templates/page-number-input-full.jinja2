@@ -1,0 +1,19 @@
+
+    <form id="page-number-input-form-full" class ="fa-page-number-input-form" novalidate action="{{ page_number_form_action }}">
+        {% for name, values in page_number_params.items() %}
+          {% for value in values %}
+            <input type="hidden" name="{{ name |e}}" value="{{ value | escape }}" >
+          {% endfor %}
+        {% endfor %}
+        <div class="fr-input-group" id="page-number-error-group-full">
+          <label class="fr-label fa-inline fr-text--sm fr-m-0" for="page-number-input-full">{{ _('Go to page')}}{{_(":")}}</label>
+          <input id="page-number-input-full" type="number" class="fr-input fa-page-number-input fr-mb-1w" name="page" min="1" max="{{ number_of_pages }}" value="{{ current_page }}" title="{{ _("Page number")}}" aria-current="page">
+          <span class="fr-text--sm">{{ _('out_of') }} {{ number_of_pages }}</span>
+          <div id="page-number-message-full" class="fr-messages-group fr-hidden" aria-hidden="true" aria-live="polite">
+          <p class="fr-message fr-message--error" id="page-number--message-error-full">{{ _('page-number-error %s') % number_of_pages }}</p>
+          </div>
+        </div>
+        <div class="fr-btns-group">
+          <button class="fr-btn fa-page-number-input-button" type="submit">{{ _("Validate") }}</button>
+        </div>
+    </form>

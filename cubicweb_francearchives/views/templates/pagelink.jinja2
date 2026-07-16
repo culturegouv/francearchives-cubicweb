@@ -1,12 +1,15 @@
-<div class="pagelink">
-{% if page_link.link %}
-<a href="{{ page_link.link }}" title="{{ page_link.title }}"  rel="nofollow noopener">
+<li>
+{% if page_link.disabled  or page_link.current %}
+<a class="{{ page_link.class }}" title="{{ page_link.title }}" {%- if page_link.current %} aria-current="page"{% endif -%} {%- if page_link.disabled %}aria-disabled="true"{% endif -%}>
   {{ page_link.name }}
-  {% if page_link.hidden_label %}
-  <span class="visually-hidden">{{ page_link.hidden_label }}</span>
-  {% endif %}
 </a>
 {% else %}
-<span>{{ page_link.name }}</span>
+ {% if page_link.ellipsis %}
+  <span aria-hidden="true" class="{{ page_link.class }}">{{ page_link.name }} </span>
+ {% else %}
+  <a href="{{ page_link.link }}" class="{{ page_link.class }}" title="{{ page_link.title }}">
+    {{ page_link.name }}
+  </a>
+  {% endif %}
 {% endif %}
-</div>
+</li>

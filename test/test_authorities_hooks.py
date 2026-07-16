@@ -36,6 +36,7 @@ from cubicweb_francearchives.testutils import (
     EADImportMixin,
     create_findingaid,
 )
+from cubicweb_francearchives.entities.indexes import GroupAuthorityError
 from cubicweb_francearchives.hooks import AuthorityIntegrityError
 from cubicweb_francearchives.dataimport.oai_nomina import compute_nomina_stable_id
 
@@ -129,25 +130,11 @@ class AuthoritiesHookTests(PostgresTextMixin, EADImportMixin, CubicWebTC):
                 fa_index = fa.reverse_index[0]
                 self.assertEqual(fa_index.authority[0].eid, loc1.eid)
 
-    def test_grouped_authority_check_simple_cycle(self):
-        with self.admin_access.cnx() as cnx:
-            ce = cnx.create_entity
-            loc1 = ce("LocationAuthority", label="location 1")
-            loc2 = ce("LocationAuthority", label="location 2")
-            cnx.commit()
-            loc1.group((loc2.eid,))
-            cnx.commit()
-            loc1 = cnx.find("LocationAuthority", eid=loc1).one()
-            loc2 = cnx.find("LocationAuthority", eid=loc2).one()
-            self.assertEqual(loc1.eid, loc2.grouped_with[0].eid)
-            loc2.group((loc1.eid,))
-            cnx.commit()
-            loc1 = cnx.find("LocationAuthority", eid=loc1).one()
-            loc2 = cnx.find("LocationAuthority", eid=loc2).one()
-            self.assertEqual(loc2.eid, loc1.grouped_with[0].eid)
-            self.assertEqual((), loc2.grouped_with)
-
     def test_grouped_authority_check_pipeline(self):
+        """
+        Triyng: group an authority with an existing grouped authority."
+        Expecting: authorities cannot be grouped with a grouped authority.
+        """
         with self.admin_access.cnx() as cnx:
             ce = cnx.create_entity
             loc1 = ce("LocationAuthority", label="location 1")
@@ -170,37 +157,28 @@ class AuthoritiesHookTests(PostgresTextMixin, EADImportMixin, CubicWebTC):
             self.assertEqual(loc2.eid, loc1.grouped_with[0].eid)
             self.assertEqual((), loc2.grouped_with)
             self.assertEqual(loc2.eid, loc3.grouped_with[0].eid)
-            loc1.group((loc2.eid,))
-            cnx.commit()
-            loc1 = cnx.find("LocationAuthority", eid=loc1).one()
-            loc2 = cnx.find("LocationAuthority", eid=loc2).one()
-            loc3 = cnx.find("LocationAuthority", eid=loc3).one()
-            self.assertEqual(loc1.eid, loc2.grouped_with[0].eid)
-            self.assertEqual(loc1.eid, loc3.grouped_with[0].eid)
-            self.assertEqual((), loc1.grouped_with)
+            with self.assertRaises(GroupAuthorityError):
+                loc1.group((loc2.eid,))
+                cnx.commit()
 
-    def test_grouped_authority_check_inhertied(self):
+    def test_grouped_authority_check_simple_cycle_ko(self):
+        """
+        Triyng: group an authority with a grouped authority
+        Expecting: authorities can not be grouped with a grouped authority
+        """
         with self.admin_access.cnx() as cnx:
             ce = cnx.create_entity
             loc1 = ce("LocationAuthority", label="location 1")
             loc2 = ce("LocationAuthority", label="location 2")
-            loc3 = ce("LocationAuthority", label="location 3")
             cnx.commit()
-            loc2.group((loc3.eid,))
             loc1.group((loc2.eid,))
             cnx.commit()
             loc1 = cnx.find("LocationAuthority", eid=loc1).one()
             loc2 = cnx.find("LocationAuthority", eid=loc2).one()
-            loc3 = cnx.find("LocationAuthority", eid=loc3).one()
             self.assertEqual(loc1.eid, loc2.grouped_with[0].eid)
-            self.assertEqual(loc1.eid, loc3.grouped_with[0].eid)
-            loc2.group((loc1.eid,))
-            cnx.commit()
-            loc1 = cnx.find("LocationAuthority", eid=loc1).one()
-            loc2 = cnx.find("LocationAuthority", eid=loc2).one()
-            loc3 = cnx.find("LocationAuthority", eid=loc3).one()
-            self.assertEqual(loc2.eid, loc1.grouped_with[0].eid)
-            self.assertEqual(loc2.eid, loc3.grouped_with[0].eid)
+            with self.assertRaises(GroupAuthorityError):
+                loc2.group((loc1.eid,))
+                cnx.commit()
 
     def test_delete_non_orphan_authorities(self):
         """

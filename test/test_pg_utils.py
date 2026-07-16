@@ -31,17 +31,15 @@
 """cubicweb-francearcihves tests for postgres utils"""
 import string
 
-from cubicweb.devtools import testlib  # noqa
-from cubicweb.devtools import PostgresApptestConfiguration
+from cubicweb_web.devtools.testlib import WebCWTC
+
 from cubicweb_francearchives.dataimport import normalize_entry
 from cubicweb_francearchives.testutils import PostgresTextMixin
 
 from pgfixtures import setup_module, teardown_module  # noqa
 
 
-class SQLUtilsBaseTC(PostgresTextMixin, testlib.CubicWebTC):
-    configcls = PostgresApptestConfiguration
-
+class SQLUtilsBaseTC(PostgresTextMixin, WebCWTC):
     def test_normalize_entry_iso(self):
         """labels whose normalization is the same in Python and PostgreSQL"""
         with self.admin_access.cnx() as cnx:
@@ -122,7 +120,7 @@ class SQLUtilsBaseTC(PostgresTextMixin, testlib.CubicWebTC):
                 translation_of=basecontent,
             )
             cnx.commit()
-            query = "SELECT TRANSLATE_ENTITY(%(eid)s, %(attr)s, %(lang)s)"
+            query = "SELECT TRANSLATE_ENTITY(%(etype)s, %(eid)s, %(attr)s, %(lang)s)"
             for expected, attr, lang in (
                 ("Programme", "title", "fr"),
                 ("Program", "title", "en"),
@@ -132,6 +130,7 @@ class SQLUtilsBaseTC(PostgresTextMixin, testlib.CubicWebTC):
                 got = cnx.system_sql(
                     query,
                     {
+                        "etype": "BaseContent",
                         "eid": basecontent.eid,
                         "attr": attr,
                         "lang": lang,

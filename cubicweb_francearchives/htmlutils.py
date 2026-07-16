@@ -37,19 +37,31 @@ from cubicweb.uilib import REM_ROOT_HTML_TAGS, ALLOWED_TAGS
 # allow the style attribute
 SAFE_ATTRS = html.defs.safe_attrs | {
     "style",
+    "lang",
+    "hreflang",
     "frameborder",
     "allowfullscreen",
+    "aria-label",
+    "aria-labelledby",
     "aria-controls",
     "aria-expanded",
     "data-label-expand",
     "data-label-collapse",
+    "data-fr-opened",
+    "data-fr-js-collapse-button",
+    "data-fr-js-collapse",
+    "data-fr-js-modal",
+    "data-fr-js-modal-body",
+    "data-fr-js-modal-button",
+    "role",
 }
 
 CLEANER = clean.Cleaner(
-    allow_tags=ALLOWED_TAGS | {"iframe", "figure", "figcaption"},
+    allow_tags=ALLOWED_TAGS | {"iframe", "figure", "figcaption", "button"},
     remove_unknown_tags=False,
     safe_attrs=SAFE_ATTRS,
     add_nofollow=False,
+    forms=False,
     embedded=False,
 )
 

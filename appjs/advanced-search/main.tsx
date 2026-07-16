@@ -29,20 +29,23 @@
  */
 
 import React, {useEffect, useState} from 'react'
-import ReactDOM from 'react-dom'
+import {createRoot} from 'react-dom/client'
 
-import Button from 'react-bootstrap/Button'
-import {Checkbox} from './widgets'
+import {Checkbox} from '@codegouvfr/react-dsfr/Checkbox'
+
 import {TextOrAuthoritySearchBox} from './textOrAuthorityBox'
 import {useAdvancedSearch} from './useAdvancedSearch'
 import {ServicesBox} from './servicesBox'
 import {ProducerBox} from './producerBox'
 import {DatesBox} from './datesBox'
-import InputGroup from 'react-bootstrap/InputGroup'
+import {FormButtons} from './formButtons'
 import {translate as t} from '../translate'
+import {startReactDsfr} from '@codegouvfr/react-dsfr/spa'
+startReactDsfr({defaultColorScheme: 'light'})
 
 function AdvancedSearch() {
     const [loading, setLoading] = useState(true)
+    const [canSubmit, setCanSubmit] = useState(true)
     const {
         archivesRef,
         toggleArchivesRef,
@@ -82,6 +85,8 @@ function AdvancedSearch() {
         setClearServicesNow,
         clearProducersNow,
         setClearProducersNow,
+        canReset,
+        setCanReset,
     } = useAdvancedSearch()
 
     useEffect(() => {
@@ -93,121 +98,123 @@ function AdvancedSearch() {
         return <span>Loading....</span>
     }
     return (
-        <>
+        <div className="fr-container">
             <h1>{t('Advanced search')}</h1>
-            <div className="fluid-container">
-                <div className="float-end">
-                    <Button
-                        variant="as-send"
-                        onClick={launchSearch}
-                        type="submit"
-                    >
-                        {t('Launch the search')}
-                    </Button>
-                    <Button onClick={() => resetValues()} variant="as-refresh">
-                        <i className="fa fa-refresh"></i>
-                        {t('Reset search')}
-                    </Button>
-                </div>
-                <div className="clearfix" />
-                <div className="as-field mt-5">
-                    <h2>{t('Type of resources')}</h2>
-                    <InputGroup className="mb-3">
-                        <Checkbox
-                            label={t('Referenced archives')}
-                            value={archivesRef}
-                            toggleFunction={() => {
-                                toggleArchivesRef()
-                                resetValues(false)
-                            }}
-                        />
-                        <Checkbox
-                            label={t('Site contents')}
-                            value={ressourcesSite}
-                            toggleFunction={() => {
-                                toggleRessourcesSite()
-                                resetValues(false)
-                            }}
-                        />{' '}
-                    </InputGroup>
-                </div>
-                <div className="as-field">
-                    <TextOrAuthoritySearchBox
-                        archivesRef={archivesRef}
-                        ressourcesSite={ressourcesSite}
-                        searches={searches}
-                        addSearch={addSearch}
-                        updateSearch={updateSearch}
-                        operators={operators}
-                        updateOperator={updateOperator}
-                        searchTypes={searchTypes}
-                        updateSearchType={updateSearchType}
-                        labels={authoritiesLabels}
-                        endpoint={'advanced_search/suggest'}
-                        removeSearch={removeSearch}
-                    />
-                </div>
-                <div className="as-field">
-                    <ServicesBox
-                        searches={services}
-                        labels={servicesLabels}
-                        addSearch={addService}
-                        updateSearch={updateService}
-                        operator={serviceOperator}
-                        setOperator={setServiceOperator}
-                        endpoint={'advanced_search/services'}
-                        clearNow={clearServicesNow}
-                        setClearNow={setClearServicesNow}
-                        removeService={removeService}
-                        archivesRef={archivesRef}
-                        ressourcesSite={ressourcesSite}
-                    />
-                </div>
-                {archivesRef ? (
-                    <div className="as-field">
-                        <ProducerBox
-                            searches={producers}
-                            addSearch={addProducer}
-                            updateSearch={updateProducer}
-                            operators={producerOperators}
-                            updateOperator={updateProducerOperator}
-                            updateType={updateProducerType}
-                            endpoint={'advanced_search/all'}
-                            clearNow={clearProducersNow}
-                            setClearNow={setClearProducersNow}
-                            removeSearch={removeProducer}
-                        />
-                    </div>
-                ) : (
-                    <></>
-                )}
-                <div className="as-field mb-4">
-                    <DatesBox
-                        minDate={minDate}
-                        setMinDate={setMinDate}
-                        maxDate={maxDate}
-                        setMaxDate={setMaxDate}
-                    />
-                </div>
-
-                <div className="float-end">
-                    <Button
-                        variant="as-send"
-                        onClick={launchSearch}
-                        type="submit"
-                    >
-                        {t('Launch the search')}
-                    </Button>
-                    <Button onClick={() => resetValues()} variant="as-refresh">
-                        <i className="fa fa-refresh"></i>
-                        {t('Reset search')}
-                    </Button>
-                </div>
-                <div className="clearfix" />
+            <div className="fr-mb-5w">
+                <FormButtons
+                    canSubmit={canSubmit}
+                    canReset={canReset}
+                    launchSearch={launchSearch}
+                    resetValues={resetValues}
+                />
             </div>
-        </>
+            <div className="as-field as-field--sources">
+                <Checkbox
+                    legend={<h2 className="fr-h5">{t('Type of resources')}</h2>}
+                    orientation="horizontal"
+                    options={[
+                        {
+                            hintText: t('archives_search_info'),
+                            label: t('Referenced archives'),
+                            nativeInputProps: {
+                                name: 'as-scop',
+                                checked: archivesRef,
+                                onChange: () => {
+                                    toggleArchivesRef()
+                                    resetValues(false)
+                                },
+                            },
+                        },
+                        {
+                            hintText: t('siteres_search_info'),
+                            label: t('Site contents'),
+                            nativeInputProps: {
+                                name: 'as-scop',
+                                checked: ressourcesSite,
+                                onChange: () => {
+                                    toggleRessourcesSite()
+                                    resetValues(false)
+                                },
+                            },
+                        },
+                    ]}
+                />
+            </div>
+            <div className="as-field text-or-authority">
+                <TextOrAuthoritySearchBox
+                    archivesRef={archivesRef}
+                    ressourcesSite={ressourcesSite}
+                    searches={searches}
+                    addSearch={addSearch}
+                    updateSearch={updateSearch}
+                    operators={operators}
+                    updateOperator={updateOperator}
+                    searchTypes={searchTypes}
+                    updateSearchType={updateSearchType}
+                    labels={authoritiesLabels}
+                    endpoint={'advanced_search/suggest'}
+                    removeSearch={removeSearch}
+                    setCanReset={setCanReset}
+                />
+            </div>
+            <div className="as-field">
+                <ServicesBox
+                    searches={services}
+                    labels={servicesLabels}
+                    addSearch={addService}
+                    updateSearch={updateService}
+                    operator={serviceOperator}
+                    setOperator={setServiceOperator}
+                    endpoint={'advanced_search/services'}
+                    clearNow={clearServicesNow}
+                    setClearNow={setClearServicesNow}
+                    removeService={removeService}
+                    archivesRef={archivesRef}
+                    ressourcesSite={ressourcesSite}
+                    setCanReset={setCanReset}
+                />
+            </div>
+            {archivesRef ? (
+                <div className="as-field">
+                    <ProducerBox
+                        searches={producers}
+                        addSearch={addProducer}
+                        updateSearch={updateProducer}
+                        operators={producerOperators}
+                        updateOperator={updateProducerOperator}
+                        updateType={updateProducerType}
+                        endpoint={'advanced_search/all'}
+                        clearNow={clearProducersNow}
+                        setClearNow={setClearProducersNow}
+                        removeSearch={removeProducer}
+                        setCanReset={setCanReset}
+                    />
+                </div>
+            ) : (
+                <></>
+            )}
+            <div className="as-field">
+                <DatesBox
+                    minDate={minDate}
+                    setMinDate={setMinDate}
+                    maxDate={maxDate}
+                    setMaxDate={setMaxDate}
+                    setCanReset={setCanReset}
+                    onStateChange={(valid) => {
+                        setCanSubmit(valid)
+                    }}
+                />
+            </div>
+            <div className="fr-mt-5w">
+                <FormButtons
+                    canSubmit={canSubmit}
+                    canReset={canReset}
+                    launchSearch={launchSearch}
+                    resetValues={resetValues}
+                />
+            </div>
+        </div>
     )
 }
-
-const root = document.getElementById('advanced-search')
-ReactDOM.render(<AdvancedSearch />, root)
+const root = createRoot(document.getElementById('advanced-search'))
+root.render(<AdvancedSearch />)

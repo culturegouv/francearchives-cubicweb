@@ -41,8 +41,35 @@ from cubicweb_elasticsearch.entities import IFullTextIndexSerializable
 
 from cubicweb_francearchives import NOMINA_INDEXABLE_ETYPES
 from cubicweb_francearchives.utils import remove_html_tags
+from cubicweb_francearchives.entities.nomina import MARIAGE_DOCTYPE
 
 SUGGEST_ETYPES = ("AgentAuthority", "LocationAuthority", "SubjectAuthority")
+
+
+class DZFacetValues:
+    dz = _("digitized")
+    nondz = _("non-digitized")
+    dz_noniiif = _("digitized-noniiif")
+    dz_iiif = _("digitized-iiif")
+
+    @classmethod
+    def dzitems(cls):
+        return {
+            "digitized-iiif": cls.dz_iiif,
+            "digitized-noniiif": cls.dz_noniiif,
+        }
+
+    @classmethod
+    def index_values(cls, digitized, iiif):
+        """
+        :param Bool digitized: value is digitized or not
+        :param Bool align: value is digitized in iiif or not iiif
+        """
+        if digitized:
+            if iiif:
+                return [cls.dz, cls.dz_iiif]
+            return [cls.dz, cls.dz_noniiif]
+        return cls.nondz
 
 
 class PniaIndexer(Indexer):
@@ -57,12 +84,20 @@ class PniaIndexer(Indexer):
                     "type": "asciifolding",
                     "preserve_original": True,
                 },
+                "french_stopwords": {
+                    "type": "stop",
+                    "stopwords": "_french_",
+                },
             },
             "analyzer": {
                 "default": {
                     "filter": ["my_ascii_folding", "lowercase", "elision"],
                     "tokenizer": "standard",
-                }
+                },
+                "french_stop_analyzer": {
+                    "tokenizer": "standard",
+                    "filter": ["lowercase", "my_ascii_folding", "elision", "french_stopwords"],
+                },
             },
         }
     }
@@ -71,16 +106,11 @@ class PniaIndexer(Indexer):
     @property
     def mapping(self):
         mapping = {
-            "dynamic_templates": [
-                {
-                    "concat_all_texts": {
-                        "match_mapping_type": "string",
-                        "unmatch": "alltext",
-                        "mapping": {"type": "text", "copy_to": "alltext"},
-                    }
-                }
-            ],
             "properties": {
+                # Default pnia data
+                "creation_date": {"type": "date"},
+                "modification_date": {"type": "date"},
+                "eid": {"type": "keyword"},
                 # implement implicity type behaviour of ES 2.x with
                 # an explicit "estype" field
                 "estype": {"type": "keyword"},
@@ -95,46 +125,71 @@ class PniaIndexer(Indexer):
                         # authority highlighting in the results
                         # However, we do not know  for sure how it is used in Kibana
                         # therefore we leave it as "type":"keyword" for now
-                        "label": {"type": "keyword", "copy_to": ["alltext"]},
-                        "normalized": {"type": "keyword"},
+                        "label": {
+                            "type": "keyword",
+                            "copy_to": ["alltext"],
+                            "fields": {"raw": {"type": "text"}},
+                        },
                         "type": {"type": "keyword"},
+                        "authority": {"type": "keyword"},
+                        "authtype": {"type": "keyword"},
+                        "authfilenumber": {"type": "keyword"},
                     },
                 },
-                "title_en": {"type": "text", "copy_to": "alltext_en"},
-                "title_es": {"type": "text", "copy_to": "alltext_en"},
-                "title_de": {"type": "text", "copy_to": "alltext_en"},
-                "subtitle_en": {"type": "text", "copy_to": "alltext_en"},
-                "subtitle_es": {"type": "text", "copy_to": "alltext_en"},
-                "subtitle_de": {"type": "text", "copy_to": "alltext_en"},
-                "content_en": {"type": "text", "copy_to": "alltext_en"},
-                "content_es": {"type": "text", "copy_to": "alltext_en"},
-                "content_de": {"type": "text", "copy_to": "alltext_en"},
-                "short_description_en": {
-                    "type": "text",
-                    "copy_to": "alltext_en",
-                },
-                "short_description_es": {
-                    "type": "text",
-                    "copy_to": "alltext_en",
-                },
-                "short_description_de": {
-                    "type": "text",
-                    "copy_to": "alltext_en",
-                },
+                "title": {"type": "text"},
+                "title_en": {"type": "text"},
+                "title_es": {"type": "text"},
+                "title_de": {"type": "text"},
                 "alltext": {"type": "text"},
                 "alltext_en": {"type": "text"},
                 "alltext_de": {"type": "text"},
                 "alltext_es": {"type": "text"},
                 "escategory": {"type": "keyword"},
+                "dates": {"type": "integer_range"},
                 "sortdate": {"type": "date", "format": "yyyy-MM-dd"},
+                "service": {
+                    "properties": {
+                        "eid": {"type": "keyword"},
+                        "code": {"type": "keyword"},
+                        "level": {"type": "keyword"},
+                        "title": {"type": "keyword"},
+                    }
+                },
+                "ancestors": {"type": "keyword"},
+                "is_published": {"type": "boolean"},  # 0 draft, 1 published
                 # FindingAid, FAComponent
+                "publisher": {"type": "keyword", "copy_to": "alltext"},
+                "digitized": {"type": "boolean"},  # TODO remove on the next reindexation
+                "digitized_all": {"type": "keyword"},
+                # e.g DZFacetValues values
                 "originators": {
                     "type": "keyword",
                     "copy_to": ["alltext"],
                     "fields": {"text": {"type": "text"}},
                 },
-                # FindingAid, FAComponent, ExternRef, BaseContent, AuthorityRecord
-                "publisher": {"type": "keyword", "copy_to": "alltext"},
+                "acquisition_info": {
+                    "type": "text",
+                    "copy_to": "alltext",
+                },
+                "eadid": {"type": "text", "copy_to": "alltext"},
+                "scopecontent": {
+                    "type": "text",
+                    "copy_to": "alltext",
+                },
+                "stable_id": {"type": "keyword"},
+                "fa_stable_id": {"type": "keyword"},
+                "did": {
+                    "properties": {
+                        "unitid": {
+                            "type": "text",
+                        },
+                        "unittitle": {
+                            "type": "text",
+                        },
+                    }
+                },
+                "startyear": {"type": "date", "format": "yyyy"},
+                "stopyear": {"type": "date", "format": "yyyy"},
                 # Circular
                 "status": {"type": "keyword", "copy_to": "alltext"},
                 "business_field": {"type": "keyword", "copy_to": "alltext"},
@@ -143,29 +198,15 @@ class PniaIndexer(Indexer):
                 "historical_context": {"type": "keyword", "copy_to": "alltext"},
                 "action": {"type": "keyword", "copy_to": "alltext"},
                 # Service
-                "level": {"type": "keyword"},
+                "level": {"type": "keyword", "copy_to": "alltext"},
+                "is_partner": {"type": "boolean"},
                 "sort_name": {"type": "keyword"},
-                # ExternRef
-                "reftype": {"type": "keyword"},
-                "in_state": {"type": "keyword"},
-                "creation_date": {"type": "date"},
-                # FindingAid, FAComponent
-                "dates": {"type": "integer_range"},
-                "startyear": {"type": "date", "format": "yyyy"},
-                "stopyear": {"type": "date", "format": "yyyy"},
-                "service": {
-                    "properties": {
-                        "eid": {"type": "integer"},
-                        "code": {"type": "keyword"},
-                        "level": {"type": "keyword"},
-                        "title": {"type": "keyword"},
-                    }
-                },
+                # AuthiorityRecord
+                "record_id": {"type": "keyword"},
                 # pdf content length may be > then 1000000 maximum allowed to be
                 # analyzed for highlighting.
-                "text": {
+                "text": {  # XXX à ajouter dans la liste des champs de requêtes
                     "type": "text",
-                    "copy_to": "alltext",
                     "term_vector": "with_positions_offsets",
                 },
             },
@@ -181,7 +222,7 @@ class PniaIndexer(Indexer):
         settings = Indexer.settings.copy()
         settings.update(
             {
-                "settings": self.analyser_settings,
+                "settings": {"index": self.analyser_settings},
                 "mappings": self.mapping,
             }
         )
@@ -197,10 +238,8 @@ class PniaIndexer(Indexer):
                 return
             # AuthorityRecord serializable.es_id is based on record_id attribute
             # which is not accessible after entity deletion
-            serializable = entity.cw_adapt_to(self.adapter)
             es_cnx.delete_by_query(
-                self.index_name,
-                doc_type=serializable.es_doc_type,
+                index=self.index_name,
                 body={"query": {"match": {"eid": entity.eid}}},
             )
 
@@ -215,7 +254,7 @@ class PniaSuggestIndexer(Indexer):
     analyser_settings = {
         "analysis": {
             "filter": {
-                "ngram_filter": {"type": "edgeNGram", "min_gram": 1, "max_gram": 20},
+                "ngram_filter": {"type": "edge_ngram", "min_gram": 1, "max_gram": 20},
                 "my_ascii_folding": {"preserve_original": True, "type": "asciifolding"},
                 "french_snowball": {"type": "snowball", "language": "French"},
             },
@@ -256,6 +295,15 @@ class PniaSuggestIndexer(Indexer):
             "label": {"type": "search_as_you_type", "max_shingle_size": 3},
             "quality": {"type": "boolean"},
             "letter": {"type": "keyword", "normalizer": "uppercase_norm"},
+            "same_as": {
+                "type": "nested",
+                "properties": {
+                    "label": {"type": "text"},
+                    "uri": {"type": "keyword"},
+                    "source": {"type": "keyword"},
+                },
+            },
+            "same_as_count": {"type": "integer"},
         }
     }
 
@@ -265,10 +313,15 @@ class PniaSuggestIndexer(Indexer):
 
     @property
     def settings(self):
-        return {"mappings": self.mapping_properties.copy(), "settings": self.analyser_settings}
+        return {
+            "mappings": self.mapping_properties.copy(),
+            "settings": {"index": self.analyser_settings},
+        }
 
 
 class PniaIFullTextIndexSerializable(IFullTextIndexSerializable):
+    main_attributes = ("cw_etype", "eid")
+
     def process_attributes(self):
         data = {}
         eschema = self.entity.e_schema
@@ -290,12 +343,19 @@ class TranslatableIndexSerializableMixin(object):
         eschema = translations[0].e_schema
         indexables = [attr.type for attr in eschema.indexable_attributes()]
         for lang, values in self.entity.translations(**kwargs).items():
+            content_fields = []
             for attribute, value in values.items():
                 if attribute not in indexables:
                     continue
-                if value and eschema.has_metadata(attribute, "format"):
+                if not value or not value.strip():
+                    continue
+                if eschema.has_metadata(attribute, "format"):
                     value = remove_html_tags(value)
-                data["{attr}_{lang}".format(attr=attribute, lang=lang)] = value
+                if attribute == "title":
+                    data[f"title_{lang}"] = value
+                else:
+                    content_fields.append(value)
+            data[f"alltext_{lang}"] = "\n".join(content_fields)
         return data
 
 
@@ -317,11 +377,14 @@ class ISuggestIndexSerializable(EntityAdapter):
     def es_id(self):
         return self.entity.eid
 
-    @property
-    def es_doc_type(self):
-        return "_doc"
+    def get_related_docs(self, published=False):
+        for key, queries in self.related_docs_queries(published=published).items():
+            yield self._cw.execute(
+                """Any F WITH F BEING ({queries})""".format(queries=" UNION ".join(queries)),
+                {"eid": self.entity.eid},
+            )
 
-    def related_docs_queries(self, published):
+    def related_docs_queries(self, published=False):
         """Get queries to compute the number of related
         documents.
 
@@ -394,6 +457,16 @@ class ISuggestIndexSerializable(EntityAdapter):
             entity.complete()
         etype = entity.cw_etype
         counts = self.related_docs_counts(published=published)
+        same_as_links = entity.same_as_links
+        external_uris = same_as_links.get("ExternalUri", [])
+        same_as_data = [
+            {
+                "label": ext_uri.label,
+                "uri": ext_uri.uri,
+                "source": ext_uri.source,
+            }
+            for ext_uri in external_uris
+        ]
         return {
             "cw_etype": etype,
             "eid": entity.eid,
@@ -411,6 +484,8 @@ class ISuggestIndexSerializable(EntityAdapter):
             "grouped": self.grouped,
             "quality": entity.quality,
             "letter": entity.es_start_letter,
+            "same_as": same_as_data,
+            "same_as_count": len(same_as_data),
         }
 
 
@@ -451,25 +526,128 @@ class PniaNominaIndexer(Indexer):
 
     mapping_properties = {
         "properties": {
-            "estype": {"type": "keyword"},
-            "cw_etype": {"type": "keyword"},
+            "act_date": {"type": "text"},
+            "act_number": {"type": "keyword"},
+            "act_type": {"type": "keyword"},
             "alltext": {"type": "text"},
-            "names": {
-                "type": "text",
-                "copy_to": "alltext",
+            "additional_info": {"type": "text", "copy_to": "alltext"},
+            "age": {"type": "text"},
+            "agent": {"type": "keyword"},  # related agent eid
+            "birth_date": {"type": "text"},
+            "birth_dates": {"type": "integer_range"},
+            "birth_place": {"type": "text", "copy_to": "alltext"},  # socface
+            "birth_commune": {"type": "text"},
+            "birth_department": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
             },
+            "birth_country": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
+            },
+            "civil_status": {"type": "keyword", "copy_to": "alltext"},
+            "cote": {"type": "keyword", "copy_to": "alltext"},
+            # "creation_date": {"type": "date"},
+            "death_date": {"type": "text"},
+            "death_dates": {"type": "integer_range"},
+            "death_commune": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
+            },
+            "death_department": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
+            },
+            "death_country": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
+            },
+            "doc_page_line_id": {"type": "keyword"},  # socface
+            "event_date": {"type": "text"},
+            "event_dates": {"type": "integer_range"},
+            "event_commune": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
+            },
+            "event_department": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
+            },
+            "event_country": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
+            },
+            "event_year": {"type": "integer"},  # todo : remove it
+            "id_arkindex": {"type": "keyword"},  # socface
+            "instruction": {"type": "keyword"},
             "forenames": {
                 "type": "text",
                 "copy_to": "alltext",
             },
-            "locations": {
+            "gender": {"type": "keyword"},
+            "employer": {"type": "text", "copy_to": "alltext"},  # socface
+            "historial_index": {
+                "type": "text",
+                "copy_to": "alltext",
+                "fields": {"text": {"type": "text"}},
+            },  # a list of keywords
+            "household_role": {"type": "text", "copy_to": "alltext"},  # or keyword ?
+            "household_id": {"type": "keyword"},  # socface
+            "mention_mpf": {"type": "keyword", "copy_to": "alltext"},
+            "modification_date": {"type": "date"},
+            "names": {
                 "type": "text",
                 "copy_to": "alltext",
             },
+            "nationality": {"type": "keyword", "copy_to": "alltext"},
+            "notice_id": {
+                "type": "keyword"
+            },  # only exists for csv imported data - + socface arkindex (?)
+            "oai_id": {
+                "type": "keyword"
+            },  # only exists for csv imported data - + socface arkindex (?)
+            "occupations": {"type": "text", "copy_to": "alltext"},
+            "occupations_index": {
+                "type": "keyword",
+                "copy_to": "alltext",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
+            },
+            "recruitment_date": {"type": "text"},
+            "recruitment_dates": {"type": "integer_range"},
+            "recruitment_commune": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},
+            },  # transorm in other place ?
+            "recruitment_department": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},
+            },
+            "recruitment_country": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
+            },
+            "residence_commune": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
+            },
+            "residence_department": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
+            },
+            "residence_country": {
+                "type": "keyword",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
+            },
             "service": {"type": "keyword"},
-            "acte_type": {"type": "keyword", "copy_to": "alltext"},
-            "dates": {"type": "integer_range"},
-            "authority": {"type": "keyword"},
+            "source_url": {"type": "keyword"},
+            "stable_id": {"type": "keyword"},
+            "subject": {
+                "type": "keyword",
+                "copy_to": "alltext",
+                "fields": {"text": {"type": "text"}},  # todo keep only text for autocomplete ?
+            },
+            "teklia_url": {"type": "keyword"},  # socface
+            "title": {"type": "text"},
         }
     }
 
@@ -479,19 +657,54 @@ class PniaNominaIndexer(Indexer):
 
     @property
     def settings(self):
-        return {"mappings": self.mapping_properties.copy(), "settings": self.analyser_settings}
+        return {
+            "mappings": self.mapping_properties.copy(),
+            "settings": {"index": self.analyser_settings},
+        }
 
     def es_delete(self, entity):
         es_cnx = self.get_connection()
         if es_cnx is None or not self.index_name:
             self.error("no connection to ES (not configured) skip ES deletion")
             return
+        if entity.act_type not in MARIAGE_DOCTYPE:
+            es_cnx.delete_by_query(
+                index=self.index_name,
+                body={"query": {"match": {"stable_id": entity.stable_id}}},
+            )
+        else:
+            # in case of marge a notice with a proper stable_id is generated for each member
+            es_cnx.delete_by_query(
+                index=self.index_name,
+                body={"query": {"match": {"household_id": entity.household_id}}},
+            )
+
+    @property
+    def es_id(self):
+        return self.entity.stable_id
+
+    def es_index(self, entity, params=None):
+        """Override to handle list of documents returned by serialize()
+
+        For marriage acts with multiple spouses, serialize() returns multiple documents.
+        Each document is indexed separately with its own stable_id.
+        """
+        es_cnx = self.get_connection()
+        if es_cnx is None or not self.index_name:
+            self.error("no connection to ES (not configured) skip ES indexing")
+            return
         serializable = entity.cw_adapt_to(self.adapter)
-        es_cnx.delete_by_query(
-            self.index_name,
-            doc_type=serializable.es_doc_type,
-            body={"query": {"match": {"eid": entity.eid}}},
-        )
+        json_data = serializable.serialize()
+        if not json_data:
+            return
+        # Handle list of documents (for marriage acts with multiple spouses)
+        for doc in json_data:
+            es_cnx.index(
+                index=self.index_name,
+                id=doc["stable_id"],
+                body=doc,
+                params=params,
+            )
 
 
 def registration_callback(vreg):

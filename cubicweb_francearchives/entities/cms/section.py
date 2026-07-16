@@ -34,27 +34,38 @@
 from cubicweb.entities import fetch_config
 from cubicweb.predicates import is_instance
 
-from cubicweb_francearchives.entities.cms import CmsObject, TranslatableCmsObject, TranslationMixin
+from cubicweb_francearchives.entities.cms import (
+    AlltextIFTIAdapterMixin,
+    CmsObject,
+    TranslatableCmsObject,
+    TranslationMixin,
+    CMSIFTIAdapterMixin,
+)
+
 from cubicweb_francearchives.entities.es import (
     TranslatableIndexSerializableMixin,
     PniaIFullTextIndexSerializable,
 )
 
 
-def get_children(cnx, section_eid):
+def get_children(cnx, section_eid, only_sections=False):
     children = []
+    if only_sections:
+        restriction = ", X is Section"
+    else:
+        restriction = ""
     rset = cnx.execute(
         "Any X, T ORDERBY O WHERE S is Section,"
         "X order O, "
-        "S eid %(eid)s, S children X, X title T",
-        {"eid": section_eid},
+        f"S eid %(eid)s, S children X, X title T {restriction}",
+        {"eid": section_eid, "r": restriction},
     )
     for child in rset.entities():
         infos = dict(
             title=child.title, etype=child.cw_etype, url=child.absolute_url(), children=None
         )
         if child.cw_etype == "Section":
-            infos["children"] = get_children(cnx, child.eid)
+            infos["children"] = get_children(cnx, child.eid, only_sections=only_sections)
         children.append(infos)
     return children
 
@@ -103,11 +114,16 @@ class SectionTranslation(TranslationMixin, CmsObject):
 
 
 class SectionIFullTextIndexSerializable(
-    TranslatableIndexSerializableMixin, PniaIFullTextIndexSerializable
+    CMSIFTIAdapterMixin,
+    TranslatableIndexSerializableMixin,
+    PniaIFullTextIndexSerializable,
+    AlltextIFTIAdapterMixin,
 ):
     __select__ = PniaIFullTextIndexSerializable.__select__ & is_instance("Section")
+    numeric_indexable = False
 
     def serialize(self, complete=True, **kwargs):
         data = super(SectionIFullTextIndexSerializable, self).serialize(complete)
         data.update(self.add_translations(complete=complete, **kwargs))
+        data.update({"alltext": self.alltext_values(data)})
         return data

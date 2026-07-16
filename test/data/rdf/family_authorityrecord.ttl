@@ -1,15 +1,15 @@
 @prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
 @prefix ricoform: <https://www.ica.org/standards/RiC/vocabularies/documentaryFormTypes#> .
 
-<http://testing.fr/cubicweb/agent/{{agent_eid}}> rico:isOrWasDescribedBy <http://testing.fr/cubicweb/authorityrecord/F123> .
+<https://testing.cubicweb/agent/{{agent_eid}}> rico:isOrWasDescribedBy <https://testing.cubicweb/authorityrecord/F123> .
 
-<http://testing.fr/cubicweb/authorityrecord/F123#inst> a rico:Instantiation ;
-    rico:hasOrHadHolder <http://testing.fr/cubicweb/service/{{service_eid}}> ;
+<https://testing.cubicweb/authorityrecord/F123#inst> a rico:Instantiation ;
+    rico:hasOrHadHolder <https://testing.cubicweb/service/{{service_eid}}> ;
     rico:identifier "F123" ;
-    rico:isInstantiationOf <http://testing.fr/cubicweb/authorityrecord/F123> .
+    rico:isInstantiationOf <https://testing.cubicweb/authorityrecord/F123> .
 
-<http://testing.fr/cubicweb/authorityrecord/F123> a rico:Record ;
-    rico:describesOrDescribed <http://testing.fr/cubicweb/agent/{{agent_eid}}> ;
-    rico:hasCreator <http://testing.fr/cubicweb/service/{{service_eid}}> ;
+<https://testing.cubicweb/authorityrecord/F123> a rico:Record ;
+    rico:describesOrDescribed <https://testing.cubicweb/agent/{{agent_eid}}> ;
+    rico:hasCreator <https://testing.cubicweb/service/{{service_eid}}> ;
     rico:hasDocumentaryForm ricoform:AuthorityRecord ;
-    rico:hasInstantiation <http://testing.fr/cubicweb/authorityrecord/F123#inst> .
+    rico:hasInstantiation <https://testing.cubicweb/authorityrecord/F123#inst> .

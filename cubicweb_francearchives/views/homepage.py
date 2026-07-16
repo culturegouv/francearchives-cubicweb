@@ -30,88 +30,125 @@
 #
 
 """pnia_content views/homepage views and components"""
+from random import randint
 
-from logilab.common.decorators import cachedproperty
+from cubicweb import _
 
-from cubicweb.web.component import CtxComponent
-from cubicweb.web.views.startup import IndexView
+from cubicweb_web.views.startup import IndexView
 
-from cubicweb_francearchives.views import JinjaViewMixin, format_number, get_template
 from cubicweb_francearchives.utils import (
     get_hp_articles,
-    number_of_archives,
-    number_of_qualified_authorities,
+    get_key_figures,
+    get_key_figures_card,
 )
-
-
-class HomePageAbstractComponent(CtxComponent):
-    __abstract__ = True
-    context = "homepage"
-
-
-class OnHomePageComponent(JinjaViewMixin, HomePageAbstractComponent):
-    __regid__ = "onhomepage"
-    template = get_template("onhomepage.jinja2")
-    order = 1
-
-    def call_template(self, w, **ctx):
-        w(self.template.render(**ctx))
-
-    def render(self, w):
-        req = self._cw
-        return self.call_template(
-            w,
-            _=req._,
-            entities=get_hp_articles(req, "onhp_hp"),
-            default_picto_src=self._cw.uiprops["DOCUMENT_IMG"],
-        )
-
-
-class HomePageBottomLinks(JinjaViewMixin, HomePageAbstractComponent):
-    __regid__ = "homepage-bottom-links"
-    template = get_template("bottom-links.jinja2")
-    order = 2
-
-    def call_template(self, w, **ctx):
-        w(self.template.render(**ctx))
-
-    def render(self, w):
-        req = self._cw
-        archives = format_number(number_of_archives(req), req)
-        agents = format_number(number_of_qualified_authorities(req, "AgentAuthority"), req)
-        subjects = format_number(number_of_qualified_authorities(req, "SubjectAuthority"), req)
-        locations = format_number(number_of_qualified_authorities(req, "LocationAuthority"), req)
-        return self.call_template(
-            w,
-            req=req,
-            homepage=True,
-            archives_label=req._("See {} archives").format(archives),
-            subjects_label=req._("{} Subjects").format(subjects),
-            agents_label=req._("{} Agents").format(agents),
-            locations_label=req._("{} Locations").format(locations),
-        )
 
 
 class PniaIndexView(IndexView):
     needs_css = ()
+    eulerian_tag = True
+    eulerian_pagegroup = "home"
+    editable = False
+    homepage_title = _("Discover 15 centuries of archives")
+    card_prefix = "hp_focus_"
+    page_option = "onhp_hp"
 
-    @cachedproperty
-    def xiti_chapters(self):
-        return ["Home"]
+    def heroimage_desc(self):
+        res = self._cw.execute(
+            "Any I, N WHERE  X is CssImage, "
+            'X cssid LIKE "hero-%%", X cssid I, '
+            "X cssimage_of S, S name N"
+        ).rows
+        build_url = self._cw.build_url
+        if res:
+            hcls, section_name = res[randint(0, len(res) - 1)]
+        else:
+            hcls, section_name = "", ""
+        return {
+            "hero_src": build_url("static/css/hero-{}-lr.jpg".format(section_name)),
+            "hero_xl_src": build_url("static/css/hero-{}-xl.jpg".format(section_name)),
+            "hero_lg_src": build_url("static/css/hero-{}-lg.jpg".format(section_name)),
+            "hero_md_src": build_url("static/css/hero-{}-md.jpg".format(section_name)),
+            "hero_sm_src": build_url("static/css/hero-{}-sm.jpg".format(section_name)),
+            "hero_xs_src": build_url("static/css/hero-{}-xs.jpg".format(section_name)),
+            "hero_class": hcls,
+        }
+
+    @property
+    def icons(self):
+        return {
+            "hp_focus_archives": "document/document.svg",
+            "hp_focus_subjects": "leisure/book.svg",
+            "hp_focus_locations": "map/map.svg",
+        }
+
+    def focus(self):
+        entities = []
+        rset = self._cw.execute(
+            f"Any X,XW,XT,XC,XCF,XS WHERE X is Card, "
+            f"X wikiid XW, X title XT, X content XC, X content_format XCF, "
+            f"X synopsis XS, X wikiid ILIKE '{self.card_prefix}_%'"
+        )
+        candidates_wikiids = []
+        cards = {e.wikiid: e for e in rset.entities()}
+        lang = self._cw.lang
+        for wikiid in self.icons:
+            card = cards.get(f"{wikiid}-fr")
+            if lang != "fr":
+                card = cards.get(f"{wikiid}-{lang}", card)
+            if card:
+                candidates_wikiids.append(card)
+        for entity in candidates_wikiids:
+            entities.append(
+                {
+                    "url": self._cw.build_url(f"card/{entity.wikiid}"),
+                    "title": entity.title,
+                    "content": entity.content,
+                    "link_title": entity.title,
+                    "icon": self.icons[entity.wikiid.split("-")[0]],
+                    "lang_attr": 'lang="fr"' if lang != entity.lang else "",
+                }
+            )
+        return entities
 
     def template_context(self):
         req = self._cw
         meta = req.vreg["adapters"].select("IMeta", req, homepage=True)
         og = req.vreg["adapters"].select("IOpenGraph", req, homepage=True)
-        return {"open_graph": og.og_data(), "meta": meta.meta_data()}
+        context = {
+            "req": req,
+            "open_graph": og.og_data(),
+            "meta": meta.meta_data(),
+            "entities": get_hp_articles(req, self.page_option),
+            "figures": get_key_figures(req),
+            "heroimage": self.heroimage_desc(),
+            "focus": self.focus(),
+            "editable": self.editable,
+            "homepage_title": req._(self.homepage_title),
+        }
+        context.update(get_key_figures_card(req))
+        return context
 
     def call(self):
-        self._cw.add_css(self.needs_css)
-        comps = self._cw.vreg["ctxcomponents"].poss_visible_objects(
-            self._cw, context="homepage", rset=self.cw_rset
-        )
-        for comp in comps:
-            comp.render(w=self.w)
+        pass
+
+
+class PniaNominaIndexView(PniaIndexView):
+    __regid__ = "nomina-home"
+    homepage_title = _("Perform a nominative search")
+    card_prefix = "no_focus_"
+    page_option = "onhp_nhp"
+
+    @property
+    def is_nomina(self):
+        return True
+
+    @property
+    def icons(self):
+        return {
+            "no_focus_census": "buildings/city-hall.svg",
+            "no_focus_military_register": "institutions/gendarmerie.svg",
+            "no_focus_civilstatus": "document/national-identity-card.svg",
+        }
 
 
 def registration_callback(vreg):

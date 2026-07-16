@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2016-12-12T10:03:53Z</responseDate>
+  <request verb="ListRecords" metadataPrefix="ead">http://portail.cg51.mnesys.fr/oai_pmh.cgi</request>
+  <ListRecords>
+    <record>
+
+      <header status="deleted">
+        <identifier>86869/a011349628476eWWr7u</identifier>
+        <datestamp>2011-06-24</datestamp>
+      </header>
+    </record>
+    <record>
+      <header status="deleted">
+        <identifier>86869/a011349628476eWWr7b</identifier>
+        <datestamp>2011-06-24</datestamp>
+      </header>
+    </record>
+  </ListRecords>
+</OAI-PMH>

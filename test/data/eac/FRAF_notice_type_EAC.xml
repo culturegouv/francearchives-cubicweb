@@ -134,7 +134,7 @@
          </languagesUsed>
          <localDescriptions>
             <localDescription
-               localType="https://francearchives.fr/fr/location/18294577">
+               localType="https://francearchives.gouv.fr/fr/location/18294577">
                <term
                   vocabularySource="http://....fr/eac-cpf/
                   localType/nationalité#French"
@@ -145,7 +145,7 @@
                   >France</placeEntry>
             </localDescription>
             <localDescription
-               localType="https://francearchives.fr/fr/location/18294577">
+               localType="https://francearchives.gouv.fr/fr/location/18294577">
                <term
                   vocabularySource="http://....fr/eac-cpf/localType/
                   citoyenneté#French"
@@ -156,7 +156,7 @@
                   >France</placeEntry>
             </localDescription>
             <localDescription
-               localType="https://francearchives.fr/fr/location/18294577">
+               localType="https://francearchives.gouv.fr/fr/location/18294577">
                <term
                   vocabularySource="http://....fr/eac-cpf/localType/
                   citoyenneté#Brazil"
@@ -358,7 +358,7 @@
       </description>
       <relations>
          <cpfRelation xmlns:xlink="http://www.w3.org/1999/xlink"
-            cpfRelationType="hierarchical-child" xlink:href="FRAN_NP_005155" xlink:type="simple" xml:base="https://francearchives.fr/fr/location/18294577">
+            cpfRelationType="hierarchical-child" xlink:href="FRAN_NP_005155" xlink:type="simple" xml:base="https://francearchives.gouv.fr/fr/location/18294577">
             <relationEntry>France. Ministère de la Culture et de la Communication. Direction du
             patrimoine. Sous-direction de l'archéologie (1979-1998)</relationEntry>
 	    <placeEntry altitude="1000m" latitude="2" longitude="47">

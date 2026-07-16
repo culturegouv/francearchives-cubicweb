@@ -33,9 +33,8 @@ import datetime as dt
 import base64
 
 from cubicweb import Binary
-from cubicweb.devtools import PostgresApptestConfiguration
 
-from cubicweb.pyramid.test import PyramidCWTest
+from cubicweb_web.devtools.testlib import PyramidWebCWTC
 
 from cubicweb_francearchives.pviews.edit import load_json_value
 from cubicweb_francearchives.testutils import S3BfssStorageTestMixin, PostgresTextMixin
@@ -57,7 +56,7 @@ class BasicTests(unittest.TestCase):
 
 class EditRoutesMixin(object):
     settings = {
-        "cubicweb.bwcompat": "no",
+        "cubicweb.includes": ["cubicweb.pyramid.auth", "cubicweb.pyramid.session"],
         "cubicweb.session.secret": "stuff",
         "cubicweb.auth.authtkt.session.secret": "stuff",
         "cubicweb.auth.authtkt.persistent.secret": "stuff",
@@ -68,9 +67,7 @@ class EditRoutesMixin(object):
         config.include("cubicweb_francearchives.pviews.edit")
 
 
-class NewsTests(PostgresTextMixin, S3BfssStorageTestMixin, EditRoutesMixin, PyramidCWTest):
-    configcls = PostgresApptestConfiguration
-
+class NewsTests(PostgresTextMixin, S3BfssStorageTestMixin, EditRoutesMixin, PyramidWebCWTC):
     def test_newscontent_creation(self):
         content = '<h1 style="border: 1px solid red; padding-bottom: 1em">Hello</h1>'
         self.webapp.put_json(
@@ -386,7 +383,7 @@ class NewsTests(PostgresTextMixin, S3BfssStorageTestMixin, EditRoutesMixin, Pyra
                 "Circular",
                 circ_id="circ1",
                 status="revoked",
-                title="circ1"
+                title="circ1",
                 # XXX ajout business_field initial
             )
             uuid = circular.uuid
@@ -636,7 +633,7 @@ class NewsTests(PostgresTextMixin, S3BfssStorageTestMixin, EditRoutesMixin, Pyra
             self.assertEqual(article.reverse_children[0].uuid, "123456")
 
 
-class MoveTests(EditRoutesMixin, PyramidCWTest):
+class MoveTests(PostgresTextMixin, EditRoutesMixin, PyramidWebCWTC):
     def test_move_entity(self):
         with self.admin_access.cnx() as cnx:
             article = cnx.create_entity("BaseContent", title="the-object")
@@ -674,9 +671,7 @@ class MoveTests(EditRoutesMixin, PyramidCWTest):
             self.assertEqual(article.reverse_children[0].name, "sect-1")
 
 
-class DeleteTests(PostgresTextMixin, S3BfssStorageTestMixin, EditRoutesMixin, PyramidCWTest):
-    configcls = PostgresApptestConfiguration
-
+class DeleteTests(PostgresTextMixin, S3BfssStorageTestMixin, EditRoutesMixin, PyramidWebCWTC):
     def test_delete_newscontent(self):
         with self.admin_access.cnx() as cnx:
             fobj = cnx.create_entity(

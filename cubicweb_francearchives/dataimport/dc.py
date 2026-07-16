@@ -38,7 +38,7 @@ import logging
 from cubicweb.utils import json_dumps
 from cubicweb.dataimport.stores import RQLObjectStore
 
-from cubicweb_francearchives import init_bfss
+from cubicweb_francearchives import init_bfss, IIIF_MANIFEST_ROLE
 from cubicweb_francearchives.dataimport import (
     clean_row_dc_csv,
     strip_html,
@@ -50,7 +50,6 @@ from cubicweb_francearchives.dataimport import (
     load_metadata_file,
     sqlutil,
     es_bulk_index,
-    remove_extension,
     log_in_db,
     service_infos_from_filepath,
     load_services_map,
@@ -67,6 +66,8 @@ from cubicweb_francearchives.dataimport.scripts.generate_ape_ead import (
     generate_ape_ead_from_other_sources,
 )
 from cubicweb_francearchives.dataimport.sqlutil import ead_foreign_key_tables
+from cubicweb_francearchives.entities.es import DZFacetValues
+from cubicweb_francearchives.utils import is_absolute_url
 
 LOGGER = logging.getLogger()
 CSV_METADATA_CACHE = {}
@@ -80,9 +81,10 @@ def parse_dc_csv(read_func, fpath, fieldnames, log):
         # clean file fieldnames
         # remove possible whitespaces in header names
         dcreader.fieldnames = [f.strip() for f in dcreader.fieldnames]
-        if len(dcreader.fieldnames) < len(fieldnames):
+        mandatory_fields = [field for field, mandatory in fieldnames if mandatory]
+        if len(dcreader.fieldnames) < len(mandatory_fields):
             log.error(
-                f"""Abort importing {fpath}: only found {len(dcreader.fieldnames)} fieldnames {", ".join(['"%s"' % f for f in  dcreader.fieldnames])} while {len(fieldnames)} expected. Please, check fields delimiter which must be ','"""  # noqa
+                f"""Abort importing {fpath}: only found {len(dcreader.fieldnames)} fieldnames {", ".join(['"%s"' % f for f in  dcreader.fieldnames])} while {len(mandatory_fields)} expected. Please, check fields delimiter which must be ','"""  # noqa
             )
             return rows
         for row in dcreader:
@@ -100,7 +102,7 @@ def csv_metadata_without_cache(filepath, metadata_filepath=None):
     - dont use the cache"""
     filename = osp.basename(filepath)
     if not metadata_filepath:
-        return default_csv_metadata(remove_extension(filename))
+        return default_csv_metadata(filename)
     st = S3BfssStorageMixIn()
     metadata_filepath = st.storage_get_metadata_file(metadata_filepath)
     return load_metadata_file(st.storage_read_file, metadata_filepath, csv_filename=filename)[
@@ -115,10 +117,11 @@ def csv_metadata_from_cache(filepath, metadata_filepath=None):
     """
     st = S3BfssStorageMixIn()
     if metadata_filepath:
-        metadata_filepath = st.storage_get_metadata_file(metadata_filepath)
         return load_metadata_file(st.storage_read_file, metadata_filepath)[osp.basename(filepath)]
-    # try to find a metadata from the filepath
-    metadata_file = st.storage_get_metadata_file(filepath)
+    # if metadata_filepath is None, try to find a metadata stored in the same
+    # directory as filepath
+    directory = osp.dirname(filepath)
+    metadata_file = osp.join(directory, "metadata.csv")
     all_metadata = {}
     if metadata_file is None:
         LOGGER.warning(f"{metadata_file} file is missing")
@@ -129,34 +132,35 @@ def csv_metadata_from_cache(filepath, metadata_filepath=None):
         all_metadata = CSV_METADATA_CACHE[metadata_file]
     filename = osp.basename(filepath)
     if filename not in all_metadata:
-        LOGGER.info(f"using dummy metadata for {filename}")
-        return default_csv_metadata(remove_extension(filename))
+        LOGGER.info("using dummy metadata for %s", filename)
+        return default_csv_metadata(filename)
     return all_metadata[filename]
 
 
 class CSVReader(Reader):
     """expected columns for FAComoponents are:"""
 
-    fieldnames = [
-        "identifiant_cote",
-        "titre",
-        "origine",
-        "date1",
-        "date2",
-        "description",
-        "type",
-        "format",
-        "index_matiere",
-        "index_lieu",
-        "index_personne",
-        "index_collectivite",
-        "langue",
-        "conditions_acces",
-        "conditions_utilisation",
-        "source_complementaire",
-        "identifiant_URI",
-        "source_image",
-    ]
+    fieldnames = (
+        ("identifiant_cote", True),
+        ("titre", True),
+        ("origine", True),
+        ("date1", True),
+        ("date2", True),
+        ("description", True),
+        ("type", True),
+        ("format", True),
+        ("index_matiere", True),
+        ("index_lieu", True),
+        ("index_personne", True),
+        ("index_collectivite", True),
+        ("langue", True),
+        ("conditions_acces", True),
+        ("conditions_utilisation", True),
+        ("source_complementaire", True),
+        ("identifiant_URI", True),
+        ("source_image", True),
+        ("cote_complete", False),  # optional
+    )
 
     def cleaned_rows(self, filepath):
         """check rows/files integrity"""
@@ -206,13 +210,12 @@ class CSVReader(Reader):
                 self.log.warning(" ".join(errors))
         return res
 
-    def import_filepath(self, services_map, filepath, metadata_filepath=None):
+    def import_filepath(self, service_infos, filepath, metadata_filepath=None, **kwargs):
         # check csv file data are valid
         cleaned_csv_data = self.cleaned_rows(filepath)
         if not cleaned_csv_data:
             self.log.error(f"{filepath}: no data to import.")
             return []
-        service_infos = service_infos_from_filepath(filepath, services_map)
         self._stable_id_map = None
         fa_support = self.create_file(filepath)
         if fa_support is None:
@@ -244,7 +247,9 @@ class CSVReader(Reader):
 
     def import_facomponent(self, entry, findingaid_data, order, service_infos):
         fa_stable_id = findingaid_data["stable_id"]
-        cote = entry["identifiant_cote"]
+        stable_id_component = entry["identifiant_cote"]
+        cote = entry.get("cote_complete", stable_id_component)
+        originator = entry.get("origine")
         did_attrs = {
             "unitid": cote,
             "unittitle": entry["titre"],
@@ -253,14 +258,14 @@ class CSVReader(Reader):
             "stopyear": get_year(entry.get("date2")),
             "physdesc": self.richstring_html(entry.get("format"), "physdesc"),
             "physdesc_format": "text/html",
-            "origination": entry.get("origine"),
+            "origination": originator,
             "lang_description": self.richstring_html(entry.get("langue"), "language"),
             "lang_description_format": "text/html",
         }
         did_data = self.create_entity("Did", clean_values(did_attrs))
         comp_attrs = {
             "finding_aid": findingaid_data["eid"],
-            "stable_id": component_stable_id_for_dc(cote, fa_stable_id),
+            "stable_id": component_stable_id_for_dc(stable_id_component, fa_stable_id),
             "did": did_data["eid"],
             "scopecontent": self.richstring_html(entry.get("description"), "scopecontent"),
             "scopecontent_format": "text/html",
@@ -278,32 +283,49 @@ class CSVReader(Reader):
         comp_data = self.create_entity("FAComponent", clean_values(comp_attrs))
         comp_eid = comp_data["eid"]
         # add daos
-        daodef = self.digitized_version(entry)
-        if daodef:
+        daodefs = self.digitized_versions(entry)
+        for daodef in daodefs:
             digit_ver_attrs = self.create_entity("DigitizedVersion", clean_values(daodef))
             self.add_rel(comp_eid, "digitized_versions", digit_ver_attrs["eid"])
-
+        iiif = bool([d for d in daodefs if d.get("role") == IIIF_MANIFEST_ROLE])
         es_doc = self.build_complete_es_doc(
             "FAComponent",
             comp_data,
             did_data,
-            name=findingaid_data["name"],
             fa_stable_id=findingaid_data["stable_id"],
-            publisher=findingaid_data["publisher"],
             scopecontent=strip_html(comp_attrs.get("scopecontent")),
             index_entries=self.index_entries(entry, comp_eid, findingaid_data),
-            digitized=bool(daodef),
+            digitized=bool(daodefs),
+            digitized_all=DZFacetValues.index_values(digitized=bool(daodefs), iiif=iiif),
+            originators=[originator] if originator else None,
             **service_infos_for_es_doc(self.store._cnx, service_infos),
         )
         self.create_entity("EsDocument", {"doc": json_dumps(es_doc["_source"]), "entity": comp_eid})
         return es_doc
 
-    def digitized_version(self, entry):
+    def digitized_versions(self, entry):
+        daos = []
         identifiant_uri = entry.get("identifiant_uri")
+        if not self.is_dao_url_valid(identifiant_uri):
+            LOGGER.error(
+                "do not import import dao with url length %s: %r",
+                len(identifiant_uri),
+                identifiant_uri,
+            )
+            identifiant_uri = None
+        if identifiant_uri and not is_absolute_url(identifiant_uri):
+            identifiant_uri = None
         source_image = entry.get("source_image")
-        if any((identifiant_uri, source_image)):
-            return {"url": identifiant_uri, "illustration_url": source_image}
-        return {}
+        if not self.is_dao_url_valid(source_image):
+            LOGGER.error(
+                "do not import import dao with url length %s: %r", len(source_image), source_image
+            )
+            source_image = None
+        if source_image:
+            daos.append({"illustration_url": source_image, "url": None, "role": "thumbnail"})
+        if identifiant_uri:
+            daos.append({"url": identifiant_uri, "illustration_url": None, "role": None})
+        return daos
 
 
 def import_filepaths(cnx, config, filepaths, metadata_filepath=None):
@@ -336,6 +358,7 @@ def csv_import_filepath(cnx, config, filepath, metadata_filepath=None):
     CSV file"""
 
     services_map = load_services_map(cnx)
+    service_infos = service_infos_from_filepath(filepath, services_map)
     # bfss should be initialized to enable `FSPATH` in rql
     init_bfss(cnx.repo)
     if not config["esonly"]:
@@ -346,7 +369,7 @@ def csv_import_filepath(cnx, config, filepath, metadata_filepath=None):
     reader = readercls(config, store)
     es_docs = []
     try:
-        es_docs = reader.import_filepath(services_map, filepath, metadata_filepath)
+        es_docs = reader.import_filepath(service_infos, filepath, metadata_filepath)
     except Exception as exc:
         import traceback
 
@@ -361,4 +384,4 @@ def csv_import_filepath(cnx, config, filepath, metadata_filepath=None):
     if es_docs and not config["noes"]:
         indexer = cnx.vreg["es"].select("indexer", cnx)
         es = indexer.get_connection()
-        es_bulk_index(es, es_docs)
+        es_bulk_index(es, es_docs, logger=LOGGER)

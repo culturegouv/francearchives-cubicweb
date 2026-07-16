@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ead xmlns="urn:isbn:1-931666-22-9"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<eadheader>
+<eadid url="https://earchives.gard.fr/document/FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE">FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE</eadid>
+<filedesc>
+<titlestmt>
+<titleproper>Bureau d'enregistrement de Bagnols-sur-Cèze (1791-2000)</titleproper>
+<author>sous la direction de Pascale Bugat</author>
+</titlestmt>
+<publicationstmt>
+<publisher>Archives départementales du Gard</publisher>
+<address>
+<addressline>Nimes</addressline>
+</address>
+<date>2021</date>
+</publicationstmt>
+</filedesc>
+<profiledesc>
+<creation>Instrument de recherche produit au moyen du logiciel Arkhéïa Aide au classement de la société Anaphore sarl, version 9.4.6 du <date calendar="gregorian" era="ce" normal="2024-01-26">vendredi 26 janvier 2024</date>. 
+Date de l'export : <date calendar="gregorian" era="ce" normal="2024-02-29">jeudi 29 février 2024</date> (17:34 h)</creation>
+<langusage>Instrument de recherche rédigé en <language langcode="fre" scriptcode="Latn">français</language>
+</langusage>
+</profiledesc>
+</eadheader>
+<archdesc level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unitid label="Cotes extrêmes">7 Q 1/1-167 ; 7 Q 2/1-102 ; 7 Q 3/1-63 ; 7 Q 4/1-20 ; 7 Q 5/1-16 ; 7 Q 6/1-7 ; 7 Q 7/1-8 ; 7 Q 8/1-6 ; 7 Q 9/1-2 ; 7 Q 10/1-10 ; 7 Q 11/1-16 ; 7 Q 12/1 ; 7 Q 13/1 ; 7 Q 14/1 ; 7 Q 15/1 ; 7 Q 16/1-39 ; 1209 W/1-1065 ; 1607 W/18-199 ; 1830 W/1-72</unitid>
+<unittitle label="Intitulé">Bureau d'enregistrement de Bagnols-sur-Cèze (1791-2000)</unittitle>
+<unitdate label="Dates extrêmes" normal="1791/2000">1791-2000</unitdate>
+<physdesc label="Description physique">
+<extent type="unités description" label="Nombre d'unités de niveau bas">993</extent>
+<physfacet type="support" label="Support">Papier</physfacet>
+</physdesc>
+<repository label="Où consulter les documents ?">Archives départementales du Gard</repository>
+</did>
+<accessrestrict>
+<head>Statut juridique</head>
+<legalstatus>Archives publiques</legalstatus>
+</accessrestrict>
+<accessrestrict>
+<head>Communicabilité</head>
+<p>Selon les dispositions prévues pour les archives publiques par le Code du Patrimoine (art. L 213-1 à 8)</p>
+</accessrestrict>
+<controlaccess>
+<head>Descripteurs</head>
+<subject>enregistrement</subject>
+<name role="producteur">Gard. Direction de l'enregistrement</name>
+<name role="producteur">France. Bureau de l'enregistrement (Bagnols-sur-Cèze, Gard)</name>
+</controlaccess>
+<dsc type="othertype">
+<c id="FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE_tt1-1">
+<did>
+<unitid>
+<extptr xlink:type="simple" xlink:href="https://earchives.gard.fr/document/FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE#tt1-1"/>
+</unitid>
+<unittitle type="titre" label="Intitulé">Tables et fiches décès</unittitle>
+<unitdate label="Dates extrêmes" normal="1793/1991">an II-1991</unitdate>
+</did>
+<c id="FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE_tt2-2">
+<did>
+<unitid>
+<extptr xlink:type="simple" xlink:href="https://earchives.gard.fr/document/FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE#tt2-2"/>
+</unitid>
+<unittitle type="titre" label="Intitulé">Acquéreurs</unittitle>
+<unitdate label="Dates extrêmes" normal="1798/1865">an VII-1865</unitdate>
+</did>
+<c id="FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE_de-1">
+<did>
+<unitid label="Cotes extrêmes">7 Q 13/1<extptr xlink:type="simple" xlink:href="https://earchives.gard.fr/document/FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE#de-1"/>
+</unitid>
+
+<unittitle label="Intitulé">Table des partages</unittitle>
+<unitdate label="Dates extrêmes" normal="1814/1824">1814-1824</unitdate>
+<physdesc label="Description physique">
+<physfacet type="forme" label="Registre">Oui</physfacet>
+</physdesc>
+</did>
+<daogrp xlink:type="extended">
+<daoloc xlink:type="locator" xlink:href="https://v-earchives.gard.fr/series/FRAD030_ENREGISTREMENT/BAGNOLS_SUR_CEZE/FRAD030_07Q13_001?s=FRAD030_07Q13_001_002.jpg&amp;e=FRAD030_07Q13_001_048.jpg"/>
+<daoloc xlink:type="locator" xlink:href="https://earchives.gard.fr/api/image/FRAD030_ENREGISTREMENT/BAGNOLS_SUR_CEZE/FRAD030_07Q13_001/FRAD030_07Q13_001_002.jpg" xlink:role="thumbnail"/>
+</daogrp>
+<controlaccess>
+<head>Descripteurs</head>
+<subject>succession</subject>
+</controlaccess>
+</c>
+<c id="FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE_de-2">
+<did>
+<unitid label="Cotes extrêmes">7 Q 14/1<extptr xlink:type="simple" xlink:href="https://earchives.gard.fr/document/FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE#de-2"/>
+</unitid>
+
+<unittitle label="Intitulé">Table des copartageants</unittitle>
+<unitdate label="Dates extrêmes" normal="1814/1824">1814-1824</unitdate>
+<physdesc label="Description physique">
+<physfacet type="forme" label="Registre">Oui</physfacet>
+</physdesc>
+</did>
+<daogrp xlink:type="extended">
+<daoloc xlink:type="locator" xlink:href="https://v-earchives.gard.fr/series/FRAD030_ENREGISTREMENT/BAGNOLS_SUR_CEZE/FRAD030_07Q14_001?s=FRAD030_07Q14_001_002.jpg&amp;e=FRAD030_07Q14_001_045.jpg"/>
+<daoloc xlink:type="locator" xlink:href="https://earchives.gard.fr/api/image/FRAD030_ENREGISTREMENT/BAGNOLS_SUR_CEZE/FRAD030_07Q14_001/FRAD030_07Q14_001_002.jpg" xlink:role="thumbnail"/>
+</daogrp>
+<controlaccess>
+<head>Descripteurs</head>
+<subject>succession</subject>
+</controlaccess>
+</c>
+<c id="FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE_de-992">
+<did>
+<unitid label="Cotes extrêmes">1209 W 279<extptr xlink:type="simple" xlink:href="https://earchives.gard.fr/document/FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE#de-992"/>
+</unitid>
+
+<unittitle label="Intitulé">Du 19 septembre 1953 au 23 décembre 1955</unittitle>
+<unitdate label="Dates extrêmes" normal="1953/1955">1953-1955</unitdate>
+<physdesc label="Description physique">
+<physfacet type="forme" label="Registre">Oui</physfacet>
+</physdesc>
+</did>
+</c>
+</c>
+</c>
+<c id="FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE_de-993">
+<did>
+<unitid label="Cotes extrêmes">7 Q 15/1<extptr xlink:type="simple" xlink:href="https://earchives.gard.fr/document/FRAD030_ENREGISTREMENT_BAGNOLS_SUR_CEZE#de-993"/>
+</unitid>
+
+<unittitle label="Intitulé">Recettes et sommiers : sommier des droits de bail à recouvrer</unittitle>
+<unitdate label="Dates extrêmes" normal="1874/1917">1874-1917</unitdate>
+<physdesc label="Description physique">
+<physfacet type="forme" label="Registre">Oui</physfacet>
+</physdesc>
+</did>
+</c>
+</dsc>
+</archdesc>
+</ead>

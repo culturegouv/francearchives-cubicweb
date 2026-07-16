@@ -1,0 +1,37 @@
+
+{% macro fuzzy_alert(fuzzy_extra_link, no_results, _) %}
+<p>
+  {%- if not no_results -%}
+  <i class="fr-icon-error-warning-line fr-link--icon-left fa-blue" aria-hidden="true"></i>
+  {%- endif -%}
+  {{ fuzzy_extra_link.pretext}}
+  {%- if fuzzy_extra_link.text -%}
+  <a href="{{ fuzzy_extra_link.href }}">
+    {{ fuzzy_extra_link.text }}
+  </a>
+  {%- endif -%}
+  {% if fuzzy_extra_link.posttext %}
+  {{ fuzzy_extra_link.posttext}}
+  {% endif %}
+ </p>
+{% endmacro %}
+
+{% macro info_alert(text, no_results) %}
+<p>
+  {%- if not no_results -%}
+  <i class="fr-icon-error-warning-line fr-link--icon-left fa-blue" aria-hidden="true"></i>
+  {%- endif -%}
+  {{ text }}
+</p>
+{% endmacro %}
+
+{% macro error_alert(error) %}
+<div class="fr-alert fr-alert--warning">
+    <h2 class="fr-alert__title">{{ error["title"] }}</h2>
+    <p>{{ error["text"] }}</p>
+</div>
+{% endmacro %}
+
+{% macro quality_badge(header, _) %}
+  <span class="fr-badge fr-text--sm">{{_("quality authority")}}</span>
+{% endmacro %}

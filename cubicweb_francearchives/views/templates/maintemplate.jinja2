@@ -1,193 +1,38 @@
 <!doctype html>
-
-<html lang="{{ lang }}">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-    <meta name="language" content="{{ lang }}" />
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ data_url }}icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="{{ data_url }}icons/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="{{ data_url }}icons/favicon-16x16.png" sizes="16x16">
-    <link rel="manifest" href="{{ data_url }}icons/manifest.json">
-    <link rel="mask-icon" href="{{ data_url }}icons/safari-pinned-tab.svg">
-    <link rel="shortcut icon" href="{{ data_url }}icons/favicon.ico">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <meta name="msapplication-config" content="{{ data_url }}icons/browserconfig.xml">
-    <meta name="theme-color" content="#ffffff">
-    {% for attr, value in meta %}
-    <meta name="{{ attr }}" content="{{ value|e }}" />
-    {% endfor %}
-    {% for attr, value in open_graph %}
-    <meta property="og:{{ attr }}" content="{{ value|e }}" />
-    {% endfor %}
-    <title>{{ title }}</title>
-    <script>
-     {% for varname, value in js_vars %}
-     var {{ varname }} = {{ value }};
-      {% endfor %}
-    </script>
-    {% for css in cssfiles %}
-    <link rel="stylesheet" href="{{ css }}" type="text/css" media="all" />
-    {% endfor %}
-    {% if jsonld_graph %}
-      <script type="application/ld+json">
-       {{ jsonld_graph }}
-      </script>
-      {% endif %}
-      <script>
-       window.addEventListener('error', function(evt) {
-           if (evt.target.dataset !== undefined && evt.target.dataset.defaultsrc !== undefined) {
-               var defaultsrc = evt.target.dataset.defaultsrc.split(';');
-               if (defaultsrc.length > 1) {
-                   evt.target.setAttribute('src', defaultsrc[0]);
-                   evt.target.dataset.defaultsrc = defaultsrc.slice(1, defaultsrc.length).join(';');
-               }
-               else if (defaultsrc.length == 1) {
-                   evt.target.setAttribute('src', defaultsrc[0]);
-               }
-           }
-       }, true);
-      </script>
-
-  </head>
-  <body>
-    <nav class="skippy visually-hidden-focusable overflow-hidden"
-         aria-label="{{ _('quick access links') }}">
-      <ul>
-        <li>
-          <a href="#page" class="p-1 m-1">{{ _('Skip to content') }}</a>
-        </li>
-        <li>
-          <a href="#main-menu" class="p-1 m-1">{{ _('Skip to menu') }}</a>
-        </li>
-      </ul>
-    </nav>
-    {% block adminpanel %}
-    {% endblock %}
-    <header class="navbar-pnia d-print-none">
-      <section id="foreground-navtools">
-        <section class="centered-navtools">
-          <div class="row navtools">
-            <div class="col-xs-12 col-lg-6" id="logo-container">
-              <a class="link_republiquefrancaise" href="{{ base_url }}" tabindex="-1" aria-hidden="true">
-                <img class="logo_republiquefrancaise"
-                     alt="{{ _('Go to FranceArchives homepage') }}"
-                     src="{{ data_url }}images/logo_republiquefrancaise.png" />
-              </a>
-              {% if not homepage %}
-              <a class="link_francearchives"
-                 href="{{ base_url }}"
-                 title="{{ _('FranceArchives: Portail National des Archives de France') }}">
-                {% endif %}
-                <img class="logo_francearchives"
-                     src="{{ data_url }}images/logo_francearchives.svg"
-                     alt="{{ _('Go to FranceArchives homepage') }}" />
-                {% if not homepage %}
-              </a>
-              {% endif %}
-            </div>
-            <div class="buttons-container col-xs-12 col-lg-6">
-              <ul class="nav navbar-nav navbar-right" id="main-links">
-                <li id="nomina-link">
-                  <a href="{{base_url}}/basedenoms">
-                    <span>{{ _('Search in the name base') }}</span>
-                    <span id="nomina-icon" aria-hidden="true"></span>
-                  </a>
-                </li>
-                <li>
-                  {% if display_professional_access %}
-                  <a id="gerer-menu" href="{{base_url}}/gerer">
-                    <span>{{ _('Professional access') }}</span>
-                    <span id="gerer-icon"></span>
-                  </a>
-                  {% else %}
-                  <a id="gerer-menu" aria-expanded="false" href="{{base_url}}/">
-                    <span>{{ _('All public access') }}</span>
-                    <span id="gerer-icon"></span>
-                  </a>
-                  {% endif %}
-                </li>
-                <li id="menu-toggle">
-                  <a id="main-menu" aria-expanded="false"
-                     aria-controls="menu-panel" aria-haspopup="true" href="#">
-                    <div>
-                      <span>{{ _('Menu') }}</span>
-                      <span id="menu-icon" aria-hidden="true"></span>
-                    </div>
-                  </a>
-                </li>
-                {% block login %}
-                {% endblock %}
-              </ul>
-            </div>
-          </div>
-          {% include "menu-panel.jinja2"%}
-        </section>
-      </section>
-      {# Search Bar #}
-      {% if display_search_bar %}
-      <section id="search-bar-section" class="container-fluid">
-        {# Hero Images #}
-        {% if homepage %}
-           {% include "heroimages.jinja2" %}
+<html lang="{{ lang }}" data-fr-scheme="light">
+<head>
+    {% include "_head.jinja2" %}
+</head>
+<body id="top">
+    {% include "skiplinks.jinja2"%}
+    {% block adminpanel %}{% endblock %}
+    {% include "header.jinja2" %}
+    <main role="main" tabindex="-1">
+        {% include "alert.jinja2" %}
+        {% if display_search_bar %}
+            {% if page_id == "homepage" %}
+                {% include "home-searchbar.jinja2" %}
+            {% else %}
+                <section id="search-bar-section" class="{% if is_nomina %}fr-background-action-high--green-emeraude{% else %}fr-background-action-high--blue-france{% endif %}">
+                  {% include "_searchbar_other.jinja2" %}
+		</section>
+            {% endif %}
         {% endif %}
-        {% if nomina %}
-           {% include "nomina-searchbar.jinja2" %}
-        {% else %}
-           {% include "main-searchbar.jinja2" %}
+        {% if page_id == "homepage" %}
+            {% include "homepage.jinja2" %}
         {% endif %}
-      </section>
-      {% endif %}
-      {# Breadcrumbs #}
-      {% if breadcrumbs and breadcrumbs|length != 0 %}
-      <nav class="breadcrumbs-container" aria-label="{{_('breadcrumb')}}" role="navigation">
-        <ol id="breadcrumbs" class="breadcrumb">
-          {% for url, label in breadcrumbs %}
-          {% if url and not loop.last %}
-          <li class="breadcrumb-item"><a href="{{ url }}" title="{{ _('Go back to page:') }} {{ label }}">{{ label|e }}</a></li>
-          {% else %}
-          <li class="breadcrumb-item active" aria-current="page">{{ label|e }}</li>
-          {% endif %}
-          {% endfor %}
-        </ol>
-      </nav>
-      {% endif %}
-    </header>
-    <main id="page" class="container-fluid siaf-container {{ page_id }}" tabindex="-1">
-      {% if homepage %}
-      {% include "homepage.jinja2" %}
-      {% endif %}
-
-      {% if header_row %}
-      <div class="page__header">
-        {{ header_row }}
-      </div>
-      {% endif %}
-      {{ page_content }}
-      {% if faqs %}
-      {% from "./mixins.jinja2" import modalfaq %}
-      {{  modalfaq(faqs, _) }}
-      {% endif %}
-
+        {% if breadcrumbs %}
+            {% include "_breadcrumbs.jinja2" %}
+        {% endif %}
+        <div id="content">
+            {{ page_content }}
+        </div>
+        {% if display_totop or faqs %}
+            {% include "top_page.jinja2" %}
+        {% endif %}
+        {% include "newsletter_networks.jinja2" %}
     </main>
-    {# Footer #}
-    {% include "footer.jinja2" %}
-
-    {% for js in jsfiles %}
-    <script src="{{ js }}"></script>
-    {% endfor %}
-    {% for inlinescript in inline_scripts %}
-      <script type="text/javascript">
-       {{ inlinescript }}
-      </script>
-      {% endfor %}
-
-      {# Xiti #}
-      {% if xiti %}
-      {% include "xiti.jinja2" %}
-      {% endif %}
-      {% if display_totop %}
-      <button class="fa fa-angle-up" id="toTopBtn" title="{{_('Go to the top of the page')}}"></button>
-      {% endif %}
-  </body>
+    {% include "_footer.jinja2" %}
+    {% include "_scripts.jinja2" %}
+</body>
 </html>

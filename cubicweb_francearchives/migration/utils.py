@@ -29,7 +29,7 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-C license and that you accept its terms.
 
-""" migration helpers"""
+"""migration helpers"""
 
 from elasticsearch import helpers as es_helpers
 from cubicweb_elasticsearch.es import get_connection
@@ -47,7 +47,7 @@ def add_column_to_published_table(cnx, table, column, attrtype):
 
 def drop_column_from_published_table(cnx, table, column):
     cnx.system_sql(
-        str("ALTER TABLE published.cw_%s DROP COLUMN cw_%s" % (table, column)),
+        str("ALTER TABLE published.cw_%s DROP COLUMN IF EXISTS cw_%s" % (table, column)),
         rollback_on_failure=False,
     )
 
@@ -153,23 +153,15 @@ def delete_from_es_by_etype(cnx, cw_etype, log=True):
             yield {
                 "_op_type": "delete",
                 "_index": index_name,
-                "_type": "_doc",
                 "_id": doc["_id"],
             }
 
     cms_index_name = cnx.vreg.config["index-name"]
     public_index_name = cnx.vreg.config["published-index-name"]
     for index_name in (cms_index_name, public_index_name):
-        es = get_connection(
-            {
-                "elasticsearch-locations": cnx.vreg.config["elasticsearch-locations"],
-                "index-name": index_name,
-                "elasticsearch-verify-certs": cnx.vreg.config["elasticsearch-verify-certs"],
-                "elasticsearch-ssl-show-warn": cnx.vreg.config["elasticsearch-ssl-show-warn"],
-            }
-        )
-        if not es:
-            print("-> no es connection.abort")
+        es = get_connection(cnx.vreg.config)
+        if not es or not es.ping():
+            print("-> no es connection found: abort deletion")
             return
         es_docs = docs_to_delete(es, index_name + "_all")
         es_bulk_index(es, es_docs, raise_on_error=False)

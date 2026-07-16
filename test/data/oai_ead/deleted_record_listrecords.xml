@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+<responseDate>2019-11-29T10:32:34Z</responseDate>
+<request verb="ListRecords" metadataPrefix="ead" set="ead">
+http://www.archives18.fr/arkotheque/oai-pmh-2/oai2.php
+</request>
+<ListRecords>
+<record>
+<header status="deleted">
+<identifier>12</identifier>
+<datestamp>2018-06-08T15:03:49Z</datestamp>
+<setSpec>ead</setSpec>
+</header>
+</record>
+</ListRecords>
+</OAI-PMH>

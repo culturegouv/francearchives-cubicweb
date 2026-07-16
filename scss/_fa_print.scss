@@ -1,0 +1,53 @@
+@media print {
+
+  * {
+      color: black !important; // print faster
+      box-shadow: none !important;
+      text-shadow: none !important;
+      background: transparent !important;
+    }
+
+  .fr-follow,
+  #hero-images, #homepage__header,
+   #search-bar-section {
+    display:none;
+  }
+
+  tr,
+  img {
+        page-break-inside: avoid;
+      }
+
+  .fa-sr-card__props--label {
+    font-weight: 700;
+  }
+
+  #detailed-path {
+    margin-top: 0;
+
+    .detailed-path-inner-levels
+    .detailed-path-inner-levels {
+      padding: 0;
+      margin: 0;
+    }
+
+     ul.detailed-path-list {
+      padding-left: 0;
+    }
+
+    ul.detailed-path-list ul{
+      padding-left: 1.5em;
+    }
+
+    .detailed-path-list-item,
+    .detailed-path-list-item-last {
+       padding-left: 0em;
+       border: none;
+    }
+
+    .detailed-path-list-item:before,
+    .detailed-path-list-item-last:before {
+      content: '- ';
+    }
+  }
+}

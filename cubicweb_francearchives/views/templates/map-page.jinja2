@@ -1,46 +1,61 @@
-<section class="document-view">
-  <h1>{{ map.dc_title() }}</h1>
-
-  {% if map.top_content %}
-  {{ map.printable_value('top_content') }}
-  {% endif %}
-
-  {% if map.map_title %}
-  <div class="map-view-title">{{ map.map_title }}</div>
-  {% endif %}
-
-  <div class="map-view-content">
-      <div aria-hidden="true">
-      {{ map_form }}
+{% from "./mixins.jinja2" import content_metadata, display_errors -%}
+{%- set lang_attr='lang="{}"'.format(map.lang) if map.lang != lang else "" -%}
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+    <article class="fr-col-12 fr-col-lg-8" id="map-{{ map.eid }}">
+      <div class="fr-col-12 fr-mb-8v" {{ lang_attr }}>
+        <h1>{{ map.title|e }}</h1>
       </div>
-      <div id="dpt-vmap" class="jqvmap jqvmap-left" data-formid="dpt-vmap-form"
-          aria-hidden="true"></div>
-    {% for color, desc, data in legends %}
-    <div class="map-view-legend">
-        <svg width="2em" height="1em" class="map-view-legend-color" role="img" aria-hidden="true">
-          <title>{{ desc }}</title>
-          <rect width="100%" height="100%" fill="{{ color }}" stroke-width=1 stroke="rgb(0,0,0)" />
-        </svg>
-        <h2 class="map-view-legend-desc no-style">{{ desc }}</h2>
-      {% if data %}
-      <ul class="visually-hidden">
-        {% for item, url in data %}
-        <li >
-          {% if url %}
-          <a href="{{ url }}" tabindex="-1"
-             target="_blank" rel="nofollow noopener noreferrer"
-             title="{{ item }} {{ _('- New window') }}">{{ item }} ({{ desc }})</a>
-          {% else %}
-          {{ item }}
-          {% endif %}
-        </li>
-        {% endfor %}
-      </ul>
+      {{ display_errors(errors, _) }}
+      {% if map.top_content %}
+      <div class="fr-col-12 fr-mb-8v fr-text--lead" {{ lang_attr }}>
+        {{ map.printable_value('top_content') }}
+      </div>
       {% endif %}
-    </div>
-    {% endfor %}
+
+      {% if map.map_title %}
+      <div class="fr-col-12 fr-mb-8v" {{ lang_attr }}>
+      <h2>{{ map.map_title }}</h2>
+      </div>
+      {% endif %}
+
+      <div class="fr-col-12 fr-mb-8v" {{ lang_attr }}>
+        <div aria-hidden="true">
+          {{ map_form }}
+        </div>
+        <div id="dpt-vmap" class="jqvmap jqvmap-left" data-formid="dpt-vmap-form"
+             aria-hidden="true">
+        </div>
+        {% for color, desc, data in legends %}
+        <div class="map-view-legend">
+          <svg width="2em" height="1em" class="map-view-legend-color" role="img" aria-hidden="true">
+            <title>{{ desc }}</title>
+            <rect width="100%" height="100%" fill="{{ color }}" stroke-width=1 stroke="rgb(0,0,0)" />
+          </svg>
+          <h2 class="map-view-legend-desc no-style">{{ desc }}</h2>
+          {% if data %}
+          <ul class="visually-hidden">
+            {% for item, url in data %}
+            <li >
+              {% if url %}
+              <a href="{{ url }}" tabindex="-1"
+                 target="_blank" rel="nofollow noopener noreferrer"
+                 title="{{ item }} {{ _('- New window') }}">{{ item }} ({{ desc }})</a>
+              {% else %}
+              {{ item }}
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+     {% if map.bottom_content %}
+     <div class="fr-col-12 fr-mb-8v" {{ lang_attr }}>
+     {{ map.printable_value('bottom_content')}}
+     </div>
+     {% endif %}
+    </article>
   </div>
-  {% if map.bottom_content %}
-  {{ map.printable_value('bottom_content')}}
-  {% endif %}
-</section>
+</div>

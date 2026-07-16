@@ -1,0 +1,68 @@
+.fa-inventory-content {
+  &__metadata table{
+    width: 90%;
+  }
+}
+
+.eac-sub-label {
+  display: block;
+  margin-top: 1rem;
+  padding-right: 0.5em;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.eac-related-productors {
+  margin-left: 1rem;
+  margin-bottom: 2.5rem;
+
+  li {
+    min-height: 10px;
+    padding: 0.5rem;
+    &--title {
+      margin-bottom: 1rem;
+    }
+
+    &--description p{
+      margin: 0;
+    }
+  }
+}
+
+.occupation {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.eac-occupation p {
+  margin-bottom: 0;
+}
+
+.eac-maintenance-event {
+  &--description {
+    margin-left: 1em;
+   }
+
+   &--agent {
+     margin-left: 1em;
+   }
+}
+
+ul.eac-children-list {
+   list-style-type: none;
+   padding-left: 0;
+   margin-top: 1rem;
+   padding: 1.5rem;
+   border: 1px solid var(--border-default-grey);
+}
+
+.eac-agent-place {
+  &--role {
+    font-weight: 700;
+  }
+}
+
+ul.eac-relations{
+  list-style-type: none;
+  padding-left: 0;
+ }

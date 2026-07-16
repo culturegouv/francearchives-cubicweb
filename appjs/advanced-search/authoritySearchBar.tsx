@@ -29,12 +29,12 @@
  */
 
 import React, {useEffect, useState} from 'react'
-import {AsyncTypeahead} from 'react-bootstrap-typeahead'
 import {
     SearchRequest,
     QueryDslBoolQuery,
 } from '@elastic/elasticsearch/lib/api/types'
 import {translate as t} from '../translate'
+import {FaAutocomplete} from './FAAutocomplete'
 
 const TYPE_ES = {
     a: 'AgentAuthority',
@@ -48,26 +48,30 @@ export function AuthorityTypeAhead({
     endpoint,
     selectedMemory,
     update,
-    typeaheadId,
+    index,
+    label,
     type,
     clearNow,
     setClearNow,
+    placeholder,
+    setCanReset,
 }) {
     const [isLoading, setIsLoading] = useState(false)
-    const [options, setOptions] = useState(selectedMemory)
-    const [selected, setSelected] = useState(selectedMemory)
+    const [selected, setSelected] =
+        useState<Array<{value: string; label: string}>>(selectedMemory)
     const [errorMsg, setErrorMsg] = React.useState<string | null>()
+
     useEffect(() => {
         if (clearNow) {
-            setSelected([{eid: '', label: ''}])
+            setSelected([{value: '', label: ''}])
             setClearNow(false)
         }
     }, [clearNow])
 
-    const handleSearch = (textSearch) => {
+    const handleSearch = (textSearch: string) => {
         setIsLoading(true)
         // TODO: remove accents ?
-        let must: QueryDslBoolQuery['must'] = [
+        const must: QueryDslBoolQuery['must'] = [
             {match: {cw_etype: TYPE_ES[type]}},
             {
                 multi_match: {
@@ -78,12 +82,9 @@ export function AuthorityTypeAhead({
                 },
             },
         ]
-        let countAttr = 'count'
         if (archivesRef && !ressourcesSite) {
-            countAttr = 'archives'
             must.push({range: {archives: {gte: 1}}})
         } else if (!archivesRef && ressourcesSite) {
-            countAttr = 'siteres'
             must.push({range: {siteres: {gte: 1}}})
         } else {
             must.push({range: {count: {gte: 1}}})
@@ -117,7 +118,7 @@ export function AuthorityTypeAhead({
             from: 0,
             size: 100,
         }
-        fetch(`${endpoint}`, {
+        return fetch(`${endpoint}`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -129,58 +130,52 @@ export function AuthorityTypeAhead({
                 return resp.json()
             })
             .then((response) => {
+                let options = []
                 if (response.errors !== undefined) {
                     setErrorMsg(response.errors[0].details)
-                    setOptions([])
+                    setSelected([{value: '', label: ''}])
                 } else {
                     setErrorMsg(null)
                     const items = response['hits']['hits'].map((element) => {
-                        let count = element['_source'][countAttr]
                         return {
-                            eid: element['_source']['eid'],
+                            value: element['_source']['eid'],
                             label: element['_source']['text'],
                         }
                     })
-                    setOptions(items)
+                    options = items
                 }
                 setIsLoading(false)
+                return options
             })
             .catch((error) => {
+                setErrorMsg(t('Could not retrieve results'))
+                setSelected([{value: '', label: ''}])
                 console.error(error)
+                return []
             })
     }
-    const filterBy = () => true
+
     const hasError = errorMsg !== undefined && errorMsg !== null
     return (
-        <>
-            {hasError ? (
-                <div className="invalid-feedback">{errorMsg}</div>
-            ) : null}
-            <AsyncTypeahead
-                clearButton
-                filterBy={filterBy}
-                id={typeaheadId}
-                isLoading={isLoading}
-                labelKey="label"
-                minLength={3}
-                onSearch={handleSearch}
-                options={options}
-                onChange={(selectedElement) => {
-                    if (selectedElement.length == 1) {
-                        update({
-                            value: selectedElement[0].eid,
-                            label: selectedElement[0].label,
-                        })
-                    } else {
-                        //Nothing is selected
-                        update({value: '', label: ''})
-                    }
-                    setSelected(selectedElement)
-                }}
-                selected={selected}
-                className={hasError ? 'is-invalid' : ''}
-                useCache={false}
-            />
-        </>
+        <FaAutocomplete
+            value={selected[0]}
+            label={label}
+            loadOptions={handleSearch}
+            multiple={false}
+            placeholder={placeholder}
+            onChange={(selectedElement) => {
+                if (selectedElement) {
+                    update(selectedElement)
+                    setSelected([selectedElement])
+                    setCanReset(true)
+                } else {
+                    //Nothing is selected
+                    update({value: '', label: ''})
+                    setSelected([{value: '', label: ''}])
+                }
+            }}
+            loading={isLoading}
+            error={hasError ? errorMsg : undefined}
+        />
     )
 }

@@ -1,9 +1,9 @@
 {
   "@context": {
-    "schema": "http://schema.org/"
+    "schema": "https://schema.org/"
   },
 
-  "@id": "http://testing.fr/cubicweb/pages_histoire/{{eid}}",
+  "@id": "https://testing.cubicweb/pages_histoire/{{eid}}",
   "@type": "schema:Article",
   "schema:author": {
     "@type": "schema:Person",
@@ -15,12 +15,12 @@
   "schema:headline": "the-title",
   "schema:inLanguage": "FR",
   "schema:isAccessibleForFree": "True",
-  "schema:mainEntityOfPage": "http://testing.fr/cubicweb/pages_histoire/{{eid}}",
+  "schema:mainEntityOfPage": "https://testing.cubicweb/pages_histoire/{{eid}}",
   "schema:name": "the-title",
   "schema:publisher": {
     "@type": "schema:Organization",
     "schema:name": "FranceArchives",
-    "schema:logo": "http://testing.fr/cubicweb/data/images/logo_francearchives_amp.png"
+    "schema:logo": "https://testing.cubicweb/data/images/logo_francearchives_amp.png"
   },
-  "schema:url": "http://testing.fr/cubicweb/pages_histoire/{{eid}}"
+  "schema:url": "https://testing.cubicweb/pages_histoire/{{eid}}"
 }

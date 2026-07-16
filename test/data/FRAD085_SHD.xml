@@ -1,0 +1,133 @@
+<ead xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<eadheader>
+<eadid url="https://archives.vendee.fr/ark:/22574/FRAD085_SHD_B">FRAD085_SHD_B</eadid>
+<filedesc>
+<titlestmt>
+<titleproper>Archives militaires de la guerre de Vendée conservées au Service historique de la Défense (Vincennes)</titleproper>
+<author>J. Hussenet, Th. Heckmann, Fr.-X. Brochard, S. Chetanneau, J. Grison</author>
+</titlestmt>
+<publicationstmt>
+<date normal="2011/2011">2011</date>
+<publisher>Archives de la Vendée</publisher>
+</publicationstmt>
+</filedesc>
+<profiledesc>
+<creation>
+Instrument de recherche produit au moyen du logiciel Arkhéïa Aide au classement de la société Anaphore sarl, version 3-4 du jeudi 18 décembre 2008. Date de l'export : mardi 15 mai 2018 (08:59 h)
+<date normal="2023/2023">02/03/2023</date>
+<date normal="2018/2018">mardi 15 mai 2018</date>
+</creation>
+<langusage>
+Instrument de recherche rédigé en
+<language>français</language>
+</langusage>
+<descrules>Instrument de recherche rédigé conformément à la norme générale et internationale de description archivistique (ISAD-G) du Conseil international des archives, deuxième édition, 2000.</descrules>
+</profiledesc>
+</eadheader>
+<archdesc level="fonds" id="ark--22574-vtaf0f01d0bab4c0112">
+<did>
+<unittitle>Archives militaires de la guerre de Vendée conservées au Service historique de la Défense (Vincennes)</unittitle>
+<unitdate label="ligeo-date-automatique">1792-[XIXe]</unitdate>
+<physdesc>
+<genreform source="genreform" type="genre">Document d'archives</genreform>
+</physdesc>
+<repository>Service Historique de la Défense-Vincennes</repository>
+</did>
+<scopecontent>
+<p>
+L'inventaire des archives militaires de la guerre de Vendée conservées au Service historique de la Défense à Vincennes réunit quatre fonds d'archives. Trois sont contemporains de la guerre de Vendée (1793-1796) : la correspondance du ministère de la Guerre avec les armées de l'Ouest, les états de situation que ces mêmes armées ont adressés au ministère et les jugements des commissions militaires. Le quatrième fonds date de la Restauration (à partir de 1815) et contient des listes nominatives d'anciens combattants des armées royales dressées dans le cadre d'attribution de gratifications et de pensions. En complément, une vingtaine de mémoires manuscrits sont présentés. Au total, 78 articles conservés au Service historique de la Défense et concernant dans leur intégralité la guerre de Vendée ont été analysés et numérisés en 29.274 vues. Dans un guide des sources rédigé par J. Hussenet et disponible sur le site des Archives départementales de la Vendée, on trouvera également les références à d'autres articles qui concernent partiellement la guerre de Vendée et les soulèvements de 1799, 1815 et 1832 ; ces articles n'ont pas fait l'objet d'une numérisation.
+<lb/>
+<lb/>
+Etats de situation
+<lb/>
+<lb/>
+Placés en tête de l'inventaire, des états de situation au nombre de 400 livrent les effectifs des troupes républicaines mobilisées en Vendée entre juin 1793 et mars 1796. La majorité des pièces se présente sous forme de tableaux, parfois très grands, qui peuvent recouvrir des échelons différents de l'armée républicaine. Ainsi des pièces fournissent-elles des chiffres à l'échelle d'un bataillon alors que d'autres, les plus nombreuses, regroupent les effectifs d'une division de l'armée de l'Ouest, voir même de toute l'armée.
+<lb/>
+<lb/>
+Chaque tableau a été analysé avec l'indication de sa date, de la force armée concernée et de l'effectif total des hommes qui y est noté. Mais les états de situation fournissent bien d'autres informations qui peuvent s'avérer très détaillées : effectifs des officiers et des soldats, nombre de prisonniers, hospitalisés et déserteurs, distinction entre les troupes de garnison et les troupes disponibles ou entre les différents corps d'armée (infanterie, artillerie, cavalerie...), nom des troupes et leur lieu de cantonnement, nombre de chevaux, de pièces d'artillerie et de fusils, etc. En revanche, on ne trouvera pas de noms de soldats républicains, à l'exception de ceux des généraux. Et quand ces derniers ont signé l'état de situation de leur unité, leur nom a été suivi dans l'inventaire du signe °.
+<lb/>
+<lb/>
+Correspondance active et passive du ministère de la Guerre
+<lb/>
+<lb/>
+La correspondance active et passive du ministère de la Guerre constitue le fonds le plus volumineux des quatre ; 35 cartons et registres sont publiés, soit plus de 8.500 pièces d'archives analysées et numérisées en 21.872 vues. La correspondance s'étend sur trois ans, entre mars 1793 et mars 1796. Les correspondants du ministère sont les militaires présents sur le terrain (généraux, commissaires des guerres, commandants des places et des bataillons), mais aussi des autorités civiles qu'elles soient nationales ou locales (Convention, Comité de salut public, représentants en mission, administrateurs des départements et des districts). Le fonds contient également des lettres échangées entre généraux, entre représentants en mission, ou entre une administration locale et un général. La quasi-totalité de la correspondance est donc constituée d'échanges entre républicains. A signaler toutefois quelques rares pièces vendéennes transmises au ministère de la Guerre en raison de leur saisie, comme la correspondance du chef vendéen Jaudonnet de Laugrenière (SHD B 5/5-16).
+<lb/>
+<lb/>
+L'ensemble est classé chronologiquement par armée. Celle de Réserve créée le 1er mars 1793 est transformée, dès le 30 avril, en armée des Côtes de La Rochelle. Le territoire de cette dernière va de l'embouchure de la Gironde jusqu'à celle de la Loire et comprend la rive droite de la Loire depuis Ingrande. Le 2 octobre 1793, l'armée des Côtes de La Rochelle, l'armée de Mayence et une partie de l'armée des Côtes de Brest sont réunies pour former l'armée de l'Ouest jusqu'en 1795. En parallèle, on suit sur des territoires plus au nord l'armée des Côtes puis, à l'issue de sa séparation en deux, l'armée des Côtes de Brest et celle des Côtes de Cherbourg. Enfin en 1795, l'armée de l'Ouest, l'armée des Côtes de Brest et l'armée des Côtes de Cherbourg fusionnent pour former l'armée des Côtes de l'Océan.
+<lb/>
+<lb/>
+L'inventaire est très détaillé. Toutes les lettres sont analysées, les noms des correspondants indiqués, des citations sont parfois ajoutées. Les pièces sont réparties jour par jour dans un ordre géographique qui, le plus souvent, part de Paris, se rapproche du théâtre de la guerre (Tours, Chinon), puis le contourne par le sud (Saint-Maixent, Niort, Luçon), l'ouest (Les Sables-d'Olonne), et le nord (Nantes, Angers), avant de pénétrer au coeur du pays insurgé. Très nombreuses, les signatures autographes des auteurs des lettres ont été signalées par le signe ° qui suit les noms concernés. Les cachets présentant un intérêt ont été numérisés en couleur et sont même représentés en une seule pièce recomposée lorsqu'ils sont brisés.
+<lb/>
+<lb/>
+A la fin du XIXe siècle, chaque pièce d'archives a été accompagnée d'un bulletin analytique qui a été également numérisé et placé avant la pièce concernée. Ils existent aussi des bulletins isolés qui contiennent des analyses de lettres transcrites dans des registres de correspondance. Vingt-et-un registres sont présentés dans l'inventaire, ils couvrent essentiellement la période de la guerre de Vendée (1793-1796), mais vont également au-delà avec la correspondance du général Travot entre 1800 et 1803 et celle de la 12e division militaire pendant le soulèvement de mai-juin 1815. On trouvera, en complément, le registre de la procédure judiciaire contre le général Travot aboutissant à sa condamnation à mort le 20 mars 1816.
+<lb/>
+<lb/>
+Commissions militaires
+<lb/>
+<lb/>
+Etablies auprès des armées républicaines présentes dans l'Ouest, les commissions militaires adressent au ministère de la Guerre leurs jugements qui se présentent souvent sous forme d'affiches imprimées. Ce sont les jugements des commissions militaires réunies, entre juillet 1793 et décembre 1795, principalement à Niort, Angers, Saumur, Les Sables-d'Olonne, Fontenay-le-Comte, Tours, Nantes, Ancenis, Rennes, Vitré et Le Mans qui ont été analysés. Soit près de 1800 personnes jugées dont les noms sont indiqués dans l'inventaire. Il s'agit de soldats des armées républicaines et de civils vendéens emprisonnés à la suite de combats ou arrêtés sur dénonciation.
+<lb/>
+<lb/>
+Les militaires sont le plus souvent accusés de vol, désertion et violence, et les sentences vont de la peine de mort à l'acquittement en passant par des années de fers ou de prison. Les condamnations évoluent vers une plus grande clémence à partir de la fin de l'année 1794.
+<lb/>
+<lb/>
+Pour les Vendéens, on trouvera surtout leurs jugements parmi les archives de la commission militaire de Rennes. Etablie près des armées de l'Ouest et des Côtes de Brest réunies, celle-ci juge à partir de novembre 1793 les Vendéens et les chouans faits prisonniers pendant la Virée de Galerne. Entre les 21 décembre 1793 et 15 février 1794, elle prononce 111 peines de mort.
+<lb/>
+<lb/>
+Pensions et gratifications attribuées aux anciens combattants des armées royales de l'Ouest
+<lb/>
+<lb/>
+Sous la Restauration, les anciens combattants de la guerre de Vendée et des insurrections de 1799 et 1815 sont récompensés par l'attribution de pensions et de gratifications. Des états nominatifs sont dressés au niveau départemental, puis envoyés à Paris. Ils sont fort riches en information sur les personnes concernées ou leurs ayants droit : date et lieu de naissance, domicile, profession, état des services et blessures. Au début de la Monarchie de Juillet, les listes sont revues, et la conduite politique postérieure à la Révolution de 1830 peut alors faire l'objet de commentaire. Les états nominatifs se présentent sous forme de tableaux et ont été classés par corps des armées royales ou par département (départements de la Vendée militaire et départements bretons).
+<lb/>
+<lb/>
+Mémoires
+<lb/>
+<lb/>
+Enfin vingt-quatre mémoires manuscrits concernant la guerre de Vendée ont été numérisés. Citons ceux des généraux Aubertin, Kléber, Rossignol et Turreau qui ont fait, par ailleurs, l'objet de publications dès le XIXe siècle.
+</p>
+</scopecontent>
+<controlaccess>
+<subject source="contextehistorique" authfilenumber="3abf3e7ce877256b17b972ffae181438">1793-1796</subject>
+<subject source="contextehistorique" authfilenumber="9d8333bc19a4d3d7b0f5b130119ac763">1e moitié 19e siècle</subject>
+<subject source="matiere" authfilenumber="063072a50898b8d385e0a997ac496f00">guerre de Vendée</subject>
+</controlaccess>
+<originalsloc>
+<p>Fonds conservé(s) par le Service historique de la Défense - Vincennes</p>
+</originalsloc>
+<accessrestrict type="statut_publication">
+<p>Publiable sur internet</p>
+</accessrestrict>
+<dsc type="in-depth">
+  <c level="file" altrender="ligeo-simple-standardisadg" id="ark--22574-vtadff93131973b2020">
+<did xmlns:xlink="http://www.w3.org/1999/xlink">
+<unitid>
+<extptr xlink:href="https://archives.vendee.fr/ark:/22574/vtadff93131973b2020"/>
+</unitid>
+<unittitle>29 mai 1793.</unittitle>
+<unitdate normal="1793/1793" label="ligeo-date-automatique">1793</unitdate>
+<unitid>SHD B 5/4-92</unitid>
+</did>
+<daogrp xmlns:xlink="http://www.w3.org/1999/xlink" type="custom">
+<dao xlink:href="https://etatcivil-archives.vendee.fr/c/visionneuse/visu_serie.php?serie=&amp;dossier=1num263/SHD_B_5_4/lot92&amp;page=1&amp;pagefin=9&amp;cote=SHD B 5/4-92&amp;size=BIG" xlink:role="UNKNOWN"/>
+<dao xlink:href="https://etatcivil-archives.vendee.fr/c/visionneuse/visu_serie_vign.php?serie=&amp;dossier=1num263/SHD_B_5_4/lot92&amp;page=1&amp;pagefin=9&amp;cote=SHD B 5/4-92&amp;size=BIG" xlink:role="thumbnail"/>
+<daoloc href="fr/ad85/1num263/SHD_B_5_4/lot92" role="répertoire"/>
+<daoloc href="9" role="nombre"/>
+</daogrp>
+<scopecontent>
+<p>
+- Challans : Esprit Baudry° apprend au général Boulard qu'il se replie sur Vairé et Olonne.
+<lb/>
+<lb/>
+- La Mothe-Achard : exemplaire des instructions du général Boulard sur la disposition des troupes de son secteur, destiné à Ramond, commandant le 5e bataillon de la Marne ; elles concernent en outre les chasseurs du Midi, le 110e régiment d'infanterie, le 60e régiment, les 1er et 2e bataillons de Bordeaux, la gendarmerie, le bataillon du Lot-et-Garonne.
+<lb/>
+<lb/>
+- La Mothe-Achard (bulletin analytique de la correspondance du général Boulard) : il remercie les soldats du bataillon de Muron de leur dévouement (texte complet dans le registre de correspondance ci-dessus B 5/4-2, p. 115).
+<lb/>
+<lb/>
+- La Mothe-Achard (2 bulletins analytiques de la correspondance du général Boulard) : il donne des instructions à son adjoint Esprit Baudry à propos de la défense de Saint-Gilles-sur-Vie ; il lui réécrit qu'il doit se conformer aux instructions reçues et qu'il est exclu qu'il se replie sur Olonne (texte complet dans le registre de correspondance ci-dessus B 5/4-3, p. 1-2).
+</p>
+</scopecontent>
+</c>
+</dsc>
+</archdesc>
+</ead>

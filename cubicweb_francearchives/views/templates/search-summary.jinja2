@@ -1,57 +1,46 @@
+{%- if advanced_search %}
+ <ul class="fr-tags-group fr-tags-group--inline fr-mb-4v fr-hidden-md">
+ <li><a class="fr-btn fr-btn--sm" href="/advancedSearch">
+      {{_("Modify your advanced search")}}
+     </a>
+</li>
+ </ul>
+{%- endif -%}
 {% if search_summary %}
-{% if search_summary['context'] or search_summary['summary'] %}
-<h2 class="search-section">{{ _('Your search summary:')}}</h2>
-<div class="search-summary">
-  {% if search_summary['context'] %}
-  {% set context = search_summary['context'] %}
-  <div class="search-summary-global-search">
-    {% if context['query'] %}
-    <p class="search-summary__query">
-      {{ context['query'] | e}}
-    </p>
-    {% endif %}
-    {% if context.get('section') %}
-    <p class="search-summary__es_category">
-      {{_("Section")}}{{ _(':') }} <span class="es_category_name">{{ context['section'] |e}}</span>
-    </p>
-    {% endif %}
-    {% if context.get('inventory') %}
-    <p class="search-summary__es_category">
-      {{_("Publisher")}}{{ _(':') }} <span class="es_category_name">{{ context['inventory'] |e}}</span>
-    </p>
-    {% endif %}
-    {% if search_summary['advanced_query'] %}
-      {% for active_facet in search_summary['advanced_query'] %}
-      <p>
-        <span class="facet-name">
-        {{active_facet.name |e}}{{ _(':') }}
-        </span>
-        <span class="search-summary-facets__facet-values">{{_(active_facet.value) |e}}</span>
-      </p>
-      {% endfor %}
-    {% endif %}
-  </div>
-  {% endif %}
-  {% if search_summary['summary'] %}
-  <div class="search-summary-facets">
-    {% for active_facet in search_summary['summary'] %}
-    <div class="search-summary-facets__facet-name">
-      <p class="facet-name">{{active_facet.name |e}}</p>
-      <ul class="search-summary-facets__facet-values">
-        {% for val, reset_url in active_facet.value %}
-        <li>
-          <a href="{{ reset_url }}">{{_(val) |e}}<div class="link-info"></div></a>
-        </li>
+  <div class="fa-search-summary">
+  {%- set context = search_summary['context'] %}
+  {%- set summary = search_summary['summary'] %}
+  {%- if summary or context -%}
+  {# Why display the context ?#}
+    {%- if context %}
+      {# {% if context['query'] %}<span class="fr-text--lead fr-mb-4v">{{ context['query'] | e}}</span>{% endif -%} #}
+      {%- if context.get('inventory') %}
+        <p>
+        {{_("Publisher")}}{{ _(':') }} <span>{{ context['inventory'] |e}}</span>
+        </p>
+      {% endif -%}
+      {%- if search_summary['advanced_query'] %}
+      {%- for active_facet in search_summary['advanced_query'] %}
+        <p>
+          <span class="fr-text--bold">{{active_facet.name |e}}{{ _(':') }}</span>
+          <span>{{_(active_facet.value) |e}}</span>
+        </p>
+      {% endfor -%}
+      {% endif -%}
+    {% endif -%}
+
+    {%- if summary %}
+    <p id="facet-selected-filters" class="fr-sr-only">{{ _('Selected filters') }}</p>
+    <ul class="fr-tags-group fr-tags-group--inline fa-search-summary--filters" aria-describedby="facet-selected-filters">
+    {% for active_facet in summary %}
+        {% for value, reset_url in active_facet.value %}
+        {% set label = "%s%s%s" % (_(active_facet.name), _(':'), _(value)) %}
+        <li><a class="fr-tag fr-tag--sm fr-tag--dismiss fr-icon-close-line fr-link--icon-right fr-mr-1w fr-mt-0 fr-mt-md-0 active" href="{{ reset_url }}" aria-label="{{ _('Remove') }} {{ label |replace('"',"'")|safe }}">{{ label | e}}</a></li>
         {% endfor %}
-      </ul>
-    </div>
-    {% endfor %}
+    {% endfor -%}
+     </ul>
+     <a class="fr-tag fr-tag--sm fr-tag--dismiss fr-icon-close-line fr-link--icon-right fr-mr-1w fr-mb-2w fr-mt-0 fr-mt-md-0" href="{{ reset_all_facets_link }}">{{ _('Clear all facets') |e}}</a>
+    {%- endif %}
+  {%- endif %}
   </div>
-  <div class="search-summary__clear">
-    <a href="{{reset_all_facets_link}}">{{ _('Clear all facets') |e}}</a>
-  </div>
-  {% endif %}
-  <div class="clearfix"></div>
-</div>
-{% endif %}
-{% endif %}
+{%- endif %}

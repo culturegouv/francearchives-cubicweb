@@ -88,6 +88,32 @@ class FAComponentBreadCrumbsAdapter(EntityAdapter):
         return path
 
 
+class AuthorityRecordBreadCrumbsAdapter(EntityAdapter):
+    __regid__ = "IBreadCrumbs"
+    __select__ = is_instance("AuthorityRecord", accept_none=False)
+
+    def breadcrumbs(self, view=None, recurs=None):
+        _ = self._cw._
+        return [
+            (self._cw.build_url(""), _("Home")),
+            (self._cw.build_url("authorityrecord"), _("AuthorityRecords")),
+            (None, self.entity.dc_title()),
+        ]
+
+
+class AgentRecordBreadCrumbsAdapter(EntityAdapter):
+    __regid__ = "IBreadCrumbs"
+    __select__ = is_instance("AgentRecord", accept_none=False)
+
+    def breadcrumbs(self, view=None, recurs=None):
+        _ = self._cw._
+        return [
+            (self._cw.build_url(""), _("Home")),
+            (self._cw.build_url("agentrecord"), _("AgentRecords")),
+            (None, self.entity.dc_title()),
+        ]
+
+
 class SectionBreadCrumbsAdapter(EntityAdapter):
     __regid__ = "IBreadCrumbs"
     __select__ = is_instance("Section", accept_none=False)
@@ -114,6 +140,12 @@ class FACardBreadCrumbsAdapter(EntityAdapter):
 
     def breadcrumbs(self, view=None, recurs=None):
         _ = self._cw._
+        if self.entity.wikiid.startswith("tableau-circulaires"):
+            return [
+                (self._cw.build_url(""), _("Home")),
+                (self._cw.build_url("circulaires"), _("Circular_plural")),
+                (None, self.entity.title),
+            ]
         return [
             (self._cw.build_url(""), _("Home")),
             # don't use dc_title() to avoid displaying wikiid
@@ -205,10 +237,9 @@ class NominaRecordBreadCrumbsAdapter(EntityAdapter):
             (self._cw.build_url(""), _("Home")),
             (self._cw.build_url("basedenoms"), _("Search in the name base")),
         ]
-        if self.entity.service:
-            path.append(
-                (self.entity.service[0].nominarecords_url(), self.entity.service[0].publisher())
-            )
+        if self.entity.related_service:
+            service = self.entity.related_service
+            path.append((service.nominarecords_url(), service.publisher()))
         path.append((None, self.entity.dc_title()))
         return path
 

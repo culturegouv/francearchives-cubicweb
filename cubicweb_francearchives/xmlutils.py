@@ -29,17 +29,27 @@
 # knowledge of the CeCILL-C license and that you accept its terms.
 #
 
-""" xml utility functions"""
+"""xml utility functions"""
 import hashlib
-from lxml import etree
-from lxml import html as lxml_html
-from .utils import is_external_link
+from jinja2 import Environment, PackageLoader
 
 import logging
 
+from lxml import etree
+from lxml import html as lxml_html
+from lxml.builder import E
 import re
 
+import requests
+from urllib.parse import urljoin, urlsplit
+from .utils import is_external_link
+
+from cubicweb_francearchives import get_user_agent
 from cubicweb_francearchives.utils import remove_html_tags
+
+env = Environment(loader=PackageLoader("cubicweb_francearchives.views"))
+
+XMLParser = etree.XMLParser(load_dtd=False, resolve_entities=False)
 
 
 def to_unicode(el):
@@ -67,6 +77,8 @@ def process_html_as_xml(func):
             return html
         if stripped.startswith("<body"):
             return html
+        # add a wrap to ensure a parent for top elements
+        html = f"<div>{stripped}</div>"
         try:
             fragments = lxml_html.fragments_fromstring(html)
         except Exception as err:
@@ -75,7 +87,10 @@ def process_html_as_xml(func):
             return html
         if fragments:
             func(fragments[0], *args, **kwargs)
-        return "".join(to_unicode(fragment) for fragment in fragments)
+        snippet = "".join(to_unicode(fragment) for fragment in fragments)
+        if snippet.startswith("<div>") and snippet.endswith("</div>"):
+            snippet = snippet[5:-6]
+        return snippet
 
     return wrapper
 
@@ -90,18 +105,50 @@ def is_francearchive_relatif_link(href):
     return False
 
 
-def add_title_on_external_links(cnx, node, href=None):
-    if is_external_link(href, cnx.base_url()):
-        node.set("rel", "nofollow noopener noreferrer")
-        node.set("target", "_blank")
-        title = node.attrib.get("title")
-        if not title:
-            title = node.text_content()
-        title = "{} {}".format(title, cnx._("- New window"))
-        node.set("title", title)
+def clean_external_link(cnx, node):
+    node.set("rel", "nofollow noopener noreferrer external")
+    node.set("target", "_blank")
 
 
-def clean_internal_link(href):
+def add_title_on_external_link(cnx, node):
+    title = node.text_content()
+    if not title:
+        return
+    attr_title = node.attrib.get("title")
+    new_window = cnx._("new window")
+    if attr_title is None:
+        node.set("title", " - ".join([title, new_window]))
+    else:
+        titles = []
+        if title.lower() not in attr_title.lower():
+            titles.append(title)
+        if attr_title:
+            titles.append(attr_title)
+        if new_window.lower() not in attr_title.lower():
+            titles.append(new_window)
+        if len(titles) > 1:
+            node.set("title", " - ".join(titles))
+
+
+def clean_internal_link(cnx, node):
+    """remove target and rel if exists"""
+    for attr in ("rel",):
+        if node.attrib.get(attr):
+            node.attrib.pop(attr)
+
+
+def add_title_on_internal_link(cnx, node):
+    """add the link title in title attribute is exists"""
+    title = node.text_content()
+    if not title:
+        return
+    attr_title = node.attrib.get("title") or ""
+    if attr_title:
+        if title.lower() not in attr_title.lower():
+            node.set("title", " - ".join(t for t in [title, attr_title] if t))
+
+
+def clean_fa_link(node, href):
     """
     clean wrong internal urls,
     remove trailing # et "edit" added by users
@@ -110,7 +157,8 @@ def clean_internal_link(href):
     """
     for end in ("#/edit", "/", "#"):
         href = re.sub(f"{end}$", "", href)
-    return href
+        if node.attrib.get("href") != href:
+            node.set("href", href)
 
 
 def fix_links(root, cnx, *args, **kwargs):
@@ -142,34 +190,38 @@ def fix_links(root, cnx, *args, **kwargs):
                 )
         else:
             if is_external_link(href, base_url):
-                node.set("rel", "nofollow noopener noreferrer")
-                node.set("target", "_blank")
+                clean_external_link(cnx, node)
             else:
-                # clean internal urls
-                new_href = clean_internal_link(href)
-                if new_href != href:
-                    node.set("href", new_href)
-                for attr in ("target", "rel"):
-                    if attribs.get(attr):
-                        attribs.pop(attr)
+                clean_fa_link(node, href)
+                clean_internal_link(cnx, node)
         # change the image alt
         images = node.xpath(".//child::img")
         for image in images:
             image.set("alt", content)
         if images:
-            if "class" in attribs and "image-link" not in attribs["class"]:
-                css_class = "{} image-link".format(attribs["class"])
-            else:
-                css_class = "image-link"
-            node.set("class", css_class)
+            css_class = attribs.get("class", "")
+            if "image-link" not in css_class:
+                if css_class:
+                    css_class = "{} image-link".format(css_class)
+                else:
+                    css_class = "image-link"
+                node.set("class", css_class)
 
 
 def fix_images(root, *args, **kwargs):
     """take html as first argument `root`. This argument is then transformed
     in etree root by process_html_as_xml
-
     """
-    for node in root.xpath("//img"):
+    for i, node in enumerate(root.xpath("//img")):
+        # add data on figure
+        parent = node.getparent()
+        if parent.tag == "figure":
+            parent.set("role", "figure")
+            caption = parent.find("figcaption")
+            if caption is not None:
+                caption.set("id", f"caption_{i + 1}")
+                parent.set("aria-labelledby", caption.attrib.get("id"))
+        # node.set("class", "fr-responsive-img")
         attribs = node.attrib
         # add an empty alt rgaa 3.1
         alt = ""
@@ -200,32 +252,50 @@ def enhance_accessibility(html, cnx, *args, **kwargs):
 
 
 def add_subtitles_html(root, cnx, **kwargs):
+    transcripts = root.xpath("//div[@class='media-subtitles' or @class='media-subtitles hidden']")
+    if len(transcripts) == 0:
+        return
+    #  load the jija_template for transcripts
+    template = env.get_template("transcript.jinja2")
     lang = kwargs.get("lang", None)
     # change the language for translations
     if lang:
         old_lang = cnx.lang
         cnx.set_language(lang)
-    for idx, node in enumerate(root.xpath('//div[@class="media-subtitles"]')):
-        prev = node.getprevious()
-        if prev is None:
+    transcription_label = cnx._("Transcript")
+    close_label = cnx._("Close")
+    enlarge_label = cnx._("Enlarge")
+    enlarge_transcription_label = cnx._("Enlarge the transcript")
+    for node in root.xpath('//div[@class="media-subtitles-button"]'):
+        # remove old code
+        node.getparent().remove(node)
+    for idx, node in enumerate(transcripts):
+        node_id = f"{hashlib.sha1(etree.tostring(node, encoding='utf8')).hexdigest()}"
+        node.attrib.pop("class")
+        node.set("class", "fa-transcript")
+        data = {
+            "id": node_id,
+            "transcription_label": transcription_label,
+            "close_label": close_label,
+            "enlarge_label": enlarge_label,
+            "enlarge_transcription_label": enlarge_transcription_label,
+            "data": to_unicode(node),
+        }
+        html = template.render(data)
+        try:
+            fragments = lxml_html.fragments_fromstring(html)
+        except Exception as err:
+            log("add_subtitles_html: Invalid html: {}".format(err))
             continue
-        for child in prev:
-            prev.remove(child)
-        node_id = f"transcript-{hashlib.sha1(etree.tostring(node)).hexdigest()}"
-        if prev.attrib.get("class") == "media-subtitles-button":
-            a = etree.SubElement(
-                prev,
-                "a",
-                **{
-                    "aria-expanded": "false",
-                    "data-label-expand": cnx._("Display transcription"),
-                    "data-label-collapse": cnx._("Hide transcription"),
-                    "aria-controls": node_id,
-                }
-            )
-            a.text = cnx._("Display transcription")
-            node.set("id", node_id)
-            node.set("class", "media-subtitles hidden")
+        if len(fragments) == 0:
+            log("add_subtitles_html: no html has been generated")
+            continue
+        elem = fragments[0]
+        # add class class="fr-modal__title" to title
+        title = elem.xpath("//h1")
+        if len(title) > 0:
+            title[0].set("class", "fr-modal__title")
+        node.getparent().replace(node, elem)
     if lang:
         cnx.set_language(old_lang)
 
@@ -235,15 +305,50 @@ def handle_subtitles(root, cnx, **kwargs):
     add_subtitles_html(root, cnx, **kwargs)
 
 
+def remove_all_styles(node):
+    """remove somes attributes from a node and all its descendents"""
+    # node.attrib.pop("style", None)
+    node.attrib.pop("border", None)
+    for child in node.getchildren():
+        remove_all_styles(child)
+
+
+def tables_to_dsfr_html(root, cnx, **kwargs):
+    """add DSFR tags and css classes to tables"""
+    tables = root.xpath("//table")
+    for table in tables:
+        remove_all_styles(table)
+        parent = table.getparent()
+        if "fr-table__content" in parent.attrib.get("class", ""):
+            continue
+        table.attrib.pop("style", None)
+        new_parent = E.div({"class": "fr-table__content"})
+        new_table = E.div(
+            E.div(
+                E.div(new_parent, {"class": "fr-table__container"}),
+                {"class": "fr-table__wrapper"},
+            ),
+            {"class": "fr-table fr-table--bordered fr-table--no-scroll"},
+        )
+        parent.replace(table, new_table)
+        new_parent.append(table)
+
+
+@process_html_as_xml
+def handle_tables(root, cnx, **kwargs):
+    tables_to_dsfr_html(root, cnx, **kwargs)
+
+
 def insert_labels(cnx, root, labels):
     for label in labels:
         _class = "ead-section ead-%s" % label
+
         for parent in root.xpath("//div[@class='%s']" % _class):
             # test the empty parent
             if not any(r.strip() for r in parent.xpath(".//child::*/text()")):
                 continue
             if not parent.xpath(".//div[@class='ead-label']"):
-                div = '<div class="ead-label">%s</div>' % cnx._("%s_label" % label)
+                div = '<p class="ead-label">%s</p>' % cnx._("%s_label" % label)
                 parent.insert(0, etree.XML(div))
 
 
@@ -266,8 +371,9 @@ def fix_fa_external_links(root, cnx, labels=None):
             node.set("href", "http:{}".format(href))
             href = node.attrib["href"]
         if is_external_link(href, cnx.base_url()):
-            # add _blank target
-            add_title_on_external_links(cnx, node, href)
+            # add _blank target and new window
+            clean_external_link(cnx, node)
+            add_title_on_external_link(cnx, node)
         elif is_francearchive_relatif_link(href):
             rel = node.attrib.get("rel")
             if rel == "nofollow noopener noreferrer":
@@ -289,7 +395,100 @@ def fix_fa_external_links(root, cnx, labels=None):
         translate_labels(cnx, root)
 
 
-def format_html(html, text_format="text/html"):
+def a11y_rewrite_divs(node):
+    """acessibility: transform <div class="ead-p ead-wrapper"> into <p> or <ul>"""
+    children = node.getchildren()
+    if not len(children) or not [s for s in children if s.tag in ("p", "div")]:
+        if node.tag == "br":
+            node.set("aria-hidden", "true")
+            return
+        if node.tag in ("i, b"):
+            node.set("class", f"ead-{node.tag}")
+        node.tag = "p"
+        if children and children[0].tag == "li":
+            node.tag = "ul"
+            node.set("class", "fr-list")
+    else:
+        transform = True
+        for sub_node in children:
+            if sub_node.tag not in ("span", "i", "b", "br"):
+                transform = False
+            else:
+                if sub_node.tag != "br":
+                    sub_node.tag = "p"
+                else:
+                    sub_node.set("aria-hidden", "true")
+                continue
+            if sub_node.tag == "p":
+                continue
+            if sub_node.tag == "div":
+                sub_children = sub_node.getchildren()
+                if not sub_children or not [s for s in sub_children if s.tag in ("p", "div")]:
+                    sub_node.tag = "p"
+                    transform = False
+                for child in sub_children:
+                    if child.tag == "div":
+                        a11y_rewrite_divs(child)
+                    if child.tag == "br":
+                        child.set("aria-hidden", "true")
+
+        if transform:
+            node.tag = "p"
+
+
+@process_html_as_xml
+def fix_ead_divs(root, cnx):
+    # for node in root.xpath('//div[@class="ead-p"]'):
+    #     a11y_rewrite_divs(node)
+    for node in root.xpath('//div[@class="ead-wrapper"]'):
+        a11y_rewrite_divs(node)
+
+
+def ping_uri(uri):
+    headers = {
+        "user-agent": get_user_agent(),
+    }
+    response = requests.head(uri, headers=headers, allow_redirects=True, timeout=4)
+    if response.status_code >= 400:
+        return f"{response.status_code} {response.reason}"
+    return None
+
+
+def detect_wrong_editorial_links(root, cnx, data, *args, **kwargs):
+    """take html as first argument `root`. This argument is then transformed
+    in etree root by process_html_as_xml
+
+    also clean wrong internal urls
+
+    """
+    for node in root.xpath("//a"):
+        attribs = node.attrib
+        href = attribs.get("href")
+        if href is None:
+            continue
+        if href.startswith("mailto"):
+            continue
+        base_url = cnx.base_url()
+        schema, netloc, path, query, fragment = urlsplit(href)
+        # francearchives.gouv.fr is considered as a wrong link
+        try:
+            rebuilt_url = urljoin(base_url, href) if not schema else href
+            ping_result = ping_uri(rebuilt_url)
+            if ping_result is not None:
+                data.append((node.text, href, ping_result))
+                continue
+
+        except Exception as exc:
+            data.append((node.text, href, exc.__class__.__name__))
+            pass
+
+
+@process_html_as_xml
+def get_broken_editorial_links(html, cnx, data, *args, **kwargs):
+    detect_wrong_editorial_links(html, cnx, data, *args, **kwargs)
+
+
+def format_html(cnx, html, text_format="text/html"):
     if html and remove_html_tags(html).strip():
         if text_format != "text/html":
             # XXX use mtc_transform
@@ -301,9 +500,26 @@ def format_html(html, text_format="text/html"):
 def process_html(cnx, html, text_format="text/html", labels=None):
     if html:
         processed = fix_fa_external_links(html, cnx, labels)
+        processed = fix_ead_divs(processed, cnx)
         if processed:
-            return format_html(processed, text_format)
+            return format_html(cnx, processed, text_format)
     return html
+
+
+XSS_CLEAN_RE = re.compile(
+    r"<\s*/?\s*(script|a|javascript|img|body|input|style|svg|bgsound|br|xss|marqee|audio|button|form)\s*>",  # noqA
+    re.IGNORECASE,
+)
+
+
+def clean_xss(value, cnx, **kwargs):
+    """remove same dangerous tags from plain text string to avoid XSS vulnerabilities"""
+    if value is None:
+        return value
+    value = value.strip()
+    if not value:
+        return value
+    return XSS_CLEAN_RE.sub("", value)
 
 
 def insert_link_to_text(root, cnx, *args, **kwargs):

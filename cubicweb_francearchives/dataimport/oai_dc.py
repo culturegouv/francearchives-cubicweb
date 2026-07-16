@@ -30,71 +30,64 @@
 #
 
 
-import logging
-
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from isodate import datetime_isoformat
 
 from lxml import etree
 from lxml.builder import E, ElementMaker
 
-from sickle.models import Record
 from sickle.utils import get_namespace
 
 from cubicweb.utils import json_dumps
 
 from cubicweb_oaipmh import utcnow
 
+from cubicweb_francearchives import IIIF_MANIFEST_ROLE
+
 from cubicweb_francearchives.dataimport import (
     usha1,
     clean_values,
-    get_year,
-    get_date,
     strip_html,
+    get_year,
     component_stable_id_for_dc,
 )
-from cubicweb_francearchives.dataimport import (
-    oai_utils,
-    OAIPMH_DC_PATH,
+
+from cubicweb_francearchives.dataimport.oai_utils import (
+    PniaSickle,
+    PniaOAIItemIterator,
+    OAIDCRecord,
+    OAIHandler,
+    OAIHarvester,
+    compute_oai_id,
+    check_harvested_oai_url,
+    get_oai_dc_url_from_tree,
 )
-
-from cubicweb_francearchives.dataimport.dc import CSVReader
-
-from cubicweb_francearchives.dataimport.ead import readerconfig, service_infos_for_es_doc
-from cubicweb_francearchives.storage import S3BfssStorageMixIn
-from cubicweb_francearchives.dataimport.sqlutil import delete_from_filename
+from cubicweb_francearchives.dataimport.ead import Reader, service_infos_for_es_doc
+from cubicweb_francearchives.entities.es import DZFacetValues
+from cubicweb_francearchives.xmlutils import XMLParser
 
 
-class OAIDCWriter(oai_utils.OAIPMHWriter):
-    """OAI-PMH writer (Dublin Core).
+EXTIDS = {"ConceptScheme": "siaf", "IndexRole": "virtual-exhibit"}
 
-    :cvar str OAI_VERB: verb of the OAI-PMH request
-    :ivar list oai_records: list of records
-    """
 
-    OAI_VERB = "ListRecords"
+def get_sets_dict(setIterator):
+    return {s.setSpec: s.setName for s in setIterator}
 
-    def __init__(self, ead_services_dir, service_infos, subdirectories=[]):
-        """Initialize OAI-PMH writer (Dublin Core).
 
-        :param str ead_services_dir: location of backup files
-        :param dict service_infos: service information
-        :param list subdirectories: list of subdirectories
+class OAIDCHandler(OAIHandler):
+
+    def __init__(self, cnx, service_infos, oaitask_eid, log):
+        """Initialize OAI-DC handler.
+
+        :param Connection cnx: CubicWeb database connection
+        :param dict service_code: service code
+        :param str oaitask_eid: eid of the related OAIImportTask
+        :param Logger log: logger
         """
-        super(OAIDCWriter, self).__init__(
-            ead_services_dir, service_infos, subdirectories=subdirectories
-        )
+        super().__init__(cnx, service_infos, oaitask_eid, log)
         self.oai_records = defaultdict(list, {})
-
-    def add_record(self, record):
-        """Add record to list of records.
-
-        :param _Element record: record
-        """
-        # check on the eadid is done before this method is called
-        eadid = record.header.setSpecs[0]
-        self.oai_records[eadid].append(record)
 
     def to_xml(self, eadid):
         """Convert records to XML file format compliant tree.
@@ -109,6 +102,7 @@ class OAIDCWriter(oai_utils.OAIPMHWriter):
             None: "http://www.openarchives.org/OAI/2.0/",
             "xsi": "http://www.w3.org/2001/XMLSchema-instance",
         }
+        request = E.request(self.oai_url, verb="ListRecords", metadataPrefix="oai_dc")
         maker = ElementMaker(nsmap=nsmap)
         attributes = {
             "{%s}schemaLocation"
@@ -120,307 +114,195 @@ class OAIDCWriter(oai_utils.OAIPMHWriter):
             )
         }
         oai_records = [record.xml for record in self.oai_records[eadid]]
-        body_elements = [E(self.OAI_VERB, *oai_records)]
-        return maker("OAI-PMH", date, *body_elements, **attributes)
+        body_elements = [E("ListRecords", *oai_records)]
+        return maker("OAI-PMH", date, request, *body_elements, **attributes)
 
     def get_file_contents(self, eadid):
         """Get file contents.
 
         :param str eadid: EAD ID
         """
-        file_contents = etree.tostring(self.to_xml(eadid), encoding="utf-8", xml_declaration=True)
-        return file_contents
+        return etree.tostring(self.to_xml(eadid), encoding="utf-8", xml_declaration=True)
+
+    def write_all_in_zips(self):
+        """Write all harvested data"""
+        for idx, (eadid, records) in enumerate(self.oai_records.items(), start=1):
+            content = self.get_file_contents(eadid)
+            record_size = len(content)
+            if record_size + self.zip_buffer_size > self.max_zip_size:
+                # write the current buffer
+                self.close_and_dump_zip_buffer()
+                # init a new buffer
+                self.init_zip_buffer()
+            # Write the file to the in-memory zip
+            filename = self.get_file_name(eadid)
+            self.zip_writer.writestr(filename, content)
+            self.zip_buffer_size += record_size
+            self.saved_files += 1
+        # write the current buffer
+        self.close_and_dump_zip_buffer()
 
 
-def build_header(header):
-    # check on the eadid is done before this method is called
-    setNames = [setName.text for setName in header.xml.findall(header._oai_namespace + "setName")]
-    eadid = header.setSpecs[0]
-    return {
-        "identifier": header.identifier,
-        "eadid": eadid,
-        "name": setNames[0] if setNames else eadid,
-    }
+class OAIDCHarvester(OAIHarvester):
+    """OAIDC schema haverster.
 
-
-def build_metadata(data):
-    keys = [
-        "title",
-        "creator",
-        "subject",
-        "description",
-        "publisher",
-        "contributor",
-        "type",
-        "format",
-        "identifier",
-        "source",
-        "language",
-        "relation",
-        "coverage",
-        "rights",
-    ]
-    metadata = dict.fromkeys(keys, [])
-    metadata.update(data)
-    start = stop = None
-    if "date" in metadata:
-        date = metadata.pop("date")[0]
-        if "-" in date:
-            try:
-                start, stop = [d.strip() for d in date.split("-")]
-            except ValueError:
-                pass
-        else:
-            try:
-                start = date.strip()
-                stop = None
-            except ValueError:
-                pass
-    metadata["date1"] = get_year(start)
-    metadata["date2"] = get_year(stop)
-    return metadata
-
-
-EXTIDS = {"ConceptScheme": "siaf", "IndexRole": "virtual-exhibit"}
-
-
-class OAIDCRecord(Record):
-    def __init__(self, record_element, strip_ns=True):
-        self.error = None
-        try:
-            super(OAIDCRecord, self).__init__(record_element, strip_ns=strip_ns)
-        except Exception as e:
-            self.error = e
-            return
-        self.harvested_url = ""
-
-
-class OAIDCImporter:
-    """OAI DC schema importer.
-
-    :ivar dict config: server-side configuration
-    :ivar OAIDCReader reader: OAI DC schema reader
     :ivar Connection cnx: connection
-    :ivar es: Elasticsearch connection
+    :ivar dict service_infos: service information
     """
 
-    def __init__(self, store, config, service_infos, log=None):
-        """Initialize OAI DC schema reader.
+    def process_harvested(self, oaitask_eid, downloaded_records, handlercls):
+        records_to_delete = 0
+        oai_handler = handlercls(self.cnx, self.service_infos, oaitask_eid, self.log)
+        for execution in as_completed(downloaded_records):
+            if execution.result():
+                idx_, record = execution.result()
+                if record.deleted:
+                    records_to_delete += 1
+                eadid = record.eadid
+                oai_handler.oai_records[eadid].append(record)
+        oai_handler.write_all_in_zips()
+        return oai_handler.saved_files, records_to_delete
 
-        :param RQLObject store: store
-        :param dict config: server-side configuration
-        :param dict service_infos: service information
-        :param Logger log: logger
-        """
-        cwconfig = store._cnx.vreg.config
-        if log is None:
-            log = logging.getLogger("rq.task")
-        self.log = log
-        self.storage = S3BfssStorageMixIn()
-        if config is None:
-            config = readerconfig(
-                cwconfig,
-                cwconfig.appid,
-                log=self.log,
-                esonly=False,
-                nodrop=True,
-                reimport=True,
-                force_delete=True,
-            )
-        self.config = config
-        self.reader = OAIDCReader(self.config, store)
-        self.cnx = self.reader.store._cnx
-        self.complete_list_size = None
-        self.downloaded = 0
-        indexer = self.cnx.vreg["es"].select("indexer", self.cnx)
-        self.es = indexer.get_connection()
-        self.service_infos = service_infos
-        self.oaipmh_writer = OAIDCWriter(
-            store._cnx.vreg.config["ead-services-dir"],
-            self.service_infos,
-            subdirectories=OAIPMH_DC_PATH.split("/"),
-        )
+    def download_records(self, records, oaitask_eid, records_limit):
+        """Download records and check them containing the needed information
 
-    def download_records(self, records):
-        """Harvest data and check they contain the needed information
-        :param function records: read-in records (generator)
+        :param list records: OAIEADRecords
+        :param str oaitask_eid: eid of the related OAIImportTask
+        :param int records_limit: only import limit documents number
         """
+
+        downloaded, idx, skipped = 0, 0, 0
+        complete_list_size = None
         service_code = self.service_infos["code"]
-        for record in records:
-            if record is None:
-                # PniaOAIItemIterator raised an error before creating a record
-                continue
-            self.downloaded += 1
-            identifier = record.header.identifier
-            # eadid is caclulated from header.setSpec()
-            eadid = record.header.setSpecs
+        with ThreadPoolExecutor(thread_name_prefix="oai") as executor:
+            downloaded_records = []
             try:
-                cursor = int(record.cursor) + 1
-            except Exception:
-                cursor = self.downloaded
-            if self.complete_list_size is None:
-                try:
-                    self.complete_list_size = int(record.complete_list_size)
-                except TypeError:
-                    pass
-            urlinfo = "<div>{url}<div><div>(record {cur} out of {lsz}).</div>".format(
-                url=record.harvested_url, cur=cursor, lsz=self.complete_list_size or "?"
-            )
-            if record.deleted:
-                self.log.info(
-                    "%s The record with identifier is to be deleted: %r", urlinfo, identifier
-                )
-                self.oaipmh_writer.add_record(record)
-                continue
-            if eadid:
-                eadid = eadid[0].strip()
-            if not eadid:
-                warning = (
-                    "%s Ignoring identifier %r because unspecified setSpec "
-                    "which is used as eadid value"
-                )
-                self.log.warning(warning, urlinfo, identifier)
-                continue
-            if not record.metadata.get("title"):
-                warning = (
-                    "%s Ignoring identifier %r because unspecified dc_title "
-                    "which is used as unittitle"
-                )
-                self.log.warning(warning, urlinfo, identifier)
-                continue
-            if not eadid.startswith(service_code):
-                msg = (
-                    '%s EADID value "%r" found for record %r is not valid:'
-                    "value does not starts with service_code. Import it anyway."
-                )
-                self.log.warning(msg, urlinfo, eadid, identifier)
-            self.log.info("%s Oai identifier: %s, eadid: %s", urlinfo, identifier, eadid)
-            self.oaipmh_writer.add_record(record)
-
-    def download_from_file(self, filepath):
-        data = self.storage.storage_get_oaifile_content(filepath)
-        try:
-            tree = etree.parse(data)
-        except Exception:
-            self.log.exception('Could not process file "%r"', filepath)
-            return
-        if hasattr(tree, "getroot"):
-            root = tree.getroot()
-        else:
-            root = tree
-        records = root.findall("{ns}ListRecords/{ns}record".format(ns=get_namespace(root)))
-        for record_element in records:
-            self.oaipmh_writer.add_record(OAIDCRecord(record_element))
-
-    def harvest_records(self, from_file=False, headers=None, **params):
-        """Import records.
-
-        :param bool from_file: data origin (True for file, False for harvesting)
-        :param dict headers: headers for harvest
-        :param dict params: harvest parameters
-        """
-        print("download_records", self.service_infos, from_file, headers, params)
-        base_url = self.service_infos["oai_url"]
-        if not from_file:
-            oai_mapping = {
-                "ListRecords": OAIDCRecord,
-                "GetRecord": OAIDCRecord,
-            }
-            client = oai_utils.PniaSickle(
-                base_url,
-                iterator=oai_utils.PniaOAIItemIterator,
-                class_mapping=oai_mapping,
-                headers=headers,
-                retry_status_codes=(500, 502, 503),
-            )
-            client.logger = self.log
-            records = client.ListRecords(**params)
-            try:
-                self.download_records(records)
-            except oai_utils.OAIXMLError as error:
-                self.log.error(error)
-            except Exception as exception:
-                self.log.error(("Could not import records: %s. Harvesting aborted.", exception))
-                if not self.oaipmh_writer.oai_records:
-                    return
-        else:
-            self.download_from_file(base_url)
-        if self.complete_list_size is None:
-            self.log.warning(
-                """Downloaded %s records.
-                No information about records list size (completeListSize) could be found""",
-                self.downloaded,
-            )
-        else:
-            if self.downloaded < self.complete_list_size:
-                self.log.error(
-                    "only {} out of {} records have been downloaded".format(
-                        self.downloaded, self.complete_list_size
+                for idx, record in enumerate(records, start=1):
+                    if record is None:
+                        # PniaOAIItemIterator raised an error before creating a record
+                        continue
+                    downloaded += 1
+                    identifier = record.header.identifier
+                    try:
+                        cursor = int(record.cursor) + 1
+                    except Exception:
+                        cursor = downloaded
+                    if complete_list_size is None:
+                        try:
+                            complete_list_size = int(record.complete_list_size)
+                        except TypeError:
+                            pass
+                    lsz = records_limit or complete_list_size or "?"
+                    urlinfo = "<div>{url}<div><div>(record {cur} out of {lsz}).</div>".format(
+                        url=record.harvested_url, cur=cursor, lsz=lsz
                     )
+                    # eadid is caclulated from header.setSpec()
+                    if record.deleted:
+                        self.log.warning(
+                            "%s The record with identifier %r is to be deleted", urlinfo, identifier
+                        )
+                    else:
+                        eadid = record.eadid
+                        if eadid is None:
+                            msg = (
+                                "%s Skip the record: ignoring identifier %r because of "
+                                "unspecified setSpec "
+                                "which is used as eadid value"
+                            )
+                            self.log.error(msg, urlinfo, identifier)
+                            skipped += 1
+                            continue
+                        if not record.metadata.get("title"):
+                            msg = (
+                                "%s Skip the record: ignoring identifier %r because of "
+                                " unspecified dc_title "
+                                "which is used as unittitle"
+                            )
+                            self.log.error(msg, urlinfo, identifier)
+                            skipped += 1
+                            continue
+                        if not eadid.startswith(service_code):
+                            msg = (
+                                '%s: EADID value "%r" found for record %r is not valid:'
+                                "value does not start with service_code. Import it anyway."
+                            )
+                            self.log.warning(msg, urlinfo, eadid, identifier)
+                        else:
+                            self.log.info(
+                                "Process %s OAI identifier: %s, eadid: %s",
+                                urlinfo,
+                                identifier,
+                                eadid,
+                            )
+                    downloaded_records.append(executor.submit(self.add_record, idx, record))
+                    if idx == records_limit:
+                        break
+            except Exception as error:
+                self.log.error("Harvesting aborted: %s", error)
+            if idx:
+                saved_files, records_to_delete = self.process_harvested(
+                    oaitask_eid, downloaded_records, OAIDCHandler
                 )
             else:
-                self.log.info("downloaded all {} record(s)".format(self.complete_list_size))
-        if from_file and self.oaipmh_writer.oai_records:
-            self.import_records(from_file=from_file)
+                saved_files, records_to_delete = 0, 0
+        return {
+            "complete_list_size": complete_list_size,
+            "saved_files": saved_files,
+            "records_to_delete": records_to_delete,
+            "downloaded": downloaded,
+            "processed": idx,
+            "skipped": skipped,
+        }
 
-    def import_records(self, from_file=False):
-        """import records in the database"""
-        if not self.oaipmh_writer.oai_records:
-            self.log.info("No records found")
-            return
-
-        self.reader.update_authorities_cache(self.service_infos.get("eid"))
-        es_docs = self._import_records(from_file=from_file)
-        if from_file:
-            # in this case only return es_docs as
-            # flush/commit and es_bulk_index are done in
-            # the calling `importer._findingaid_importer` function
-            return es_docs
-        store = self.reader.store
-        if not self.reader.config["esonly"]:
-            store.finish()
-            store.commit()
-        return es_docs
-
-    def _import_records(self, from_file=False):
-        """Import records in the database
-        :param OAIDCWriter oaipmh_writer: write harvester content in fs files
-        :param dict service_infos: service information
+    def harvest_records(self, oaitask_eid, headers, records_limit=None, dry_run=False, **params):
+        """Harvest data and check that they contain the needed information
+        :param function records: read-in records (generator)
         """
-        es_docs = []
-        for eadid in list(self.oaipmh_writer.oai_records.keys()):
-            file_contents = self.oaipmh_writer.get_file_contents(eadid)
-            if not from_file:
-                # not not rewrite the file from which data are beeing imported
-                self.oaipmh_writer.dump(eadid, file_contents)
-            for record in self.oaipmh_writer.oai_records[eadid]:
-                self.log.info("importing %r, eadid %r", record.header.identifier, eadid)
-                header = build_header(record.header)
-                metadata = build_metadata(record.metadata)
-                if record.deleted:
-                    self.reader.delete_findingaid(header, self.service_infos)
-                try:
-                    esdoc = self.reader.import_record(
-                        header, metadata, self.oaipmh_writer, self.service_infos
-                    )
-                except Exception:
-                    import traceback
-
-                    traceback.print_exc()
-                    print("failed to import", repr(eadid))
-                    self.log.exception("failed to import %r", eadid)
-                    continue
-                es_docs.extend(esdoc)
-        if not from_file or not self.reader.config["esonly"]:
-            self.reader.store.flush()
-        return es_docs
+        oai_mapping = {
+            "ListRecords": OAIDCRecord,
+            "GetRecord": OAIDCRecord,
+        }
+        client = PniaSickle(
+            self.service_infos["oai_url"],
+            iterator=PniaOAIItemIterator,
+            class_mapping=oai_mapping,
+            headers=headers,
+            max_retries=3,
+            retry_status_codes=(500, 502, 503),
+        )
+        client.logger = self.log
+        # harvest records
+        params_ = "&".join(f"{k}={v}" for k, v in params.items())
+        self.log.info(f'Process {self.service_infos["oai_url"]} with {params_}')
+        results = self.download_records(client.ListRecords(**params), oaitask_eid, records_limit)
+        self.process_results(results, oaitask_eid, records_limit)
 
 
-class OAIDCReader(CSVReader):
-    """OAI DC schema reader."""
+def get_oai_dc_xml_records(tree):
+    if hasattr(tree, "getroot"):
+        root = tree.getroot()
+    else:
+        root = tree
+    return root.findall("{ns}ListRecords/{ns}record".format(ns=get_namespace(root)))
 
-    def __init__(self, config, store):
-        super(CSVReader, self).__init__(config, store)
+
+class OAIDCHarvestedReader(Reader):
+    """OAI-DC record reader
+
+    :ivar dict config: server-side configuration
+    :ivar store: a CubicWeb `Store`
+    :ivar dict identifiers: OAI identifier/EADID map for imported records
+    """
+
+    def __init__(self, config, store, identifiers=None):
+        """Initialize OAI EAD record reader for OAI EAD harvested XML files.
+
+        :param dict config: server-side configuration
+        :param store: a CubicWeb `Store`
+        :param dict identifiers: OAI identifier/EADID map for imported records
+
+        """
+        super().__init__(config, store)
         self._created_fa = {}
 
     def richstring_html(self, data, attr):
@@ -430,15 +312,93 @@ class OAIDCReader(CSVReader):
             return self.richstring_template.format(data=" ".join(data), attr=attr)
         return None
 
-    def import_record(self, header, metadata, oaipmh_writer, service_infos):
+    def process_oaidc_xml(self, filepath):
+        data = self.storage.storage_get_oaifile_content(filepath)
+        try:
+            return etree.parse(data, parser=XMLParser)
+        except Exception:
+            self.log.exception('Could not process file "%r"', filepath)
+            return
+
+    def oai_sets(self, tree):
+        """Retrieve ListSets"""
+        if hasattr(tree, "getroot"):
+            root = tree.getroot()
+        else:
+            root = tree
+        sets = {}
+        request = root.findall("{ns}request".format(ns=get_namespace(root)))
+        if request is not None:
+            oai_url = request[0].text
+            if oai_url:
+                # This code retrieves ListSets to get the setName in case the OAI-PMH
+                # in case this information is not provied in ListRecords (BnF recommendation)
+                try:
+                    return get_sets_dict(PniaSickle(oai_url).ListSets())
+                except Exception as ex:
+                    self.log.exception("No sets could be found: %s", ex)
+        return sets
+
+    def import_filepath(self, filepath, service_infos=None, **kwargs):
         """Generate extentities read from `record` etree"""
-        eadid = header["eadid"]
-        filepath = oaipmh_writer.get_file_path(eadid)
-        creation_date = self.creation_date_from_filepath(filepath)
-        fa_key = usha1(eadid)
-        fa_es_doc = self._created_fa.get(fa_key)
+        service_infos = self.ensure_service(filepath, service_infos=service_infos)
+        if not service_infos["code"]:
+            self.log.error("Import aborted: no service code found: %s", service_infos)
+            return []
+        if not service_infos["eid"]:
+            self.log.error("Import aborted: no service eid found: %s", service_infos)
+            return []
+        tree = self.process_oaidc_xml(filepath)
+        service_oai_url = get_oai_dc_url_from_tree(tree)
+        _error = check_harvested_oai_url(self.store._cnx, service_infos["code"], service_oai_url)
+        if _error:
+            self.exception(_error)
+            return []
+        service_infos["oai_url"] = service_oai_url
+        self.log.info("Importing files harvested from %r", service_oai_url)
+        # assert the oai_url is an service repository
+        sets = self.oai_sets(tree)
+        es_documents = []
+        records = get_oai_dc_xml_records(tree)
+        for idx, record in enumerate(records):
+            record = OAIDCRecord(record)
+            try:
+                esdoc = self.import_record(record, idx, filepath, service_infos, sets)
+            except Exception:
+                import traceback
+
+                traceback.print_exc()
+                eadid = record.eadid
+                self.log.exception("Failed to import %r", eadid)
+                continue
+            es_documents.extend(esdoc)
+        return es_documents
+
+    def import_record(self, record, idx, filepath, service_infos, sets):
+        eadid = record.eadid
+        header = record.build_dc_header(sets)
+        if record.deleted:
+            self.delete_record(header, service_infos)
+            return {}
+        self.log.info("Importing %r, eadid %r", record.header.identifier, eadid)
+        # check that FindingAid did.unittitle could be retrieved from the
+        # record's setName or setSpec or raise an error
+        if not header["name"]:
+            self.log.exception(
+                (
+                    "Failed to import (eadid %r): check that the setName or "
+                    "SetSpec is provided in the record. If no setName provided, "
+                    "check that the ListSets does include the specified setSpec"
+                ),
+                eadid,
+            )
+            return {}
         es_docs = []
+        metadata = record.build_dc_metadata()
+        fa_key = usha1(eadid)
+        fa_es_doc, creation_date = self._created_fa.get(fa_key, (None, None))
         if fa_es_doc is None:
+            creation_date = self.creation_date_from_filepath(filepath)
             # directory exists, will not be overwritten
             findingaid_support = self.create_file(filepath)
             self.delete_from_filename(filepath)
@@ -446,39 +406,31 @@ class OAIDCReader(CSVReader):
             header.update({"stable_id": stable_id, "irname": ir_name})
             metadata["creation_date"] = creation_date
             fa_es_doc = self.import_findingaid(header, metadata, service_infos, findingaid_support)
-            self._created_fa[fa_key] = fa_es_doc
+            self._created_fa[fa_key] = (fa_es_doc, creation_date)
             es_docs.append(fa_es_doc)
         fa_data = fa_es_doc["_source"].copy()
         fa_data.update({"service": service_infos.get("eid"), "creation_date": creation_date})
-        es_doc = self.import_facomponent(metadata, fa_data, header["identifier"], service_infos)
+        es_doc = self.import_facomponent(
+            metadata, idx, fa_data, header["identifier"], service_infos
+        )
         if es_doc:
             es_docs.append(es_doc)
         return es_docs
 
-    def delete_findingaid(self, header, service_infos):
-        # delete the. FindingAid if exists
-        identifier = header["identifier"]
-        res = self.store._cnx.execute(
-            """
-        Any FSPATH(D) WHERE X is FindingAid,
-        X oai_id %(oai_id)s,
-        X findingaid_support FS, FS data D
-        """,
-            {"oai_id": oai_utils.compute_oai_id(service_infos["oai_url"], identifier)},
-        )
-        if res:
-            filepath = res[0][0].getvalue()
-            delete_from_filename(
-                self.store._cnx, filepath, interactive=False, esonly=self.config["esonly"]
-            )
-            self.log.info(
-                "deleted record %r: remove the corresponding FindingAid %s", identifier, filepath
-            )
+    def delete_record(self, header, service_infos):
+        """this method is not implemented as the record.deleted is set on a
+        FAcomponent, not on FindingAid
+        """
+        pass
+        # identifier = header["identifier"]
+        # self.log.warning("no FindingAid found for deleted record: %r", identifier)
 
     def import_findingaid(self, header, metadata, service_infos, findingaid_support):
         name = header["name"] or "Sans titre"
+        origination = " ; ".join(metadata["creator"])
         did_attrs = {
             "unittitle": name,
+            "origination": origination,
         }
         did_data = self.create_entity("Did", clean_values(did_attrs))
         fa_header_data = self.create_entity("FAHeader", {"titleproper": name})
@@ -494,33 +446,78 @@ class OAIDCReader(CSVReader):
             "stable_id": header["stable_id"],
             "fa_header": fa_header_data["eid"],
             "findingaid_support": findingaid_support["eid"],
-            "oai_id": oai_utils.compute_oai_id(service_infos["oai_url"], header["identifier"]),
+            "oai_id": compute_oai_id(service_infos["oai_url"], header["identifier"]),
         }
         fa_attrs["creation_date"] = metadata["creation_date"]
         fa_data = self.create_entity("FindingAid", clean_values(fa_attrs))
+        indexes = self.index_entries(
+            {"origine": metadata["creator"]},
+            fa_data["eid"],
+            fa_attrs,
+        )
         fa_es_attrs = {
-            "name": fa_data["name"],
             "fa_stable_id": fa_data["stable_id"],
             "scopecontent": strip_html(fa_attrs.get("scopecontent")),
+            "originators": [origination],
+            "index_entries": indexes,
+            "digitized": False,
+            "digitized_all": DZFacetValues.index_values(False, False),
+            "alltext": name,
             **service_infos_for_es_doc(self.store._cnx, service_infos),
         }
-        es_doc = self.build_complete_es_doc(
-            "FindingAid", fa_data, did_data, index_entries={}, **fa_es_attrs
-        )
+        es_doc = self.build_complete_es_doc("FindingAid", fa_data, did_data, **fa_es_attrs)
         self.create_entity(
             "EsDocument", {"doc": json_dumps(es_doc["_source"]), "entity": fa_data["eid"]}
         )
         return es_doc
 
+    def get_extptr(self, metadata):
+        """take the first found <dc:identifier> as extptr (cf. 611)"""
+        for url in metadata["identifier"]:
+            if url and len(url) > 2048:
+                self.log.error(
+                    "do not import import extptr length %s: %r",
+                    len(url),
+                    url,
+                )
+            else:
+                return url
+
     def digitized_version(self, metadata):
         dao = []
-        for url in metadata["identifier"]:
-            dao.append({"url": url})
-        for illustration_url in metadata["relation"]:
-            dao.append({"illustration_url": illustration_url})
+        bnf_prefix = "vignette :"
+        for url in metadata["relation"]:
+            illustration_url = None
+            if bnf_prefix in url:
+                # clean url : BNF adds "vignette :" before the url
+                url = illustration_url = url.split(bnf_prefix)[1].strip()
+            if not self.is_dao_url_valid(url):
+                self.log.error(
+                    "Do not import import dao with relation url length %s: %r",
+                    len(url),
+                    url,
+                )
+                continue
+            if illustration_url:
+                # vignette -> illustration url
+                dao.append({"illustration_url": illustration_url.strip(), "role": "thumbnail"})
+            else:
+                # without vignette -> viewer url
+                dao.append({"url": url.strip()})
+        for url in metadata.get("hasFormat", []):
+            if not self.is_dao_url_valid(url):
+                self.log.error(
+                    "Do not import dao with hasFormat url length %s: %r",
+                    len(url),
+                    url,
+                )
+            else:
+                dao.append({"url": url.strip(), "role": IIIF_MANIFEST_ROLE})
         return dao
 
-    def import_facomponent(self, metadata, findingaid_data, identifier, service_infos):
+    def import_facomponent(
+        self, metadata, component_order, findingaid_data, identifier, service_infos
+    ):
         fa_stable_id = findingaid_data["stable_id"]
         unittitle = " ; ".join(metadata["title"])
         # Use <header><identifier> to compute the stable_id
@@ -529,12 +526,13 @@ class OAIDCReader(CSVReader):
         did_attrs = {
             "unitid": " ; ".join(metadata["source"]),
             "unittitle": unittitle,
-            "unitdate": get_date(metadata["date1"], metadata["date2"]),
-            "startyear": get_year(metadata["date1"]),
-            "stopyear": get_year(metadata["date2"]),
+            "unitdate": metadata["date"],
+            "startyear": metadata["date1"] or get_year(metadata["date"]),
+            "stopyear": metadata["date2"],
             "physdesc": self.richstring_html(" ; ".join(metadata["format"]), "physdesc"),
             "physdesc_format": "text/html",
             "origination": " ; ".join(metadata["creator"]),
+            "extptr": self.get_extptr(metadata),
         }
         languages = " ; ".join(metadata["language"])
         if len(languages) < 4:
@@ -553,6 +551,7 @@ class OAIDCReader(CSVReader):
             "scopecontent_format": "text/html",
             "userestrict": self.richstring_html(metadata["rights"], "userestrict"),
             "userestrict_format": "text/html",
+            "component_order": component_order,
         }
         comp_attrs["creation_date"] = findingaid_data.get("creation_date")
         comp_data = self.create_entity("FAComponent", clean_values(comp_attrs))
@@ -569,19 +568,22 @@ class OAIDCReader(CSVReader):
                 "index_personne": metadata["contributor"],
                 "index_lieu": metadata["coverage"],
                 "index_matiere": metadata["subject"],
+                "origine": metadata["creator"],
             },
             comp_eid,
             findingaid_data,
         )
+        iiif = bool([d for d in daodefs if d.get("role") == IIIF_MANIFEST_ROLE])
         es_doc = self.build_complete_es_doc(
             "FAComponent",
             comp_data,
             did_data,
-            name=findingaid_data["name"],
             fa_stable_id=fa_stable_id,
-            publisher=findingaid_data["publisher"],
+            scopecontent=strip_html(comp_attrs.get("scopecontent")),
+            originators=metadata["creator"],
             index_entries=indexes,
             digitized=bool(daodefs),
+            digitized_all=DZFacetValues.index_values(digitized=bool(daodefs), iiif=iiif),
             **service_infos_for_es_doc(self.store._cnx, service_infos),
         )
         self.create_entity("EsDocument", {"doc": json_dumps(es_doc["_source"]), "entity": comp_eid})
@@ -589,7 +591,5 @@ class OAIDCReader(CSVReader):
 
 
 def import_oai_dc_filepath(store, filepath, service_infos, config=None):
-    base_url = "file://{}".format(filepath)
-    service_infos["oai_url"] = base_url
-    importer = OAIDCImporter(store, config, service_infos)
-    return importer.harvest_records(from_file=True)
+    reader = OAIDCHarvestedReader(config, store)
+    return reader.import_filepath(filepath, service_infos)

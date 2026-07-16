@@ -33,15 +33,18 @@
 import csv
 import datetime
 import unittest
+
+from cubicweb_web.devtools.testlib import WebCWTC, WebPostgresApptestConfiguration
 from rdflib import Graph
 from rdflib.compare import graph_diff
 
 from jinja2 import Environment, FileSystemLoader
 
 from cubicweb.rdf import add_entity_to_graph
-from cubicweb.devtools import testlib, PostgresApptestConfiguration
 
 from cubicweb_eac import testutils as eac_testutils
+
+from cubicweb_francearchives import IIIF_MANIFEST_ROLE
 
 from pgfixtures import setup_module, teardown_module  # noqa
 
@@ -51,14 +54,18 @@ env = Environment(
 )
 
 
-class RDFAdapterTest(testlib.CubicWebTC):
-    configcls = PostgresApptestConfiguration
+class RDFAdapterTest(WebCWTC):
+    configcls = WebPostgresApptestConfiguration
 
     def setup_database(self):
         super().setup_database()
         with self.admin_access.cnx() as cnx:
             service = cnx.create_entity(
-                "Service", code="FRAD084", category="foo", name="Archives dep"
+                "Service",
+                code="FRAD084",
+                category="foo",
+                name="Archives dep",
+                iiif_extptr=True,
             )
             fadid = cnx.create_entity(
                 "Did", unitid="maindid", unittitle="maindid-title", physdesc="un beau rouleau"
@@ -76,6 +83,11 @@ class RDFAdapterTest(testlib.CubicWebTC):
                 "DigitizedVersion",
                 illustration_url="https://archive.loutre/poulet.jpg",
             )
+            iiif = cnx.create_entity(
+                "DigitizedVersion",
+                url="https://archive.loutre/manfest.json",
+                role=IIIF_MANIFEST_ROLE,
+            )
             fa = cnx.create_entity(
                 "FindingAid",
                 name="the-fa",
@@ -91,7 +103,7 @@ class RDFAdapterTest(testlib.CubicWebTC):
                 finding_aid=fa,
                 stable_id="fc-stable-id",
                 did=fcdid,
-                digitized_versions=dv,
+                digitized_versions=[dv, iiif],
                 scopecontent="<div>fc-scoppecontent</div>",
                 description="<div>fc-descr</div>",
             )
@@ -122,6 +134,14 @@ class RDFAdapterTest(testlib.CubicWebTC):
                 role="originator",
                 type="corpname",
             )
+            cnx.create_entity(
+                "AgentName",
+                label="Coin Nature Ressource Suivante",
+                authority=originator,
+                index=fa,
+                role="originator",
+                type="name",
+            )  # duplicate index but with the "name" type which should not be regarded for type
             cnx.commit()
             self.fa_eid = fa.eid
             self.facomp_eid = facomp.eid
@@ -170,7 +190,6 @@ class RDFAdapterTest(testlib.CubicWebTC):
     def test_content_rdf_RICO_facomponent(self):
         with self.admin_access.cnx() as cnx:
             facomp = cnx.find("FAComponent", eid=self.facomp_eid).one()
-
             facomp_adapted = facomp.cw_adapt_to("rdf")
             data = env.get_template("facomponent.ttl").render(
                 service_eid=self.service_eid,
@@ -315,16 +334,24 @@ class RDFAdapterTest(testlib.CubicWebTC):
                     uri="http://www.geonames.org/6301915",
                 ),
             )
-            # toulouse (adm4)
+            # toulouse (adm4 and ppl)
             toulouse = cnx.create_entity(
                 "LocationAuthority",
                 label="Toulouse",
                 quality=True,
-                same_as=cnx.create_entity(
-                    "ExternalUri",
-                    source="geoname",
-                    extid="6453974",
-                    uri="http://www.geonames.org/6453974",
+                same_as=(
+                    cnx.create_entity(
+                        "ExternalUri",
+                        source="geoname",
+                        extid="2972315",
+                        uri="http://www.geonames.org/2972315",
+                    ),
+                    cnx.create_entity(
+                        "ExternalUri",
+                        source="geoname",
+                        extid="6453974",
+                        uri="http://www.geonames.org/6453974",
+                    ),
                 ),
             )
             # Haute-Garonne (adm2)
@@ -376,6 +403,17 @@ class RDFAdapterTest(testlib.CubicWebTC):
             )
             g_expected = Graph().parse(data=data, format="ttl")
             self.assertGraphEqual(graph, g_expected)
+            toulouse = cnx.entity_from_eid(toulouse.eid)
+            graph = Graph()
+            add_entity_to_graph(graph, toulouse)
+            data = env.get_template("location_hierarchy_france_adm4_ppl.ttl").render(
+                toulouse=toulouse.eid,
+                haute_garonne=haute_garonne.eid,
+                occitanie=occitanie.eid,
+                france=france.eid,
+            )
+            g_expected = Graph().parse(data=data, format="ttl")
+            self.assertGraphEqual(graph, g_expected)
 
     def test_geonames_hierarchy_country(self):
         with self.admin_access.repo_cnx() as cnx:
@@ -414,7 +452,7 @@ class RDFAdapterTest(testlib.CubicWebTC):
             self.assertGraphEqual(graph, g_expected)
 
 
-class AuthorityRecordRdfTC(testlib.CubicWebTC):
+class AuthorityRecordRdfTC(WebCWTC):
     def setup_database(self):
         with self.admin_access.cnx() as cnx:
             service = cnx.create_entity(
@@ -645,6 +683,43 @@ class AuthorityRecordRdfTC(testlib.CubicWebTC):
                 graph,
                 {},
                 "record_no_authority.ttl",
+            )
+
+    def test_wikidata_relations(self):
+        with self.admin_access.repo_cnx() as cnx:
+            parent = cnx.create_entity("AgentAuthority", label="Parent", quality=True)
+            sibling = cnx.create_entity("AgentAuthority", label="Adelphe", quality=True)
+            spouse = cnx.create_entity("AgentAuthority", label="Amour", quality=True)
+            institution = cnx.create_entity("AgentAuthority", label="PouletCorp", quality=True)
+            person = cnx.create_entity(
+                "AgentAuthority",
+                label="Jean Poulet",
+                wikidata_child_of=parent,
+                wikidata_sibling_of=sibling,
+                wikidata_spouse_of=spouse,
+                wikidata_member_of=institution,
+                quality=True,
+            )
+            child = cnx.create_entity(
+                "AgentAuthority", label="Enfant", wikidata_child_of=person, quality=True
+            )
+            cnx.create_entity("AgentAuthority", label="Enfant nul", wikidata_child_of=person)
+            cnx.commit()
+            person = cnx.entity_from_eid(person.eid)
+
+            graph = Graph()
+            add_entity_to_graph(graph, person)
+            self.compare_graphs(
+                graph,
+                {
+                    "person": person.eid,
+                    "parent": parent.eid,
+                    "child": child.eid,
+                    "sibling": sibling.eid,
+                    "spouse": spouse.eid,
+                    "institution": institution.eid,
+                },
+                "wikidata_relations.ttl",
             )
 
 

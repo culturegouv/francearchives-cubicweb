@@ -37,11 +37,9 @@ from cubicweb.devtools import (
     DEFAULT_PSQL_SOURCES,
     startpgcluster,
     stoppgcluster,
-    ApptestConfiguration,
     get_test_db_handler,
-    PostgresApptestConfiguration,
 )
-
+from cubicweb.devtools.apptest_config import ApptestConfiguration, PostgresApptestConfiguration
 
 is_master = False
 

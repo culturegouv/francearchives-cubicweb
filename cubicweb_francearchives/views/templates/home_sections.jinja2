@@ -1,0 +1,32 @@
+<section id="content" class="fr-pt-8v fr-py-14v fr-pt-md-16v fr-py-md-22v fr-background-contrast--blue-cumulus">
+  <div class="fr-container">
+    <div class="fr-grid-row fr-grid-row--gutters">
+      {%- for entity in focus -%}
+      <div class="fr-col-12 fr-col-md-4">
+        <div class="fr-px-3w fr-py-4w fr-px-md-4w fa-home-focus">
+        {%-if editable -%}
+        <div class="fr-col-12">
+          <p>{{ req._("Edit the card") }}{{ _(":")}}<a href="{{ entity.url | e }}" class="fr-link fr-icon-arrow-right-line fr-link--icon-right">{{ entity.title }}</a></p>
+        </div>
+        {%- endif -%}
+          <div class="fr-tile__header">
+            <div class="fr-tile__pictogram">
+              <svg aria-hidden="true" class="fr-artwork" viewBox="0 0 80 80" width="80px" height="80px">
+                <use class="fr-artwork-decorative" href="{{ data_url }}dsfr/artwork/pictograms/{{ entity.icon }}#artwork-decorative"></use>
+                <use class="fr-artwork-minor" href="{{ data_url }}dsfr/artwork/pictograms/{{ entity.icon }}#artwork-minor"></use>
+                <use class="fr-artwork-major" href="{{ data_url }}dsfr/artwork/pictograms/{{ entity.icon }}#artwork-major"></use>
+            </svg>
+            </div>
+          </div>
+          <h2 class="fr-h5 fa-home-focus__title" {% if entity.lang_attr -%}{{ entity.lang_attr }}{%- endif -%}>
+            {{ entity.link_title | e }}
+          </h2>
+          <div class="fr-text--md fa-home-focus__content" {% if entity.lang_attr -%}{{ entity.lang_attr }}{%- endif -%}>
+            {{ entity.content }}
+          </div>
+        </div>
+      </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>

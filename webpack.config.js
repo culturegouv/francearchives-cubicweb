@@ -2,25 +2,36 @@
 
 const path = require('path')
 const webpack = require('webpack')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const universalviewerVersion =
+    require('./package.json').dependencies['universalviewer']
 
 const config = {
     context: path.join(__dirname, 'appjs'),
+
     entry: {
-        'circular-table': ['./circular-table'],
+        'portal-francearchives': ['./portal-francearchives'],
+        'pnia-archivists': ['./pnia-archivists.js'],
+        'pnia-search': ['./pnia-search'],
+        'fa-context': ['./fa-context'],
+        'circular-table': ['./circulars/index.tsx'],
         'pnialocation-map': ['./pnialocation-map'],
         'pniaservices-map': ['./pniaservices-map'],
-        'pniaservice-map': ['./pniaservice-map'],
+        'pnia-entity-map': ['./pnia-entity-map'],
         glossary: ['./glossary'],
-        'pnia-toc': ['./pnia-toc'],
-        'pnia-faq': ['./pnia-faq'],
+        'pnia-glossary': ['./pnia-glossary'],
+        'pnia-articles': ['./pnia-articles'],
         'intro-tour': ['./introjs'],
-        'pnia-sectiontree': ['./pnia-sectiontree.js'],
-        'pnia-mainmenu': ['./pnia-mainmenu.js'],
-        'pnia-mirador': ['./pnia-mirador.js'],
+        'pnia-mirador': ['./pnia-mirador.tsx'],
+        'pnia-iiif-viewers': ['./pnia-iiif-viewers.tsx'],
+        'pnia-universalviewer': ['./pnia-universalviewer.tsx'],
         'advanced-search': ['./advanced-search/main.tsx'],
         yasgui: ['./yasgui/index.tsx'],
+        sparnatural: ['./sparnatural/index.tsx'],
+        'pnia-webchat': ['./pnia-webchat.js'],
     },
     module: {
+        strictExportPresence: false,
         rules: [
             {
                 test: /\.js$/,
@@ -31,13 +42,22 @@ const config = {
                 },
             },
             {
-                test: /\.tsx?$/,
+                test: [/\.tsx?$/],
                 exclude: /node_modules/,
                 use: ['ts-loader'],
             },
             {
+                test: [/\.jsx?$/],
+                exclude: /node_modules/,
+                use: ['babel-loader'],
+            },
+            {
                 test: /\.css$/,
                 use: ['style-loader', 'css-loader'],
+            },
+            {
+                test: /\.svg$/,
+                type: 'asset/resource',
             },
         ],
     },
@@ -49,6 +69,19 @@ const config = {
         new webpack.IgnorePlugin({
             resourceRegExp: /^(buffertools)$/,
         }), // unwanted "deeper" dependency
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: '../node_modules/tarteaucitronjs/tarteaucitron.js',
+                    to: 'tarteaucitron/tarteaucitron.js',
+                },
+            ],
+        }),
+        new webpack.DefinePlugin({
+            'process.env.PACKAGE_VERSION': JSON.stringify(
+                universalviewerVersion,
+            ),
+        }),
     ],
     resolve: {
         fallback: {
@@ -60,11 +93,6 @@ const config = {
         // also get ride of warnings on unused '@blueprintjs/core' and  '@blueprintjs/icons'
         extensions: ['.ts', '.tsx', '.js', '.json'],
     },
-}
-
-if (process.env.FA_DEV) {
-    // transpile need 0.5s
-    delete config.module
 }
 
 module.exports = (env, argv) => {

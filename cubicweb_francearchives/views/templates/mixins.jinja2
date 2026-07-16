@@ -1,173 +1,313 @@
+{% macro rdf_download_button(entity, rdf_formats, lang, _) %}
+{%- set rdfid="rdfswitch"+ entity.eid|string -%}
+<div class="fr-dropdown dropdown fr-mb-8v">
+  <button class="fr-dropdown__btn fr-btn fr-btn--tertiary" aria-controls="{{ rdfid }}" aria-expanded="false">
+    {{ _("Download the record in RDF") }}
+  </button>
+  <div class="fr-collapse fr-dropdown__menu fr-menu" id="{{ rdfid }}">
+      <ul class="fr-menu__list">
+        {{ rdf_download_options(entity, rdf_formats, lang, _) }}
+      </ul>
+   </div>
+</div>
+{%endmacro%}
+
+
+{% macro rdf_download_button_tab(entity, rdf_formats, lang, _) %}
+{%- set rdfid="rdfswitch"+ entity.eid|string -%}
+<div class="fr-select-group fr-mb-8v">
+  <p class="fr-label" id="{{ rdfid }}">{{_("Available RDF formats:") }}</p>
+  <ul aria-labelledby="{{ rdfid }}">
+  {{ rdf_download_options(entity, rdf_formats, lang, _) }}
+  </ul>
+</div>
+{%endmacro%}
+
+{% macro rdf_download_options(entity, rdf_formats, lang, _) %}
+  {% for url, extension, name in rdf_formats %}
+  <li>
+  <a id="download-rdf-{{ extension}}-{{ entity.eid}}"
+     class="fr-link fr-link--download {%- if eulerian %} eulerian-button{% endif -%}"
+     download="{{ entity.rest_path().replace('/', '_') }}_rdf.{{ extension }}"
+     {% if lang != "fr" -%}
+     hreflang="fr"
+     {% endif -%}
+     href="{{ url }}"
+     {%- if eulerian %}
+     title="{{ _("Donwload in format") }}{{ _(":") }}{{ name }}"
+     data-eulerian-actionname = "download_rdf_{{ heading_hierarchy }}"
+     data-eulerian-actionlabel = "download_rdf,{{ eulerian.page_type }},{{ eulerian.type_doc }},{{ eulerian.document_title }}_rdf,{{ eulerian.service_code }}"
+     data-eulerian-headinghierarchy="{{ heading_hierarchy }}"
+     data-eulerian-componenthierarchy="main_>_section_>_list_>_link"
+     data-eulerian-componentlabel="{{ eulerian.document_title }}"
+            {% endif -%}
+  >
+    {{ name }}
+    <span class="fr-link__detail">{{ name }} – {{ _('less than') }} 100 {{ _('KB') }}</span>
+
+  </a>
+  </li>
+  {% endfor %}
+{%endmacro%}
+
+
+{% macro list(values, classes, lang_attr, _) %}
+{% set seplist = _("; ") %}
+<ul class="fr-links-group--inline fa-links-group--inline {%- if classes %} {{ classes }}{%- endif -%}">
+    {% for value in values %}
+    <li {{ lang_attr }}>{{ value |safe }}{%- if not loop.last %}{{ seplist }}{%- endif -%}</li>
+    {% endfor %}
+  </ul>
+{% endmacro %}
+
+
 {% macro imageitem(image, default_picto_src) %}
-  {% if image %}
-  {% set legend=image.caption or image.copyright %}
-  {% if legend %}
-  <figure class="image" role="group" {% if legend %} aria-labelledby="fig{{ image.eid }}" {% endif %}>
-  {% endif %}
-    <img class="img-fluid"
-         src="{{ image.image_file[0].download_url() }}"
-             alt="{{ image.alt  | escape }}"
-             data-defaultsrc="{{ default_picto_src }}"
-    />
-    {% if legend %}
-    <figcaption id="fig{{ image.eid }}">
-       {% if image.caption  %}
-           {{ image.caption }}
-       {% endif %}
-       {% if image.copyright  %}
-           <p class="image-copyright">© {{image.copyright }}</p>
-       {% endif %}
-    </figcaption>
-    </figure>
-    {% endif %}
-  {% endif %}
+<figure class="fr-content-media" role="figure" {% if image.legend -%}aria-label="{{ image.legend }}" {%- endif -%}>
+   <div class="fr-content-media__img">
+      <img class="fr-responsive-img fr-ratio-16x9"
+           src="{{ image.image_file[0].download_url() }}"
+           alt="{{ image.alt  | escape }}"
+           data-defaultsrc="{{ default_picto_src }}"
+      >
+   </div>
+  {%- if image.legend -%}
+  <figcaption class="fr-content-media__caption">{{ image.legend }}</figcaption>
+  {%- endif -%}
+</figure>
 {% endmacro %}
 
 {% macro imagelist(images, default_picto_src) %}
-  {% if images %}
-    <div class="images">
-      {% for image in images %}
+   {% for image in images %}
        {{ imageitem(image, default_picto_src) }}
-     {% endfor %}
-    </div>
-  {% endif %}
+   {% endfor %}
 {% endmacro %}
 
+{%- macro display_errors(errors, _) %}
+  {%- if errors %}
+    {%- for title, _errors in errors.items() %}
+    {%- set data = _errors["errors"] %}
+    {%- set css = "success" if data|length == 0 else "warning" %}
+      <div class="alert alert-{{css}} fade show" role="alert">
+        <h1>{{ title }}</h1>
+        <p>{{ _errors["msg"] }}</p>
+        {%- if data %}
+        <table class="fr-table">
+          <tr>
+            <th>{{ _("link title") }} </th>
+            <th>{{ _("broken link") }}</th>
+            <th>{{ _("reason") }}</th>
+          </tr>
+          {%- for error in data %}
+          <tr>
+            <td>{{ error[0] }}</td><td>{{ error[1] }}</td><td>{{ error[2] }}</td>
+          </tr>
+          {%- endfor %}
+        </table>
+       {%- endif %}
+      </div>
+    {%- endfor %}
+  {%- endif %}
+{%- endmacro %}
 
 {% macro faqitems(faq, category, editable, _, level) %}
-  {% for eid, faq_url, question, answer in faq %}
-    <div class="faq_item">
-      <div class="faq_item__question collapsed" id="question{{eid}}" data-bs-toggle="collapse" data-bs-target="#answer{{eid}}" aria-expanded="false" aria-controls="answer{{eid}}" tabindex="0"
-       role="button"
-        >
-        <H{{ level }} class="no-style">
-          {% if editable %}
-            <a class="edit-link" href="{{ faq_url }}"><i class="fa fa-edit"></i></a>
-          {% endif %}
-          <i class="fa angle-right"></i>
-          {{ question }}
-        </h{{ level }}>
-      </div>
-      <div id="answer{{eid}}" class="collapse faq_item__answer" data-parent="#{{category}}">
-        <div>{{ answer }}</div>
-      </div>
-    </div>
-  {% endfor %}
+{%- if faq -%}
+<div class="fr-accordions-group">
+{% for eid, faq_url, question, answer, qlang_attr, alang_attr in faq %}
+<div class="fr-accordion">
+  <h3 class="fr-accordion__title">
+    <button class="fr-accordion__btn" aria-expanded="false" aria-controls="faq-{{ eid }}">
+    {%- if qlang_attr -%}<span {{ qlang_attr }}>{{ question }}</span>
+    {%- else -%}{{ question }}{%- endif -%}
+    </button>
+  </h3>
+  <div class="fr-collapse" id="faq-{{ eid }}">
+    {% if editable %}
+      <p><a class="edit-link" href="{{ faq_url }}">{{ _('Edit the entry') }}</i></a></p>
+    {% endif %}
+    {%- if alang_attr -%}<div {{ alang_attr }}>{{ answer }}</div>
+    {%- else -%}{{ answer }}{%- endif -%}
+  </div>
+</div>
+{% endfor %}
+</div>
+{%- endif -%}
 {% endmacro %}
 
+{% macro modalbox_faq(data, boxid, _) %}
+{% if data and data.faqs %}
+<dialog aria-labelledby="{{ boxid }}-title" id="{{ boxid }}" class="fr-modal fr-modal--top">
+    <div class="fr-container fr-container--fluid fr-container-md">
+      <div class="fr-grid-row fr-grid-row--center">
+        <div class="fr-col-12 fr-col-md-8 fr-col-lg-6">
+          <div class="fr-modal__body">
+            <div class="fr-modal__header">
+              <button class="fr-btn--close fr-btn" aria-controls="{{ boxid }}">{{ _('Close') }}</button>
+            </div>
+            <div class="fr-modal__content">
+              <h1 id="{{ boxid }}-title" class="fr-modal__title">
+                <span class="fr-icon-arrow-right-line fr-icon--lg" aria-hidden="true"></span>
+                {{ "FAQ" }} : {{ _(data.category) }}
+              </h1>
+              {{  faqitems(data.faqs, data.category, false, _, 2) }}
+            </div>
+            <div class="fr-modal__footer">
+              <div class="fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-lg fr-btns-group--icon-left">
+                <a href="{{ data.faq_url }}" class="fr-btn" rel="noopener external" target="_blank"> {{ data.faq_label }}</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</dialog>
+{% endif %}
+{% endmacro %}
 
 {% macro modalfaq(data, _) %}
 {% if data and data.faqs %}
- <div class="faqbox d-print-none">
-   <button type="button" id="faqbox-btn" data-bs-toggle="modal" data-bs-target="#faq-modal"
-           aria-haspopup="dialog" aria-controls="faq-modal" aria-expanded="false">
-      {{ _("Help?") }}
-   </button>
-   <div id="faq-modal" class="modal fade faq-modal" role="dialog"
-        aria-labelledby="faq-modal-title" aria-modal="true"
-        aria-hidden="true" tabindex="-1">
-     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-       <div class="modal-content faq-modal-content">
-         <div class="modal-header faq-modal-header">
-           <div>
-             <h1 class="no-style modal-title" id="faq-modal-title">
-               {{ "FAQ" }} : {{ _(data.category) }}
-             </h1>
-             <button type="button" class="btn-close" data-bs-dismiss="modal"
-                data-dismiss="faq-modal"
-                aria-label="{{ _('Close') }}">
-             </button>
-           </div>
-           <div>
-              <a href="{{ data.faq_url }}" class="faq-all-link" target="_blank">
-                {{ data.faq_label }}
-              </a>
-              <button id="faq-toggle-fold" type="button"
-                data-label-collapse="{{_('Fold all') }}"
-                data-label-expand="{{_('Unfold all') }}"
-                aria-expanded="false" aria-controls="faqs">
-                {{_('Unfold all') }}
-              </button>
-           </div>
-         </div>
-         <div id="faqs" class="modal-body">
-           {{  faqitems(data.faqs, data.category, false, _, 2) }}
-           <div class="faq_item_last">
-             <a href="{{ data.faq_url }}" class="faq-all-link" target="_blank">
-             {{ data.faq_label }}</a>
-           </div>
-         </div>
-         <div class="modal-footer">
-        <button type="button" class="btn btn-primary"  data-dismiss="faq-modal" data-bs-dismiss="modal">{{ _('Close') }}</button>
-      </div>
-       </div>
-     </div>
-   </div>
- </div>
+<div id="faqbox">
+  <button class="fr-btn fr-btn--sm" data-fr-opened="false" aria-controls="faq-modal">
+  {{ _("Help?") }}
+  </button>
+  {{ modalbox_faq(data, "faq-modal", _) }}
+</div>
 {% endif %}
 {% endmacro %}
 
 {% macro content_metadata(metadata, _) %}
    {% if metadata %}
-    <div class="content-metadata">
-    {% for label, value in metadata -%}
-        <p class="content-metadata-item">
-            {% if label -%}{{ _(label) }}{{ _(":")}}{% endif -%}{{ value }}
-        </p>
-    {% endfor -%}
-    </div>
+   <p class="fr-text--sm">
+     {% for label, value in metadata -%}
+       {% if label -%}{{ _(label) }}{{ _(":")}} {% endif -%}
+       {{ value|e }}
+         {%- if not loop.last %}
+          <span class="fr-mx-1v">/</span>
+         {% endif -%}
+      {% endfor -%}
+   </p>
+  {% endif %}
+{% endmacro %}
+
+{% macro search_itemprops(item_properties, _) %}
+{% for label, value in item_properties %}
+   {% if value %}
+     <p class="fr-grid-row fr-grid-row--gutters">
+     {% if label is none %}
+       {{ value }}
+     {% else %}
+       <span class="fr-col-12 fr-col-md-4 fa-sr-card__props--label">{{ label }}</span>
+       <span class="fr-col-12 fr-col-md-8 fa-sr-card__props--value fr-pb-1v">{{ value }}</span>
+     {% endif %}
+     </p>
    {% endif %}
+{% endfor %}
 {% endmacro %}
 
 {% macro itemprops(item_properties, _) %}
 {% for label, value in item_properties %}
    {% if value %}
-     <div class="document-properties row">
+     <p class="fr-grid-row">
      {% if label is none %}
        {{ value }}
      {% else %}
-       <span class="document-property-name col-sm-12 col-md-4">{{ label }}{{ _(':') }}</span><span class="document-property-value col-sm-11 offset-sm-1 col-md-8 offset-md-0">{{ value }}</span>
+       <span class="fr-col-md-4 fr-col-sm-12">{{ label }}{{ _(':') }}</span>
+       <span class="fr-col-md-8 fr-col-sm-12">{{ value }}</span>
      {% endif %}
-     </div>
+     </p>
    {% endif %}
 {% endfor %}
 {% endmacro %}
 
 {% macro on_front_page(entities, _) %}
-
 {% if entities %}
 {% for entity in entities %}
-<div class="card">
-    <a href="{{ entity.url }}" title="{{ entity.link_title|e }}">
-        <div class="card-img-top">
-        {% if entity.image %}
-         <img class="img-fluid"
-             alt="{{ entity.image.alt|e }}"
-              src="{{ entity.image.image_file[0].download_url() }}"
-             data-defaultsrc="{{ entity.default_picto_srcs }}"
-          />
-        {% endif %}
-            <p class="article-tag" aria-hidden="true">
-                {{ entity.etype }}
-                <span class="small-black-triangle"></span>
-            </p>
-        </div>
-        <div class="card-body">
-             <h2 class="card-title">
-             {{ entity.title|e }}
-             </h2>
-             <p class="visually-hidden">{{ entity.etype }}</p>
-             {% if entity.dates %}
-             <div class="hpdoc__date">{{ entity.dates }}</div>
-             {% endif %}
-             {% if entity.header %}
-             <div class="hpdoc__header">{{ entity.header }}</div>
-             {% endif %}
-        </div>
-    </a>
+<div class="fr-col-12 fr-col-md-4">
+  <div class="fr-card fr-card--sm fr-enlarge-link">
+    <div class="fr-card__body{{ '' if entity.image else ' fr-mt-3w'}}">
+      <div class="fr-card__content">
+        <h3 class="fr-card__title" {% if entity.lang_attr -%}{{ entity.lang_attr }}{%- endif -%}>
+          <a href="{{ entity.url }}">
+          {{ entity.link_title | e }}
+          </a>
+        </h3>
+        <p class="fr-card__desc" {% if entity.lang_attr -%}{{ entity.lang_attr }}{%- endif -%}>
+         {{ entity.header| e}}
+        </p>
+        <p class="fr-badge fr-mb-6v">{{ entity.etype }}</p>
+      </div>
+    </div>
+    {% if entity.image %}
+    <div class="fr-card__header">
+      <div class="fr-card__img">
+        <img class="fr-responsive-img fr-ratio-16x9" src="{{ entity.image.image_file[0].download_url() }}"
+             alt="{{ entity.image.alt|e }}" >
+      </div>
+    </div>
+    {% endif %}
+  </div>
 </div>
 {% endfor %}
 {% endif %}
+{% endmacro %}
+
+{% macro authority_props_horizontal(properties, _) %}
+{% for label, values in properties %}
+  {%- if label == "source_info" -%}
+   <div class="fr-grid-row fr-grid-row--gutters">
+     <div class="fr-col-offset-md-3 fr-col-md-8 fr-col-offset-md-1--right fr-mt-2v">
+       <p class="fr-text--sm">{{ _("source_info_label") }}{{ _(":") }}{{ values }}</p>
+     </div>
+   </div>
+  {%- else -%}
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <p class="fr-col-md-3 fr-my-0">{{ label.capitalize() }}</p>
+    {%- if values | is_list -%}
+    {{ list(values, "", "", _) }}
+    {%- else -%}
+      {%- if values[0] == '<' -%} {# accessibility #}
+       <div class="fr-col-md-8 fr-mb-2v">{{ values  }}</div>
+      {%- else -%}
+       <p class="fr-col-md-8 fr-mb-2v">{{ values | safe }}</p>
+      {%- endif -%}
+    {%- endif -%}
+   </div>
+  {%- endif -%}
+{%- endfor -%}
+{% endmacro %}
+
+{% macro authority_sources(sources, col1, col2, _) %}
+{%- for label, list_values in sources -%}
+  <div class="fr-mb-10v">
+    <h2 class="fr-text--lead fr-mb-6v">{{ _(label) }}</h2>
+    {%- for source, values in list_values -%}
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <p class="fr-col-md-{{ col1 }} fr-mb-2v">{{ source}}{{ _(":") }}</p>
+      {# we expect the first element to be the source #}
+      <div class="fr-col-md-{{ col2 }}">
+      {%- if values | is_list -%}
+      {{ list(values, "", "", _) }}
+      {%- else -%}
+      {{ values | safe }}
+      {%- endif -%}
+      </div>
+    </div>
+    {%- endfor -%}
+  </div>
+{%- endfor -%}
+{% endmacro %}
+
+{% macro wikidata_links(properties, _) %}
+{% set sep = _(":") %}
+{% for propname, values in properties %}
+<div class="fr-mb-10v">
+<h2 class="fr-text--lead fr-mb-6v">{{ propname }}{{ sep }}</h2>
+  {% if values | is_list %}
+  {{ list(values, "fr-col-md-10","", _) }}
+  {% else %}
+  <p class="fr-col-md-10 wikidata-links">{{ values |safe }}</p>
+  {% endif %}
+</div>
+{% endfor %}
 {% endmacro %}
 
 {% macro subtree(items, level, id) %}
@@ -203,48 +343,190 @@
   </ul>
 {% endmacro %}
 
-{% macro toc(summary, _) %}
-    <div class="sticky-toc">
-        <h1 class="toc-label">{{ _("Toc") }}</h1>
-        <div id="tocbox">{{ summary }}</div>
-        <ul class="toc-links">
-            <li>
-                <button class="toggle-menu" data-label-collapse="{{ _('Expand the toc') }}"
-                   type="button" aria-controls="tocbox"
-                   data-label-expand="{{ _('Collapse the toc') }}">{{ _('Expand the toc') }}
-                </button>
-            </li>
-        </ul>
-    </div>
+{% macro menu_subtree(items, level, id, current_eid) %}
+  <ul class="fr-sidemenu__list">
+    {% for item in items %}
+    {% set id = "l%s-s%s" % (id, loop.index) %}
+    {% set current = item.eid == current_eid %}
+    <li class="fr-sidemenu__item">
+      {%- if item.etype == "Section" %}
+      {%- if item.children and (not display_mode or display_mode=="tree") %}
+      <button
+          class="fr-sidemenu__btn"
+          aria-expanded="false"
+          {% if current -%}aria-current="true"{%- endif -%}
+          aria-controls="fr-sidemenu-{{ id }}"
+      >
+        {{ item.title | escape }}
+      </button>
+      <div class="fr-collapse" id="fr-sidemenu-{{ id }}">
+        {{ menu_subtree(item.children, level+1, id, current_eid) }}
+      </div>
+      {%- else %}
+      <a class="fr-sidemenu__link" href="{{ item.url }}" target="_self" {% if current -%}aria-current="true"{%- endif -%}>{{ item.title | escape }}</a>
+     {% endif -%}
+      {% else %}
+      <a class="fr-sidemenu__link" href="{{ item.url }}" target="_self" {% if current -%}aria-current="true"{%- endif -%}>{{ item.title | escape }}</a>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
 {% endmacro %}
 
-
-{% macro related_docs(entities, all_links, recent_label, _) %}
-<aside class=" col-xl-3 siderelated cards d-print-none">
-    <div class="siderelated-container">
-    <h1 class="no-style siderelated__header">{{ recent_label }}</h1>
-    <div class="card-columns d-xl-none">
-        {{ on_front_page(entities, _) }}
+{%- macro subsections_tiles(subsections, _) %}
+{%- if subsections  -%}
+<div class="fr-col-12">
+<h2>{{ _("Quick acces to the sections") }}</h2>
+</div>
+{%- endif -%}
+{%- for section in subsections -%}
+<div class="fr-col-12 fr-col-md-6 fr-col-lg-4">
+<div class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link" id="tile-{{ section["eid"]}}">
+    <div class="fr-tile__body">
+        <div class="fr-tile__content">
+            <h3 class="fr-tile__title">
+                <a href="{{ section["url"]}}">{{ section["title"]}}</a>
+            </h3>
+            {%- if section["description"] -%}
+             <p class="fr-tile__detail">{{ section["description"] }}</p>
+            {%- endif -%}
         </div>
-    <div class="aside-column-cards d-sm-none d-xl-block">
-        {{ on_front_page(entities, _) }}
     </div>
-    <p>
-        <a href="{{ all_links.url }}" class="siderelated__more-content">
-            <span class="visually-hidden">{{ all_links.label }}</span>
-        </a>
-    </p>
+</div>
+</div>
+{%- endfor -%}
+{% endmacro -%}
+
+{% macro toc(summary, lang_attr, _) %}
+<nav class="fr-summary fr-sidemenu--sticky fr-sidemenu--sticky-full-height" role="navigation" aria-labelledby="fr-summary-title">
+  <div class="fr-sidemenu__inner">
+    <button
+      class="fr-sidemenu__btn"
+      hidden
+      aria-controls="fr-sidemenu-wrapper"
+      aria-expanded="false"
+    >
+      {{ _("Toc") }}
+    </button>
+  <div class="fr-collapse" id="fr-sidemenu-wrapper">
+    <p class="fr-summary__title" id="fr-summary-title">{{ _("Toc") }}</p>
+    <div {{ lang_attr }}>
+    {{ summary }}
     </div>
-</aside>
+  </div>
+</nav>
 {% endmacro %}
 
+{% macro related_indexes(indexes, lang_attr, _) %}
+  {%- for category, data in indexes -%}
+    <div class="fr-my-6v">
+      <h2 class="fr-text--lg fr-text--bold">{{ category }}</h2>
+      <ul class="fr-tags-group">
+      {%- for uri, label in data -%}
+        <li>
+          <a href="{{ uri }}" class="fr-tag fr-tag--blue-ecume" target="_self">
+          {%- if lang_attr -%}<span {{ lang_attr }}>{{ label }}</span>
+          {%- else -%}{{ label }}{%- endif -%}
+          </a>
+        </li>
+       {% endfor -%}
+      </ul>
+    </div>
+  {% endfor -%}
+{% endmacro %}
 
+{% macro related_services(services, lang_attr, _) %}
+{%- if services %}
+<div class="fr-my-6v">
+{%- set data=services[1] -%}
+  {%- if data | length == 1 -%}
+    <p><span class="fr-text--lg fr-text--bold">{{ services[0] }}{{_(":")}}</span>
+    <a href="{{ data[0][0] }}" class="fr-link  fr-icon-arrow-right-line fr-link--icon-right fr-ml-2v" target="_self">{{ data[0][1] }}</a></p>
+  {%- else -%}
+    <p class="fr-text--lg fr-text--bold">{{ services[0] }}</p>
+    <ul class="fr-links-group">
+    {%- for uri, label in data -%}
+      <li><a href="{{ uri }}" class="fr-link  fr-icon-arrow-right-line fr-link--icon-right" target="_self">
+      {%- if lang_attr -%}<span {{ lang_attr }}>{{ label }}</span>
+      {%- else -%}{{ label }}{%- endif -%}</a></li>
+    {% endfor -%}
+    </ul>
+  {%- endif -%}
+</div>
+{% endif -%}
+{% endmacro %}
 
-{% macro index_values(main_props, class) %}
+{# same as onhomepage.jinja2 page #}
+{% macro related_docs(entities, all_links, recent_label, _) %}
+<div class="fr-container fa-related-block">
+  <div class="fa-related-block--title fr-mb-md-3w">
+    <div class="fr-pb-0">
+      <h2>{{ _(recent_label) }}</h2>
+    </div>
+    <div>
+      <a href="{{ all_links.url }}"
+         class="fr-link fr-icon-arrow-right-line fr-link--icon-right">
+        {{ all_links.label }}
+      </a>
+    </div>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters" >
+    {{ on_front_page(entities, _) }}
+  </div>
+</div>
+{% endmacro %}
+
+{% macro document_values(main_props, lang_attr) %}
+  {% for propname, value in main_props -%}
+   <div class="fr-mb-10v">
+     <h2 class="fr-h4 fr-mb-4v">{{ propname }}</h2>
+        {%- if value | is_list -%}
+         <ul class="fr-my-0">
+           {% for val in value %}
+             <li {{ lang_attr }}>{{ val |safe }}</li>
+           {% endfor %}
+         </ul>
+         {%- elif value[0] == '<' -%} {# accessibility #}
+         {%- if lang_attr -%}<div {{ lang_attr }}>{{ value }}</div>
+         {%- else -%}{{ value }}{%- endif -%}
+         {%- else -%}
+         <p {{ lang_attr }}>{{ value | e }}</p>
+       {%- endif -%}
+   </div>
+  {% endfor -%}
+{% endmacro %}
+
+{% macro mixed_values_horizontal(properties, lang_attr, _) %}
+{% for label, value in properties %}
+   {% if value %}
+     <div class="fr-grid-row fr-grid-row--gutters">
+     {% if label is none %}
+        {%- if lang_attr -%}<div {{ lang_attr }}>{{ value }}</div>
+        {%- else -%}{{ value }}{%- endif -%}
+     {% else %}
+       <h2 class="fr-col-md-4 fr-text--md fr-text--bold fr-my-0">{{ label[0].upper() + label[1:] }}</h2>
+       {%- if value | is_list -%}
+         <ul class="files-links fr-col-md-8 fr-my-0">
+           {% for val in value %}
+             <li {{ lang_attr }}>{{ val |safe }}</li>
+           {% endfor %}
+         </ul>
+       {%- elif value[0] == '<' -%} {# accessibility #}
+       <div class="fr-col-md-8 fr-mb-2v" {{ lang_attr }}>{{ value }}</div>
+       {%- else -%}
+       <p class="fr-col-md-8 fr-mb-2v" {{ lang_attr }}>{{ value }}</p>
+       {%- endif -%}
+     {% endif %}
+     </div>
+   {% endif %}
+{% endfor %}
+{% endmacro %}
+
+{% macro index_values(main_props) %}
 <div class="main-properties {%if class %}{{ class }}{% endif %}">
    {% for propname, value in main_props -%}
    <div class="row indexes-values">
-       <div class="index-value-title"><h2 class="no-style">{{ propname }}</h2></div>
+       <div class="index-value-title"><h2 class="fr-text--lead">{{ propname }}</h2></div>
        {% if value %}
        <p class="index-value-text">{{ value }}</p>
        {% endif %}
@@ -253,33 +535,252 @@
 </div>
 {% endmacro %}
 
-{% macro sharelinks(sharelinks, _) %}
+{% macro sharelinks(sharelinks, heading_hierarchy, component_hierarchy, _) %}
   {% include "sharelinks.jinja2" %}
 {% endmacro %}
 
-{% macro translations(links, _) %}
-{% if links %}
-<div class="translations" class="dropdown">
-     <div class="pnia-dropdown-toggle" data-bs-toggle="dropdown" role="button "aria-expanded="false">{{ links[0][0] }}
-       <i class="fa fa-angle-down"></i>
-     </div>
-     <ul class="dropdown-menu">
-    {% for name, icon_url, url, title in links[1:] %}
-        <li>
-            <img src="{{ icon_url }}" />
-            <a href="{{ url }}" rel="nofollow" title="{{ _(title) }}">
-                <span>{{ name }}</span>
-             </a>
-        </li>
-     {% endfor %}
-     </ul>
-</div>
-{% endif %}
+{% macro translation_tool(links, _) %}
+<nav role="navigation" class="fr-translate fr-nav">
+  <div class="fr-nav__item">
+    {% set lang, lang_code, url, title = links[0] -%}
+    <button class="fr-translate__btn fr-btn fr-btn--tertiary"
+            aria-controls="translate-toggle" aria-expanded="false"
+            title="{{ lang_code.upper() }} -  {{ lang }} - {{ _("Select a language") }}">
+            {{ lang }}
+            <span class="fr-sr-only"> - {{ lang }}</span>
+     </button>
+     <div class="fr-collapse fr-translate__menu fr-menu" id="translate-toggle">
+       <ul class="fr-menu__list">
+         <li>
+           <a class="fr-translate__language fr-nav__link"
+              hreflang="{{ lang_code }}" lang="{{ lang_code }}"
+              href="{{ url }}" aria-current="true">{{ lang_code.upper() }} - {{ lang }}</a>
+         </li>
+         {%- for lang, lang_code, url, title in links[1:] %}
+         <li>
+            <a class="fr-translate__language fr-nav__link
+               hreflang="{{ lang_code }}" lang="{{ lang_code }}"
+               href="{{ url }}">{{ lang_code.upper() }} - {{ lang }}</a>
+         </li>
+         {% endfor -%}
+       </ul>
+    </div>
+  </div>
+</nav>
 {% endmacro %}
 
-{% macro mirador_viewer(iiif_manifest, data_url, lang) %}
-    <div class="mirador-viewer">
-      <div id="mirador-container" data-manifest="{{ iiif_manifest }}"  data-lang="{{ lang }}"></div>
+{% macro download_card(link, eulerian, _) %}
+<div class="fr-card fr-enlarge-link">
+  <div class="fr-card__body">
+    <div class="fr-card__content">
+      <h2 class="fr-card__title">
+        <a href="{{ link.url }}"
+           class="download eulerian-button"
+           target="_blank" rel="noopener noreferrer nofollow"
+           {% if link.title %}
+           title="{{ link.title }}"
+           {% endif %}
+           {% if link.lang %}
+             hreflang="fr"
+           {% endif %}
+           data-eulerian-actionname="download_pdf_{{ heading_hierarchy }}"
+           data-eulerian-actionlabel="download_pdf,{{ eulerian.page_type }},{{ eulerian.type_doc }},{{ eulerian.document_title }}_pdf,{{ eulerian.service_code }}"
+           data-eulerian-headinghierarchy="{{ heading_hierarchy }}"
+           data-eulerian-componenthierarchy="main_>_section_>_button"
+           data-eulerian-componentlabel="{{ eulerian.document_title }}"
+        >
+          {{ link.link }}
+        </a>
+      </h3>
+      {%- if link.info -%}
+      <div class="fr-card__end">
+        <p class="fr-card__detail">{{ link.info }}</p>
+      </div>
+      {%- endif -%}
     </div>
-    <script src="{{ data_url }}bundle-pnia-mirador.js"></script>
+  </div>
+</div>
+{% endmacro %}
+
+{%- macro mirador_viewer(iiif_manifest, data_url, lang) %}
+    <div id="viewers-container" data-manifest="{{ iiif_manifest }}" data-language="{{ lang }}"></div>    <script src="{{ data_url }}bundle-pnia-mirador.js"></script>
+
+{% endmacro -%}
+
+
+{% macro universal_viewer(iiif_manifest, data_url, lang) %}
+    <div id="viewers-container" data-manifest="{{ iiif_manifest }}" data-language="{{ lang }}"></div>
+{% endmacro %}
+
+{% macro service_props(properties, h, lang_attr, _) %}
+{% for label, value in properties %}
+   {% if value %}
+     <div class="fr-grid-row fr-grid-row--gutters fr-mb-1v">
+     {% if label is none %}
+     <p {{ lang_attr }}> {{ value }}</p>
+     {% else %}
+       <h{{h+1}} class="fr-col-md-4 fr-text--md fr-text--bold fr-my-0">{{ label[0].upper() + label[1:] }}</h{{h+1}}>
+       <p class="fr-col-md-8 fr-mb-2v" {{ lang_attr }}>{{ value }}</p>
+     {% endif %}
+     </div>
+   {% endif %}
+{% endfor %}
+{% endmacro %}
+
+{% macro toggle_map(entity, _) %}
+{% set map_id = "service-map-" + entity.eid | string %}
+<div class="fr-toggle fr-mt-2w">
+  <input type="checkbox" class="fr-toggle__input" id="toggle-{{ map_id }}" tabindex="0">
+  <label class="fr-toggle__label" for="toggle-{{ map_id }}" data-fr-checked-label="{{_('Enabled')}}" data-fr-unchecked-label="{{_('Disabled')}}">{{ _('Display the map') }}</label>
+</div>
+<div id="{{ map_id }}" class="fa-entity-map fa-service-map fr-hidden fr-mt-2w" data-index="{{ entity.eid }}" data-markerurl="{{ entity.properties.json_map_url }}" aria-hidden="true"></div>
+{% endmacro %}
+
+
+{% macro service_main_info(entity, h, lang_attr, _) %}
+{%- set properties = entity.properties -%}
+{% if properties.info %}
+{{ service_props(properties.info, h, ang_attr, _) }}
+{% endif %}
+{%- if properties.note -%}
+<div class="fr-my-6v fr-col-lg-10 fr-col-offset-lg-1" {{ lang_attr }}>
+{{ properties.note }}
+</div>
+{%- endif -%}
+{%- if entity.documents_links -%}
+<div class="fr-my-6v fr-col-lg-10 fr-col-offset-lg-1">
+  <ul class="fr-btns-group fr-btns-group--inline fa-btns--two-even fr-mt-10v fr-mb-4v">
+  {%- for title, uri in entity.documents_links -%}
+    <li><a href="{{ uri }}" class="fr-btn fr-btn--sm fr-btn--secondary fr-mb-xl-0">{{ title }}</a></li>
+  {%- endfor -%}
+  </ul>
+</div>
+{%- endif -%}
+{% endmacro %}
+
+
+{% macro service_info(entity, h, lang_attr,  _) %}
+{%- set properties = entity.properties -%}
+<div class="fr-col-12 fr-col-lg-10 fr-col-offset-lg-1">
+  <div class="fr-tabs">
+    <ul class="fr-tabs__list" role="tablist" aria-label="{{_("Service properties")}}">
+      <li role="presentation">
+      <button id="tabpanel-info-{{ entity.eid }}" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-info-panel-{{ entity.eid }}">{{ _("General information") }}</button>
+    </li>
+    <li role="presentation">
+      <button id="tabpanel-rdf-{{ entity.eid }}" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-rdf-panel-{{ entity.eid }}">{{_("Download RDF") }}</button>
+    </li>
+    </ul>
+    <div id="tabpanel-info-panel-{{ entity.eid }}" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-info-{{ entity.eid }}" tabindex="0">
+      <div class="fr-mt-2v fr-col-11 fr-col-sm-12">
+      {{ service_main_info(entity, h, lang_attr, _) }}
+      {%- if properties.json_map_url -%}{{ toggle_map(entity, _) }}{%- endif -%}
+      </div>
+    </div>
+    <div id="tabpanel-rdf-panel-{{ entity.eid }}" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-rdf-{{ entity.eid }}" tabindex="0">
+      {%- set heading_hierarchy = entity.eulerian.document_title -%}
+       <div class="fr-col-11 fr-col-md-5 fr-col-lg-4">{{ rdf_download_button_tab(entity, entity.rdf_formats, properties.lang, _) }}</div>
+    </div>
+  </div>
+</div>
+{{ annex_services_accordeon(properties.related_entities, lang_attr, _) }}
+{% endmacro %}
+
+{% macro annex_services_accordeon(related_entities, lang_attr, _) %}
+{%- if related_entities -%}
+<div id="related-services">
+  <h2 class="fr-mt-8w">{{ _("related_services_title") }}</h2>
+  <div class="fr-accordions-group">
+  {%- for linked_entity in related_entities -%}
+  {%- set accordion_id = "service-" +  linked_entity.eid|string -%}
+  {%- set accordion_header_id = "service-title-" +  linked_entity.eid|string -%}
+    <div class="fr-accordion">
+      <h3 class="fr-accordion__title">
+        <button id="{{  accordion_header_id }}"
+          class="fr-accordion__btn" aria-expanded="false" aria-controls="{{ accordion_id }}">
+         {{ linked_entity.dc_title() }}
+        </button>
+      </h3>
+      <section class="fr-collapse" id="{{ accordion_id }}"
+        aria-labelledby="{{ accordion_header_id }}">
+        <div class="fr-col-12 fr-mb-12v">
+          {{ content_metadata(linked_entity.metadata, _) }}
+        </div>
+      {{ service_info(linked_entity, 3, lang_attr, _) }}
+      </section>
+    </div>
+   {% endfor %}
+  </div>
+</div>
+{%- endif -%}
+{% endmacro %}
+
+
+{% macro annex_services(related_entities, lang_attr, _) %}
+{%- if related_entities -%}
+<div id="related-services">
+  <h2 class="fr-mt-8w">{{ _("related_services_title") }}</h2>
+  {%- for linked_entity in related_entities -%}
+  <div class="fr-mt-18v fr-px-18v" id="service-{{ linked_entity.eid }}">
+    <div class="fr-col-12 fr-col-lg-8 fr-mb-8v">
+      <h3>{{ linked_entity.dc_title() }}</h2>
+    </div>
+    <div class="fr-col-12 fr-mb-12v">
+      {{ content_metadata(linked_entity.metadata, _) }}
+    </div>
+    {{ service_info(linked_entity, 3, lang_attr, _) }}
+  </div>
+  {%- endfor -%}
+</div>
+{%- endif -%}
+{% endmacro %}
+
+
+{% macro services_without_rdf_accordeon(related_entities, lang_attr, _) %}
+{%- if related_entities -%}
+<div id="related-services">
+  <div class="fr-accordions-group">
+  {%- for linked_entity in related_entities -%}
+  {%- set accordion_id = "service-" +  linked_entity.eid|string -%}
+    <div class="fr-accordion">
+      <h3 class="fr-accordion__title">
+        <button class="fr-accordion__btn" aria-expanded="false" aria-controls="{{ accordion_id }}">
+         {{ linked_entity.dc_title() }}
+        </button>
+      </h3>
+      <div class="fr-collapse" id="{{ accordion_id }}">
+      {{ service_main_info(linked_entity, 3, lang_attr, _) }}
+      </div>
+    </div>
+   {% endfor %}
+  </div>
+</div>
+{%- endif -%}
+{% endmacro %}
+
+{% macro table(data, _) %}
+<div class="fr-table fr-table--bordered" id="table-default-component">
+  <div class="fr-table__wrapper">
+    <div class="fr-table__container">
+      <div class="fr-table__content">
+        <table>
+          <thead>
+            <tr>
+            {%- for header in data[0] -%}
+              <th scope="col">{{ header }}</th>
+            {%- endfor -%}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+            {%- for value in data[1] -%}
+              <td>{{ value }}</td>
+            {%- endfor -%}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 {% endmacro %}

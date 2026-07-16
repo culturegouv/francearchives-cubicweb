@@ -1,0 +1,8 @@
+{% from "./mixins.jinja2" import translation_tool %}
+{%- if i18n_links -%}
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--right fr-mb-4v">
+    {{ translation_tool(i18n_links,  _) }}
+  </div>
+</div>
+{%- endif -%}

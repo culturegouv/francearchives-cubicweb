@@ -1,8 +1,20 @@
 {% extends "./searchlist.jinja2" %}
-
-{% block context_abstract %}
-  <h1>{{ header.title }}</h1>
-   <a href="{{ req.build_url('card/tableau-circulaires-fr') }}">
-     {{ _('all circular in a table') }}<i class="fa fa-table"></i>
-   </a>
-{% endblock %}
+{%- block context_abstract -%}
+<section class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters fr-mb-8v">
+    <div class="fr-col-12 fr-col-lg-10">
+      <h1>{{ header.title }}</h1>
+    </div>
+    {%- if header.content -%}
+    <div class="fr-col-12 fr-col-lg-8 fr-hidden fr-unhidden-md">
+      <div class="fr-callout fr-callout--blue-cumulus">
+        <div class="fr-callout__text">{{ header.content}}</div>
+        <a class="fr-btn" href="{{ req.build_url('card/tableau-circulaires-fr') }}">
+          {{ _('all circular in a table') }}
+        </a>
+      </div>
+    </div>
+    {%- endif -%}
+  </div>
+</section>
+{%- endblock -%}-

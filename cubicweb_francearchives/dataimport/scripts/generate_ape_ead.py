@@ -71,7 +71,7 @@ def create_file(cnx, filepath):
             "data_format": str(mimetypes.guess_type(filepath)[0]),
             "data_name": basepath,
             "uuid": str(uuid4().hex),
-        }
+        },
     )
 
 

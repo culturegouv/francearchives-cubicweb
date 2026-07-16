@@ -31,17 +31,24 @@
 
 import datetime
 from collections import OrderedDict, defaultdict
+import logging
 
 from logilab.common.decorators import cachedproperty
 
 from cubicweb import _
 from cubicweb.predicates import is_instance
 from cubicweb.entities import AnyEntity, fetch_config
-from cubicweb_francearchives.dataimport import es_bulk_index
-from cubicweb_francearchives.views import format_agent_date, STRING_SEP, internurl_link
+from cubicweb_francearchives.views import format_agent_date, STRING_SEP
 from cubicweb_francearchives.entities.adapters import EntityMainPropsAdapter
-from cubicweb_francearchives.utils import es_start_letter
-from cubicweb_francearchives.views import format_date
+from cubicweb_francearchives.utils import es_start_letter, format_date
+from cubicweb_francearchives.entities.nomina import (
+    initialize_nominarecord_entity,
+    NominaActCodeTypes,
+)
+
+
+class GroupAuthorityError(Exception):
+    """raised when an entity can not be grouped"""
 
 
 def iter_entities(cnx, eid, rql, nb_entities, chunksize=100000):
@@ -54,6 +61,28 @@ class ExternalUri(AnyEntity):
     __regid__ = "ExternalUri"
     fetch_attrs, cw_fetch_order = fetch_config(["label", "uri", "source", "extid"])
 
+    def get_geonames_fclass(self):
+        if self.source != "geoname":
+            return None
+
+        res = self._cw.cnx.system_sql(
+            """
+            SELECT fclass FROM geonames WHERE geonameid = %(gid)s
+            """,
+            {"gid": self.extid},
+        ).fetchall()
+        if res:
+            return f"geonames_{res[0][0]}"
+        return None
+
+    def in_context_label(self):
+        if self.source == "nomina":
+            nomina_record = initialize_nominarecord_entity(self._cw.cnx, self.extid)
+            act_type = NominaActCodeTypes.get(nomina_record.json_data["entity"]["act_type"], "?")
+            act_year = nomina_record.json_data["entity"].get("event_year", "?")
+            return f"{nomina_record.dc_title()} ({act_type} - {act_year})"
+        return self.label
+
 
 class ExternalId(AnyEntity):
     __regid__ = "ExternalId"
@@ -63,6 +92,7 @@ class ExternalId(AnyEntity):
 class AbstractIndex(AnyEntity):
     __abstract__ = True
     fetch_attrs, cw_fetch_order = fetch_config(["label", "role", "type"])
+    lang = "fr"
 
     def dc_title(self):
         return self.label or self.authority[0].dc_title()
@@ -80,30 +110,26 @@ class AbstractIndex(AnyEntity):
     def authority_url(self):
         return self.authority[0].absolute_url()
 
+    @property
+    def authority_label(self):
+        return self.authority[0].label
+
     def new_authority(self):
         req = self._cw
         auth = req.create_entity(self.authority_type, label=self.label)
         prevauthority = self.authority[0].eid
-        self.update_es_docs(prevauthority, auth.eid)
+        logger = logging.getLogger("cubicweb_francearchives.dedupe_authorities")
+        self.update_es_docs(prevauthority, auth.eid, logger=logger)
         self.cw_set(authority=auth)
         return auth
 
-    def iter_docs(self):
-        nb_entities = self._cw.execute(
-            """
-        Any COUNT(FA) WHERE E index FA, E eid %(e)s
-        """,
-            {"e": self.eid},
-        )[0][0]
-        rql = """Any FA LIMIT {limit} OFFSET {offset}
-                  WHERE E index FA, E eid {eid}"""
-        for entity in iter_entities(self._cw, self.eid, rql, nb_entities):
-            yield entity
-
-    def update_es_docs(self, oldauth, newauth):
-        # update esdocument related to FAComponent,FindingAid linked to current index
+    def update_es_docs(self, oldauth, newauth, logger=None):
+        # update FAComponent and FindingAid related ESDocuments for the current index
         # first update postgres db
         # TODO : this probabl- must go to the cubicweb_frarchives_edition
+        if logger:
+            logger.info("start updating esdocuments for index %s", self.eid)
+
         self._cw.system_sql(
             """
 UPDATE
@@ -137,62 +163,13 @@ WHERE
         """,
             {"indexeid": self.eid, "oldauth": oldauth, "newauth": newauth},
         )
-        # then update elasticsearch db
-        self.index_related_irdocs()
-
-    def index_related_irdocs(self):
-        """reindex all related FindingAid and FAComponents in ES"""
-        indexer = self._cw.vreg["es"].select("indexer", self._cw)
-        index_name = indexer.index_name
-        es = indexer.get_connection()
-        published_indexer = self._cw.vreg["es"].select("indexer", self._cw, published=True)
-        docs = []
-        published_docs = []
-        for fa in self.iter_docs():
-            serializable = fa.cw_adapt_to("IFullTextIndexSerializable")
-            json = serializable.serialize()
-            if not json:
-                continue
-            docs.append(
-                {
-                    "_op_type": "index",
-                    "_index": index_name,
-                    "_type": "_doc",
-                    "_id": serializable.es_id,
-                    "_source": json,
-                }
-            )
-            if published_indexer:
-                is_published = True
-                if fa.cw_etype in ("FindingAid", "FAComponent"):
-                    if fa.cw_etype == "FindingAid":
-                        wf = fa.cw_adapt_to("IWorkflowable")
-                    else:
-                        wf = fa.finding_aid[0].cw_adapt_to("IWorkflowable")
-                    is_published = wf and wf.state == "wfs_cmsobject_published"
-                if is_published:
-                    published_docs.append(
-                        {
-                            "_op_type": "index",
-                            "_index": published_indexer.index_name,
-                            "_type": "_doc",
-                            "_id": serializable.es_id,
-                            "_source": json,
-                        }
-                    )
-            fa.cw_clear_all_caches()
-            if len(docs) > 30:
-                es_bulk_index(es, docs)
-                if published_docs:
-                    es_bulk_index(es, published_docs)
-                docs = []
-                published_docs = []
-        es_bulk_index(es, docs)
-        if published_docs:
-            es_bulk_index(es, published_docs)
-        # commit here as the update (sql) may be carried on a very big
-        # number of documents, mainly FAComponents and FindingAids
         self._cw.commit()
+        if logger:
+            logger.info("stop updating esdocuments, launch ES indexation for index %s", self.eid)
+        data = [{"op_type": "index-related-documents", "entity": self, "logger": logger}]
+        queue = self._cw.vreg["es"].select("es.opqueue", req=self._cw)
+        # then update elasticsearch
+        queue.process_operations(data)
 
     def remove_from_es_docs(self, autheid):
         # remove authority and index data from  esdocument related to FAComponent,FindingAid
@@ -225,8 +202,7 @@ WHERE
         """,
             {"indexeid": self.eid, "auth": autheid},
         )
-        # then update elasticsearch db
-        self.index_related_irdocs()
+        self._cw.commit()
 
 
 class AgentName(AbstractIndex):
@@ -252,6 +228,7 @@ class AbstractAuthority(AnyEntity):
     __abstract__ = True
     fetch_attrs, cw_fetch_order = fetch_config(["label", "quality"])
     _same_as_links = None
+    lang = "fr"
 
     @property
     def same_as_links(self):
@@ -259,6 +236,9 @@ class AbstractAuthority(AnyEntity):
             return self._same_as_links
         self._same_as_links = defaultdict(list)
         for e in self.same_as:
+            #  same_as object may be of several cw_etypes as ExternaUri,
+            #  NominaRecord, AuthorityRecord, etc
+            e.complete()
             self._same_as_links[e.cw_etype].append(e)
         return self._same_as_links
 
@@ -323,68 +303,104 @@ class AbstractAuthority(AnyEntity):
             {"e": self.eid},
         )
 
-    def iter_indexes(self):
-        nb_entities = self._cw.execute(
+    @property
+    def nb_indexes(self):
+        return self._cw.execute(
             """
         Any COUNT(I) WHERE I authority E, E eid %(e)s
         """,
             {"e": self.eid},
         )[0][0]
+
+    def iter_indexes(self):
         rql = """Any I WHERE I authority E, E eid {eid}"""
-        for entity in iter_entities(self._cw, self.eid, rql, nb_entities):
+        for entity in iter_entities(self._cw, self.eid, rql, self.nb_indexes):
             yield entity
 
-    def group(self, other_auth_eids):
+    def group(self, other_auth_eids, logger=None):
+        """Group an authority with some other authority
+        :param list other_auth_eid: a list of authorities eid to group
+        :param Logger logger: logger
+
+        :returns: list for authorities eids: [grouping.eid, grouped_1.eid, ..., grouped_n.eid]
+        :rtype: list
+        """
+        if logger is None:
+            logger = logging.getLogger("cubicweb_francearchives.group_authorities")
+            logger.setLevel(logging.INFO)
         req = self._cw
+        if self.grouped_with:
+            raise GroupAuthorityError(
+                req._("Can not group authorities with an already grouped authority.")
+            )
         grouped_with = [e.eid for e in self.reverse_grouped_with]
-        grouped_auths = [self]
+        grouped_auths = []
         for autheid in other_auth_eids:
-            self.info("[authorities] group %r into %r", autheid, self.eid)
+            logger.info("start grouping %r into %r (%r)", autheid, self.eid, self.cw_etype)
             try:
-                autheid = int(autheid)
+                auth = req.entity_from_eid(autheid)
             except Exception:
+                logger.error("skip grouping: %r is not an entity", autheid)
                 continue
             if autheid == self.eid:
                 # do not group with itself
+                logger.error("skip grouping: %r with itsef", autheid, self.eid)
                 continue
             if autheid in grouped_with:
                 # already grouped with
+                logger.info(
+                    "skip grouping: %s is already grouped with %s ",
+                    autheid,
+                    self.eid,
+                )
                 continue
-            auth = req.entity_from_eid(autheid)
-            grouped_auths.append(auth)
+            grouped_auths.append(autheid)
             if auth.cw_etype != self.cw_etype:
+                logger.error("could not group: %r with %r", auth.cw_etype, self.cw_etype)
                 continue
             # rewrite `index_entries` in related es docs
             for index in auth.iter_indexes():
-                index.update_es_docs(oldauth=auth.eid, newauth=self.eid)
+                index.update_es_docs(oldauth=auth.eid, newauth=self.eid, logger=logger)
+                logger.info("done updating index %s of authority %s", index.eid, auth.eid)
                 index.cw_clear_all_caches()
+            logger.info(
+                "start switching grouped authority %s relations to authority %s",
+                autheid,
+                self.eid,
+            )
             kwargs = {"new": self.eid, "old": autheid}
-            # redirect index entities from old authority to new authority
+            # redirect index entities from the old authority to the new authority
             req.execute(
                 "SET I authority NEW WHERE NEW eid %(new)s, I authority OLD, OLD eid %(old)s",
                 kwargs,
             )
             # redirect related ExternRefs, BaseContentand CommemorationItems
-            # from old authority to new authority
+            # from the old authority to the new authority
             req.execute(
                 """SET E related_authority NEW WHERE NEW eid %(new)s,
                    E related_authority OLD, OLD eid %(old)s, NOT EXISTS(E related_authority NEW)""",
                 kwargs,
             )
-            # delete related ExternRefs, BaseContent and CommemorationItems from old authority
+            # delete related ExternRefs, BaseContent and CommemorationItems from the old authority
             req.execute("""DELETE E related_authority OLD WHERE OLD eid %(old)s""", kwargs)
             # set the grouped_with relation from the old authority to the new
             # delete same_as from the old authority
             req.execute("""DELETE S same_as OLD WHERE OLD eid %(old)s""", kwargs)
             req.execute("""DELETE OLD same_as S WHERE OLD eid %(old)s""", kwargs)
             # authority
-            req.execute("SET OLD grouped_with NEW WHERE OLD eid %(old)s, NEW eid %(new)s", kwargs)
+            res = req.execute(
+                "SET OLD grouped_with NEW WHERE OLD eid %(old)s, NEW eid %(new)s",
+                kwargs,
+            )
+            if res:
+                grouped_auths.extend([row[0] for row in res])
             # unqualify the grouped authority
             req.execute("SET OLD quality FALSE WHERE OLD eid %(old)s", kwargs)
             # remove the possible grouped_with relation from the new authority
             # to the old
             req.execute(
-                "DELETE NEW grouped_with OLD WHERE OLD eid %(old)s, NEW eid %(new)s", kwargs
+                "DELETE NEW grouped_with OLD WHERE OLD eid %(old)s, NEW eid %(new)s",
+                kwargs,
             )
             # update all possible grouped_with subjects of the old authority
             # to the new authority
@@ -394,7 +410,10 @@ class AbstractAuthority(AnyEntity):
                 kwargs,
             )
             self._cw.commit()
+            logger.info("done grouping %s into %s", autheid, self.eid)
             auth.cw_clear_all_caches()
+        if grouped_auths:
+            grouped_auths.insert(0, self.eid)
         return grouped_auths
 
     def unindex(self):
@@ -410,6 +429,18 @@ class AbstractAuthority(AnyEntity):
             ),
             {"eid": self.eid},
         )
+        # then update elasticsearch
+        data = [{"op_type": "index-related-documents", "entity": self}]
+        queue = self._cw.vreg["es"].select("es.opqueue", req=self._cw)
+        queue.process_operations(data)
+
+    def degroup(self):
+        """Degroup an grouped authority"""
+        if self.grouped_with:
+            self._cw.execute(
+                "DELETE X grouped_with Y WHERE X eid %(eid)s",
+                {"eid": self.eid},
+            )
 
     def delete_blacklisted(self):
         """Delete an authority to be blacklisted and all its relations.
@@ -501,7 +532,8 @@ class AbstractAuthority(AnyEntity):
         remove all lines for a given Authority
         """
         self._cw.system_sql(
-            "DELETE FROM authority_history WHERE autheid=%(autheid)s", {"autheid": self.eid}
+            "DELETE FROM authority_history WHERE autheid=%(autheid)s",
+            {"autheid": self.eid},
         )
 
     @property
@@ -512,6 +544,7 @@ class AbstractAuthority(AnyEntity):
 
 class LocationAuthority(AbstractAuthority):
     __regid__ = "LocationAuthority"
+    fetch_attrs, cw_fetch_order = fetch_config(["label", "quality", "longitude", "latitude"])
     index_etype = "Geogname"
 
     @property
@@ -529,8 +562,8 @@ class AgentAuthority(AbstractAuthority):
         return (
             super(AgentAuthority, cls).orphan_query()
             + """,
-            NOT EXISTS(X same_as S1, S1 is IN (AuthorityRecord, NominaRecord)),
-            NOT EXISTS(S2 same_as X, S2 is IN (AuthorityRecord, NominaRecord))
+            NOT EXISTS(X same_as S1, S1 is AuthorityRecord),
+            NOT EXISTS(S2 same_as X, S2 is AuthorityRecord)
             """
         )
 
@@ -540,7 +573,7 @@ class AgentAuthority(AbstractAuthority):
             self._index_type = "persname" if "persname" in self.itypes else "other"
         return self._index_type
 
-    @cachedproperty
+    @property
     def index_types(self):
         return [
             t
@@ -551,37 +584,83 @@ class AgentAuthority(AbstractAuthority):
             ).rows
         ]
 
+    @property
+    def parents(self):
+        return self.wikidata_child_of
+
+    @property
+    def siblings(self):
+        return self.wikidata_sibling_of + self.reverse_wikidata_sibling_of
+
+    @property
+    def spouses(self):
+        return self.wikidata_spouse_of + self.reverse_wikidata_spouse_of
+
+    @property
+    def children(self):
+        return self.reverse_wikidata_child_of
+
+    @property
+    def organizations(self):
+        return self.reverse_wikidata_member_of
+
+    @property
+    def members(self):
+        return self.wikidata_member_of
+
 
 class AgentAuthorityMainPropsAdapter(EntityMainPropsAdapter):
     __select__ = is_instance("AgentAuthority")
     _eac_info = None
     _agent_info = None
     date_labels = {
-        "birthdate": {"persname": _("birth_date_label"), "other": _("start_date_label")},
+        "birthdate": {
+            "persname": _("birth_date_label"),
+            "other": _("start_date_label"),
+        },
         "deathdate": {"persname": _("death_date_label"), "other": _("stop_date_label")},
     }
 
     def properties(self, export=False, vid="incontext", text_format="text/html"):
         eac_info = self.eac_info(vid=vid, text_format=text_format)
         if eac_info:
-            return list(eac_info["properties"].items())
-        agent_info = self.agent_info(vid=vid, text_format=text_format)
+            return [entry for entry in eac_info["properties"].items() if entry[-1]]
+        else:
+            agent_info = self.agent_info(vid=vid, text_format=text_format)
         if agent_info:
-            return list(agent_info["properties"].items())
-        # look for nomina links
-        nomina_link = self.nomina_uri_as_property
-        if nomina_link:
-            return ((self._cw._("see_also_label"), nomina_link),)
+            return [entry for entry in agent_info["properties"].items() if entry[-1]]
         return []
 
-    @property
-    def nomina_uri_as_property(self):
-        nomina = self.entity.same_as_links.get("NominaRecord")
-        if nomina:
-            url = self._cw.build_url(f"{self.entity.rest_path()}/nomina")
-            base_label = self._cw._("Names database")
-            label = self._cw._("See all nomina records for {}").format(self.entity.dc_title())
-            return f"{base_label} : {internurl_link(self._cw, url, label=label)}"
+    def sources(self, vid="incontext"):
+        sources = []
+        same_as = self.entity.same_as_links
+        fa_sources = []
+        basename_sources = []
+        authority_records = same_as.get("AuthorityRecord")
+        if authority_records:
+            fa_sources.append(
+                (
+                    self._cw._("AuthorityRecords"),
+                    [e.view("maintainer.incontext") for e in authority_records],
+                ),
+            )
+        external_sources = []
+        for _source, _view in sorted(
+            [(e.source, e.view(vid)) for e in same_as.get("ExternalUri", [])],
+            key=lambda x: getattr(x, "source", "z") or "z",
+            reverse=True,
+        ):
+            if _source == "nomina":
+                basename_sources.append(_view)
+            else:
+                external_sources.append((_source, _view))
+        if basename_sources:
+            fa_sources.append((self._cw._("Names database"), basename_sources))
+        if fa_sources:
+            sources.append((self._cw._("fa_sources_label"), fa_sources))
+        if external_sources:
+            sources.append((self._cw._("external_sources_label"), external_sources))
+        return sources
 
     def eac_info(self, vid="incontext", text_format="text/html"):
         """EAC notice to be displayed."""
@@ -604,7 +683,11 @@ class AgentAuthorityMainPropsAdapter(EntityMainPropsAdapter):
                 eac = rset.one()
                 dates = {}
                 properties = OrderedDict()
-                for dtype, dateobj in (("birthdate", eac.start_date), ("deathdate", eac.end_date)):
+                a11y_keys = []
+                for dtype, dateobj in (
+                    ("birthdate", eac.start_date),
+                    ("deathdate", eac.end_date),
+                ):
                     if not dateobj:
                         continue
                     dates[dtype] = {
@@ -613,9 +696,11 @@ class AgentAuthorityMainPropsAdapter(EntityMainPropsAdapter):
                         "isdate": True,
                         "isbc": False,
                     }
-                    label = self.date_labels[dtype][self.entity.index_type]
-                    properties[_(label)] = format_agent_date(self._cw, dateobj)
+                    label = _(self.date_labels[dtype][self.entity.index_type])
+                    a11y_keys.append(label)
+                    properties[label] = format_agent_date(self._cw, dateobj)
                 self._eac_info["dates"] = dates
+                lang_attr = "fr" if self._cw.lang != "fr" else ""
                 properties[_("eac_biogist_label")] = eac.abstract_text
                 properties[_("eac_occupation_label")] = " ; ".join(
                     f.dc_title() for f in eac.reverse_occupation_agent
@@ -623,24 +708,11 @@ class AgentAuthorityMainPropsAdapter(EntityMainPropsAdapter):
                 properties[_("eac_function_label")] = " ; ".join(
                     f.dc_title() for f in eac.reverse_function_agent
                 )
-                properties[_("eac_source_label")] = eac.view("maintainer.outofcontext")
-                # if EAC and/or Wikidata and/or data.bnf.fr exist show
-                # 1st EAC
-                # 2nd Wikidata
-                # 3rd data.bnf.fr
-                see_also = sorted(
-                    [
-                        e.view(vid)
-                        for e in self.entity.same_as
-                        if e.eid != eac.eid and e.cw_etype != "NominaRecord"
-                    ],
-                    key=lambda x: getattr(x, "source", "z") or "z",
-                    reverse=True,
-                )
-                nomina_link = self.nomina_uri_as_property
-                if nomina_link:
-                    see_also.append(nomina_link)
-                properties[_("see_also_label")] = see_also
+                properties["source_info"] = eac.maintainer[0].dc_title()
+                if lang_attr:
+                    for key, value in properties.items():
+                        if value and key not in a11y_keys:
+                            properties[key] = f'<p lang="fr">{value}</p>'
                 self._eac_info["properties"] = properties
         return self._eac_info
 
@@ -689,18 +761,7 @@ class AgentAuthorityMainPropsAdapter(EntityMainPropsAdapter):
                     self._agent_info["description"].split(STRING_SEP)
                 )
                 exturi = self._cw.entity_from_eid(exturi_eid)
-                properties[_("same_as_label")] = exturi.view(vid)
-                see_also = sorted(
-                    [
-                        e.view(vid)
-                        for e in self.entity.same_as
-                        if (e.eid != exturi.eid and e.cw_etype != "NominaRecord")
-                    ]
-                )
-                nomina_link = self.nomina_uri_as_property
-                if nomina_link:
-                    see_also.append(nomina_link)
-                properties[_("see_also_label")] = see_also
+                properties["source_info"] = self._cw._(exturi.source)
                 self._agent_info["properties"] = properties
         return self._agent_info
 
@@ -724,7 +785,7 @@ class SubjectAuthority(AbstractAuthority):
     def itypes(self):
         return ()
 
-    @cachedproperty
+    @property
     def index_types(self):
         return [
             t

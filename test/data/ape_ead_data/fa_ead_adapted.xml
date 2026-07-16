@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<ead xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:isbn:1-931666-22-9" audience="external" xsi:schemaLocation="urn:isbn:1-931666-22-9 http://www.loc.gov/ead/ead.xsd">
+<ead xmlns="urn:isbn:1-931666-22-9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" audience="external" xsi:schemaLocation="urn:isbn:1-931666-22-9 http://www.loc.gov/ead/ead.xsd">
   <eadheader>
-    <eadid identifier="FRAD084_xxx" url="https://francearchives.fr/findingaid/23a35c56694f6d50d879fc54dea7c5d0ba6d0c1f">FRAD084_xxx</eadid>
+    <eadid identifier="FRAD084_xxx" url="https://francearchives.gouv.fr/findingaid/23a35c56694f6d50d879fc54dea7c5d0ba6d0c1f">FRAD084_xxx</eadid>
     <filedesc>
       <titlestmt>
         <titleproper>titleproper</titleproper>
@@ -13,7 +13,7 @@
   </eadheader>
   <archdesc level="fonds">
     <did>
-      <unitid><extptr xlink:href="http://www.fa-url" xlink:type="simple"/>maindid</unitid>
+      <unitid><extptr xlink:type="simple" xlink:href="http://www.fa-url"/>maindid</unitid>
       <unittitle>maindid-title</unittitle>
       <unitdate>1701-02-13</unitdate>
       <origination>fa-origination</origination>
@@ -28,12 +28,13 @@
     <dsc>
       <c>
         <did>
-          <unitid><extptr xlink:href="http://doa_image.fr" xlink:type="simple"/>fcdid</unitid>
+          <unitid><extptr xlink:type="simple" xlink:href="http://www.fc-url"/>fcdid</unitid>
           <unittitle>fcdid-title</unittitle>
           <unitdate>1701-03-13</unitdate>
           <repository>fc-repo</repository>
           <origination>fc-origination</origination>
         </did>
+        <dao xlink:type="simple" xlink:href="http://doa_image.fr"/>
         <scopecontent>
           <p>fc-descr</p>
         </scopecontent>

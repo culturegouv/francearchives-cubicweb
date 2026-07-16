@@ -1,33 +1,46 @@
 @prefix dcmitype: <http://purl.org/dc/dcmitype/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://testing.fr/cubicweb/facomponent/fc-stable-id#record_resource_inst> a rico:Instantiation ;
-    rico:hasOrHadHolder <http://testing.fr/cubicweb/service/{{service_eid}}> ;
-    rico:isInstantiationOf <http://testing.fr/cubicweb/facomponent/fc-stable-id> .
+<https://archive.loutre/manfest.json#iiif_manifest_inst> a rico:Instantiation ;
+    dcterms:source "https://testing.cubicweb/facomponent/fc-stable-id#iiif_manifest" ;
+    dcterms:format "application/json" ;
+    rico:isInstantiationOf <https://testing.cubicweb/facomponent/fc-stable-id#iiif_manifest> .
 
-<http://testing.fr/cubicweb/facomponent/fc-stable-id#record_resource_inst1> a rico:Instantiation ;
+<https://testing.cubicweb/facomponent/fc-stable-id#record_resource_inst> a rico:Instantiation ;
+    rico:hasOrHadHolder <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:isInstantiationOf <https://testing.cubicweb/facomponent/fc-stable-id> .
+
+<https://testing.cubicweb/facomponent/fc-stable-id#record_resource_inst1> a rico:Instantiation ;
     dcterms:source "https://archive.loutre/poulet.jpg" ;
     dcterms:type dcmitype:Image ;
-    rico:hasProvenance <http://testing.fr/cubicweb/service/{{service_eid}}> ;
-    rico:isInstantiationOf <http://testing.fr/cubicweb/facomponent/fc-stable-id> .
+    rico:hasProvenance <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:isInstantiationOf <https://testing.cubicweb/facomponent/fc-stable-id> .
 
-<http://testing.fr/cubicweb/facomponent/fc-stable-id> a rico:RecordResource ;
+<https://testing.cubicweb/subject/{{occupation_eid}}> a rico:ActivityType,
+        rico:OccupationType .
+
+<https://testing.cubicweb/facomponent/fc-stable-id#iiif_manifest> a rico:Record ;
+    rico:describesOrDescribed <https://testing.cubicweb/facomponent/fc-stable-id> ;
+    rico:hasDocumentaryFormType <https://www.ica.org/standards/RiC/vocabularies/documentaryFormTypes#IIIFManifest> ;
+    rico:hasInstantiation <https://archive.loutre/manfest.json#iiif_manifest_inst> .
+
+<https://testing.cubicweb/facomponent/fc-stable-id> a rico:RecordResource ;
     rdfs:label "fcdid-title" ;
     rico:beginningDate "1234"^^xsd:gYear ;
+    rico:documents [ rico:hasActivityType <https://testing.cubicweb/subject/{{subject_eid}}> ] ;
     rico:endDate "1245"^^xsd:gYear ;
-    rico:hasInstantiation <http://testing.fr/cubicweb/facomponent/fc-stable-id#record_resource_inst>,
-        <http://testing.fr/cubicweb/facomponent/fc-stable-id#record_resource_inst1> ;
-    rico:hasOrHadManager <http://testing.fr/cubicweb/service/{{service_eid}}> ;
-    rico:documents [rico:hasActivityType <http://testing.fr/cubicweb/subject/{{subject_eid}}>];
-    rico:hasOrHadSubject <http://testing.fr/cubicweb/subject/{{occupation_eid}}>;
+    rico:hasInstantiation <https://testing.cubicweb/facomponent/fc-stable-id#record_resource_inst>,
+        <https://testing.cubicweb/facomponent/fc-stable-id#record_resource_inst1> ;
+    rico:hasOrHadManager <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:hasOrHadSubject <https://testing.cubicweb/subject/{{occupation_eid}}> ;
     rico:history "fc-origination" ;
     rico:identifier "fcdid" ;
-    rico:isOrWasIncludedIn <http://testing.fr/cubicweb/findingaid/FRAD084_xxx> ;
+    rico:isOrWasDescribedBy <https://testing.cubicweb/facomponent/fc-stable-id#iiif_manifest> ;
+    rico:isOrWasIncludedIn <https://testing.cubicweb/findingaid/FRAD084_xxx> ;
+    rico:isRecordResourceAssociatedWithRecordResource <https://testing.cubicweb/findingaid/FRAD084_xxx> ;
     rico:scopeAndContent "fc-scoppecontent" ;
     rico:title "fcdid-title" .
 
-<http://testing.fr/cubicweb/subject/{{occupation_eid}}> a rico:OccupationType.

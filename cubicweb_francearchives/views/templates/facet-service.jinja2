@@ -1,0 +1,43 @@
+<div id="fa-facet-{{ facetid }}" class="fr-accordions-group d-print-none">
+<section class="fr-accordion">
+  <h3 class="fr-accordion__title">
+    <button class="fr-accordion__btn"
+            aria-expanded="{% if facet_unfolded %}true{% else %}false{% endif %}"
+            aria-controls="facet-{{ facetid }}">{{ facet_label }}</button>
+  </h3>
+  {# XXX the extense must be triggered by javascript #}
+  <div class="fr-facet-values fr-collapse{% if facet_unfolded %} fr-collapse--expanded{% endif %}" id="facet-{{ facetid }}">
+    <form
+      class="fr-search-bar facet-search-bar fr-mb-3w"
+      id="facet-search-bar-{{ facetid }}"
+      role="search"
+      style="display: none">
+      <label class="fr-label" for="facet-search-input-{{ facetid }}">
+        {{ _('filter_service_facet')}}
+      </label>
+      <input
+        class="fr-input"
+        placeholder="{{ _('ex.') }}{{ _(':') }} Archives nationales"
+        type="search"
+        id="facet-search-input-{{ facetid }}"
+        name="facet-search-input-{{ facetid }}">
+      <button class="fr-btn" title="{{ _('filter_service_facet')}}" type="submit">
+        {{ _('filter_service_facet')}}
+      </button>
+    </form>
+    <ul class="fr-links-group" id="facet-{{ facetid }}--list"
+     {% if more_facet_items %}aria-expanded="false"{% endif %}
+     >
+      {%- for item in facet_items -%}
+      {{ item }}
+      {%- endfor -%}
+      {%- if more_facet_items -%}
+      {%- for item in more_facet_items -%}
+      {{ item }}
+      {%- endfor -%}
+      {%- endif -%}
+    </ul>
+    <p class="fr-facet-empty" style="display: none">{{ _('facet_no_result')}}</p>
+  </div>
+</section>
+</div>

@@ -32,9 +32,9 @@
 
 import logging
 from cubicweb import mail, _
-from cubicweb.web import ProcessFormError
-from cubicweb.web import formfields as ff
-from cubicweb.web.views.forms import FieldsForm
+from cubicweb_web import ProcessFormError
+from cubicweb_web import formfields as ff
+from cubicweb_web.views.forms import FieldsForm
 
 from cubicweb_francearchives.views.forms import (
     AbstractPniaStaticFormRenderer,
@@ -43,17 +43,32 @@ from cubicweb_francearchives.views.forms import (
 )
 from cubicweb_francearchives.views import get_template
 
+ADOCS_OPTION = _("contact_object_5")
+
+SIMPEAD_OPTION = _("contact_object_6")
+
 
 class ContactFormView(AbstractStaticFormView):
     __regid__ = "contact"
     title = _("Contact")
+    eulerian_tag = True
+    eulerian_pagegroup = "editorial"
+
+    @property
+    def breadcrumbs(self, view=None, recurs=None):
+        _ = self._cw._
+        return [
+            (self._cw.build_url(""), _("Home")),
+            (None, self._cw._(self.title)),
+        ]
 
 
 class ContactForm(FieldsForm):
     __regid__ = "contact"
     form_renderer_id = "contact"
     domid = "contactForm"
-    cssclass = "static"
+    cssclass = "fr-col-12 fr-col-lg-8"
+    needs_css = []
     redirect_path = "contact#contactForm"
     email_content = _(
         """%(message)s
@@ -83,7 +98,13 @@ respond to : %(name)s, %(email)s
             return
         data, errors = self.checked_data(form)
         if not errors:
+            level = "success"
+            email_object = data["object"]
             recipient = self._cw.vreg.config["contact-email"]
+            if email_object == ADOCS_OPTION:
+                recipient = self._cw.vreg.config["contact-adocs-email"] or recipient
+            elif email_object == SIMPEAD_OPTION:
+                recipient = self._cw.vreg.config["contact-simplead-email"] or recipient
             msg = self.build_email(recipient, data)
             try:
                 logger.info(f"sending e-mail to {recipient}")
@@ -92,8 +113,9 @@ respond to : %(name)s, %(email)s
                 logger.info(f"e-mail has been sent to {recipient}")
             except Exception as exception:
                 logging.error(exception)
+                level = "error"
                 msg = self._cw._("Your message could not be send. Please try again.")
-            return {"errors": errors, "msg": msg}
+            return {"errors": errors, "msg": msg, "level": level}
         else:
             return {"errors": errors}
 
@@ -116,8 +138,8 @@ respond to : %(name)s, %(email)s
                     if value is not None:
                         data[field.role_name()] = value
                     if field.name == "email" and not EMAIL_REGEX.match(value):
-                        msg = self._cw._("Please, enter a valid email address")
-                        errors[field.role_name()] = msg
+                        msg = _("Please enter a valid email address. For exemple: name@domain.fr")
+                        errors["email"] = msg
             except ProcessFormError as exc:
                 errors[field.role_name()] = str(exc)
         return data, errors
@@ -127,24 +149,37 @@ class ContactFormRenderer(AbstractPniaStaticFormRenderer):
     __regid__ = "contact"
     template = get_template("contact_fields.jinja2")
 
+    @property
+    def html_title(self):
+        return f'<h3>{self._cw._("Your message")}</h3>'
+
     def template_attrs(self):
         _ = self._cw._
+        selected_object = None
+        contact_object = self._cw.form.get("object")
+        if contact_object == "adocs":
+            selected_object = "contact_object_5"
+        elif contact_object == "simplead":
+            selected_object = "contact_object_6"
         return {
             "_": _,
+            "selected_object": selected_object,
             "submit_value": _("Send your message"),
             "required_info": _("This field is required"),
             "contact_name_label": _("Your name"),
-            "contact_email_label": _("Your email"),
+            "contact_email_label": _("Your email address"),
+            "contact_email_help": _("Expected format:"),
             "contact_object_label": _("Object of the message"),
             "contact_message_label": _("Your message"),
             "contact_captcha_label": _("Captcha:"),
-            "email_error": _("Please enter a valid email address. For exemple: name@domain.fr"),
             "object_select_message": _("Please select the object of your message"),
             "contact_objects": [
                 _("contact_object_1"),
                 _("contact_object_2"),
                 _("contact_object_3"),
                 _("contact_object_4"),
-                _("contact_object_5"),
+                _(ADOCS_OPTION),
+                _(SIMPEAD_OPTION),
+                _("contact_object_7"),
             ],
         }

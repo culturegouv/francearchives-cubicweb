@@ -2,34 +2,30 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-02-03 14:01+0100\n"
-"PO-Revision-Date: 2017-11-03 10:06+0100\n"
+"POT-Creation-Date: 2026-06-24 16:21+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Generated-By: pygettext.py 1.5\n"
 
+msgid "\"{}\" service does not have any {} PMH repository with \"{}\" URL"
+msgstr ""
+
 msgid "###Recent News###"
-msgstr "Dernières actualités"
+msgstr "Últimas noticias"
 
 msgid "###ToSearch###"
 msgstr "Buscar"
 
 msgid "###in archives###"
-msgstr "Archives référencées"
+msgstr "Archivos referenciados"
 
 msgid "###list_separator###"
 msgstr " ; "
 
 msgid "###site resources###"
-msgstr "Ressources du site"
-
-msgid "###site-copyright###"
-msgstr "© Archives de France - Tous droits réservés"
-
-msgid "###subscribe to our newsletter###"
-msgstr "Abonnez-vous à notre <b>Lettre d'information</b>"
+msgstr "Recursos del sitio"
 
 #, python-format
 msgid ""
@@ -41,7 +37,7 @@ msgstr ""
 "%(message)s\n"
 "\n"
 "\n"
-"répondre à : %(name)s, %(email)s\n"
+"Responder a: %(name)s, %(email)s\n"
 
 #, python-format
 msgid "%s_label"
@@ -52,100 +48,120 @@ msgid "%s_lang"
 msgstr ""
 
 msgid "- New window"
-msgstr "Nueva ventana"
+msgstr "- Nueva ventana"
+
+msgctxt "appjs"
+msgid "-- All --"
+msgstr "-- Todo --"
 
 msgid "0-9"
 msgstr ""
 
 msgid "01_faq_basecontent_public"
-msgstr "Ressources Web publiques"
+msgstr "Recursos de sitios públicos"
 
 msgid "02_faq_search"
-msgstr "Utilisation du moteur de recherche"
+msgstr "Cómo usar el buscador"
 
 msgid "03_faq_ir"
-msgstr "Archives référencées"
+msgstr "Archivos referenciados"
 
 msgid "04_faq_circular"
-msgstr "Circulaires"
+msgstr "Circulares"
 
 msgid "05_faq_basecontent_pro"
-msgstr "Ressources Web professionnel (partie gérer)"
+msgstr "Recursos sitio profesional (parte gestionada)"
 
 msgid "06_faq_eac"
-msgstr "Description des producteurs"
+msgstr "Descripción de los productores"
+
+msgid "07_faq_nomina"
+msgstr "Buscar en la base de nombres"
 
 msgid "1 circulaire"
 msgstr ""
 
-msgid "1 concept"
-msgstr "1 concept"
-
 msgid "1 document"
-msgstr "1 document"
+msgstr "1 documento"
 
 msgid "1 document in this section"
-msgstr "1 document dans cette rubrique"
+msgstr "1 documento en esta sección "
 
 msgid "1 linked content"
-msgstr "1 contenu lié"
+msgstr "1 contenido enlazado"
 
 msgid "1 location"
-msgstr "1 lieu"
+msgstr "1 Ubicación"
 
 msgid "1 person/organization"
-msgstr "1 personne et institution"
+msgstr "1 persona e institución"
 
 msgid "1 result"
-msgstr "1 résultat"
+msgstr "1 resultado"
 
 msgid "1 theme"
-msgstr "1 thème"
+msgstr "1 tema"
 
 msgid ":"
 msgstr " : "
 
 msgid "; "
-msgstr ""
+msgstr " ; "
 
 msgid "A descriptive document created to allow retrieval within an archive."
 msgstr ""
 
 msgctxt "appjs"
 msgid "AND"
-msgstr "ET"
+msgstr "Y"
 
 msgid "APE-EAD XML version of the finding aid"
 msgstr ""
 
 msgid "Access to the site"
-msgstr "Ver la presentación original"
+msgstr "Ver en el sitio Web de origen"
 
 msgid "Accessibility"
-msgstr "Accessibilité"
+msgstr "Accesibilidad"
+
+msgctxt "appjs"
+msgid "Add"
+msgstr "Añadir"
 
 msgctxt "appjs"
 msgid "Add a criterion"
-msgstr "Ajouter un critère"
+msgstr "Añadir un criterio"
+
+msgid "Additional information"
+msgstr "Informations complementaires"
 
 msgid "Address"
-msgstr "Adresse"
+msgstr "Dirección "
+
+msgid "Address copied to clipboard."
+msgstr "Dirección copiada en el portapapeles"
 
 msgid "Advanced search"
-msgstr "Recherche avancée"
+msgstr "Búsqueda avanzada"
 
 msgctxt "appjs"
 msgid "Advanced search"
-msgstr "Recherche avancée"
+msgstr "Búsqueda avanzada"
+
+msgid "Age"
+msgstr ""
+
+msgid "Agent properties"
+msgstr "Propiedades de la persona o institución"
 
 # schema pot file, generated on 2018-10-25 08:03:40
 #
 # singular and plural forms for each entity type
 msgid "AgentAuthority"
-msgstr "Autorité personne et institution"
+msgstr "Autoridad persona e institución"
 
 msgid "AgentAuthority_plural"
-msgstr "Autorités personne et institution"
+msgstr "Autoridades persona e institución"
 
 msgid "AgentInfo"
 msgstr ""
@@ -160,8 +176,8 @@ msgid ""
 "date string in '%Y-%m-%d' format ('isdate' is True in this case), or the "
 "original date if it cannot be converted into a date object ('isdate' is "
 "False in this case). The value 'isbc' is used to flag 'timestamp' as Before "
-"Christ. The value 'precision' specifies up to which time unit "
-"('c' (century), 'dc' (decade), 'y' (year), 'm' (month) or 'd' (day)) the "
+"Christ. The value 'precision' specifies up to which time unit ('c' "
+"(century), 'dc' (decade), 'y' (year), 'm' (month) or 'd' (day)) the "
 "timestamp is exact. The 'isiso' flag indicates whether BCE dates adhere to "
 "ISO8601 standard (0000 is 1BC -0001 is 2BC and so on)."
 msgstr ""
@@ -175,54 +191,111 @@ msgstr ""
 msgid "AgentName_plural"
 msgstr ""
 
-msgid "All documents"
-msgstr "Tous les documents"
-
-msgid "All nomina records"
-msgstr "Tous les enregistrements de la base de noms"
-
-msgid "All public access"
-msgstr "Accès tout public"
-
-msgid "All services"
-msgstr "Tous les services"
-
-msgid "Annual closure"
-msgstr "Fermeture annuelle"
-
-msgctxt "appjs"
-msgid "Archive service"
-msgstr "Service d'archives"
-
-msgid "Article"
-msgstr "Article"
-
-msgid "Article_plural"
-msgstr "Articles"
-
-msgid "Author"
-msgstr "Auteur"
-
-msgid "AuthorityRecords"
-msgstr "Notices producteurs"
-
-msgid "Authors"
-msgstr "Auteurs"
-
-msgid "Autres services"
+msgid "AgentRecord"
 msgstr ""
 
+msgid "AgentRecordFunction"
+msgstr ""
+
+msgid "AgentRecordFunction_plural"
+msgstr ""
+
+msgid "AgentRecordLegalStatus"
+msgstr ""
+
+msgid "AgentRecordLegalStatus_plural"
+msgstr ""
+
+msgid "AgentRecordOccupation"
+msgstr ""
+
+msgid "AgentRecordOccupation_plural"
+msgstr ""
+
+msgid "AgentRecord_plural"
+msgstr ""
+
+msgid "AgentRecords"
+msgstr ""
+
+msgid "All documents"
+msgstr "Todos los documentos"
+
+msgid "All fields are mandatory"
+msgstr "Todos los campos son obligatorios"
+
+msgid "All services"
+msgstr "Todos los servicios"
+
+msgid "All site contents"
+msgstr "Recursos del sitio"
+
+msgid "All the referenced archives"
+msgstr "Todos los archivos referenciados"
+
+msgid "Annual closure"
+msgstr "Cierre anual"
+
+msgctxt "appjs"
+msgid "Archives antérieures à 1715 concernant Pamiers"
+msgstr "Archivos anteriores a 1715 relativos a Pamiers"
+
+msgctxt "appjs"
+msgid ""
+"Archives concernant Poitiers et qui ne sont pas conservées par les Archives "
+"de la Vienne"
+msgstr "Archivos relativos a Poitiers no conservados en los Archivos de Vienne"
+
+msgctxt "appjs"
+msgid ""
+"Archives produites par Jean Petit qui a pour activité « notaire à Paris »"
+msgstr ""
+"Archivos producidos por Jean Petit, cuya actividad era «notario en París»."
+
+msgid "Article"
+msgstr "Artículo"
+
+msgid "Article_plural"
+msgstr "Artículos"
+
+msgid "Aucun rsultat  exporter."
+msgstr ""
+
+msgid "Aucun rsultat exportable (matricules de dpartements interdits)."
+msgstr ""
+
+msgid "Authfilenumber"
+msgstr ""
+
+msgid "Author"
+msgstr "Autor"
+
+msgid "AuthorityRecords"
+msgstr "Etiquetas productores"
+
+msgid "Authors"
+msgstr "Autores"
+
+msgid "Autres services"
+msgstr "Artículo"
+
+msgid "Available RDF formats:"
+msgstr "Formatos RDF disponibles :"
+
 msgid "BaseContent"
-msgstr "Article"
+msgstr "Artículo"
 
 msgid "BaseContentTranslation"
-msgstr "Traduction de article"
+msgstr "Traducción del artículo"
 
 msgid "BaseContentTranslation_plural"
-msgstr "Traductions d'articles"
+msgstr "Traducciones de artículos"
 
 msgid "BaseContent_plural"
-msgstr "Articles"
+msgstr "Artículos"
+
+msgid "Birth"
+msgstr "Nacimiento"
 
 msgid "Blog"
 msgstr "Blog"
@@ -230,19 +303,26 @@ msgstr "Blog"
 msgid "Blog_plural"
 msgstr "Blog"
 
+msgid "Broken links"
+msgstr "Enlaces rotos"
+
 msgctxt "appjs"
-msgid "By word"
-msgstr "Par mot"
+msgid "Business field"
+msgstr "Ámbito (Thésaurus)"
+
+#, python-format
+msgid "By %s on %s"
+msgstr ""
 
 msgid "CGU"
 msgstr ""
 
 msgid ""
-"CSV file containing \"Code_insee\", \"URL\", \"Couleur\" and \"Legende"
-"\"columns separated by \",\""
+"CSV file containing \"Code_insee\", \"URL\", \"Couleur\" and "
+"\"Legende\"columns separated by \",\""
 msgstr ""
-"Fichier CSV avec les colonnes \"Code_insee\", \"URL\", \"Couleur\" and "
-"\"Legende\"séparées par \",\""
+"Archivo CSV con las columnas \"Código_insee\", \"URL\", \"Color\" and "
+"\"Leyenda\"separadas por \",\""
 
 msgid "Caches"
 msgstr ""
@@ -250,38 +330,55 @@ msgstr ""
 msgid "Caches_plural"
 msgstr ""
 
+msgid "Can not group authorities with an already grouped authority."
+msgstr "No es posible agrupar autoridades con una autoridad ya agrupada."
+
 msgid "Captcha:"
-msgstr "Captcha :"
+msgstr "Captcha:"
 
 msgid "Carte des inventaires"
-msgstr "Carte des lieux des archives"
+msgstr "Mapa de ubicaciones de los archivos"
 
 msgid "Category"
-msgstr "Catégorie"
+msgstr "Categoría "
 
 msgid "Category_plural"
-msgstr "Catégories"
+msgstr "Categorías"
 
 msgid "Change the navigation language"
-msgstr "Cambiar la lengua de navegación"
+msgstr "Cambiar el idioma de navegación"
+
+msgid "Child/Children"
+msgstr "Hijo(s)"
 
 msgid "Choose search perimeter"
-msgstr "Choisir le périmètre de recherche"
+msgstr "Elegir el parámetro de búsqueda"
 
 msgid "Circular"
-msgstr "Circulaire"
+msgstr "Circular"
+
+msgctxt "appjs"
+msgid "Circular"
+msgstr "Circular"
 
 msgid "Circular_plural"
-msgstr "Circulaires"
+msgstr "Circulares"
 
 msgid "Circulars"
-msgstr "Circulaires"
+msgstr "Circulares"
+
+msgctxt "appjs"
+msgid "Circulars"
+msgstr "Circulares"
+
+msgid "Civil status"
+msgstr ""
 
 msgid "Clear all facets"
-msgstr "Supprimer tous les filtres"
+msgstr "Suprimir todos los filtros"
 
 msgid "Close"
-msgstr "Fermer"
+msgstr "Cerrar"
 
 msgid "CmsI18nObject"
 msgstr ""
@@ -295,53 +392,60 @@ msgstr ""
 msgid "CmsObject_plural"
 msgstr ""
 
+msgctxt "appjs"
+msgid "Code"
+msgstr "Código"
+
 msgid "Code INSEE commune"
 msgstr ""
 
 msgid "Collapse the toc"
-msgstr "Refermer le sommaire"
+msgstr "Cerrar el índice "
 
 msgid "CommemoDate"
-msgstr "Date"
+msgstr "Fecha"
 
 msgid "CommemoDate_plural"
-msgstr "Dates"
+msgstr "Fechas"
 
 msgid "CommemorationItem"
-msgstr "Page d'histoire"
+msgstr "Página de historia"
 
 msgid "CommemorationItemTranslation"
-msgstr "Traduction de Page d'histoire"
+msgstr "Traducción de Página de historia"
 
 msgid "CommemorationItemTranslation_plural"
-msgstr "Traductions des Page d'histoire"
+msgstr "Traducciones de las Páginas de historia"
 
 msgid "CommemorationItem_plural"
-msgstr "Pages d'histoire"
+msgstr "Página de historia"
+
+msgid "Comments_nomina_RP"
+msgstr ""
 
 msgid "Conservation institutions: "
-msgstr "Institution de conservation : "
+msgstr "Institución de conservación"
 
 msgid "Consult the digitized version"
-msgstr "Consulter le document numérisé"
+msgstr "Enlace al documento digitalizado"
 
 msgid "Consult the digitized version of"
-msgstr "Consulter le document numérisé de"
+msgstr "Consultar el documento digitalizado de "
 
 msgid "Consult the source"
-msgstr "Consulter la source"
+msgstr "Consultar la fuente"
 
 msgid "Consult the virtual exhibits"
-msgstr "Consulter l'exposition virtuelle"
+msgstr "Consultar la exposición virtual"
 
 msgid "Contact"
-msgstr "Contact"
+msgstr "Contacto"
 
 msgid "Contact_label"
-msgstr "Coordonnées du service"
+msgstr "Datos de contacto del servicio"
 
 msgid "Contains"
-msgstr "Contient"
+msgstr "Contiene"
 
 msgid "Content"
 msgstr "Contenido"
@@ -349,17 +453,27 @@ msgstr "Contenido"
 msgid "Contenu"
 msgstr ""
 
+msgid "Cookies management"
+msgstr "Gestión de cookies"
+
 msgid "Copy link"
-msgstr "Copier le lien"
+msgstr "Copiar el enlace"
 
 msgid "Copy the glossary term link"
-msgstr "Copier le lien vers le glossaire"
+msgstr "Copiar el enlace al glosario"
+
+msgid "Copy to clipboard"
+msgstr "Copier dans le presse-papier"
 
 msgid "Cote"
-msgstr "Cote"
+msgstr "Signatura"
+
+msgctxt "appjs"
+msgid "Could not retrieve results"
+msgstr "No se pueden recuperar los resultados"
 
 msgid "Creation date"
-msgstr "Date de création"
+msgstr "Fecha de creación "
 
 msgid "CssImage"
 msgstr ""
@@ -367,94 +481,165 @@ msgstr ""
 msgid "CssImage_plural"
 msgstr ""
 
-msgid "Date :"
-msgstr "Date :"
+msgctxt "appjs"
+msgid "Dans le texte"
+msgstr "En el texto"
+
+msgid "Date"
+msgstr "Fecha"
+
+msgctxt "appjs"
+msgid "Date"
+msgstr "Fecha"
+
+msgid "Date and place of the census"
+msgstr "Fecha y municipio del censo"
 
 msgid "Date and place of the event"
-msgstr "Date et lieu de l'évènement"
+msgstr "Fecha y lugar del acontecimiento"
 
 msgid "Date ascending"
-msgstr "Date croissante"
+msgstr "Fecha creciente"
 
 msgid "Date descending"
-msgstr "Date décroissante"
+msgstr "Fecha decreciente"
 
 msgid "Dates"
-msgstr ""
+msgstr "Fechas"
 
 msgctxt "appjs"
 msgid "Dates"
-msgstr "Dates"
+msgstr "Fechas"
+
+msgid "Dates:"
+msgstr ""
+
+msgid "Death"
+msgstr "Defunción"
+
+msgid "Deed date"
+msgstr "Fecha de la escritura"
+
+msgid "Deed number"
+msgstr "Número de acta"
 
 msgid "Description"
-msgstr ""
+msgstr "Contexto de la descripción:"
 
-msgid "Description context :"
-msgstr "Contexte de la description :"
+msgid "Description context:"
+msgstr "Contexto de la descripción:"
+
+msgctxt "appjs"
+msgid "Description context:"
+msgstr "Contexto de la descripción:"
 
 msgid "Did"
-msgstr ""
+msgstr "Contexto de la descripción:"
 
 msgid "Did_plural"
 msgstr ""
 
 msgid "DigitizedVersion"
-msgstr "Version numérisée"
+msgstr "Versión digitalizada"
 
 msgid "DigitizedVersion_plural"
-msgstr "Versions numérisées"
+msgstr "Versiones digitalizadas"
 
 msgid "Director"
-msgstr "Directeur"
+msgstr "Director"
+
+msgid "Directory of archival institutions"
+msgstr "Directorio de los servicios de archivos"
+
+msgid "Disabled"
+msgstr "Désactivé"
 
 msgid "Discover 15 centuries of archives"
-msgstr "Partez à la découverte de 15 siècles d’archives"
+msgstr "Descubra quince siglos de archivos"
 
-msgid "Display transcription"
-msgstr "Afficher la transcription"
+msgctxt "appjs"
+msgid "Display the context with all {0} elements"
+msgstr "Mostrar el contexto con todos los componentes {0}"
+
+msgid "Display the definition of:"
+msgstr "Mostrar la definición de :"
+
+msgid "Display the map"
+msgstr "Mostrar el mapa"
+
+msgid "Display/hide SPARQL editor"
+msgstr "Mostrar/ocultar el editor SPARQL"
 
 msgid "Doctype_label"
-msgstr "Type de document"
+msgstr "Tipo de documento"
 
 msgid "Document date label"
-msgstr "Date du document"
+msgstr "Fecha del documento"
+
+msgid "Document location label"
+msgstr "Lugar del documento"
 
 msgid "Done"
-msgstr "Terminé"
+msgstr "Terminado"
 
 msgid "Download RDF"
-msgstr "Télécharger en RDF"
+msgstr "Descargar en RDF"
 
 msgid "Download shelfmark"
-msgstr "Télécharger la notice en CSV"
+msgstr "Descargar el registro en CSV"
 
 msgid "Download the inventory"
-msgstr "Ouvrir l'inventaire"
+msgstr "Abrir el inventario"
+
+msgid "Download the record in EAC-CPF (v2)"
+msgstr "Descargar el registro en EAC-CPF (v2)"
+
+msgid "Download the record in RDF"
+msgstr "Descargar el registro en RDF"
 
 msgctxt "appjs"
 msgid "EXCEPT"
-msgstr "SAUF"
+msgstr "EXCEPTO"
 
 msgid "Edit the card"
-msgstr "Éditer la fiche"
+msgstr "Editar la ficha"
+
+msgid "Edit the entry"
+msgstr "Editar la entrada"
 
 msgid "Edit the glossary term"
-msgstr "Éditer l'entrée du glossaire"
+msgstr "Editar la entrada del glosario"
 
 msgid "Email"
-msgstr "Courriel"
+msgstr "Correo electrónico"
 
 msgid "Email:"
-msgstr "Courriel :"
+msgstr "Correo electrónico:"
+
+msgid "Employer"
+msgstr ""
 
 msgid "En error occurred (no es connection). Please, try again."
 msgstr ""
+"Su búsqueda se ha interrumpido inesperadamente. Por favor, inténte de nuevo "
+"en unos momentos."
 
 msgid "En error occurred. Please, try again."
 msgstr ""
+"Su búsqueda se ha interrumpido inesperadamente. Por favor, inténte de nuevo "
+"en unos momentos."
+
+msgid "Enabled"
+msgstr "Activé"
+
+msgid "Enlarge"
+msgstr "Ampliar"
+
+msgid "Enlarge the transcript"
+msgstr "Ampliar la transcripción"
 
 msgid "Enrolment year and place"
-msgstr "Classe et lieu de recrutement"
+msgstr "Clase y lugar de reclutamiento"
 
 msgid "EsDocument"
 msgstr ""
@@ -462,130 +647,158 @@ msgstr ""
 msgid "EsDocument_plural"
 msgstr ""
 
+msgid "Event date"
+msgstr "Fecha del documento"
+
+msgid "Event location"
+msgstr "Lugar del documento"
+
 msgid "Exact search"
-msgstr "Recherche exacte"
+msgstr "Búsqueda exacta"
 
 msgctxt "appjs"
 msgid "Exact year"
-msgstr "Année exacte"
+msgstr "Año exacto"
+
+msgctxt "appjs"
+msgid "Examples of queries"
+msgstr "Ejemplos de consultas"
 
 msgid "Excerpt from attachment:"
-msgstr "Extrait du PDF d'origine"
+msgstr "Extracto del PDF de origen"
 
 msgctxt "appjs"
 msgid "Exclude"
-msgstr "Exclure"
+msgstr "excluir"
 
 msgid "Expand image"
-msgstr "Agrandir l'image"
-
-msgid "Expand the toc"
-msgstr "Déplier le sommaire"
+msgstr "Ampliar la imagen"
 
 #, python-format
 msgid "Expected fieldnames are \"%s\""
-msgstr "Les noms des colonnes attendus sont \"%s\""
+msgstr "Los nombres de las columnas esperadas son \"%s\""
+
+msgid "Expected format:"
+msgstr "Formato previsto"
 
 msgid "Explore themes"
-msgstr "Explorer des thématiques"
+msgstr "Explorar temáticas"
+
+msgid "Export in progress..."
+msgstr "Exportando..."
+
+msgid "Exporter les rsultats"
+msgstr ""
 
 msgid "ExternRef"
-msgstr "Référence externe"
+msgstr "Referencia externa"
 
 msgid "ExternRef_plural"
-msgstr "Références externes"
+msgstr "Referencias externas"
 
 msgid "ExternalId"
-msgstr ""
+msgstr "Documento de archivo"
 
 msgid "ExternalId_plural"
 msgstr ""
 
 msgid "FAComponent"
-msgstr "Document d'archives"
+msgstr "Documento de archivo"
 
 msgid "FAComponent_plural"
-msgstr "Documents d'archives"
+msgstr "Documentos de archivo"
 
 msgid "FAHeader"
-msgstr ""
+msgstr "Foro de consultas"
 
 msgid "FAHeader_plural"
 msgstr ""
 
 msgid "FAQ"
-msgstr "Foire aux questions"
-
-msgid "Faq"
-msgstr "Foire aux questions"
+msgstr "Preguntas más frecuentes"
 
 msgid "FaqItem"
-msgstr "Question/Réponse"
+msgstr "Pregunta/Respuesta"
 
 msgid "FaqItemTranslation"
-msgstr "Traduction de Question/Réponse"
+msgstr "Traducción de Pregunta/Respuesta"
 
 msgid "FaqItemTranslation_plural"
-msgstr "Traductions des Questions/Réponses"
+msgstr "Traducciones de las Preguntas/Respuestas"
 
 msgid "FaqItem_plural"
-msgstr "Questions/Réponses"
+msgstr "Preguntas/Respuestas"
 
-msgid "Fields with <span class=\"required\">*</span> are required."
-msgstr ""
-"Les champs marqués d'un <span class=\"required\">*</span> sont obligatoires."
+msgctxt "appjs"
+msgid "Filter"
+msgstr "filtrar"
 
 msgid "FindingAid"
-msgstr "Inventaire d'archives"
+msgstr "Inventario de archivos"
 
 msgid "FindingAid_plural"
-msgstr "Inventaires d'archives"
-
-msgid "First page"
-msgstr "Première page"
+msgstr "Inventarios de archivos"
 
 msgid "Fold all"
-msgstr "Tout replier"
+msgstr "Replegar todo"
 
-msgid "Follow us on"
-msgstr "Sigue en"
-
-msgid "Follow us on Twitter"
-msgstr "Sigue en Twitter"
+msgid "Follow us"
+msgstr "Síganos"
 
 msgid "Fonds"
-msgstr "Fonds"
+msgstr "Fondos"
+
+msgid "Footer"
+msgstr "Pie de página"
+
+msgid "Footer menu"
+msgstr "Enlaces a pie de página"
 
 msgid "For more results,"
-msgstr "Pour plus de résultats,"
+msgstr "Para más resultados,"
 
 msgid "For more specific results,"
-msgstr "Pour des résultats plus précis,"
+msgstr "Para resultados más precisos,"
 
 #, python-brace-format
 msgid "Forbidden to delete a non-orphan {etype} {eid}"
-msgstr "Il est interdit de supprimer une Autorité non orphéline {etype} {eid}"
+msgstr "Está prohibido suprimir una Autoridad no huérfana {etype} {eid}"
 
 msgid "Forenames"
-msgstr "Prénoms"
+msgstr "Nombre(s)"
 
-msgid "FranceArchives link"
-msgstr "Lien FranceArchives"
-
-msgid "FranceArchives: Portail National des Archives de France"
+#, python-brace-format
+msgid ""
+"Found {number_response} NominaRecords with stable_id {stable_id} in index "
+"{index_name}"
 msgstr ""
 
+msgid "FranceArchives link"
+msgstr "URL de FranceArchives"
+
+msgid "FranceArchives: Portail National des Archives de France"
+msgstr "FranceArchives: Portail National des Archives de France"
+
+msgid "French national portal of archives"
+msgstr "Portail National des Archives de France"
+
 msgid "Full glossary term description"
-msgstr "Description complète"
+msgstr "Descripción completa"
 
 msgid "Fuzzy search is activated."
-msgstr "La recherche approximative est activée."
+msgstr "La búsqueda aproximada está activada."
 
 msgid "GB"
 msgstr "Go"
 
 msgid "GPS coordinates"
-msgstr "Coordonnées GPS"
+msgstr "Coordenadas GPS"
+
+msgid "Gender"
+msgstr "Sexo"
+
+msgid "General information"
+msgstr "Information générale"
 
 msgid "Geogname"
 msgstr ""
@@ -594,318 +807,333 @@ msgid "Geogname_plural"
 msgstr ""
 
 msgid "Glossary"
-msgstr "Glossaire"
+msgstr "Glosario"
 
 msgid "Glossary term description for the popup"
-msgstr "Description courte à afficher dans le popup"
+msgstr "Descripción corta para mostrar en el popup"
 
 msgid "GlossaryTerm"
-msgstr "Entrée de glossaire"
+msgstr "Entrada de glosario"
 
 msgid "GlossaryTerm_plural"
-msgstr "Entrées de glossaire"
+msgstr "Entradas de glosario"
 
 msgid "Go back to page:"
-msgstr "Volver a la página : "
+msgstr "Volver a la página anterior:"
 
 msgid "Go back to the FranceArchives"
 msgstr "Volver al portal FranceArchives"
 
-msgid "Go to FranceArchives homepage"
-msgstr "Retour à l'accueil FranceArchives"
+msgid "Go back to the list of circulars"
+msgstr "Volver a la lista de las circulares"
 
 msgid "Go to page"
-msgstr "Accéder à la page"
+msgstr "Acceder a la página"
 
-msgid "Go to the first page"
-msgstr "Accéder à la première page"
+msgid "Go to the Faq"
+msgstr "Ir a Preguntas frecuentes"
 
-msgid "Go to the last page"
-msgstr "Accéder à la dernière page"
+msgid "Go to the glossary"
+msgstr "Accéder au glossaire"
 
 msgid "Go to the next page"
-msgstr "Accéder à la page suivante"
+msgstr "Acceder a la página siguiente"
 
 msgid "Go to the page"
 msgstr "Acceder a la página"
 
 msgid "Go to the previous page"
-msgstr "Accéder à la page précédente"
+msgstr "Acceder a la página anterior"
 
 msgid "Go to the section"
-msgstr "Accéder à la rubrique"
+msgstr "Acceder a la sección"
 
 msgid "Go to the top of the page"
-msgstr "Remonter en haut de la page"
+msgstr "Ir al principio de la página"
 
 msgid "Help"
-msgstr "Aide"
+msgstr "Ayuda"
 
 msgid "Help?"
-msgstr "Aide ?"
+msgstr "¿Ayuda?"
 
-msgid "Hide transcription"
-msgstr "Cacher la transcription"
+msgid "Hide the message"
+msgstr "Ocultar el mensaje"
+
+msgid "Historical context"
+msgstr "Contexto histórico"
 
 msgid "Home"
+msgstr "Inicio"
+
+msgid "Homepage"
 msgstr "Accueil"
 
 msgid "How to search on FranceArchives?"
-msgstr "Comment rechercher sur FranceArchives ?"
+msgstr "Cómo buscar en FranceArchives"
 
 msgid "Hypertext link to the circular"
-msgstr "Lien vers le texte"
+msgstr "Enlace al texto"
 
-msgid "IIIF Icon"
-msgstr ""
+msgid "IIIF logo - this image will be displayd in IIIF-compatible viewer"
+msgstr "Esta imagen se mostrará en un Visualizador IIIF"
 
 msgid "ISNI"
 msgstr ""
 
+msgid "Identification"
+msgstr "Identificación"
+
+msgid "Identifier"
+msgstr "Identificador"
+
 msgid "Image"
-msgstr "Image"
+msgstr "Imagen"
 
 msgid "Image_plural"
-msgstr "Images"
+msgstr "Imágenes"
 
 msgctxt "appjs"
 msgid "Include"
-msgstr "Inclure"
+msgstr "Incluir"
 
 msgid "Indexed authorities:"
-msgstr "Autorités indexées"
+msgstr "Autoridades indexadas"
+
+msgctxt "appjs"
+msgid "Institution a pour membre Personne"
+msgstr "Institución tiene un miembro persona"
+
+msgctxt "appjs"
+msgid "Institution qui a pour type « ministère » ET est le sujet d’archives"
+msgstr "Institución cuyo tipo es «ministerio» Y es objeto de archivos"
+
+msgid "Interministerial portal"
+msgstr "Portal interministerial"
 
 msgid "Invalid subscription data. Please try subscription again."
-msgstr "Données d'inscription incorrectes. Veuillez recommencer l'inscription."
+msgstr "Datos de suscripción incorrectos. Repita la suscripción."
+
+msgctxt "appjs"
+msgid "Inventaires d'archives produits par Georges Clemenceau"
+msgstr "Inventarios de archivos elaborados por Georges Clemenceau"
 
 msgid "Inventory"
-msgstr "Inventaire"
+msgstr "Inventario"
 
 msgid "KB"
 msgstr "Ko"
 
-msgid "Language"
-msgstr "Langue"
+msgid "Key figures"
+msgstr "Cifras clave"
 
-msgid "Last page"
-msgstr "Dernière page"
+msgid "L'export CSV contient au maximum 10000 notices."
+msgstr "La exportación CSV contiene un máximo de 10000 registros."
+
+#, python-brace-format
+msgid ""
+"L'export CSV est indisponible car votre recherche retourne plus de {limit} "
+"rsultats ({total} rsultats). Veuillez affiner votre recherche pour exporter "
+"moins de {limit} notices."
+msgstr ""
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "Last update date"
+msgstr "Ultima actualización"
+
+msgid "Last update on"
+msgstr "Ultima actualización"
+
+msgid "Last updated"
+msgstr ""
 
 msgctxt "appjs"
 msgid "Launch the search"
-msgstr "Lancer la recherche"
+msgstr "Iniciar búsqueda"
 
 msgid "Launch the tour"
-msgstr "Lancer la visite guidée"
+msgstr "Iniciar la visita guiada"
 
 msgid "Legal notices"
-msgstr "Mentions légales"
+msgstr "Menciones legales"
 
 msgid "Less options"
-msgstr "Moins d'options"
+msgstr "Menos opciones"
 
-msgid "Link copied to clipboard!"
-msgstr "Lien copié dans le presse-papier !"
+msgctxt "appjs"
+msgid ""
+"Lieu de conservation qui conserve des archives concernant « Charles de "
+"Gaulle »"
+msgstr "Lugar donde se conservan los archivos relativos a «Charles de Gaulle"
 
-msgid "Link to FranceArchives"
-msgstr "Lien vers FranceArchives"
+msgctxt "appjs"
+msgid ""
+"Lieux qui sont le sujet des archives reliées au fonds « Fabrique de "
+"berlingot Eysséric »"
+msgstr ""
+"Lugares que son objeto de archivos relacionados con el fondo «Fabrique de "
+"berlingot Eysséric»"
+
+msgid "Link to:"
+msgstr "Enlace al :"
+
+msgid "Link with the qualified agent"
+msgstr "Ver otros documentos"
 
 msgid "Links"
-msgstr "Liens"
+msgstr "Enlaces"
+
+msgctxt "appjs"
+msgid "Loading"
+msgstr "Cargando"
+
+msgid "Locate in the inventory"
+msgstr "Situar en el inventario"
 
 msgctxt "appjs"
 msgid "Location"
-msgstr "Lieu"
+msgstr "Lugar"
+
+msgid "Location properties"
+msgstr "Propiedades del lugar"
 
 msgid "LocationAuthority"
-msgstr "Autorité lieu"
+msgstr "Autoridad lugar"
 
 msgid "LocationAuthority_plural"
-msgstr "Autorités lieu"
+msgstr "Autoridades lugar"
 
 msgid "Locations"
-msgstr "Lieux"
+msgstr "Lugares"
+
+msgid "Log in"
+msgstr "Se connecter"
+
+msgid "Logout"
+msgstr "Se déconnecter"
 
 msgid "MB"
 msgstr "Mo"
 
+msgid "Main search"
+msgstr "Búsqueda principal"
+
 msgid "Manage archives"
-msgstr "Gérer les archives"
+msgstr "Gestionar los archivos"
 
 msgid "Map"
-msgstr "Carte"
+msgstr "Mapa"
+
+msgid "Map of archival"
+msgstr "Mapa de los servicios de archivos"
 
 msgid "Map_plural"
-msgstr "Cartes"
+msgstr "Mapas"
+
+msgid "Member of"
+msgstr "Miembro de"
+
+msgid "Member(s)"
+msgstr "Miembro(s)"
 
 msgid "Menu"
-msgstr "Menu"
+msgstr "Menú"
+
+msgid "Message"
+msgstr ""
 
 msgid "Message:"
-msgstr "Message :"
+msgstr "Mensaje:"
 
 msgid "Metadata"
-msgstr "Métadonnées"
+msgstr "Metadatos"
 
 msgid "Metadata_plural"
-msgstr "Métadonnées"
+msgstr "Metadatos"
+
+msgctxt "appjs"
+msgid "Mirador"
+msgstr "Mirador"
 
 msgid "Mirador Viewer"
-msgstr "Visualiseur Mirador"
+msgstr "Visualizador Mirador"
 
 msgid "Missing title"
-msgstr "Titre absent"
+msgstr "Título ausente"
 
 msgid "Modification date"
-msgstr "Date de modification"
+msgstr "Fecha de modificación"
 
-msgid "Modify your search"
-msgstr "Modifier votre recherche"
+msgid "Modify your advanced search"
+msgstr "Modificar su búsqueda avanzada"
+
+msgid "More information"
+msgstr ""
 
 #, python-format
 msgid "More options (%(count)s)"
-msgstr "Plus d'options (%(count)s)"
+msgstr "Más opciones (%(count)s)"
 
 msgid "N/R"
-msgstr "Non renseigné"
-
-msgid "NMN_A"
-msgstr "Abjuration"
-
-msgid "NMN_AN"
-msgstr "Acte notarié"
-
-msgid "NMN_AU"
-msgstr "Autre type"
-
-msgid "NMN_BANS"
-msgstr "Bans de mariage"
-
-msgid "NMN_BN"
-msgstr "Baptême et naissance"
-
-msgid "NMN_CM"
-msgstr "Contrat de mariage"
-
-msgid "NMN_CO"
-msgstr "Congé"
+msgstr "No especificado"
 
 msgid "NMN_C_autre"
-msgstr "la présence d'informations plus complétes sur le site d'origine"
+msgstr "la presencia de información más completa en el sitio Web de origen"
 
 msgid "NMN_C_conflit"
-msgstr "Nom du conflit"
+msgstr "Nombre del conflicto"
 
 msgid "NMN_C_cote"
-msgstr "Cote"
+msgstr "Signatura"
 
 msgid "NMN_C_digitized"
-msgstr " document numérisé est disponible sur le site d'origine"
+msgstr "El documento digitalizado está disponible en el sitio Web de origen"
 
 msgid "NMN_C_education"
-msgstr "Niveau d'instruction"
+msgstr "Nivel de instrucción"
 
 msgid "NMN_C_mention"
 msgstr ""
-"Mention sur le statut de la personne pour les fiches mort pour la France"
+"Anotación sobre el estatuto de la persona para las fichas Caído por Francia"
 
 msgid "NMN_C_nro"
-msgstr "Numéro de matricule"
+msgstr "Número de servicio"
 
 msgid "NMN_C_occupations"
-msgstr "Profession(s)"
+msgstr "Profesión"
 
 msgid "NMN_C_payant"
-msgstr "L'accès aux informations complémentaires est payant"
-
-msgid "NMN_DI"
-msgstr "Divorce"
-
-msgid "NMN_E_0"
-msgstr "Ne sait ni lire ni écrire"
-
-msgid "NMN_E_1"
-msgstr "Sait lire"
-
-msgid "NMN_E_2"
-msgstr "Sait lire et écrire"
-
-msgid "NMN_E_3"
-msgstr "Sait lire, écrire et compter"
-
-msgid "NMN_E_4"
-msgstr "Brevet de l'enseignement primaire"
-
-msgid "NMN_E_5"
-msgstr "Bachelier"
-
-msgid "NMN_F"
-msgstr "Fiançailles"
-
-msgid "NMN_Inconnu"
-msgstr "Inconnu"
-
-msgid "NMN_JU"
-msgstr "Jugement"
-
-msgid "NMN_M"
-msgstr "Mariage"
-
-msgid "NMN_M14-18"
-msgstr "Mort 14-18"
-
-msgid "NMN_MPF"
-msgstr "Mort pour la France"
-
-msgid "NMN_MPF14-18"
-msgstr "Mort pour la France 14-18"
-
-msgid "NMN_P"
-msgstr "Permission"
-
-msgid "NMN_PR"
-msgstr "Promesse de mariage"
-
-msgid "NMN_PU"
-msgstr "Publication de mariage"
+msgstr "El acceso a la información complementaria es de pago"
 
 msgid "NMN_R"
-msgstr "Résidence"
+msgstr "Residencia"
 
-msgid "NMN_RE"
-msgstr "Reconnaissance"
-
-msgid "NMN_REA"
-msgstr "Réhabilitation"
-
-msgid "NMN_RM"
-msgstr "Matricule militaire"
-
-msgid "NMN_RP"
-msgstr "Recensement"
-
-msgid "NMN_RT"
-msgstr "Rôle de taille"
-
-msgid "NMN_S"
-msgstr "Sépulture et décès"
-
-msgid "NMN_SV"
-msgstr "Sans vie"
+msgid "NMN_mention_mpf"
+msgstr ""
 
 msgid "Name"
-msgstr "Nom"
+msgstr "Apellido(s)"
 
 msgid "Name: "
-msgstr "Nom :"
+msgstr "Nombre:"
 
 msgid "Names"
-msgstr "Noms"
+msgstr "Nombres"
 
 msgid "Names database"
-msgstr "Base de noms"
+msgstr "Base de Nombres"
+
+msgctxt "appjs"
+msgid "Namespace"
+msgstr "Espacio de nombres"
+
+msgid "Nationality"
+msgstr "Nacionalidad"
 
 msgid "Need help?"
-msgstr "Besoin d'aide ?"
+msgstr "¿Necesita ayuda?"
 
 msgid "New AgentAuthority"
 msgstr ""
@@ -914,6 +1142,18 @@ msgid "New AgentInfo"
 msgstr ""
 
 msgid "New AgentName"
+msgstr ""
+
+msgid "New AgentRecord"
+msgstr ""
+
+msgid "New AgentRecordFunction"
+msgstr ""
+
+msgid "New AgentRecordLegalStatus"
+msgstr ""
+
+msgid "New AgentRecordOccupation"
 msgstr ""
 
 msgid "New BaseContent"
@@ -1043,65 +1283,93 @@ msgid "New SubjectAuthority"
 msgstr ""
 
 msgid "NewsContent"
-msgstr "Actualité"
+msgstr "Últimas noticias"
 
 msgid "NewsContent_plural"
-msgstr "Actualités"
+msgstr "Últimas noticias"
 
 msgid "NewsLetterSubscriber"
-msgstr "Abonné à la lettre d'information"
+msgstr "Suscriptor al boletín informativo"
 
 msgid "NewsLetterSubscriber_plural"
-msgstr "Abonnés à la lettre d'information"
+msgstr "Suscriptores al boletín informativo"
 
 msgid "Newsletter"
-msgstr "Lettre d'information"
+msgstr "Boletín informativo"
 
 msgid "Next"
-msgstr "Suivant"
+msgstr "Siguiente"
 
 msgid "Next page"
-msgstr "Page suivante"
+msgstr "Página siguiente"
+
+msgctxt "appjs"
+msgid "Next page"
+msgstr "Página siguiente"
+
+msgid ""
+"No URL found for OAI PMH repository in uploaded data. Your data may be "
+"corrupted: please harvest your data again."
+msgstr ""
+
+msgid "No broken links where detected."
+msgstr "No se han detectado enlaces rotos."
 
 msgid "No documents in this section"
-msgstr "Pas de document dans cette rubrique"
+msgstr "No hay documento en esta sección"
+
+msgid "No linked content"
+msgstr "No se ha encontrado contenido enlazado"
 
 msgid "No locations"
-msgstr "Pas de lieu"
+msgstr "No se ha encontrado ningún lugar que coincida con su búsqueda"
+
+msgid "No match found"
+msgstr ""
 
 msgid "No persons/organizations"
-msgstr "Pas de personne ou institution"
+msgstr ""
+"No se ha encontrado ninguna persona o institución que coincida con su "
+"búsqueda"
 
 msgid "No result"
-msgstr "Pas de résultat"
+msgstr "No se han encontrado resultados que coincidan con su búsqueda"
 
 msgid "No sparql endpoint declared"
-msgstr "L'URL du SPARQL endpoint n'a pas été déclarée"
+msgstr "La URL del SPARQL endpoint no ha sido declarada"
 
 msgid "No themes"
-msgstr "Pas de thème"
+msgstr "No se han encontrado temas que coincidan con su búsqueda"
 
 msgid "Nomina free search"
 msgstr ""
-"Recherche libre : noms, prénoms, lieux, profession, date, degré d'instruction"
+"Búsqueda libre: apellidos, nombres, lugares, profesión, nivel de instrucción"
 
 msgid "NominaRecord"
-msgstr "Notice nominative"
+msgstr "Registro nominativo"
+
+#, python-brace-format
+msgid "NominaRecord with stable_id {stable_id} not found in index {index_name}"
+msgstr ""
 
 msgid "NominaRecord_plural"
-msgstr "Notice nominatives"
+msgstr "Registros nominativos"
 
 msgid "Normalized interministerial system for official tests numbering"
 msgstr ""
 
 msgid "Notice author "
-msgstr "Auteur de la notice"
+msgstr "Autor del registro"
 
 msgid "Notice author :"
-msgstr "Auteur de la notice : "
+msgstr "Autor del registro: "
 
 msgid "Notice excerpt:"
-msgstr "Extrait de la notice :"
+msgstr "Extracto del registro"
+
+msgctxt "appjs"
+msgid "Number of rows per page"
+msgstr "Número de líneas por página"
 
 msgid "OAI-PMH ListRecords url"
 msgstr ""
@@ -1113,41 +1381,52 @@ msgid "OAIImportTask_plural"
 msgstr ""
 
 msgid "OAIRepository"
-msgstr "entrepôt OAI"
+msgstr "repositorio OAI"
 
 msgid "OAIRepository_plural"
-msgstr "entrepôts OAI"
+msgstr "repositorios OAI"
 
 msgctxt "appjs"
 msgid "OR"
-msgstr "OU"
+msgstr "O"
 
 msgid "Object of the message"
-msgstr "Objet de votre message"
+msgstr "Objeto de su mensaje"
 
 msgid "Object:"
-msgstr "Objet :"
-
-msgid "Occupation"
-msgstr ""
+msgstr "Objeto :"
 
 msgid "OfficialText"
-msgstr ""
+msgstr "Texto oficial"
 
 msgid "OfficialText_plural"
 msgstr ""
 
 msgid "On the front page"
-msgstr "À la une"
+msgstr "En portada "
+
+#, python-format
+msgid "Only display %s links."
+msgstr "Mostrar sólo %s enlaces."
 
 msgid "Only services contributors"
-msgstr "Partenaires de FranceArchives"
+msgstr "Entidades colaboradoras de FranceArchives"
+
+msgid "Ooccupation (index)"
+msgstr "Profesión (índice)"
+
+msgid "Ooccupation (source)"
+msgstr "Profesión (fuente)"
 
 msgid "Open the menu"
-msgstr "Ouvrir le menu"
+msgstr "Abrir el menú"
 
 msgid "Opening period"
-msgstr "Horaires d'ouverture"
+msgstr "Horarios de apertura"
+
+msgctxt "appjs"
+msgid "Operator"
+msgstr "Operador"
 
 msgid "OrderedSubjectAuthority"
 msgstr ""
@@ -1155,68 +1434,124 @@ msgstr ""
 msgid "OrderedSubjectAuthority_plural"
 msgstr ""
 
+msgid "Original version"
+msgstr "Versión original"
+
 msgid "Other"
-msgstr "Autre"
+msgstr "Otro"
 
 msgid "Other translations"
-msgstr "Autres traductions"
+msgstr "Otras traducciones"
 
 msgid "Other_plural"
-msgstr "Autres"
+msgstr "Otros "
 
 msgid "Page"
-msgstr "Page"
+msgstr "página"
+
+msgid "Page and position of the line on the page"
+msgstr "Página y posición de la línea en el censo"
 
 msgid "Page number"
-msgstr "Numéro de page"
+msgstr "Número de página"
 
 msgid "PageOl"
 msgstr ""
 
 msgid "Pagination"
-msgstr ""
+msgstr "Paginación"
+
+msgid "Parent(s)"
+msgstr "Padre(s)"
+
+msgid "Partner service name"
+msgstr "Lugar de conservación"
+
+msgid "Perform a nominative search"
+msgstr "Buscar personas en los archivos"
 
 msgid "Period"
-msgstr "Période"
+msgstr "Período"
 
 msgctxt "appjs"
 msgid "Period"
-msgstr "Période"
+msgstr "Período"
 
 msgctxt "appjs"
 msgid "Person or institution"
-msgstr "Personne ou Institution"
-
-msgid "Persons/organizations"
-msgstr "Personnes et institutions"
-
-msgid "Pertinence"
-msgstr "Pertinence"
-
-msgid "Phone number"
-msgstr "Numéro de téléphone"
+msgstr "Persona o institución"
 
 msgctxt "appjs"
-msgid "Plain text"
-msgstr "Plein texte"
+msgid "Personne a pour date de mort"
+msgstr "Persona tiene fecha de defunción"
+
+msgctxt "appjs"
+msgid "Personne a pour date de naissance"
+msgstr "Persona tiene fecha de nacimiento"
+
+msgctxt "appjs"
+msgid "Personne a pour enfant Personne"
+msgstr "Persona tiene un hijo Persona"
+
+msgctxt "appjs"
+msgid "Personne a pour frère/soeur Personne"
+msgstr "Persona tiene un hermano/hermana Persona"
+
+msgctxt "appjs"
+msgid "Personne a pour parent Personne"
+msgstr "Persona tiene un padre Persona"
+
+msgctxt "appjs"
+msgid "Personne a pour époux/épouse Personne"
+msgstr "Persona tiene un esposo/esposa Persona"
+
+msgctxt "appjs"
+msgid "Personne est membre de Institution"
+msgstr "persona es miembro de Institución"
+
+msgctxt "appjs"
+msgid ""
+"Personne qui a pour activité « notaire » et est le producteur d'archives"
+msgstr "Persona cuya actividad es «notarial» y que produce archivos"
+
+msgctxt "appjs"
+msgid "Personne qui fait partie de la famille qui a pour nom « Bonaparte »"
+msgstr "Un miembro de la familia Bonaparte"
+
+msgctxt "appjs"
+msgid "Personnes qui sont nées entre 1850 et 1950"
+msgstr "Personas nacidas entre 1850 y 1950"
+
+msgid "Persons/organizations"
+msgstr "Personas e instituciones"
+
+msgid "Pertinence"
+msgstr "Pertinencia"
+
+msgid "Phone number"
+msgstr "Número de teléfono"
+
+msgid "Place:"
+msgstr ""
 
 msgid "Plan du site"
-msgstr "Plan du site"
+msgstr "Plan del sitio Web"
 
 msgid "Please enter a valid email address. For exemple: name@domain.fr"
-msgstr "Veuillez saisir une adresse valide. Par exemple : nom@domain.fr"
+msgstr ""
 
 msgid "Please select the object of your message"
-msgstr "Veuillez sélectionner l'object de votre message"
-
-msgid "Please, enter a valid email address"
-msgstr "Veuillez saisir une adresse valide."
+msgstr "Seleccione el objeto de su mensaje"
 
 msgid "Previous"
-msgstr "Précédent"
+msgstr "Anterior"
 
 msgid "Previous page"
-msgstr "Page précédente"
+msgstr "Página anterior"
+
+msgctxt "appjs"
+msgid "Previous page"
+msgstr "Página anterior"
 
 msgid "PreviousInfo"
 msgstr ""
@@ -1225,267 +1560,438 @@ msgid "PreviousInfo_plural"
 msgstr ""
 
 msgid "Privacy policy"
-msgstr "Charte de confidentialité"
-
-msgid "Professional access"
-msgstr "Pages professionnelles"
+msgstr "Carta  de confidencialidad"
 
 msgid "Publication"
-msgstr ""
+msgstr "Publicacion"
 
 msgid "Publication_plural"
-msgstr "Publications"
+msgstr "Publicaciones"
 
 msgid "Publisher"
-msgstr "Lieu de conservation"
+msgstr "Lugar de conservación"
+
+msgid "Quality locations"
+msgstr "Lugares de calidad"
+
+msgid "Quality persons/organizations"
+msgstr "Personas o instituciones de calidad"
+
+msgid "Quality themes"
+msgstr "Themas de calidad"
 
 msgctxt "appjs"
-msgid "Publisher"
-msgstr "Lieu de conservation"
+msgid "Query examples"
+msgstr "ejemplo de consultas"
 
-msgid "Quick access"
-msgstr "Accès rapide"
+msgid "Quick acces"
+msgstr "Acceso rápido"
 
-msgid "Read more"
-msgstr "Lire la suite"
+msgid "Quick acces to the sections"
+msgstr "áreas archivísticas"
 
-msgctxt "appjs"
-msgid "Record's creator"
-msgstr "Producteur"
+msgid "Record creators"
+msgstr "Productores de archivos"
 
-msgctxt "appjs"
 msgid "Referenced archives"
 msgstr "Archives référencées"
 
-msgid "Refine your search:"
-msgstr "Affiner votre recherche :"
+msgctxt "appjs"
+msgid "Referenced archives"
+msgstr "Archivos referenciados"
+
+msgid "Refine your search"
+msgstr "Afinar su búsqueda"
+
+msgid "Related people/institutions"
+msgstr "Personas/instituciones relacionadas"
+
+msgid "Relation type:"
+msgstr ""
+
+msgid "Relationship to the head of household"
+msgstr "Relación con el jefe del hogar"
+
+msgid "Remove"
+msgstr "Eliminar"
 
 msgctxt "appjs"
-msgid "Remove a criterion"
-msgstr "Supprimer un critère"
+msgid "Remove"
+msgstr "Eliminar"
+
+msgctxt "appjs"
+msgid "Remove the criterion"
+msgstr "Eliminar"
 
 msgctxt "appjs"
 msgid "Reset search"
-msgstr "Réinitialiser la recherche"
+msgstr "Reiniciar la búsqueda"
+
+msgid "Restart the query with regular search."
+msgstr "Reiniciar la búsqueda regular."
 
 msgid "Results per page"
-msgstr "Résultats par page"
+msgstr "Resultados por página"
+
+msgid "Role:"
+msgstr ""
 
 msgid "SPARQL Editor"
-msgstr "Requêteur SPARQL"
+msgstr "Generador de consultas SPARQL"
 
-msgid "Sans date"
-msgstr ""
+msgid "SPARQL Search"
+msgstr "Búsqueda SPARQL"
 
-msgid "Search in the name base"
-msgstr "Recherche dans la base de noms"
-
-msgid "Search results"
-msgstr "Résultats de recherche"
-
-msgid "SearchHelp"
-msgstr "Aide à la recherche"
-
-msgid "SearchHelp_plural"
-msgstr "Aides à la recherche"
-
-msgid "Section"
-msgstr "Rubrique"
-
-msgid "Section's documents:"
-msgstr "Documents contenus dans la rubrique"
-
-msgid "SectionTranslation"
-msgstr "Traduction de rubrique"
-
-msgid "SectionTranslation_plural"
-msgstr "Traductions de rubrique"
-
-msgid "Section_plural"
-msgstr "Rubriques"
-
-msgid "See all FAQs"
-msgstr "Consulter toutes les questions/réponses"
-
-msgid "See all articles"
-msgstr "Voir tous les articles"
-
-msgid "See all commemorations"
-msgstr "Voir toutes les pages d'histoire"
-
-msgid "See all news"
-msgstr "Voir toutes les actualités"
-
-msgid "See all nomina records for {}"
-msgstr "tous les enregistrements pour {}"
-
-msgid "See all virtual exhibits"
-msgstr "Voir toutes les expositions virtuelles"
-
-msgid "See also:"
-msgstr "Voir aussi :"
-
-msgid "See other documents"
-msgstr "Voir d'autres documents"
-
-msgid "See the context of the notice"
-msgstr "Voir le contexte de la notice"
-
-msgid "See {} archives"
-msgstr "Retrouvez les {} archives référencées"
-
-msgid "Select a department or all services"
-msgstr "Select un département ou tous les services"
-
-msgid "Select a service to display information"
-msgstr "Sélectionnez un service sur la carte avec un double clic."
+msgid "Search"
+msgstr "Recherche"
 
 msgctxt "appjs"
-msgid "Select criterion for the field"
-msgstr "Sélectionner le critère pour le champ"
+msgid "Search all columns..."
+msgstr "Buscar todos los datos"
+
+msgid "Search in the name base"
+msgstr "Búsqueda en la base de nombres"
+
+msgid "Search in the name base - Census"
+msgstr "Búsqueda en la base de nombres - Censo"
+
+msgid "Search in the name base - Civil status and other acts"
+msgstr "Búsqueda en la base de nombres - Estado civil"
+
+msgid "Search in the name base - Military acts"
+msgstr "Búsqueda en la base de nombres - números de registro militar"
+
+msgid "Search inaccessible"
+msgstr "Búsqueda inaccesible"
+
+msgid "Search results"
+msgstr "Resultados de búsqueda"
+
+msgid "Search with Sparnatural"
+msgstr "Buscar con Sparnatural"
+
+msgid "SearchHelp"
+msgstr "Ayuda para la búsqueda"
+
+msgid "SearchHelp_plural"
+msgstr "Ayudas para la búsqueda"
+
+msgid "Section"
+msgstr "Sección"
+
+msgid "Section's documents:"
+msgstr "Documentos contenidos en la sección"
+
+msgid "SectionTranslation"
+msgstr "Traducción de sección"
+
+msgid "SectionTranslation_plural"
+msgstr "Traducciones de sección"
+
+msgid "Section_plural"
+msgstr "Secciones"
+
+msgid "See all FAQs"
+msgstr "Consultar Todas las preguntas/respuestas"
+
+msgid "See all articles"
+msgstr "Ver todos los artículos"
+
+msgid "See all commemorations"
+msgstr "Ver Todas las páginas de historia"
+
+msgid "See all members of the household"
+msgstr "Ver todos los miembros del hogar"
+
+msgid "See all news"
+msgstr "Ver Todas las últimas noticias"
+
+msgid "See all virtual exhibits"
+msgstr "Ver Todas las exposiciones virtuales"
+
+msgid "See breadcrumb"
+msgstr "Voir le fil d’Ariane"
+
+msgid "See in FAQ:"
+msgstr "Consultar in las preguntas más frecuentes :"
+
+msgid "See in glossary:"
+msgstr "Consultar in el glosario"
+
+msgid "See other members of the household"
+msgstr "Ver otros miembros del hogar"
+
+msgid "See the french version"
+msgstr "Consultar la versión francesa"
+
+msgid "See the whole section"
+msgstr "Voir toute la rubrique"
+
+msgctxt "appjs"
+msgid "See with Mirador viewer"
+msgstr "Ver el documento digitalizado con Mirador"
+
+msgid "See with UniversalViewer"
+msgstr "Voir le document numérisé avec UniversalViewer"
+
+msgctxt "appjs"
+msgid "See with UniversalViewer"
+msgstr "Ver el documento digitalizado con el visor"
+
+msgid "See with another viewer:"
+msgstr "Voir le document numérisé avec la visionneuse :"
+
+msgctxt "appjs"
+msgid "See with the viewer:"
+msgstr "Ver el documento digitalizado con UniversalViewer"
+
+msgid "See {} archives"
+msgstr "Encuentre los {} archivos referenciados"
+
+msgctxt "appjs"
+msgid "Select a criterion"
+msgstr "Elegir un criterio"
+
+msgid "Select a department or all services"
+msgstr "Seleccionar un departamento o todos los servicios"
+
+msgctxt "appjs"
+msgid "Select a domain"
+msgstr "Seleccionar un ámbito"
+
+msgid "Select a language"
+msgstr "Seleccionar un idioma"
+
+msgid "Select a service to display information"
+msgstr "Seleccione un servicio en el mapa con un doble clic."
 
 msgid "Select department"
-msgstr "Sélectionner un département"
+msgstr "Seleccionar un departamento"
+
+msgid "Selected filters"
+msgstr "Filtros seleccionados"
 
 msgid "Send your message"
-msgstr "Envoyez votre message"
+msgstr "Envíe su mensaje"
 
 msgid "Service"
-msgstr "Service"
+msgstr "Servicio"
 
 msgid "Service Directory"
-msgstr "Annuaire des services"
+msgstr "Directorio de los servicios"
 
-msgid "Service has a IIIF server and encode manifest in <extptr> (LIGEO)"
+msgid "Service has a IIIF server"
 msgstr ""
-"Le service possède un serveur IIIF et encode le manifest dans <extptr> "
-"(LIGEO)"
+"El departamento dispone de un servidor IIIF y desea mostrar imágenes en "
+"visores IIIF"
+
+msgid "Service_direction"
+msgstr "Dirección"
+
+msgid "Service_manager"
+msgstr "Gerante"
 
 msgid "Service_plural"
-msgstr "Services"
+msgstr "Servicios"
+
+msgid "Services"
+msgstr "Servicios"
+
+msgid "Services contributors"
+msgstr "Servicios contribuyentes"
 
 msgid "Services non-contributors"
-msgstr "Services non contributeurs"
-
-msgid "Share"
-msgstr "Partager"
+msgstr "Servicios no contribuyentes"
 
 msgid "Share FranceArchives on Twitter"
-msgstr "Partager FranceArchives sur Twitter"
+msgstr "Compartir FranceArchives en Twitter"
 
 msgid "Share by mail"
-msgstr "Partager par mail"
+msgstr "Compartir por mail"
 
 msgid "Share on facebook"
-msgstr "Partager sur facebook"
+msgstr "Compartir en facebook"
 
 msgid "Share on twitter"
-msgstr "Partager sur twitter"
+msgstr "Compartir en twitter"
+
+msgid "Share the page"
+msgstr "Compartir la pagina"
+
+msgid "Sibling(s)"
+msgstr "Hermano(s)/hermana(s)"
 
 msgid "Signing or publication date"
-msgstr "Date de signature ou de publication"
+msgstr "Fecha de firma o de publicación"
 
 msgid "Signing or publication date (other than DAF or SIAF)"
-msgstr ""
+msgstr "Fecha de firma o publicación (distinta de DAF o SIAF)"
 
 msgid "Similar documents"
-msgstr "Sur le même thème"
+msgstr "Sobre este mismo tema"
+
+msgid "Similar subjects"
+msgstr "Temas relacionados"
 
 msgctxt "appjs"
 msgid "Site contents"
-msgstr "Ressources du site"
+msgstr "recursos del sitio Web"
 
 msgid "Site map"
-msgstr "Plan du site"
+msgstr "Plan del sitio Web"
 
 msgid "Site:"
-msgstr "Site :"
+msgstr "Sitio Web:"
 
 msgid "SiteLink"
-msgstr "Lien du site"
+msgstr "Enlace del sitio Web"
 
 msgid "SiteLink_plural"
-msgstr "Liens du site"
+msgstr "Enlaces del sitio Web"
 
-msgid "Skip to content"
-msgstr "Aller au contenu"
-
-msgid "Skip to menu"
-msgstr "Allez au menu"
+msgid "Skip the IIIF viewer"
+msgstr ""
 
 msgid "SocialNetwork"
-msgstr "Réseau social"
+msgstr "Red social"
 
 msgid "SocialNetwork_plural"
-msgstr "Réseaux sociaux"
+msgstr "Redes sociales"
+
+msgid "Some links bellow seem to be broken. Please check them."
+msgstr "Los enlaces de abajo parecen estar rotos, por favor, compruébelos."
+
+msgctxt "appjs"
+msgid "Sort"
+msgstr "Clasificar"
 
 msgid "Sort by"
-msgstr "Trier par"
+msgstr "Clasificar por"
+
+msgid ""
+"Sortorder for item order (e.g '-sortdate' for sorting in reverse "
+"chronological order or '-sortdate -order'). Multiple values must be "
+"separated by a space (e.g '-sortdate -order'). If the field is left empty, "
+"the reverse chronological sorting will be applied."
+msgstr ""
+
+msgid "Source: Commemorations Collection"
+msgstr "Fuente : Recueil des Commémorations"
+
+msgid "Sparnatural"
+msgstr "Cónyuge"
+
+msgid "Spouse"
+msgstr "Cónyuge"
+
+msgid "Spouse(s)"
+msgstr "Esposo/esposa(s)"
 
 msgctxt "appjs"
 msgid "Start year"
-msgstr "Année de début"
+msgstr "Año de inicio"
 
 msgid "Starts with"
-msgstr "Commence par"
+msgstr "Empieza por"
+
+msgid "State"
+msgstr "Estado"
+
+msgctxt "appjs"
+msgid "Status"
+msgstr "Estado"
 
 msgctxt "appjs"
 msgid "Stop year"
-msgstr "Année de fin"
+msgstr "Año de fin"
 
 msgid "Subject"
-msgstr "Sujet"
+msgstr "Tema "
+
+msgid "Subject properties"
+msgstr "Propiedades del tema"
 
 msgid "SubjectAuthority"
-msgstr "Autorité thème"
+msgstr "Autoridad de tema"
 
 msgid "SubjectAuthority_plural"
-msgstr "Autorités thème"
+msgstr "Autoridades de tema"
 
 msgid "Subject_plural"
-msgstr "Thèmes"
+msgstr "Temas"
+
+msgid "Submit the dates"
+msgstr "Validar las fechas"
+
+msgid "Subscribe"
+msgstr "S'abonner"
+
+msgid "Subscribe to our newsletter"
+msgstr "Suscríbase a nuestro boletín"
+
+msgctxt "appjs"
+msgid "Sélectionner une requête d'exemple"
+msgstr "Seleccione una consulta de ejemplo"
 
 msgid "TB"
-msgstr "To"
+msgstr "TB"
 
 msgid "Ternary relation describing the order of a subject in a section"
 msgstr ""
 
 msgid "Text author"
-msgstr "Auteur du texte"
+msgstr "Autor del texto"
 
 msgid "Text authors"
-msgstr "Auteurs du texte"
+msgstr "Autores del texto"
 
 msgid "Text identification code (SIAF or DAF)"
-msgstr "Code identifiant du texte (SIAF ou DAF)"
+msgstr "Código de identificación de texto (SIAF o DAF)"
 
 msgid "Text identification code (other than SIAF or DAF)"
-msgstr "Code identifiant du texte (autre que SIAF ou DAF)"
+msgstr "Código de identificación de texto (otro que no sea SIAF o DAF)"
 
 msgid "Text kind (SIAF or DAF)"
-msgstr "Nature du document (SIAF ou DAF)"
+msgstr "Naturaleza del documento (SIAF o DAF)"
 
 msgid "Text kind (other than SIAF or DAF)"
-msgstr "Nature du document (autre que SIAF ou DAF)"
+msgstr "Naturaleza del documento (otro que no sea SIAF o DAF)"
 
 msgid "Text title"
-msgstr "Titre de la circulaire"
+msgstr "Título de la circular"
 
 #, python-format
 msgid "The document contains invalid fieldnames: \"%s\"."
-msgstr "Ce fichier contient des noms de colonnes invalides : \"%s\"."
+msgstr "Este archivo contiene nombres de columnas inválidos: \"%s\"."
 
 #, python-format
 msgid ""
 "The document fieldnames are different or are in different order from "
 "expected ones: \"%s\"."
 msgstr ""
-"Ce fichier contient des noms de colonnes différents ou dans l'ordre "
-"différent des noms de colonnes attendus pour ce type de document : \"%s\"."
+"Este archivo contiene nombres de columnas diferentes o en orden diferente "
+"nombres de columnas esperados para este tipo de documento: \"%s\"."
+
+#, python-format
+msgid "The document type '%s' is not handeled"
+msgstr ""
+
+msgctxt "appjs"
+msgid "The end date must be greater than the start date"
+msgstr "La fecha final debe ser mayor que la fecha de inicio"
+
+msgctxt "appjs"
+msgid "The value entered must be a number"
+msgstr "El valor introducido debe ser un número"
 
 msgid "Themes"
-msgstr "Thèmes"
+msgstr "Temas"
+
+msgid ""
+"There is a problem with request's parameters. Please, retry an other request."
+msgstr ""
+"Los parámetros de consulta no dan ningún resultado. Por favor, intente otra "
+"búsqueda."
 
 msgid "This AgentAuthority"
 msgstr ""
@@ -1503,6 +2009,30 @@ msgid "This AgentName"
 msgstr ""
 
 msgid "This AgentName:"
+msgstr ""
+
+msgid "This AgentRecord"
+msgstr ""
+
+msgid "This AgentRecord:"
+msgstr ""
+
+msgid "This AgentRecordFunction"
+msgstr ""
+
+msgid "This AgentRecordFunction:"
+msgstr ""
+
+msgid "This AgentRecordLegalStatus"
+msgstr ""
+
+msgid "This AgentRecordLegalStatus:"
+msgstr ""
+
+msgid "This AgentRecordOccupation"
+msgstr ""
+
+msgid "This AgentRecordOccupation:"
 msgstr ""
 
 msgid "This BaseContent"
@@ -1757,136 +2287,193 @@ msgstr ""
 msgid "This SubjectAuthority:"
 msgstr ""
 
+#, python-format
+msgid ""
+"This context contains %s elements: displaying them all can take several "
+"seconds."
+msgstr ""
+"Este contexto contiene %s componentes: mostrarlos en una ventana modal puede "
+"llevar varios segundos."
+
 msgid "This field is required"
-msgstr "Ce champ est requis"
+msgstr "Este campo es requerido"
+
+#, python-format
+msgid "This index is linked to %s."
+msgstr "Este índice está ligado a %s."
+
+msgctxt "appjs"
+msgid "Title"
+msgstr "Título"
+
+msgid "Titre (A-Z)"
+msgstr "Apellido, Nombres (A-Z)"
+
+msgid "Titre (Z-A)"
+msgstr "Apellido, Nombres (Z-A)"
 
 msgid "To consult this document"
-msgstr "Où consulter le document"
+msgstr "Dónde consultar el documento"
 
 msgid "Toc"
-msgstr "Sommaire"
+msgstr "Índice"
+
+msgid "Top of the page"
+msgstr "Haut de page"
 
 msgctxt "appjs"
 msgid "Topic"
-msgstr "Thème"
+msgstr "Tema"
+
+msgctxt "appjs"
+msgid "Tout le texte"
+msgstr "Todo el texto"
+
+msgctxt "appjs"
+msgid "Tout le texte : recherche libre"
+msgstr "Todos los textos: búsqueda libre"
+
+msgid "Transcript"
+msgstr "Transcripción"
 
 msgid "Translate in de"
-msgstr "Traduction en allemand"
+msgstr "Traducción al alemán"
 
 msgid "Translate in en"
-msgstr "Traduction en anglais"
+msgstr "Traducción al inglés"
 
 msgid "Translate in es"
-msgstr "Traduction en espagnol"
+msgstr "Traducción al español"
 
 msgid "Translate in fr"
-msgstr "Traduction en français"
+msgstr "Traducción al francés"
+
+msgid "Translation"
+msgstr "Traducción"
 
 msgctxt "appjs"
 msgid "Type of resources"
-msgstr "Type de ressources"
+msgstr "Tipo de recurso"
 
-msgid "Unfold all"
-msgstr "Tout déplier"
+msgid "Universal Viewer"
+msgstr ""
+
+msgctxt "appjs"
+msgid "UniversalViewer"
+msgstr "UniversalViewer"
 
 msgid "Unknown"
-msgstr "Inconnu"
+msgstr "Desconocido"
 
 msgid "Url for an internal link"
-msgstr "Url du lien interne de l'image "
+msgstr "Url del enlace interno de la imagen "
 
 #, python-brace-format
 msgid "Use {eadid}, {unitid} or {unittitle} substitution pattern"
-msgstr "Utiliser {eadid}, {unitid} or {unittitle} comme modèle de substitution"
+msgstr "Usar {eadid}, {unitid} o {unittitle} como modelo de sustitución"
 
 #, python-brace-format
 msgid "Use {url} substitution pattern"
-msgstr "Utiliser {url} comme modèle de substitution"
+msgstr "Usar {url} como modelo de sustitución"
 
 msgid "Useful information"
-msgstr "Informations pratiques"
+msgstr "Información práctica "
 
 msgid "Usefull only for labels and filters"
 msgstr ""
-"Utilisé uniquement pour la reconnaissance des libellés et des facettes de "
-"l'interface"
+"Utilizado únicamente para el reconocimiento de las etiquetas y las facetas "
+"de la interfaz"
+
+msgid "Validate"
+msgstr "Validar"
+
+msgid "Virtual exhibition proposed by:"
+msgstr "Sugerido por :"
 
 msgid "Virtual_exhibit"
-msgstr "Exposition virtuelle"
+msgstr "Exposición virtual"
 
 msgid "Virtual_exhibit_plural"
-msgstr "Expositions virtuelles"
+msgstr "Exposiciones virtuales"
 
 msgid "Website"
-msgstr "Site web"
+msgstr "Sitio Web"
 
 msgid "Write to us"
-msgstr "Nous écrire"
+msgstr "Escribirnos"
 
 msgctxt "appjs"
 msgid "Year"
-msgstr "Année"
+msgstr "Año"
 
 msgid "Your are already subscribed to the newsletter."
-msgstr "Vous êtes déjà inscrit à la lettre d'information."
+msgstr "Ya está suscrito al boletín informativo."
 
-msgid "Your email"
-msgstr "Votre adresse électronique (exemple : nom@domain.fr)"
+msgid "Your email address"
+msgstr "Su dirección electrónica"
 
 msgid "Your email has been successfully added."
-msgstr "Votre adresse a bien été ajoutée."
+msgstr "Su dirección ha sido añadida."
 
 msgid "Your message"
-msgstr "Votre message"
+msgstr "Su mensaje"
 
 msgid "Your message could not be send. Please try again."
-msgstr ""
-"Votre message n'a pas pu être envoyé. Veuillez réessayer ultérieurement."
+msgstr "Su mensaje no se ha podido enviar. Vuelva a intentarlo más adelante."
 
 msgid "Your message has been send."
-msgstr "Votre message a bien été envoyé."
+msgstr "Su mensaje ha sido enviado con éxito."
 
 msgid "Your name"
-msgstr "Votre nom"
-
-msgid "Your search summary:"
-msgstr "Résumé de votre recherche :"
+msgstr "Su nombre"
 
 msgid "Your subscription has failed. Please try subscription again."
-msgstr "Votre inscription a échoué. Veuillez recommencer l'inscription."
+msgstr "Su suscripción ha fracasado. Suscríbase de nuevo."
+
+msgid "a11y_alert_iiif"
+msgstr ""
+"El IIIF visor, Mirador y Universal Viewer no son totalmente compatibles con "
+"la navegación por teclado. Por lo tanto, le aconsejamos que los omita."
+
+#, python-brace-format
+msgid "a11y_alert_sparnatural {link}"
+msgstr ""
+"La herramienta Sparnatural le permite explorar algunos de los inventarios de "
+"una manera diferente. Esta herramienta aún no es totalmente compatible con "
+"el uso de un lector de pantalla. Le aconsejamos que la omita. Puede "
+"consultar todos los inventarios en <a href=«{link}»>lista de inventarios</a>."
 
 #, python-brace-format
 msgid "a11y_all_services_map_info: {link}"
 msgstr ""
-"Vous pouvez accéder aux informations relatives à tous les services dans <a "
-"href=\"{link}\">l'annuaire des services</a>"
+"Este mapa que muestra las posiciones geolocalizadas de los servicios de "
+"archivo no es compatible con la navegación por teclado. Le invitamos a "
+"consultar la <a href=\"{link}\">lista completa de servicios de archivo</a>."
 
-#, python-brace-format
-msgid "a11y_ir_map_info {link}"
+msgid "a11y_ir_map_info"
 msgstr ""
-"La carte présente les position géolocalisée des inventaires. La carte n'est "
-"pas entièrement compatible avec l'utilisation d'un lecteur d'écran. Nous "
-"vous conseillons donc de la passer. Vous pouvez consulter tous les "
-"inventaires sur <a href=\"{link}\">la liste inventaires</a>."
+"El mapa que muestra las posiciones de inventario geolocalizadas no es "
+"compatible con navegación por teclado. Utilice el motor de búsqueda de "
+"autocompletar para encontrar una ubicación."
 
 # subject and object forms for each relation type
 # (no object form for final or symmetric relation types)
 msgid "abrogation_date"
-msgstr "Date d'abrogation"
+msgstr "Fecha de derogación"
 
 msgctxt "Circular"
 msgid "abrogation_date"
 msgstr "Date d'abrogation"
 
 msgid "abrogation_text"
-msgstr "Texte abrogatoire"
+msgstr "Texto derogatorio"
 
 msgctxt "Circular"
 msgid "abrogation_text"
 msgstr "Texte abrogatoire"
 
 msgid "abstract"
-msgstr "Résumé"
+msgstr "Resumen"
 
 msgctxt "Did"
 msgid "abstract"
@@ -1898,12 +2485,12 @@ msgstr ""
 
 msgid "accessibility_map_info"
 msgstr ""
-"La carte présente la position géolocalisée du service. La carte n'est pas "
-"entièrement compatible avec l'utilisation d'un lecteur d'écran. Nous vous "
-"conseillons donc de la passer."
+"El mapa muestra la posición geolocalizada del servicio. El mapa no es del "
+"todo compatible con el uso de un lector de pantalla. Por tanto aconsejamos "
+"saltarlo."
 
 msgid "accessrestrict"
-msgstr "conditions d'accès"
+msgstr "condiciones de acceso"
 
 msgctxt "FAComponent"
 msgid "accessrestrict"
@@ -1914,7 +2501,7 @@ msgid "accessrestrict"
 msgstr ""
 
 msgid "accessrestrict_format"
-msgstr ""
+msgstr " Condiciones de acceso:"
 
 msgctxt "FAComponent"
 msgid "accessrestrict_format"
@@ -1925,13 +2512,13 @@ msgid "accessrestrict_format"
 msgstr ""
 
 msgid "accessrestrict_label"
-msgstr "Conditions d'accès :"
+msgstr "Condiciones de acceso:"
 
 msgid "accruals_label"
-msgstr "Évolutions :"
+msgstr "Evoluciones:"
 
 msgid "acquisition_info"
-msgstr "informations sur l'acquisition"
+msgstr "Información sobre la adquisición"
 
 msgctxt "FAComponent"
 msgid "acquisition_info"
@@ -1942,7 +2529,7 @@ msgid "acquisition_info"
 msgstr ""
 
 msgid "acquisition_info_format"
-msgstr ""
+msgstr "Información sobre la adquisición:"
 
 msgctxt "FAComponent"
 msgid "acquisition_info_format"
@@ -1953,20 +2540,17 @@ msgid "acquisition_info_format"
 msgstr ""
 
 msgid "acquisition_info_label"
-msgstr "Informations sur l'acquisition :"
+msgstr "Información sobre la adquisición:"
 
 msgid "acte_type_facet"
-msgstr "Type de document"
+msgstr "Tipo de documento "
 
 msgid "action"
-msgstr "action"
+msgstr "acción"
 
 msgctxt "Circular"
 msgid "action"
 msgstr "action"
-
-msgid "action_facet"
-msgstr "Action"
 
 msgid "action_object"
 msgstr ""
@@ -1974,6 +2558,9 @@ msgstr ""
 msgctxt "Concept"
 msgid "action_object"
 msgstr ""
+
+msgid "activityplace_label"
+msgstr "Lugares de actividad:"
 
 msgid "add BaseContent basecontent_image Image subject"
 msgstr ""
@@ -2034,6 +2621,18 @@ msgid "add a AgentInfo"
 msgstr ""
 
 msgid "add a AgentName"
+msgstr ""
+
+msgid "add a AgentRecord"
+msgstr ""
+
+msgid "add a AgentRecordFunction"
+msgstr ""
+
+msgid "add a AgentRecordLegalStatus"
+msgstr ""
+
+msgid "add a AgentRecordOccupation"
 msgstr ""
 
 msgid "add a BaseContent"
@@ -2166,21 +2765,21 @@ msgid "additional internal file link"
 msgstr ""
 
 msgid "additional_attachment"
-msgstr "Ajouter des annexes en pdf"
+msgstr "Añadir anexos en pdf"
 
 msgctxt "Circular"
 msgid "additional_attachment"
 msgstr ""
 
 msgid "additional_attachment_object"
-msgstr "annexes en pdf des circulaires"
+msgstr "anexos en pdf de las circulares"
 
 msgctxt "File"
 msgid "additional_attachment_object"
 msgstr ""
 
 msgid "additional_link"
-msgstr "Lien supplémentaire"
+msgstr "Enlace adicional"
 
 msgctxt "Circular"
 msgid "additional_link"
@@ -2194,7 +2793,7 @@ msgid "additional_link_object"
 msgstr ""
 
 msgid "additional_resources"
-msgstr "ressources complémentaires"
+msgstr "recursos complementarios"
 
 msgctxt "FAComponent"
 msgid "additional_resources"
@@ -2205,7 +2804,7 @@ msgid "additional_resources"
 msgstr ""
 
 msgid "additional_resources_format"
-msgstr ""
+msgstr "Recursos complementarios: "
 
 msgctxt "FAComponent"
 msgid "additional_resources_format"
@@ -2216,14 +2815,17 @@ msgid "additional_resources_format"
 msgstr ""
 
 msgid "additional_resources_label"
-msgstr "Ressources complémentaires : "
+msgstr "Recursos complementarios: "
+
+msgid "address"
+msgstr "adresse physique"
 
 msgctxt "Service"
 msgid "address"
 msgstr "adresse"
 
 msgid "agent"
-msgstr "Personne ou institution"
+msgstr "Persona o institución"
 
 msgid "agent_info_of"
 msgstr ""
@@ -2240,75 +2842,81 @@ msgid "agent_info_of_object"
 msgstr ""
 
 msgid "aligned_url"
-msgstr "url alignée"
+msgstr "url alineada"
 
 msgid "all"
-msgstr "tout"
+msgstr "todo"
 
 msgid "all ancestors"
-msgstr "Toutes les rubriques"
+msgstr "Todas las secciones"
 
 msgid "all archival_field"
-msgstr "Tous les domaines archivistiques"
+msgstr "Todas las áreas archivísticas"
 
 msgid "all business_field"
-msgstr "Tous les domaines"
+msgstr "Todas las áreas"
 
 msgid "all circular in a table"
-msgstr "Consulter le tableau des circulaires"
+msgstr "Consultar la tabla de las circulares"
 
 msgid "all commemoration_year"
-msgstr "Toutes les périodes chronologiques"
+msgstr "Todos los períodos cronológicos"
 
 msgid "all creation_date"
-msgstr "Toutes les périodes de publication"
+msgstr "Todos los períodos de publicación"
 
 msgid "all cw_etype"
-msgstr "Tous types de ressources"
+msgstr "Todos los tipos de recursos"
 
 msgid "all digitized"
-msgstr "Déselectionner"
+msgstr "Desmarcar"
 
 msgid "all escategory"
-msgstr "Toutes les catégories"
+msgstr "Todas las categorías"
 
 msgid "all originators"
-msgstr "Tous les producteurs"
+msgstr "Todos los productores"
 
 msgid "all publisher"
-msgstr "Toutes les institutions"
+msgstr "Todas las instituciones"
 
 msgid "all siaf_daf_kind"
-msgstr "Toutes les natures"
+msgstr "Todas las naturalezas"
 
 msgid "all siaf_daf_signing_year"
-msgstr "Toutes les années"
+msgstr "Todos los años"
 
 msgid "all status"
-msgstr "Tous les status"
+msgstr "Todos los estatutos"
 
 msgid "all unittid"
-msgstr "Tous les identifiants d'unité documentaire"
+msgstr "Todos los identificadores de unidad documental"
 
 msgid "all year"
-msgstr "Toutes les périodes chronologiques"
+msgstr "Todos los períodos cronológicos"
+
+msgid "all_archives_fa_label"
+msgstr ""
+
+msgid "all_archives_label"
+msgstr "Voir toutes les archives en lien :"
 
 msgid "alphatitle"
-msgstr "titre utilisé pour le classement alphabétique"
+msgstr "título utilizado para la clasificacion alfabética"
 
 msgctxt "CommemorationItem"
 msgid "alphatitle"
 msgstr ""
 
 msgid "anchor"
-msgstr "ancre"
+msgstr "ancla"
 
 msgctxt "GlossaryTerm"
 msgid "anchor"
 msgstr ""
 
 msgid "annex_of"
-msgstr "annexe de"
+msgstr "anexo de"
 
 msgctxt "Service"
 msgid "annex_of"
@@ -2322,14 +2930,14 @@ msgid "annex_of_object"
 msgstr ""
 
 msgid "annual_closure"
-msgstr "fermeture annuelle"
+msgstr "cierre anual"
 
 msgctxt "Service"
 msgid "annual_closure"
 msgstr "fermeture annuelle"
 
 msgid "answer"
-msgstr "réponse"
+msgstr "respuesta"
 
 msgctxt "FaqItem"
 msgid "answer"
@@ -2348,6 +2956,23 @@ msgstr ""
 
 msgctxt "FaqItemTranslation"
 msgid "answer_format"
+msgstr ""
+
+msgid "apeEAC-CPF XML version of AuthorityRecord"
+msgstr "versión apeEAC-CPF del archivo EAC-CPF"
+
+msgid "ape_eac_file"
+msgstr "archivo ape_eac"
+
+msgctxt "AuthorityRecord"
+msgid "ape_eac_file"
+msgstr ""
+
+msgid "ape_eac_file_object"
+msgstr ""
+
+msgctxt "File"
+msgid "ape_eac_file_object"
 msgstr ""
 
 msgid "ape_ead_file"
@@ -2358,77 +2983,165 @@ msgid "ape_ead_file"
 msgstr ""
 
 msgid "ape_ead_file_object"
-msgstr "APE_EAD file d'un instrument de recherche"
+msgstr "APE_EAD file de un instrumento de búsqueda"
 
 msgctxt "File"
 msgid "ape_ead_file_object"
 msgstr ""
 
 msgid "appears after the map"
-msgstr "s'affiche après la carte"
+msgstr "se visualiza después del mapa"
 
 msgid "appears before the map"
-msgstr "s'affiche avant la carte"
+msgstr "se visualiza antes del mapa"
 
 msgid "appraisal_label"
-msgstr "Critères de sélection :"
+msgstr "Criterios de selección:"
+
+msgid "approximately"
+msgstr "acerca de"
 
 msgid "archival_field"
-msgstr "Domaine archivistique"
+msgstr "Área archivística"
 
 msgctxt "Circular"
 msgid "archival_field"
 msgstr ""
 
 msgid "archival_field_facet"
-msgstr "Domaine archivistique"
+msgstr "Área archivística"
 
 msgid "archive-services-label"
-msgstr "Annuaire"
+msgstr "Directorio"
 
 msgid "archives"
-msgstr "documents d'archives"
+msgstr "documentos de archivo"
+
+msgid "archives_search_info"
+msgstr ""
+"Cuando la casilla está marcada, la búsqueda se realiza en las descripciones "
+"de los archivos (inventarios, catálogo). Desmarque la casilla «Recursos del "
+"sitio» para restringir la búsqueda a los archivos."
+
+msgctxt "appjs"
+msgid "archives_search_info"
+msgstr ""
+"Cuando la casilla está marcada, la búsqueda se realiza en las descripciones "
+"de los archivos (inventarios, catálogo). Desmarque la casilla «Recursos del "
+"sitio» para restringir la búsqueda a los archivos."
 
 msgid "archives_sites"
-msgstr "sites d'archives"
+msgstr "Sitios Web de archivos"
 
 msgid "archiviste_hp_links"
-msgstr "Accès rapide de la page d'accueil \"archiviste\""
+msgstr "Acceso rápido de la página de inicio \"archivista\""
+
+msgid "ark"
+msgstr ""
+
+msgctxt "AgentRecord"
+msgid "ark"
+msgstr ""
 
 msgid "arrangement_label"
-msgstr "Mise en forme :"
+msgstr "Presentación:"
+
+msgctxt "appjs"
+msgid "as_dates_info"
+msgstr ""
+"Restringir la búsqueda a un año o intervalo de fechas concreto. No es "
+"posible buscar en una fecha más precisa que el año."
+
+msgctxt "appjs"
+msgid "as_location_placeholder"
+msgstr "p.ej. : Paris"
+
+msgctxt "appjs"
+msgid "as_person_placeholder"
+msgstr "p.ej. : Dumas Alexandre"
+
+msgctxt "appjs"
+msgid "as_producer"
+msgstr "Productor de archivos"
+
+msgctxt "appjs"
+msgid "as_producers"
+msgstr "Productores de archivos"
+
+msgctxt "appjs"
+msgid "as_producers_info"
+msgstr ""
+"Restrinja los resultados de la búsqueda a uno o varios productores de "
+"archivos seleccionándolos en la lista desplegable tras introducir algunas "
+"letras de su nombre o indicando un tipo de productor (por ejemplo "
+"\"préfecture\")."
+
+msgctxt "appjs"
+msgid "as_publisher"
+msgstr "Lugar de conservación"
+
+msgctxt "appjs"
+msgid "as_publishers"
+msgstr "Lugares de conservación"
+
+msgctxt "appjs"
+msgid "as_publishers_info"
+msgstr ""
+"Filtre los resultados en uno o varios servicios de archivo mediante el botón "
+"«Incluir» o exclúyalos mediante el valor «Excluir». Por defecto, la búsqueda "
+"se lanza en todos los servicios que contribuyen al portal."
+
+msgctxt "appjs"
+msgid "as_search_productor_placeholder"
+msgstr "p.ej. : Conseil service"
+
+msgctxt "appjs"
+msgid "as_search_service_placeholder"
+msgstr "p.ej. : Archives nationales"
+
+msgctxt "appjs"
+msgid "as_subject_placeholder"
+msgstr "p.ej. : Paix"
+
+msgctxt "appjs"
+msgid "as_text_info"
+msgstr ""
+"Combine varias expresiones en texto completo con autoridades de lugar, "
+"persona, institución o tema. Antes de añadir un criterio, añada un operador "
+"Y, O, NO."
 
 msgid "associative_link_label"
-msgstr "Lien d'association :"
+msgstr "Enlace de asociación:"
 
 msgid "attachment"
-msgstr "Ajouter le pdf de la circulaire"
+msgstr "Anadir el pdf de la circular"
 
 msgctxt "Circular"
 msgid "attachment"
 msgstr ""
 
 msgid "attachment_object"
-msgstr "pdf des circulaires"
+msgstr "pdf de las circulares"
 
 msgctxt "File"
 msgid "attachment_object"
 msgstr ""
 
 msgid "augmented_search_link_text_false"
-msgstr "relancer la recherche sur l'ensemble de la description des archives"
+msgstr ""
+"reiniciar la búsqueda sobre el conjunto de la descripción de los archivos"
 
 msgid "augmented_search_link_text_true"
-msgstr "restreindre la recherche uniquement aux thèmes indexés"
+msgstr "restringir la búsqueda solo a los temas indexados"
 
 msgid "augmented_search_text_false {}"
 msgstr ""
-"Cette recherche est limitée aux thèmes indexés. Pour plus de résultats, {}."
+"Esta búsqueda está limitada a los temas indexados. Para más resultados, {}."
 
 msgid "augmented_search_text_true {}"
 msgstr ""
-"Cette recherche a été faite sur les thèmes indexés et l'ensemble de la "
-"description des archives. Pour moins de résultats, {}."
+"Esta búsqueda se ha realizado sobre los temas indexados y el conjunto de la "
+"descripción de los archivos. Para menos resultados, {}."
 
 msgid "authfilenumber"
 msgstr ""
@@ -2446,21 +3159,21 @@ msgid "authfilenumber"
 msgstr ""
 
 msgid "author"
-msgstr "auteur"
+msgstr "autor"
 
 msgctxt "FAHeader"
 msgid "author"
 msgstr ""
 
 msgid "author_format"
-msgstr ""
+msgstr "autoridad"
 
 msgctxt "FAHeader"
 msgid "author_format"
 msgstr "auteur de la description"
 
 msgid "authority"
-msgstr "autorité"
+msgstr "autoridad"
 
 msgctxt "AgentName"
 msgid "authority"
@@ -2475,7 +3188,7 @@ msgid "authority"
 msgstr ""
 
 msgid "authority_object"
-msgstr ""
+msgstr "autoridad"
 
 msgctxt "AgentAuthority"
 msgid "authority_object"
@@ -2489,39 +3202,42 @@ msgctxt "SubjectAuthority"
 msgid "authority_object"
 msgstr ""
 
+msgid "back to homepage"
+msgstr "volver à la página de inicio"
+
 msgid "basecontent_image"
-msgstr "Illustration de l'article"
+msgstr "Ilustración del artículo"
 
 msgctxt "BaseContent"
 msgid "basecontent_image"
 msgstr ""
 
 msgid "basecontent_image_object"
-msgstr "image d'un article"
+msgstr "imagen de un artículo"
 
 msgctxt "Image"
 msgid "basecontent_image_object"
 msgstr ""
 
 msgid "basecontent_service"
-msgstr "service"
+msgstr "servicio"
 
 msgctxt "BaseContent"
 msgid "basecontent_service"
 msgstr ""
 
 msgid "basecontent_service_object"
-msgstr "Article"
+msgstr "Artículo"
 
 msgctxt "Service"
 msgid "basecontent_service_object"
 msgstr ""
 
 msgid "bc"
-msgstr "av. J.-C."
+msgstr "a. de C."
 
 msgid "bibliography"
-msgstr "références bibliographiques"
+msgstr "referencias bibliográficas"
 
 msgctxt "FAComponent"
 msgid "bibliography"
@@ -2532,7 +3248,7 @@ msgid "bibliography"
 msgstr "références bibliographiques"
 
 msgid "bibliography_format"
-msgstr ""
+msgstr "Referencias bibliográficas:"
 
 msgctxt "FAComponent"
 msgid "bibliography_format"
@@ -2543,13 +3259,13 @@ msgid "bibliography_format"
 msgstr ""
 
 msgid "bibliography_label"
-msgstr "Références bibliographiques :"
+msgstr "Referencias bibliográficas:"
 
 msgid "bibref_label"
-msgstr "Références bibliographiques :"
+msgstr "Referencias bibliográficas:"
 
 msgid "bioghist"
-msgstr "Informations sur le producteur :"
+msgstr "Información sobre el productor:"
 
 msgctxt "FAComponent"
 msgid "bioghist"
@@ -2571,20 +3287,26 @@ msgid "bioghist_format"
 msgstr ""
 
 msgid "bioghist_label"
-msgstr "Informations sur le producteur :"
+msgstr "Información sobre el productor:"
 
 msgid "birth_date_label"
-msgstr "Date de naissance :"
+msgstr "Fecha de nacimiento:"
+
+msgid "birth_info_label"
+msgstr ""
+
+msgid "birthplace_label"
+msgstr "Lugar de nacimiento:"
 
 msgid "birthyear"
-msgstr "année de naissance"
+msgstr "año de nacimiento"
 
 msgctxt "AgentAuthority"
 msgid "birthyear"
 msgstr ""
 
 msgid "bottom_content"
-msgstr "contenu après la carte"
+msgstr "contenido después del mapa"
 
 msgctxt "Map"
 msgid "bottom_content"
@@ -2597,18 +3319,21 @@ msgctxt "Map"
 msgid "bottom_content_format"
 msgstr ""
 
-msgid "breadcrumb"
-msgstr "Vous êtes ici :"
+msgid "breadcrumb_label"
+msgstr "Usted está aqui"
+
+msgid "broken link"
+msgstr "enlaces rotos"
 
 msgid "business_field"
-msgstr "Domaine métier"
+msgstr "ámbito de actividad"
 
 msgctxt "Circular"
 msgid "business_field"
-msgstr "Domaine métier"
+msgstr "Ámbito"
 
 msgid "business_field_facet"
-msgstr "Domaine (Thésaurus)"
+msgstr "Ámbito (Thésaurus)"
 
 msgid "business_field_object"
 msgstr ""
@@ -2617,8 +3342,11 @@ msgctxt "Concept"
 msgid "business_field_object"
 msgstr ""
 
+msgid "bytes"
+msgstr "bytes"
+
 msgid "caption"
-msgstr "légende"
+msgstr "leyenda"
 
 msgctxt "CssImage"
 msgid "caption"
@@ -2629,7 +3357,7 @@ msgid "caption"
 msgstr "légende"
 
 msgid "caption_format"
-msgstr ""
+msgstr "categoría"
 
 msgctxt "CssImage"
 msgid "caption_format"
@@ -2640,7 +3368,7 @@ msgid "caption_format"
 msgstr ""
 
 msgid "category"
-msgstr "catégorie"
+msgstr "categoría"
 
 msgctxt "FaqItem"
 msgid "category"
@@ -2651,7 +3379,7 @@ msgid "category"
 msgstr "catégorie"
 
 msgid "changes"
-msgstr ""
+msgstr "changements"
 
 msgctxt "FAHeader"
 msgid "changes"
@@ -2665,7 +3393,7 @@ msgid "changes_format"
 msgstr ""
 
 msgid "changes_label"
-msgstr "Mises à jour :"
+msgstr "Actualizaciones:"
 
 msgid "child_components"
 msgstr ""
@@ -2682,7 +3410,7 @@ msgid "child_components_object"
 msgstr ""
 
 msgid "children"
-msgstr ""
+msgstr "hijos"
 
 msgctxt "Section"
 msgid "children"
@@ -2719,8 +3447,15 @@ msgctxt "Section"
 msgid "children_object"
 msgstr ""
 
+msgid "children_sorting_order"
+msgstr ""
+
+msgctxt "Section"
+msgid "children_sorting_order"
+msgstr ""
+
 msgid "circ_id"
-msgstr "Identifiant unique de la circulaire"
+msgstr "Identificador único de la circular"
 
 msgctxt "Circular"
 msgid "circ_id"
@@ -2734,65 +3469,65 @@ msgid "circular"
 msgstr ""
 
 msgid "circular_abrogation_date_label"
-msgstr "Date d'abrogation"
+msgstr "Fecha de derogación"
 
 msgid "circular_abrogation_text_label"
-msgstr "Texte abrogatoire"
+msgstr "Texto derogatorio"
 
 msgid "circular_action_label"
-msgstr "Domaines d'action"
+msgstr "Ámbitos de acción"
 
 msgid "circular_additional_attachment_label"
-msgstr "Lien vers les annexes"
+msgstr "Enlace a los anexos"
 
 msgid "circular_additional_link_label"
-msgstr "Lien vers les annexes"
+msgstr "Enlace a los Anexos"
 
 msgid "circular_archival_field_label"
-msgstr "Domaine archivistique"
+msgstr "Descargar el documento "
 
 msgid "circular_attachment_label"
-msgstr "Télécharger le document"
+msgstr "Ámbitos (descriptores)"
 
 msgid "circular_business_field_label"
-msgstr "Domaines (mots matières)"
+msgstr "Identificador único de la circular"
 
 msgid "circular_circ_id_label"
-msgstr "Identifiant unique de la circulaire"
+msgstr "Otras referencias"
 
 msgid "circular_code_label"
-msgstr "Autres Références"
+msgstr "Tipología documental"
 
 msgid "circular_document_type_label"
-msgstr "Typologie documentaire"
+msgstr "Contexto histórico"
 
 msgid "circular_historical_context_label"
-msgstr "Contexte historique"
+msgstr "Tipo de documento "
 
 msgid "circular_kind_label"
-msgstr "Type de document"
+msgstr "Enlace al texto"
 
 msgid "circular_link_label"
-msgstr "Lien vers le texte"
+msgstr "Fecha de modificación"
 
 msgid "circular_modification_date"
-msgstr "Date de modification"
+msgstr "Fecha de modificación"
 
 msgctxt "Circular"
 msgid "circular_modification_date"
 msgstr "Modifié"
 
 msgid "circular_modification_date_label"
-msgstr "Date de modification"
+msgstr "Modifica el(los) siguiente(s) texto(s) "
 
 msgid "circular_modified_text_label"
-msgstr "Modifie le(s) texte(s) suivant(s)"
+msgstr "Modificado por los siguientes textos "
 
 msgid "circular_modifying_text_label"
-msgstr "Modifié par les textes suivants"
+msgstr "Referencia"
 
 msgid "circular_nor_label"
-msgstr "Référence"
+msgstr "Productor(s)"
 
 msgid "circular_object"
 msgstr ""
@@ -2802,34 +3537,34 @@ msgid "circular_object"
 msgstr ""
 
 msgid "circular_producer_acronym_label"
-msgstr "Producteur(s)"
+msgstr "Productor(s)"
 
 msgid "circular_producer_label"
-msgstr "Services administratifs concernés"
+msgstr "Servicios administrativos correspondientes"
 
 msgid "circular_revoked_text_label"
-msgstr "Abroge le(s) texte(s) suivant(s)"
+msgstr "Deroga el (los) siguiente(s) texto(s) "
 
 msgid "circular_siaf_daf_code_label"
-msgstr "Code SIAF"
+msgstr "Código SIAF"
 
 msgid "circular_siaf_daf_kind_label"
-msgstr "Nature"
+msgstr "Naturaleza"
 
 msgid "circular_siaf_daf_signing_date_label"
-msgstr "Date de signature ou de publication"
+msgstr "Fecha de firma o de publicación"
 
 msgid "circular_signing_date_label"
-msgstr "Date de signature"
+msgstr "Fecha de firma"
 
 msgid "circular_status_label"
-msgstr "Statut du texte"
+msgstr "Estatuto del texto"
 
 msgid "circular_title_label"
-msgstr "Titre"
+msgstr "Título"
 
 msgid "circular_url"
-msgstr "URI de la circulaire"
+msgstr "URI de la circular"
 
 msgid "citation_label"
 msgstr ""
@@ -2839,7 +3574,7 @@ msgid "city"
 msgstr "ville"
 
 msgid "code"
-msgstr "code"
+msgstr "código"
 
 msgctxt "Circular"
 msgid "code"
@@ -2854,7 +3589,7 @@ msgid "code"
 msgstr "code"
 
 msgid "code_insee_commune"
-msgstr "code INSEE commune"
+msgstr "código INSEE municipio"
 
 msgctxt "Service"
 msgid "code_insee_commune"
@@ -2864,7 +3599,7 @@ msgid "comma-separated list of key words"
 msgstr ""
 
 msgid "commemo_dates"
-msgstr "Ajouter les dates pour la frise chrono"
+msgstr "Añadir las fechas para el friso cronológico"
 
 msgctxt "CommemorationItem"
 msgid "commemo_dates"
@@ -2878,7 +3613,7 @@ msgid "commemo_dates_object"
 msgstr ""
 
 msgid "commemoration_category"
-msgstr "Catégorie de la page d'histoire"
+msgstr "Categoría de la página de historia"
 
 msgctxt "CommemorationItem"
 msgid "commemoration_category"
@@ -2892,57 +3627,63 @@ msgid "commemoration_category_object"
 msgstr ""
 
 msgid "commemoration_image"
-msgstr "Ajouter une image"
+msgstr "Añadir una imagen"
 
 msgctxt "CommemorationItem"
 msgid "commemoration_image"
 msgstr "Illustration de la page d'histoire"
 
 msgid "commemoration_image_object"
-msgstr ""
+msgstr "Año de conmemoración"
 
 msgctxt "Image"
 msgid "commemoration_image_object"
 msgstr ""
 
 msgid "commemoration_year"
-msgstr "Année de commémoration"
+msgstr "Año de conmemoración"
 
 msgctxt "CommemorationItem"
 msgid "commemoration_year"
 msgstr ""
 
 msgid "component_order"
-msgstr ""
+msgstr "Año de conmemoración"
 
 msgctxt "FAComponent"
 msgid "component_order"
 msgstr ""
 
 msgid "contact_name"
-msgstr "contact"
+msgstr "contacto"
 
 msgctxt "Service"
 msgid "contact_name"
 msgstr "contact"
 
 msgid "contact_object_1"
-msgstr "Accéder aux documents"
+msgstr "Acceder a los documentos"
 
 msgid "contact_object_2"
-msgstr "Réutilisation et diffusion"
+msgstr "Reutilización y difusión"
 
 msgid "contact_object_3"
-msgstr "Problème technique"
+msgstr "Problema técnico"
 
 msgid "contact_object_4"
-msgstr "Contenu du site"
+msgstr "Contenido del sitio Web"
 
 msgid "contact_object_5"
-msgstr "Autres sujets"
+msgstr "Utilizar @docs"
+
+msgid "contact_object_6"
+msgstr "Utilizar SimplEAD"
+
+msgid "contact_object_7"
+msgstr "Otros temas"
 
 msgid "content"
-msgstr ""
+msgstr "tipo"
 
 msgctxt "BaseContent"
 msgid "content"
@@ -3025,21 +3766,21 @@ msgid "content_format"
 msgstr ""
 
 msgid "content_type"
-msgstr "type"
+msgstr "tipo"
 
 msgctxt "BaseContent"
 msgid "content_type"
 msgstr ""
 
 msgid "context"
-msgstr ""
+msgstr "tipo"
 
 msgctxt "SiteLink"
 msgid "context"
 msgstr ""
 
 msgid "context_service"
-msgstr "grouper des entrées d'index au sein du service uniquement"
+msgstr "agrupar entradas de índice dentro del servicio únicamente"
 
 msgctxt "OAIRepository"
 msgid "context_service"
@@ -3060,13 +3801,13 @@ msgid "copyright"
 msgstr "copyright"
 
 msgid "corpname"
-msgstr "Institution"
+msgstr "Institución"
 
 msgid "corpname_index_label"
-msgstr "Institutions :"
+msgstr "Instituciones:"
 
 msgid "cpf_relations_label"
-msgstr "Producteurs d'archives en relation :"
+msgstr "Productores de archivos en relación:"
 
 msgid ""
 "creating BaseContentTranslation (BaseContentTranslation translation_of "
@@ -3079,8 +3820,8 @@ msgid ""
 msgstr ""
 
 msgid ""
-"creating FaqItemTranslation (FaqItemTranslation translation_of FaqItem "
-"%(linkto)s)"
+"creating FaqItemTranslation (FaqItemTranslation translation_of FaqItem %"
+"(linkto)s)"
 msgstr ""
 
 msgid "creating File (Circular %(linkto)s additional_attachment File)"
@@ -3114,8 +3855,8 @@ msgid "creating Image (SubjectAuthority %(linkto)s subject_image Image)"
 msgstr ""
 
 msgid ""
-"creating OAIImportTask (OAIImportTask oai_repository OAIRepository "
-"%(linkto)s)"
+"creating OAIImportTask (OAIImportTask oai_repository OAIRepository %"
+"(linkto)s)"
 msgstr ""
 
 msgid ""
@@ -3124,8 +3865,8 @@ msgid ""
 msgstr ""
 
 msgid ""
-"creating SectionTranslation (SectionTranslation translation_of Section "
-"%(linkto)s)"
+"creating SectionTranslation (SectionTranslation translation_of Section %"
+"(linkto)s)"
 msgstr ""
 
 msgid ""
@@ -3148,7 +3889,7 @@ msgid "creation_format"
 msgstr ""
 
 msgid "creator"
-msgstr ""
+msgstr "productor"
 
 msgctxt "Metadata"
 msgid "creator"
@@ -3181,65 +3922,62 @@ msgstr ""
 msgid "ctxcomponents_findinaid.tree_description"
 msgstr ""
 
-msgid "ctxcomponents_homepage-bottom-links"
-msgstr ""
-
-msgid "ctxcomponents_homepage-bottom-links_description"
-msgstr ""
-
-msgid "ctxcomponents_onhomepage"
-msgstr ""
-
-msgid "ctxcomponents_onhomepage_description"
-msgstr ""
-
 msgid "custodhist_label"
-msgstr "Historique de conservation :"
+msgstr "Historial de conservación:"
+
+msgid "data.culture.fr"
+msgstr ""
 
 msgid "databnf"
 msgstr "data.bnf.fr"
 
 msgid "date"
-msgstr ""
+msgstr "Fin"
 
 msgctxt "CommemoDate"
 msgid "date"
 msgstr ""
 
-msgid "date-max-label"
-msgstr "Fin"
+msgid "date-max-facet"
+msgstr "Año de fin"
 
-msgid "date-min-label"
-msgstr "Début"
+msgid "date-min-facet"
+msgstr "Año de inicio"
 
 msgid "date_is_precise"
-msgstr "Date exacte"
+msgstr "Fecha exacta"
 
 msgctxt "CommemoDate"
 msgid "date_is_precise"
 msgstr ""
 
 msgid "dates"
-msgstr "dates de naissance et de décès"
+msgstr "fechas de nacimiento y de defunción"
 
 msgctxt "AgentInfo"
 msgid "dates"
 msgstr ""
 
 msgid "dates_sub_label"
-msgstr "dates :"
+msgstr "fechas:"
 
 msgid "de"
-msgstr "allemand"
+msgstr "alemán"
 
 msgid "de_lang"
 msgstr "Deutsch"
 
 msgid "death_date_label"
-msgstr "Date de décès :"
+msgstr "Fecha de defunción:"
+
+msgid "death_info_label"
+msgstr ""
+
+msgid "deathplace_label"
+msgstr "Lugar de fallecimiento:"
 
 msgid "deathyear"
-msgstr "année de décès"
+msgstr "año de defunción"
 
 msgctxt "AgentAuthority"
 msgid "deathyear"
@@ -3278,21 +4016,21 @@ msgid "description"
 msgstr "description"
 
 msgid "description_de"
-msgstr "description en allemand"
+msgstr "descripción en alemán"
 
 msgctxt "SiteLink"
 msgid "description_de"
 msgstr ""
 
 msgid "description_en"
-msgstr "description en anglais"
+msgstr "descripción en inglés"
 
 msgctxt "SiteLink"
 msgid "description_en"
 msgstr ""
 
 msgid "description_es"
-msgstr "description en espagnol"
+msgstr "descripción en español"
 
 msgctxt "SiteLink"
 msgid "description_es"
@@ -3319,17 +4057,17 @@ msgid "description_format"
 msgstr ""
 
 msgid "description_fr"
-msgstr "description en français"
+msgstr "descripción en francés"
 
 msgctxt "SiteLink"
 msgid "description_fr"
 msgstr ""
 
 msgid "description_label"
-msgstr "Description :"
+msgstr "Descripción:"
 
 msgid "descrules"
-msgstr "règles de description"
+msgstr "normas de descripción"
 
 msgctxt "FAHeader"
 msgid "descrules"
@@ -3343,10 +4081,10 @@ msgid "descrules_format"
 msgstr ""
 
 msgid "deselect"
-msgstr "Déselectionner"
+msgstr "Desmarcar"
 
 msgid "did"
-msgstr ""
+msgstr "Digitalizado"
 
 msgctxt "FAComponent"
 msgid "did"
@@ -3363,11 +4101,29 @@ msgctxt "Did"
 msgid "did_object"
 msgstr ""
 
-msgid "digitized_facet"
-msgstr "Numérisé"
+msgid "digitalized_facet"
+msgstr "Digitalizado"
+
+msgid "digitized"
+msgstr "Archivos digitalizados"
+
+msgid "digitized-iiif"
+msgstr "Archivos digitalizados con IIIF"
+
+msgid "digitized-iiif_value"
+msgstr "Archivos digitalizados con IIIF"
+
+msgid "digitized-noniiif"
+msgstr "Archivos digitalizados sin IIIF"
+
+msgid "digitized-noniiif_value"
+msgstr "Archivos digitalizados sin IIIF"
+
+msgid "digitized_value"
+msgstr "Archivos digitalizados"
 
 msgid "digitized_versions"
-msgstr "versions numérisées"
+msgstr "versiones digitalizadas"
 
 msgctxt "FAComponent"
 msgid "digitized_versions"
@@ -3385,25 +4141,25 @@ msgid "digitized_versions_object"
 msgstr ""
 
 msgid "dimensions_label"
-msgstr "Dimensions :"
+msgstr "Dimensiones:"
 
 msgid "display on HP, maximum length is 500 characters"
 msgstr ""
-"ce champ sera affiché sur les pages d'accueil, la longueur maximale du texte "
-"est de 500 caractères"
+"este campo aparecerá en las páginas de inicio, la extensión máxima del texto "
+"es de 500 caracteres"
 
 msgid "display on menu"
-msgstr "ce champ sera affiché dans le menu burger"
+msgstr "este campo aparecerá en el menú hamburguesa"
 
 msgid "display_mode"
-msgstr "mode d'affichage (rubriques)"
+msgstr "modo de visualización (secciones)"
 
 msgctxt "Section"
 msgid "display_mode"
 msgstr ""
 
 msgid "do_index"
-msgstr "indexé par le moteur"
+msgstr "indexado por el buscador"
 
 msgid "doc"
 msgstr ""
@@ -3413,14 +4169,14 @@ msgid "doc"
 msgstr ""
 
 msgid "document_type"
-msgstr "Types de ressources"
+msgstr "Tipos de recursos"
 
 msgctxt "Circular"
 msgid "document_type"
 msgstr "Type de document"
 
 msgid "document_type_facet"
-msgstr "Types de ressources"
+msgstr "Tipos de recursos"
 
 msgid "document_type_object"
 msgstr ""
@@ -3433,36 +4189,36 @@ msgid "documents"
 msgstr ""
 
 msgid "dpt_code"
-msgstr "département"
+msgstr "departamento"
 
 msgctxt "Service"
 msgid "dpt_code"
 msgstr "département"
 
+msgid "draft"
+msgstr "borrador"
+
 msgid "eac_biogist_label"
-msgstr "Description :"
+msgstr "Descripción:"
 
 msgid "eac_function_label"
-msgstr "Fonction :"
+msgstr "Función:"
 
 msgid "eac_occupation_label"
-msgstr "Activité :"
-
-msgid "eac_source_label"
-msgstr "Source :"
+msgstr "Actividad:"
 
 msgid "eadid"
-msgstr "identifiant"
+msgstr "identificador"
 
 msgctxt "FindingAid"
 msgid "eadid"
 msgstr ""
 
 msgid "eadid_label"
-msgstr "Identifiant de l'inventaire d'archives :"
+msgstr "Identificador del inventario de archivos:"
 
 msgid "email"
-msgstr "courriel"
+msgstr "Correo electrónico"
 
 msgctxt "NewsLetterSubscriber"
 msgid "email"
@@ -3473,20 +4229,20 @@ msgid "email"
 msgstr "courriel"
 
 msgid "en"
-msgstr "anglais"
+msgstr "inglés"
 
 msgid "en_lang"
 msgstr "English"
 
 msgid "entity"
-msgstr "entité"
+msgstr "entidad"
 
 msgctxt "EsDocument"
 msgid "entity"
 msgstr ""
 
 msgid "entity_object"
-msgstr ""
+msgstr "español"
 
 msgctxt "FAComponent"
 msgid "entity_object"
@@ -3497,21 +4253,53 @@ msgid "entity_object"
 msgstr ""
 
 msgid "es"
-msgstr "espagnol"
+msgstr "español"
+
+msgid "es_date_max_placeholder"
+msgstr "p.ej. : 2010"
+
+msgid "es_date_min_placeholder"
+msgstr "p.ej. : 1789"
+
+msgid "es_inaccessible_search"
+msgstr ""
+"Su búsqueda se ha interrumpido inesperadamente. Por favor, inténtelo de "
+"nuevo en unos momentos."
 
 msgid "es_lang"
 msgstr "Español"
 
 msgid "es_result_limit"
-msgstr ""
-"Seuls les 10 000 premiers résultats sont affichés, veuillez affiner votre "
-"recherche."
+msgstr "Solo se visualizan los primeros 10.000 resultados, afine su búsqueda."
 
 msgid "events"
-msgstr "Actualités"
+msgstr "Últimas noticias"
+
+msgid "ex."
+msgstr "p.ej."
+
+msgctxt "appjs"
+msgid "ex.: 1453"
+msgstr "p.ej.: 1453"
+
+msgctxt "appjs"
+msgid "ex.: 1648"
+msgstr "p.ej.: 1648"
+
+msgctxt "appjs"
+msgid "ex.: 1968"
+msgstr "p.ej.: 1968"
+
+msgctxt "appjs"
+msgid "ex.: cartes postales Dieppe"
+msgstr "p.ej.: cartes postales Dieppe"
+
+msgctxt "appjs"
+msgid "example: archives 2012..."
+msgstr "p.ej. : archives 2012..."
 
 msgid "exref_service"
-msgstr "service"
+msgstr "servicio"
 
 msgctxt "ExternRef"
 msgid "exref_service"
@@ -3525,10 +4313,13 @@ msgid "exref_service_object"
 msgstr ""
 
 msgid "extent_label"
-msgstr "Importance matérielle : "
+msgstr "Importancia material: "
+
+msgid "external_sources_label"
+msgstr "Ressources externes"
 
 msgid "externref_image"
-msgstr "image"
+msgstr "imagen"
 
 msgctxt "ExternRef"
 msgid "externref_image"
@@ -3542,7 +4333,7 @@ msgid "externref_image_object"
 msgstr ""
 
 msgid "extid"
-msgstr "identifiant externe"
+msgstr "identificador externo"
 
 msgctxt "ExternalId"
 msgid "extid"
@@ -3553,7 +4344,7 @@ msgid "extid"
 msgstr ""
 
 msgid "extptr"
-msgstr ""
+msgstr "referenciado en"
 
 msgctxt "Did"
 msgid "extptr"
@@ -3585,100 +4376,122 @@ msgid "fa_referenced_files"
 msgstr "référencé dans des instruments de recherche"
 
 msgid "fa_referenced_files_object"
-msgstr "référencé dans"
+msgstr "referenciado en"
 
 msgctxt "File"
 msgid "fa_referenced_files_object"
 msgstr "référencé dans des contenus éditoriaux"
 
+msgid "fa_sources_label"
+msgstr "Recursos en FranceArchives"
+
 msgid "fa_tour_context"
 msgstr ""
-"Des renseignements complémentaires peuvent se trouver dans les autres "
-"niveaux de l’arborescence."
+"Se puede encontrar información complementaria en los otros niveles de la "
+"arborescencia."
 
 msgid "fa_tour_title"
 msgstr ""
-"Titre du document d’archives. Il est complété par d’autres informations "
-"descriptives, dont les plus importantes sont la cote et la date."
+"Título del documento de archivo. Se completa con más información "
+"descriptiva, siendo los datos más relevantes la signatura y la fecha."
+
+msgid "facet_date_min_maix_error"
+msgstr "La fecha final debe ser mayor que la fecha de inicio"
+
+msgid "facet_no_result"
+msgstr "Sin resultado"
+
+msgid "facets_search_help"
+msgstr "Cuando se selecciona un valor en los filtros, se recarga la página."
 
 msgid "failed to connect to elasticsearch"
-msgstr "Erreur de connexion au moteur de recherche"
+msgstr "Error de conexión al buscador"
 
 msgid "family_link_label"
-msgstr "Lien familial :"
+msgstr "Vínculo familiar:"
 
 msgid "famname"
-msgstr "Nom de famille"
+msgstr "Apellido"
 
 msgid "famname_index_label"
-msgstr "Nom de famille :"
+msgstr "Apellido:"
 
-msgid "fatype"
+msgid "fatask_oaiharvest_file"
+msgstr "archivos recopilados por OAI-PMH"
+
+msgctxt "OAIImportTask"
+msgid "fatask_oaiharvest_file"
 msgstr ""
 
-msgctxt "FindingAid"
-msgid "fatype"
+msgid "fatask_oaiharvest_file_object"
+msgstr ""
+
+msgctxt "File"
+msgid "fatask_oaiharvest_file_object"
 msgstr ""
 
 msgid "fi_tour_breadcrumbs"
 msgstr ""
-"Le fil d’ariane permet de situer la notice au sein d’un inventaire et d’un "
-"service d’archives. Le clic sur le nom du service renvoie toutes les "
-"archives référencées de cette institution."
+"El hilo de Ariadna permite situar el registro dentro de un inventario y un "
+"servicio de archivos. Un clic en el nombre del servicio remite a todos los "
+"archivos referenciados de la correspondiente institución."
 
 msgid "fi_tour_context"
 msgstr ""
-"Ce lien permet d’accéder à l’arborescence de l’inventaire, c’est-à-dire aux "
-"éléments qui le composent."
+"Este enlace permite acceder a la arborescencia del inventario, o sea a los "
+"elementos que lo componen."
 
 msgid "fi_tour_digit_versions"
 msgstr ""
-"Ce lien donne accès à la visionneuse sur le site internet du service qui "
-"conserve le document."
+"Este enlace da acceso al visor en el sitio Web del servicio que conserva el "
+"documento."
 
 msgid "fi_tour_download-cvs"
 msgstr ""
-"Ce lien permet de télécharger toutes les informations de cette page au "
-"format csv pour les réutiliser."
+"Este enlace permite descargar toda la información de esta página en formato "
+"csv para reutilizarla."
 
 msgid "fi_tour_fatree"
 msgstr ""
-"Les archives sont décrites de manière hiérarchique, du général au "
-"particulier, pour situer chaque document dans son contexte."
+"Los archivos están descritos de manera jerárquica, de lo general a lo "
+"particular, con el fin de situar cada documento en su contexto."
 
 msgid "fi_tour_goto_service"
 msgstr ""
-"Ce lien permet d’accéder au site internet du service d’archives qui conserve "
-"le document, pour continuer sa recherche, parfois réserver le document ou "
-"commander une reproduction."
+"Este enlace permite acceder al sitio Web del servicio de archivos que "
+"conserva el documento, para continuar la búsqueda, a veces reservar el "
+"documento o encargar una reproducción."
 
 msgid "fi_tour_indexes"
 msgstr ""
-"Ces mots clés permettent d’accéder aux autres documents sur les mêmes lieux, "
-"personnes, institutions et sujets."
+"Estas palabras claves permiten acceder a los demás documentos relativos a "
+"los mismos lugares, personas, instituciones y temas."
 
 msgid "fi_tour_pdf"
 msgstr ""
-"Certains inventaires ne sont pas informatisés et n’existent que sous forme "
-"de pdf. Ce lien permet de le consulter et d’y faire une recherche."
+"Algunos inventarios no están digitalizados y solo existen en formato pdf. "
+"Este enlace permite consultarlo y realizar una búsqueda en el mismo."
 
 msgid "fi_tour_service_url"
 msgstr ""
-"Ce lien permet d’accéder à la fiche de renseignement du service dans "
-"l’annuaire de FranceArchives."
+"Este enlace permite acceder a la ficha informativa del servicio en el "
+"directorio de FranceArchives."
 
 msgid "fi_tour_title"
 msgstr ""
-"Titre de l’inventaire. Il est complété par d’autres informations "
-"descriptives, dont les plus importantes sont la cote et la date."
+"Título del inventario. Se completa con más información descriptiva, siendo "
+"los datos más relevantes la signatura et la fecha."
 
 msgid "file_label"
-msgstr "Fichier :"
+msgstr "Archivo:"
 
 msgid ""
 "files referenced in '[otherfindaid|relatedmaterial|separatedmateri]//..//"
 "archref'"
 msgstr ""
+
+msgid "filter_service_facet"
+msgstr "Ubicaciones de los filtros"
 
 msgid "finding_aid"
 msgstr ""
@@ -3702,78 +4515,99 @@ msgid "findingaid_support"
 msgstr ""
 
 msgid "findingaid_support_object"
-msgstr "XML original d'un inventaire d'archive"
+msgstr "XML original de un inventario de archivo"
 
 msgctxt "File"
 msgid "findingaid_support_object"
 msgstr ""
 
 msgid "footer_archives_sites"
-msgstr "Liens de bas de page : \"sites d'archives\""
+msgstr "Enlaces a pie de página: \"Sitios Web de archivos\""
 
 msgid "footer_links"
-msgstr "Liens de bas de page"
+msgstr "Enlaces a pie de página"
+
+msgid "footer_links_directories"
+msgstr "Enlaces a pie de página: \"Directorios\""
 
 msgid "footer_ministries"
-msgstr "Liens de bas de page : \"ministères\""
+msgstr "Enlaces a pie de página: \"Ministerios\""
 
 msgid "footer_public_sites"
-msgstr "Liens de bas de page : \"sites publics\""
+msgstr "Enlaces a pie de página: \"Sitios Web de archivos\""
 
 msgid "footer_search_notebooks"
-msgstr "Liens de bas de page : \"carnets de recherche\""
+msgstr "Enlaces a pie de página: \"Cuadernos de búsqueda\""
 
 msgid "footer_usefull_links"
-msgstr "Liens de bas de page : \"liens utiles\""
+msgstr "Enlaces a pie de página: \"Enlaces útiles\""
+
+msgid "for"
+msgstr "para"
 
 #, python-format
 msgid "for \"%s\""
-msgstr "pour \"%s\""
-
-msgid "for the query:"
-msgstr "pour la recherche :"
+msgstr "para \"%s\""
 
 msgid "foundout_link"
-msgstr "Lien \"En savoir plus\""
+msgstr "Enlace \"Para saber más\""
+
+msgid "fr"
+msgstr "Francés"
 
 msgid "fr_lang"
 msgstr "Français"
 
+msgid "french_lang"
+msgstr "Francés"
+
 msgid "fulltext-facet-label"
-msgstr "Rechercher dans ces résultats"
+msgstr "Buscar en estos resultados"
 
 msgid "function"
-msgstr "activités"
+msgstr "actividades"
 
 msgid "function_label"
-msgstr "Fonctions : "
+msgstr "Funciones: "
 
 msgid "function_relation_label"
-msgstr "Relation avec une fonction :"
+msgstr "Relación con una  función:"
 
 msgid "functions_label"
-msgstr "Fonctions :"
+msgstr "Funciones:"
 
 msgid "fuzzy search activation"
-msgstr "activation de la recherche approximative"
+msgstr "activación de la búsqueda aproximada"
+
+msgid "gender_facet"
+msgstr "Género"
+
+msgid "gender_label"
+msgstr "Género:"
 
 msgid "general_context_label"
-msgstr "Contexte :"
+msgstr "Contexto:"
 
 msgid "genreform"
-msgstr "type de document"
+msgstr "tipo de documento "
 
 msgid "genreform_label"
-msgstr "Type de document : "
+msgstr "Tipo de documento: "
 
 msgid "geo_indexes_label"
-msgstr "Lieux :"
+msgstr "Lugares:"
 
 msgid "geogname"
-msgstr "Lieu"
+msgstr "Lugar"
 
 msgid "geoname"
 msgstr "GeoNames"
+
+msgid "geonames_A"
+msgstr "commune"
+
+msgid "geonames_P"
+msgstr "lieu habité"
 
 msgid "grouped_with"
 msgstr ""
@@ -3806,7 +4640,7 @@ msgid "grouped_with_object"
 msgstr ""
 
 msgid "header"
-msgstr "\"à la une\" - description courte"
+msgstr "\"en portada\" - descripción corta"
 
 msgctxt "BaseContent"
 msgid "header"
@@ -3841,40 +4675,62 @@ msgid "header"
 msgstr ""
 
 msgid "hierarchical_link_label"
-msgstr "Lien hiérarchique :"
+msgstr "Enlace jerárquico:"
 
 msgid "historical_context"
-msgstr "Contexte historique"
+msgstr "Contexto histórico"
 
 msgctxt "Circular"
 msgid "historical_context"
 msgstr ""
 
 msgid "historical_context_facet"
-msgstr "Contexte historique"
+msgstr "Contexto histórico"
 
 msgid "historical_context_object"
-msgstr ""
+msgstr "Historia:"
 
 msgctxt "Concept"
 msgid "historical_context_object"
 msgstr ""
 
 msgid "history_label"
-msgstr "Histoire :"
+msgstr "Historia:"
 
 msgid "human-readable name for the repository"
-msgstr "nom de l'entrepôt, lisible par l'utilisateur"
+msgstr "nombre del repositorio legible por el usuario"
 
 msgid "identity_link_label"
-msgstr "Equivalent à :"
+msgstr "Equivalente a:"
+
+msgid "identityid_label"
+msgstr ""
+
+msgid "iiif_ajlsm"
+msgstr "Método AJLSM"
+
+msgid "iiif_bnf"
+msgstr "Método BNF"
+
+msgid "iiif_ead_policy"
+msgstr "Elección del método de recuperación de manifiestos IIIF en la OAI EAD"
+
+msgctxt "Service"
+msgid "iiif_ead_policy"
+msgstr ""
 
 msgid "iiif_extptr"
-msgstr "serveur IIIF"
+msgstr "Mostrar imágenes IIIF"
 
 msgctxt "Service"
 msgid "iiif_extptr"
 msgstr ""
+
+msgid "iiif_ligeo_extptr"
+msgstr "Método Empreinte Digitale/Ligeo"
+
+msgid "iiif_role"
+msgstr "Método por defecto (recomendaciones)"
 
 msgid "illustration_url"
 msgstr ""
@@ -3884,7 +4740,7 @@ msgid "illustration_url"
 msgstr ""
 
 msgid "image_file"
-msgstr "fichier image"
+msgstr "archivo imagen"
 
 msgctxt "CssImage"
 msgid "image_file"
@@ -3895,20 +4751,20 @@ msgid "image_file"
 msgstr "fichier image"
 
 msgid "image_file_object"
-msgstr ""
+msgstr "en una nueva ventana"
 
 msgctxt "File"
 msgid "image_file_object"
 msgstr ""
 
 msgid "in a new window"
-msgstr "dans une nouvelle fenêtre"
+msgstr "en una nueva ventana"
 
 msgid "in-effect"
-msgstr "en vigueur"
+msgstr "vigente"
 
 msgid "in-effect-partially"
-msgstr "en vigueur (partiellement abrogée / modifiée)"
+msgstr "vigente (parcialmente derogada / modificada)"
 
 msgid "index"
 msgstr ""
@@ -3926,10 +4782,10 @@ msgid "index"
 msgstr ""
 
 msgid "index_entry"
-msgstr "entrée d'index"
+msgstr "entrada de índice"
 
 msgid "index_object"
-msgstr ""
+msgstr "tipo de índice"
 
 msgctxt "FAComponent"
 msgid "index_object"
@@ -3940,27 +4796,28 @@ msgid "index_object"
 msgstr ""
 
 msgid "index_type"
-msgstr "type d'index"
+msgstr "tipo de índice"
 
 msgid "index_url"
-msgstr "url d'index"
-
-msgid "indexes_label"
-msgstr "Voir toutes les archives en lien :"
+msgstr "url de índice"
 
 msgid "instance_type"
-msgstr "type d'instance"
+msgstr "tipo de instancia"
 
 msgctxt "Caches"
 msgid "instance_type"
 msgstr ""
 
 msgid "internal file link"
-msgstr ""
+msgstr "Lista de elementos"
 
 msgid "items_label"
-msgstr "Liste d'élements"
+msgstr "Lista de elementos"
 
+msgid "json_data"
+msgstr "Lista de elementos"
+
+msgctxt "AgentRecord"
 msgid "json_data"
 msgstr ""
 
@@ -3976,7 +4833,7 @@ msgid "json_values"
 msgstr ""
 
 msgid "keywords"
-msgstr "Mots clés"
+msgstr "Palabras claves"
 
 msgctxt "BaseContent"
 msgid "keywords"
@@ -3999,6 +4856,18 @@ msgid "label"
 msgstr ""
 
 msgctxt "AgentName"
+msgid "label"
+msgstr ""
+
+msgctxt "AgentRecordFunction"
+msgid "label"
+msgstr ""
+
+msgctxt "AgentRecordLegalStatus"
+msgid "label"
+msgstr ""
+
+msgctxt "AgentRecordOccupation"
 msgid "label"
 msgstr ""
 
@@ -4027,28 +4896,28 @@ msgid "label"
 msgstr ""
 
 msgid "label_de"
-msgstr "libellé en allemand"
+msgstr "etiqueta en alemán"
 
 msgctxt "SiteLink"
 msgid "label_de"
 msgstr ""
 
 msgid "label_en"
-msgstr "libellé en anglais"
+msgstr "etiqueta en inglés"
 
 msgctxt "SiteLink"
 msgid "label_en"
 msgstr ""
 
 msgid "label_es"
-msgstr "libellé en espagnol"
+msgstr "etiqueta en español"
 
 msgctxt "SiteLink"
 msgid "label_es"
 msgstr ""
 
 msgid "label_fr"
-msgstr "libellé en français"
+msgstr "etiqueta en francés"
 
 msgctxt "SiteLink"
 msgid "label_fr"
@@ -4066,7 +4935,7 @@ msgid "lang_code"
 msgstr ""
 
 msgid "lang_description"
-msgstr "Langage du document"
+msgstr "Lenguaje del documento"
 
 msgctxt "Did"
 msgid "lang_description"
@@ -4077,7 +4946,7 @@ msgid "lang_description"
 msgstr ""
 
 msgid "lang_description_format"
-msgstr ""
+msgstr "Idioma utilizado:"
 
 msgctxt "Did"
 msgid "lang_description_format"
@@ -4085,6 +4954,9 @@ msgstr ""
 
 msgctxt "FAHeader"
 msgid "lang_description_format"
+msgstr ""
+
+msgid "lang_fr"
 msgstr ""
 
 msgctxt "BaseContentTranslation"
@@ -4108,13 +4980,13 @@ msgid "language"
 msgstr "langue"
 
 msgid "language_used_label"
-msgstr "Langue utilisée :"
+msgstr "Idioma utilizado:"
 
 msgid "languages_label"
-msgstr "Langues :"
+msgstr "Idiomas:"
 
 msgid "last_successful_import"
-msgstr ""
+msgstr "Estatutos jurídicos:"
 
 msgctxt "OAIRepository"
 msgid "last_successful_import"
@@ -4128,54 +5000,76 @@ msgctxt "Service"
 msgid "latitude"
 msgstr "latitude"
 
+msgid "legal_status_label"
+msgstr ""
+
 msgid "legal_statuses_label"
-msgstr "Statuts juridiques :"
+msgstr "Estatutos jurídicos:"
+
+msgid "less than"
+msgstr "menos que"
 
 msgid "level"
-msgstr "type de service"
+msgstr "tipo de servicio"
 
 msgctxt "Service"
 msgid "level"
 msgstr ""
 
 msgid "level-C"
-msgstr "Archives municipales"
+msgstr "Archivos municipales"
 
 msgid "level-D"
-msgstr "Archives départementales"
+msgstr "Archivos departamentales"
 
 msgid "level-E"
-msgstr "Institutions privées"
+msgstr "Instituciones privadas"
 
 msgid "level-F"
-msgstr "Autres services d'archives"
+msgstr "Otros servicios de archivos"
 
 msgid "level-H"
-msgstr "Santé"
+msgstr "Archivos sanitarios"
 
 msgid "level-I"
-msgstr "Autres institutions publiques"
+msgstr "Otras instituciones públicas"
 
 msgid "level-M"
-msgstr "Présidence de la République et ministères"
+msgstr "Presidencia de la República y ministerios"
 
 msgid "level-N"
-msgstr "Archives nationales"
+msgstr "Archivos nacionales"
 
 msgid "level-P"
-msgstr "Parlement et hautes juridictions"
+msgstr "Parlamento y altas jurisdicciones"
 
 msgid "level-R"
-msgstr "Archives régionales"
+msgstr "Archivos regionales"
 
 msgid "level-U"
-msgstr "Éducation et enseignement"
+msgstr "Educación y enseñanza"
 
 msgid "level-Y"
-msgstr "Ministère de la Culture"
+msgstr "Ministerio de Cultura"
+
+msgid "licence_etalab"
+msgstr "licence etalab-2.0"
+
+msgid "licence_etalab_text"
+msgstr ""
+"Salvo mención explícita de la propiedad intelectual de terceros, el "
+"contenido de este sitio se ofrece en las siguientes condiciones "
+
+msgctxt "appjs"
+msgid "line"
+msgstr "línea"
+
+msgctxt "appjs"
+msgid "lines"
+msgstr "líneas"
 
 msgid "link"
-msgstr "lien"
+msgstr "enlace"
 
 msgctxt "Circular"
 msgid "link"
@@ -4185,8 +5079,30 @@ msgctxt "SiteLink"
 msgid "link"
 msgstr ""
 
+msgid "link title"
+msgstr "titre du lien"
+
+#, python-format
+msgid "link to %s"
+msgstr "Enlace al : %s"
+
+msgid "linked_agent_ref"
+msgstr ""
+
+msgid "linked_agents_ref"
+msgstr ""
+
+msgid "linked_agents_ref_displayed"
+msgstr ""
+
+msgid "linked_content_h1"
+msgstr "Contenidos enlazados"
+
+msgid "links_directories"
+msgstr "Directorios"
+
 msgid "long name"
-msgstr "Nom long"
+msgstr "Nombre completo"
 
 msgctxt "LocationAuthority"
 msgid "longitude"
@@ -4197,23 +5113,26 @@ msgid "longitude"
 msgstr "longitude"
 
 msgid "mailing_address"
-msgstr "adresse postale"
+msgstr "dirección postal"
 
 msgctxt "Service"
 msgid "mailing_address"
 msgstr ""
 
 msgid "main menu"
-msgstr "menu principal"
+msgstr "menú principal"
 
 msgid "main_menu_links"
-msgstr "Liens \"Accès rapide\" du menu burger"
+msgstr "Enlaces \"Acceso rápido\" del menú Hamburguesa"
+
+msgid "main_search_placeholder"
+msgstr "Introducir una palabra o frase"
 
 msgid "main_service"
-msgstr "Service relié à"
+msgstr "Servicio conectado a"
 
 msgid "maintainer"
-msgstr ""
+msgstr "Actualización:"
 
 msgctxt "AuthorityRecord"
 msgid "maintainer"
@@ -4227,20 +5146,20 @@ msgid "maintainer_object"
 msgstr ""
 
 msgid "maintenance_event_label"
-msgstr "Mise a jour :"
+msgstr "Actualización:"
 
 msgid "mandates_label"
-msgstr "Textes de référence :"
+msgstr "Textos de referencia:"
 
 msgid "map_file"
-msgstr "carte"
+msgstr "mapa"
 
 msgctxt "Map"
 msgid "map_file"
 msgstr ""
 
 msgid "map_image"
-msgstr "image"
+msgstr "imagen"
 
 msgctxt "Map"
 msgid "map_image"
@@ -4254,17 +5173,20 @@ msgid "map_image_object"
 msgstr ""
 
 msgid "map_mobile_alert"
-msgstr "Cette page est inaccessible depuis un appareil mobile."
+msgstr ""
+"El mapa de las posiciones geolocalizadas de los servicios de archivo del "
+"directorio no es compatible con los dispositivos móviles, pero puede "
+"encontrar toda la información en la lista de servicios"
 
 msgid "map_title"
-msgstr "titre de la carte"
+msgstr "título del mapa"
 
 msgctxt "Map"
 msgid "map_title"
 msgstr ""
 
 msgid "materialspec"
-msgstr "précisions matérielles"
+msgstr "precisiones materiales"
 
 msgctxt "Did"
 msgid "materialspec"
@@ -4278,10 +5200,10 @@ msgid "materialspec_format"
 msgstr ""
 
 msgid "materialspec_label"
-msgstr "Précisions matérielles :"
+msgstr "Precisiones materiales:"
 
 msgid "metadata"
-msgstr "Métadonnées"
+msgstr "Metadatos"
 
 msgctxt "BaseContent"
 msgid "metadata"
@@ -4319,16 +5241,19 @@ msgid "metadata_object"
 msgstr ""
 
 msgid "mode_no_display"
-msgstr "pas d'arborescence ni de thématiques"
+msgstr "no hay arborescencia ni temáticas"
 
 msgid "mode_themes"
-msgstr "afficher les thématiques"
+msgstr "mostrar las temáticas"
 
 msgid "mode_tree"
-msgstr "afficher l'arborescence"
+msgstr "mostrar la arborescencia"
+
+msgid "modification_date"
+msgstr ""
 
 msgid "modified_text"
-msgstr "Texte(s) modifié(s) par cette circulaire"
+msgstr "Texto(s) modificado(s) por esta circular"
 
 msgctxt "Circular"
 msgid "modified_text"
@@ -4342,7 +5267,7 @@ msgid "modified_text_object"
 msgstr ""
 
 msgid "modifying_text"
-msgstr "Texte(s) qui modifie(nt) cette circulaire"
+msgstr "Texto(s) que modifica(n) esta circular"
 
 msgctxt "Circular"
 msgid "modifying_text"
@@ -4356,10 +5281,10 @@ msgid "modifying_text_object"
 msgstr ""
 
 msgid "n/r"
-msgstr " non renseigné"
+msgstr "no especificado"
 
 msgid "name"
-msgstr "nom"
+msgstr "nombre"
 
 msgctxt "Caches"
 msgid "name"
@@ -4394,43 +5319,56 @@ msgid "name"
 msgstr "nom"
 
 msgid "name2"
-msgstr "nom long"
+msgstr "nombre completo"
 
 msgctxt "Service"
 msgid "name2"
 msgstr "nom long"
 
 msgid "name_entries_label"
-msgstr "Autres noms :"
+msgstr "Otras formas del nombre:"
 
 msgid "name_index_label"
-msgstr "Personnes ou Institutions :"
+msgstr "Personas o instituciones:"
+
+msgid "new window"
+msgstr "nouvelle fenêtre"
 
 msgid "news_image"
-msgstr "illustration"
+msgstr "ilustración"
 
 msgctxt "NewsContent"
 msgid "news_image"
 msgstr "Illustration de l'actualité"
 
 msgid "news_image_object"
-msgstr ""
+msgstr "no"
 
 msgctxt "Image"
 msgid "news_image_object"
 msgstr ""
 
-msgid "no"
-msgstr "non"
+msgid "newsletter_sr_title"
+msgstr ""
+"Síganos en las redes sociales y suscríbase a nuestro boletín de noticias"
 
 msgid "no label"
-msgstr "pas de libellé"
+msgstr "no hay etiqueta"
 
 msgid "no translation yet exists"
-msgstr "la traduction n'existe pas encore"
+msgstr "la traducción aún no existe"
+
+msgid "no_linked_agents_ref"
+msgstr ""
 
 msgid "no_summary"
-msgstr "ne pas générer de sommaire"
+msgstr "no generar índice"
+
+msgid "non-digitized"
+msgstr "Archivos no digitalizados"
+
+msgid "non-digitized_value"
+msgstr "Archivos no digitalizados"
 
 msgid "nor"
 msgstr "N° NOR"
@@ -4439,7 +5377,34 @@ msgctxt "Circular"
 msgid "nor"
 msgstr ""
 
+msgid "note"
+msgstr ""
+
+msgctxt "AgentAuthority"
+msgid "note"
+msgstr ""
+
+msgctxt "AgentRecordFunction"
+msgid "note"
+msgstr ""
+
+msgctxt "AgentRecordLegalStatus"
+msgid "note"
+msgstr ""
+
+msgctxt "AgentRecordOccupation"
+msgid "note"
+msgstr ""
+
 msgctxt "Did"
+msgid "note"
+msgstr ""
+
+msgctxt "LocationAuthority"
+msgid "note"
+msgstr ""
+
+msgctxt "SubjectAuthority"
 msgid "note"
 msgstr ""
 
@@ -4448,10 +5413,10 @@ msgid "note_format"
 msgstr ""
 
 msgid "note_label"
-msgstr "Note :"
+msgstr "Nota:"
 
 msgid "notes"
-msgstr "observations"
+msgstr "observaciones"
 
 msgctxt "FAComponent"
 msgid "notes"
@@ -4473,10 +5438,18 @@ msgid "notes_format"
 msgstr ""
 
 msgid "notes_label"
-msgstr "Observations : "
+msgstr "Observaciones: "
 
 msgid "notfound-msg"
-msgstr "Document non trouvé."
+msgstr "Documento no encontrado."
+
+#, python-format
+msgid "notice in %s"
+msgstr ""
+
+#, python-format
+msgid "notice_edited_by %s"
+msgstr ""
 
 msgid "oai_id"
 msgstr ""
@@ -4504,24 +5477,30 @@ msgid "oai_repository_object"
 msgstr ""
 
 msgid "obsolete"
-msgstr "caduc"
+msgstr "caducado"
 
 msgid "occupation"
-msgstr "fonction"
+msgstr "cargo"
 
 msgid "occupation_label"
-msgstr "Activité :"
+msgstr "Actividad:"
+
+msgid "occupations_label"
+msgstr "Actividades:"
 
 #, python-format
 msgid "on %s "
-msgstr "du %s"
+msgstr "del %s"
+
+msgid "on social networks"
+msgstr "sur les réseaux sociaux"
 
 #, python-format
 msgid "on term \"%s\""
-msgstr "pour \"%s\""
+msgstr "para \"%s\""
 
 msgid "on_homepage"
-msgstr "afficher \"à la une\""
+msgstr "mostrar \"en portada \""
 
 msgctxt "BaseContent"
 msgid "on_homepage"
@@ -4544,7 +5523,7 @@ msgid "on_homepage"
 msgstr ""
 
 msgid "on_homepage_order"
-msgstr "ordre d'affichage \"à la une\""
+msgstr "orden de visualización \"en portada \""
 
 msgctxt "BaseContent"
 msgid "on_homepage_order"
@@ -4567,20 +5546,29 @@ msgid "on_homepage_order"
 msgstr ""
 
 msgid "onhp_arch"
-msgstr "page d'accueil archivistes"
+msgstr "página de inicio archiveros"
 
 msgid "onhp_hp"
-msgstr "page d'accueil du site"
+msgstr "página de inicio del sitio Web"
+
+msgid "onhp_nhp"
+msgstr ""
+
+msgid "open in a mailer"
+msgstr "abrir en un mailer"
 
 msgid "opening_period"
-msgstr "horaires d'ouverture"
+msgstr "horarios de apertura"
 
 msgctxt "Service"
 msgid "opening_period"
 msgstr "horaires d'ouverture"
 
+msgid "or"
+msgstr "o"
+
 msgid "order"
-msgstr "ordre"
+msgstr "orden"
 
 msgctxt "BaseContent"
 msgid "order"
@@ -4631,52 +5619,55 @@ msgid "order"
 msgstr ""
 
 msgid "originalsloc_label"
-msgstr "Conservation des originaux :"
+msgstr "Conservación de los originales:"
 
 msgid "origination"
-msgstr "origine"
+msgstr "origen"
 
 msgctxt "Did"
 msgid "origination"
 msgstr ""
 
 msgid "origination_format"
-msgstr ""
+msgstr "Productores"
 
 msgctxt "Did"
 msgid "origination_format"
 msgstr ""
 
 msgid "originators_facet"
-msgstr "Producteurs"
+msgstr "Productores"
 
 msgid "other"
-msgstr "autre"
+msgstr "otro"
 
 msgctxt "Service"
 msgid "other"
 msgstr ""
 
 msgid "other_format"
-msgstr "autres formats"
+msgstr "otros  formatos"
 
 msgctxt "Service"
 msgid "other_format"
 msgstr ""
 
 msgid "others alphabets"
-msgstr "écritures non latines"
+msgstr "escrituras no latinas"
 
-#, python-format
-msgid "out of %s"
-msgstr "sur %s"
+msgid "out_of"
+msgstr "sobre"
 
 #, python-format
 msgid "page %s on %s"
-msgstr "page %s sur %s"
+msgstr "página %s en %s"
+
+#, python-format
+msgid "page-number-error %s"
+msgstr "El número de página debe ser un número menor o igual que %s"
 
 msgid "parent_component"
-msgstr ""
+msgstr "Período:"
 
 msgctxt "FAComponent"
 msgid "parent_component"
@@ -4688,52 +5679,58 @@ msgstr ""
 msgctxt "FAComponent"
 msgid "parent_component_object"
 msgstr ""
+
+msgid "period_facet"
+msgstr "Período cronológico"
 
 msgid "period_label"
-msgstr "Période :"
+msgstr "Período:"
 
 msgid "periodical_import"
-msgstr "Autoriser le moissonnage automatique (delta)"
+msgstr "Autorizar la recopilación automática (delta)"
 
 msgctxt "OAIRepository"
 msgid "periodical_import"
 msgstr ""
 
+msgid "permalink_label"
+msgstr "Enlace permanente de la ficha"
+
 msgid "persname"
-msgstr "Personne"
+msgstr "Persona"
 
 msgid "persname_index_label"
-msgstr "Personnes :"
+msgstr "Personas:"
 
 msgid "phone_number"
-msgstr "numéro de téléphone"
+msgstr "Número de teléfono"
 
 msgctxt "Service"
 msgid "phone_number"
 msgstr "numéro de téléphone"
 
 msgid "physdesc"
-msgstr "description physique"
+msgstr "descripción física"
 
 msgctxt "Did"
 msgid "physdesc"
 msgstr ""
 
 msgid "physdesc_format"
-msgstr ""
+msgstr "Descripción física:"
 
 msgctxt "Did"
 msgid "physdesc_format"
 msgstr ""
 
 msgid "physdesc_label"
-msgstr "Description physique :"
+msgstr "Descripción física:"
 
 msgid "physfacet_label"
-msgstr "Information matérielles : "
+msgstr "Información material: "
 
 msgid "physloc"
-msgstr "Localisation physique"
+msgstr "Ubicación física"
 
 msgctxt "Did"
 msgid "physloc"
@@ -4747,13 +5744,13 @@ msgid "physloc_format"
 msgstr ""
 
 msgid "physloc_label"
-msgstr "Localisation physique :"
+msgstr "Ubicación física:"
 
 msgid "places_label"
-msgstr "Lieu :"
+msgstr "Lugar:"
 
 msgid "places_sub_label"
-msgstr "lieu :"
+msgstr "lugar:"
 
 msgid "previous_info"
 msgstr ""
@@ -4794,27 +5791,27 @@ msgid "previous_info_object"
 msgstr ""
 
 msgid "producer"
-msgstr "producteur"
+msgstr "productor"
 
 msgctxt "Circular"
 msgid "producer"
 msgstr "Services administratifs concernés"
 
 msgid "producer_acronym"
-msgstr "Acronyme du/des producteur(s)"
+msgstr "Acrónimo del/de los productor(es)"
 
 msgctxt "Circular"
 msgid "producer_acronym"
 msgstr ""
 
 msgid "producers name"
-msgstr "Nom du/des producteur(s)"
+msgstr "Nombre del/de los productor(es)"
 
 msgid "public_sites"
-msgstr "sites publics"
+msgstr "Sitios Web de archivos"
 
 msgid "publicationstmt"
-msgstr "publication"
+msgstr "publicación"
 
 msgctxt "FAHeader"
 msgid "publicationstmt"
@@ -4828,32 +5825,35 @@ msgid "publicationstmt_format"
 msgstr ""
 
 msgid "publicationstmt_label"
-msgstr "Publication :"
+msgstr "Publicación:"
+
+msgid "published"
+msgstr "publicado"
 
 msgid "publisher"
-msgstr "Lieu de conservation"
+msgstr "Lugar de conservación"
 
 msgctxt "FindingAid"
 msgid "publisher"
 msgstr ""
 
 msgid "publisher_label"
-msgstr "Institution :"
-
-msgid "publishers"
-msgstr "Institutions"
+msgstr "Institución:"
 
 msgid "publishers_facet"
-msgstr "Lieux de conservation"
+msgstr "Lugares de conservación"
 
 msgid "punctual"
-msgstr "ponctuel"
+msgstr "puntual"
 
 msgid "punctuation"
-msgstr "ponctuation"
+msgstr "puntuación"
+
+msgid "qualified authority"
+msgstr ""
 
 msgid "quality"
-msgstr "qualité"
+msgstr "calidad"
 
 msgctxt "AgentAuthority"
 msgid "quality"
@@ -4867,8 +5867,22 @@ msgctxt "SubjectAuthority"
 msgid "quality"
 msgstr ""
 
+msgid "quality authorities"
+msgstr "autoridades de calidad"
+
+msgid "quality authority"
+msgstr "autoridad de calidad"
+
+msgid "quality_authorities_explanation_text"
+msgstr ""
+"Las autoridades de lugar, persona, institución o materia, extraídas de la "
+"indización de los inventarios de archivos, se armonizan, alinean con los "
+"sistemas de referencia nacionales e internacionales, se agrupan y verifican, "
+"para formar conjuntos de autoridades certificadas conocidas como autoridades "
+"de calidad."
+
 msgid "question"
-msgstr "question"
+msgstr "pregunta"
 
 msgctxt "FaqItem"
 msgid "question"
@@ -4890,23 +5904,33 @@ msgid "question_format"
 msgstr ""
 
 msgid "quick access links"
-msgstr "liens d'évitement"
+msgstr "enlaces evitativos"
+
+msgid "reason"
+msgstr "motivo"
+
+msgctxt "AgentRecord"
+msgid "record_id"
+msgstr ""
 
 msgid "record_id_label"
-msgstr "Identifiant :"
+msgstr "Identificador de la descripción:"
+
+msgid "record_isni_label"
+msgstr "Identificador externo de la entidad:"
 
 msgid "reftype"
-msgstr "type de référence"
+msgstr "tipo de referencia"
 
 msgctxt "ExternRef"
 msgid "reftype"
 msgstr "type de référence"
 
 msgid "regular search"
-msgstr "Recherche normale"
+msgstr "Búsqueda normal"
 
 msgid "related_authority"
-msgstr ""
+msgstr "documentos similares"
 
 msgctxt "BaseContent"
 msgid "related_authority"
@@ -4921,7 +5945,7 @@ msgid "related_authority"
 msgstr ""
 
 msgid "related_authority_object"
-msgstr ""
+msgstr "Inventario de archivos:"
 
 msgctxt "AgentAuthority"
 msgid "related_authority_object"
@@ -4936,7 +5960,7 @@ msgid "related_authority_object"
 msgstr ""
 
 msgid "related_content_suggestion"
-msgstr "documents similaires"
+msgstr "documentos conexos"
 
 msgctxt "BaseContent"
 msgid "related_content_suggestion"
@@ -4951,7 +5975,7 @@ msgid "related_content_suggestion"
 msgstr ""
 
 msgid "related_content_suggestion_object"
-msgstr ""
+msgstr "Inventario de archivos:"
 
 msgctxt "BaseContent"
 msgid "related_content_suggestion_object"
@@ -4966,36 +5990,42 @@ msgid "related_content_suggestion_object"
 msgstr ""
 
 msgid "related_finding_aid_label"
-msgstr "Inventaire d'archives :"
+msgstr "Inventario de archivos:"
+
+msgid "related_services_title"
+msgstr "Services rattachés / annexes"
+
+msgid "relations_label"
+msgstr ""
 
 msgid "repository"
-msgstr "Organisme responsable de l'accès intellectuel"
+msgstr "Organismo responsable del acceso intelectual:"
 
 msgctxt "Did"
 msgid "repository"
 msgstr "Organisme responsable de l'accès intellectuel"
 
 msgid "repository_format"
-msgstr ""
+msgstr "Inventario de archivos:"
 
 msgctxt "Did"
 msgid "repository_format"
 msgstr ""
 
 msgid "repository_label"
-msgstr "Organisme responsable de l'accès intellectuel :"
+msgstr "Organismo responsable del acceso intelectual"
 
 msgid "resource_relation_label"
-msgstr "Archives de ce producteur :"
+msgstr "Archivos de este productor:"
 
 msgid "restart the query"
-msgstr "relancer la recherche"
+msgstr "reiniciar la búsqueda"
 
 msgid "revoked"
-msgstr "abrogée"
+msgstr "derogada"
 
 msgid "revoked_text"
-msgstr "Texte(s) abrogé(s)"
+msgstr "Texto(s) derogado(s)"
 
 msgctxt "Circular"
 msgid "revoked_text"
@@ -5006,6 +6036,9 @@ msgstr ""
 
 msgctxt "OfficialText"
 msgid "revoked_text_object"
+msgstr ""
+
+msgid "role"
 msgstr ""
 
 msgctxt "AgentName"
@@ -5025,6 +6058,10 @@ msgid "role"
 msgstr ""
 
 msgctxt "AgentAuthority"
+msgid "same_as"
+msgstr ""
+
+msgctxt "AgentRecord"
 msgid "same_as"
 msgstr ""
 
@@ -5056,11 +6093,8 @@ msgctxt "SubjectAuthority"
 msgid "same_as"
 msgstr ""
 
-msgid "same_as_label"
-msgstr "Source :"
-
 msgid "scopecontent"
-msgstr "contenu"
+msgstr "contenido"
 
 msgctxt "FAComponent"
 msgid "scopecontent"
@@ -5082,30 +6116,30 @@ msgid "scopecontent_format"
 msgstr ""
 
 msgid "scopecontent_label"
-msgstr "Contenu :"
+msgstr "Contenido:"
 
 msgid "search-breadcrumb-label"
-msgstr "Recherche"
+msgstr "Búsqueda"
 
 msgid "search_form_url"
-msgstr "url du formulaire de recherche "
+msgstr "url del formulario de búsqueda "
 
 msgctxt "Service"
 msgid "search_form_url"
 msgstr ""
 
 msgid "search_notebooks"
-msgstr "carnets de recherche"
+msgstr "Cuadernos de búsqueda"
 
 msgid "section_image"
-msgstr "Illustration de la rubrique"
+msgstr "Ilustración de la sección"
 
 msgctxt "Section"
 msgid "section_image"
 msgstr ""
 
 msgid "section_image_object"
-msgstr ""
+msgstr "ver todos los archivos referenciados"
 
 msgctxt "Image"
 msgid "section_image_object"
@@ -5126,22 +6160,19 @@ msgid "section_themes_object"
 msgstr ""
 
 msgid "see all referenced archives"
-msgstr "voir toutes les archives référencées"
+msgstr "ver todos los archivos referenciados"
 
 msgid "see all the names"
-msgstr "voir tous les noms"
+msgstr "ver todos los nombres"
 
 msgid "see service related documents"
-msgstr "Voir les références des documents d'archives"
+msgstr "Ver las referencias de los documentos de archivo"
 
 msgid "see service related nominarecords"
-msgstr "Voir la base de noms"
-
-msgid "see_also_label"
-msgstr "Autres ressources :"
+msgstr "Ver la base de nombres"
 
 msgid "select"
-msgstr "Sélectionner"
+msgstr "Seleccionar"
 
 msgid "service"
 msgstr ""
@@ -5159,24 +6190,24 @@ msgid "service"
 msgstr ""
 
 msgid "service_image"
-msgstr "Illustration du service"
+msgstr "Ilustración del servicio"
 
 msgctxt "Service"
 msgid "service_image"
 msgstr ""
 
 msgid "service_image_object"
-msgstr ""
+msgstr "Servicio:"
 
 msgctxt "Image"
 msgid "service_image_object"
 msgstr ""
 
 msgid "service_label"
-msgstr "Service :"
+msgstr "Servicio:"
 
 msgid "service_level_facet"
-msgstr "Type de service"
+msgstr "Tipo de servicio"
 
 msgid "service_object"
 msgstr ""
@@ -5185,8 +6216,11 @@ msgctxt "Service"
 msgid "service_object"
 msgstr ""
 
+msgid "service_partner_facet"
+msgstr "Servicios contribuyentes de FranceArchives"
+
 msgid "service_social_network"
-msgstr "réseaux sociaux"
+msgstr "redes sociales"
 
 msgctxt "Service"
 msgid "service_social_network"
@@ -5201,17 +6235,17 @@ msgstr ""
 
 msgid "services_map_help"
 msgstr ""
-"Pour afficher les informations d'un service sélectionnez le sur la carte "
-"avec un double clic."
+"Para mostrar la información de un servicio selecciónelo en el mapa con un "
+"doble clic."
 
 msgid "services_marker_info"
-msgstr "Double clic sur l'icône pour afficher les informations du service."
+msgstr "Doble clic en el icono para mostrar la información del servicio."
 
 msgid "short name"
-msgstr "Nom court"
+msgstr "Nombre corto"
 
 msgid "short_description"
-msgstr "description courte"
+msgstr "descripción corta"
 
 msgctxt "GlossaryTerm"
 msgid "short_description"
@@ -5226,62 +6260,89 @@ msgid "short_description"
 msgstr ""
 
 msgid "short_name"
-msgstr "nom court"
+msgstr "nombre corto"
 
 msgctxt "Service"
 msgid "short_name"
 msgstr ""
 
 msgid "should_normalize"
-msgstr "normaliser les libellés des entrées d'index"
+msgstr "normalizar las etiquetas de las entradas de índice"
 
 msgctxt "OAIRepository"
 msgid "should_normalize"
 msgstr ""
 
 msgid "siaf_daf_code"
-msgstr "Code SIAF"
+msgstr "Código SIAF"
 
 msgctxt "Circular"
 msgid "siaf_daf_code"
 msgstr ""
 
 msgid "siaf_daf_kind"
-msgstr "Nature"
+msgstr "Naturaleza"
 
 msgctxt "Circular"
 msgid "siaf_daf_kind"
 msgstr "Nature"
 
 msgid "siaf_daf_signing_date"
-msgstr "Date de signature ou de publication"
+msgstr "fecha de firma o publicación"
 
 msgctxt "Circular"
 msgid "siaf_daf_signing_date"
 msgstr "Date de signature ou de publication"
 
-msgid "siaf_daf_signing_year"
-msgstr "Date"
-
 msgid "signing_date"
-msgstr "Date de signature"
+msgstr "Fecha de firma"
 
 msgctxt "Circular"
 msgid "signing_date"
 msgstr "Date de signature"
 
+msgid "similarthemes_explanation_text"
+msgstr ""
+"Sugerencias para buscar temas relacionados en el Tesauro de indización de "
+"archivos."
+
 msgid "siteres"
-msgstr "ressources du site"
+msgstr "recursos del sitio Web"
+
+msgid "siteres_search_info"
+msgstr ""
+"Cuando la casilla está marcada, la búsqueda se realiza en las descripciones "
+"de los archivos (inventarios, catálogo). Desmarque la casilla «Recursos del "
+"sitio» para restringir la búsqueda a los archivos."
+
+msgctxt "appjs"
+msgid "siteres_search_info"
+msgstr ""
+"Cuando la casilla está marcada, la búsqueda se realiza en las descripciones "
+"de los archivos (inventarios, catálogo). Desmarque la casilla «Recursos del "
+"sitio» para restringir la búsqueda a los archivos."
+
+msgid "small-screens-circular-warning"
+msgstr ""
+"El tabla de circulares, que contiene la misma información que la lista que "
+"figura a continuación, no puede visualizarse en pantallas pequeñas."
+
+#, python-brace-format
+msgid "socface_warning {link}"
+msgstr ""
+"Estos datos son el resultado de una transcripción automática realizada por "
+"herramientas de inteligencia artificial en el marco del proyecto <a "
+"href=\"{link}\">SocFace</a>. Por lo tanto, pueden contener errores."
 
 msgid "sort_letter"
-msgstr "lettre de tri"
+msgstr "letra de clasificación"
 
 msgctxt "GlossaryTerm"
 msgid "sort_letter"
 msgstr ""
 
 msgid "source"
-msgstr "source"
+msgstr "fuente"
 
 msgctxt "ExternalId"
 msgid "source"
@@ -5292,10 +6353,13 @@ msgid "source"
 msgstr ""
 
 msgid "source_entry_label"
-msgstr "Sources :"
+msgstr "Fuentes:"
+
+msgid "source_info_label"
+msgstr "Source d'information"
 
 msgid "stable_id"
-msgstr ""
+msgstr "Fecha de inicio"
 
 msgctxt "FAComponent"
 msgid "stable_id"
@@ -5310,17 +6374,17 @@ msgid "stable_id"
 msgstr ""
 
 msgid "start_date"
-msgstr "date de début"
+msgstr "Fecha de inicio"
 
 msgctxt "NewsContent"
 msgid "start_date"
 msgstr "date de début"
 
 msgid "start_date_label"
-msgstr "Date de début :"
+msgstr "Fecha de inicio:"
 
 msgid "start_year"
-msgstr "année de début"
+msgstr "año de inicio"
 
 msgctxt "CommemorationItem"
 msgid "start_year"
@@ -5338,27 +6402,27 @@ msgid "startyear"
 msgstr ""
 
 msgid "status"
-msgstr "Statut"
+msgstr "Estatuto"
 
 msgctxt "Circular"
 msgid "status"
 msgstr "Statut du texte"
 
 msgid "status_facet"
-msgstr "Statut"
+msgstr "Estatuto"
 
 msgid "stop_date"
-msgstr "date de fin"
+msgstr "Fecha de fin"
 
 msgctxt "NewsContent"
 msgid "stop_date"
 msgstr "date de fin"
 
 msgid "stop_date_label"
-msgstr "Date de fin :"
+msgstr "Fecha de fin:"
 
 msgid "stop_year"
-msgstr "année de fin"
+msgstr "año de fin"
 
 msgctxt "CommemorationItem"
 msgid "stop_year"
@@ -5369,24 +6433,24 @@ msgid "stop_year"
 msgstr ""
 
 msgid "stopyear"
-msgstr ""
+msgstr "Organización:"
 
 msgctxt "Did"
 msgid "stopyear"
 msgstr ""
 
 msgid "structure_label"
-msgstr "Institutions :"
+msgstr "Organización:"
 
 msgid "subject"
-msgstr "Thème"
+msgstr "Tema"
 
 msgctxt "Metadata"
 msgid "subject"
 msgstr ""
 
 msgid "subject_entity"
-msgstr ""
+msgstr "Ilustración del tema"
 
 msgctxt "OrderedSubjectAuthority"
 msgid "subject_entity"
@@ -5400,24 +6464,27 @@ msgid "subject_entity_object"
 msgstr ""
 
 msgid "subject_image"
-msgstr "Illustration du thème"
+msgstr "Ilustración del tema"
 
 msgctxt "SubjectAuthority"
 msgid "subject_image"
 msgstr ""
 
 msgid "subject_image_object"
-msgstr ""
+msgstr "Ilustración del tema"
 
 msgctxt "Image"
 msgid "subject_image_object"
 msgstr ""
 
 msgid "subject_indexes_label"
-msgstr "Thèmes : "
+msgstr "Temas: "
+
+msgid "subscribe_newsletter_title"
+msgstr "Suscríbase a nuestra newsletter"
 
 msgid "subtitle"
-msgstr "sous-titre"
+msgstr "subtítulo"
 
 msgctxt "CommemorationItem"
 msgid "subtitle"
@@ -5436,7 +6503,7 @@ msgid "subtitle"
 msgstr ""
 
 msgid "summary"
-msgstr "sommaire"
+msgstr "índice"
 
 msgctxt "BaseContent"
 msgid "summary"
@@ -5474,16 +6541,16 @@ msgid "summary_format"
 msgstr ""
 
 msgid "summary_headers_2"
-msgstr "générer le sommaire avec les titres de 1er niveau"
+msgstr "generar el índice con los títulos de 1.° nivel"
 
 msgid "summary_headers_3"
-msgstr "générer le sommaire avec les titres jusqu'au 2ème niveau"
+msgstr "generar el índice con los títulos hasta el 2.° nivel"
 
 msgid "summary_headers_6"
-msgstr "générer le sommaire avec tous les titres"
+msgstr "generar el índice con todos los títulos"
 
 msgid "summary_policy"
-msgstr "génération automatique du sommaire"
+msgstr "generación automática del índice"
 
 msgctxt "BaseContent"
 msgid "summary_policy"
@@ -5497,14 +6564,14 @@ msgid "support document for a finding aid"
 msgstr ""
 
 msgid "temporal_link_label"
-msgstr "Lien temporel :"
+msgstr "Enlace temporal:"
 
 msgctxt "GlossaryTerm"
 msgid "term"
 msgstr "terme"
 
 msgid "term_plural"
-msgstr "forme plurielle du terme"
+msgstr "forma plural del término"
 
 msgctxt "GlossaryTerm"
 msgid "term_plural"
@@ -5515,29 +6582,28 @@ msgstr ""
 
 msgid "this field will be displayed as image alt in HTML"
 msgstr ""
-"ce champ sera affiché en tant que valeur de l'attribut \"alt\" de l'image "
-"dans le HTML."
+"este campo aparecerá como valor del atributo \"alt\" de la imagen en el HTML."
 
 msgid "thumbnail_dest"
-msgstr "url de la visionneuse"
+msgstr "Enlace al documento digitalizado"
 
 msgctxt "Service"
 msgid "thumbnail_dest"
 msgstr ""
 
 msgid "thumbnail_url"
-msgstr "url de la vignette"
+msgstr "url de la viñeta"
 
 msgctxt "Service"
 msgid "thumbnail_url"
 msgstr ""
 
-msgid "time_period_facet"
-msgstr "Période chronologique"
+msgid "title"
+msgstr "Título"
 
 msgctxt "BaseContent"
 msgid "title"
-msgstr "titre"
+msgstr ""
 
 msgctxt "BaseContentTranslation"
 msgid "title"
@@ -5553,11 +6619,11 @@ msgstr ""
 
 msgctxt "CmsObject"
 msgid "title"
-msgstr "titre"
+msgstr ""
 
 msgctxt "CommemorationItem"
 msgid "title"
-msgstr "titre"
+msgstr ""
 
 msgctxt "CommemorationItemTranslation"
 msgid "title"
@@ -5573,46 +6639,46 @@ msgstr ""
 
 msgctxt "Metadata"
 msgid "title"
-msgstr "titre"
+msgstr ""
 
 msgctxt "NewsContent"
 msgid "title"
-msgstr "titre"
+msgstr ""
 
 msgctxt "Section"
 msgid "title"
-msgstr "titre"
+msgstr ""
 
 msgctxt "SectionTranslation"
 msgid "title"
 msgstr ""
 
 msgid "title_label"
-msgstr "Titre :"
+msgstr "Título:"
 
 msgid "titleproper"
-msgstr ""
+msgstr "título"
 
 msgctxt "FAHeader"
 msgid "titleproper"
 msgstr ""
 
 msgid "titlestmt"
-msgstr "titre"
+msgstr "Título:"
 
 msgctxt "FAHeader"
 msgid "titlestmt"
 msgstr ""
 
 msgid "titlestmt_format"
-msgstr ""
+msgstr "título"
 
 msgctxt "FAHeader"
 msgid "titlestmt_format"
 msgstr ""
 
 msgid "top_components"
-msgstr "contenu à afficher avant la carte"
+msgstr "contenido a mostrar antes del mapa"
 
 msgctxt "FindingAid"
 msgid "top_components"
@@ -5626,7 +6692,7 @@ msgid "top_components_object"
 msgstr ""
 
 msgid "top_content"
-msgstr "contenu avant la carte"
+msgstr "contenido antes del mapa"
 
 msgctxt "Map"
 msgid "top_content"
@@ -5641,58 +6707,54 @@ msgstr ""
 
 msgid "tour_search_facet_fulltext"
 msgstr ""
-"La barre de recherche permet de restreindre la requête en entrant un mot ou "
-"une expression."
+"La barra de búsqueda permite restringir la petición escribiendo una palabra "
+"o una expresión."
 
 msgid "tour_search_facets"
 msgstr ""
-"Il est possible de sélectionner une ou plusieurs valeurs dans chaque "
-"facette, en les dépliant, pour affiner les résultats."
+"Es posible seleccionar una o varios valores en cada faceta, desplegándolos, "
+"para afinar los resultados."
 
 msgid "tour_search_intro"
-msgstr "Découvrez comment utiliser FranceArchives"
+msgstr "Descubra cómo utilizar FranceArchives"
 
 msgid "tour_search_number_items"
 msgstr ""
-"Ce bloc permet de choisir le nombre de notices affichées sur chaque page de "
-"résultats."
+"Este bloque permite elegir el número de registros mostrados en cada página "
+"de resultados."
 
 msgid "tour_search_query"
-msgstr ""
-"La recherche s’effectue sur l’ensemble des contenus du portail par "
-"défaut&nbsp;: les deux cases sont cochées. Il faut décocher la case «&nbsp;"
-"archives référencées&nbsp;» pour restreindre les résultats aux ressources "
-"éditoriales."
+msgstr "» pour restreindre les résultats aux ressources éditoriales."
 
 msgid "tour_search_result"
 msgstr ""
-"La page de résultats présente en premier les réponses les plus pertinentes. "
-"Chaque résultat présente les informations essentielles sur les contenus du "
-"portail. Un clic sur le résultat permet d’afficher la notice complète."
+"La página de resultados muestra primero las respuestas más pertinentes. Cada "
+"resultado muestra la información esencial sobre los contenidos del portal. "
+"Un clic en el resultado permite mostrar el registro completo."
 
 msgid "tour_search_results_number"
-msgstr "Ce bloc permet de visualiser le nombre de résultats."
+msgstr "Este bloque permite visualizar el número de resultados."
 
 msgid "tour_search_results_pagination"
 msgstr ""
-"Permet de naviguer parmi les pages de résultats en utilisant les flèches ou "
-"en tapant un numéro."
+"Permite navegar entre las páginas de resultados utilizando las flechas o "
+"escribiendo un número."
 
 msgid "tour_search_results_sort_options"
 msgstr ""
-"Les résultats sont triés par défaut par pertinence. Ce bloc permet de trier "
-"les notices par date ou par lieu de conservation."
+"Los resultados están por defecto clasificados por pertinencia. Este bloque "
+"permite clasificar las etiquetas por fecha o por lugar de conservación."
 
 msgid "tour_search_summary"
 msgstr ""
-"Ce bloc rappelle les critères de votre recherche&nbsp;: le mot ou "
-"l’expression recherchée ainsi que les facettes sélectionnées. Il donne la "
-"possibilité de supprimer un ou plusieurs filtres en cliquant sur la petite "
-"croix à droite, et de revenir à la recherche initiale en cliquant sur le "
-"bouton « Supprimer tous les filtres &nbsp;»."
+"Este bloque recuerda los criterios de su búsqueda&nbsp;: la palabra o la "
+"expresión buscada, así como las facetas seleccionadas. Es posible suprimir "
+"uno o varios filtros haciendo clic en la cruz de la derecha, y regresar a la "
+"búsqueda inicial haciendo clic en el botón «Suprimir todos los filtros "
+"&nbsp;»."
 
 msgid "translation_of"
-msgstr "traduction de"
+msgstr "traducción de"
 
 msgctxt "BaseContentTranslation"
 msgid "translation_of"
@@ -5730,7 +6792,10 @@ msgid "translation_of_object"
 msgstr ""
 
 msgid "try the exact expression search {}"
-msgstr "essayez la recherche avec l'expression exacte {}"
+msgstr "Intente buscar con la expresión exacta {}"
+
+msgid "type"
+msgstr ""
 
 msgctxt "AgentName"
 msgid "type"
@@ -5756,28 +6821,31 @@ msgid "unique identifier"
 msgstr ""
 
 msgid "unitdate"
-msgstr "date"
+msgstr "fecha"
 
 msgctxt "Did"
 msgid "unitdate"
 msgstr "date"
 
 msgid "unitid"
-msgstr "Cote"
+msgstr "Signatura"
 
 msgctxt "Did"
 msgid "unitid"
 msgstr "Cote"
 
 msgid "unitid_label"
-msgstr "Cote :"
+msgstr "Signatura:"
 
 msgid "unittitle"
-msgstr "Titre"
+msgstr "Título"
 
 msgctxt "Did"
 msgid "unittitle"
 msgstr "Titre"
+
+msgid "unqualified authority"
+msgstr ""
 
 msgctxt "Image"
 msgid "uri"
@@ -5804,13 +6872,13 @@ msgid "url"
 msgstr ""
 
 msgid "used as bounce url"
-msgstr "utilisé comme url de rebond"
+msgstr "utilizado como url de rebote"
 
 msgid "usefull_links"
-msgstr "liens utiles"
+msgstr "Enlaces útiles"
 
 msgid "userestrict"
-msgstr "conditions d'utilisation"
+msgstr " condiciones de uso"
 
 msgctxt "FAComponent"
 msgid "userestrict"
@@ -5832,7 +6900,7 @@ msgid "userestrict_format"
 msgstr ""
 
 msgid "userestrict_label"
-msgstr "Conditions d'utilisation :"
+msgstr " Condiciones de uso:"
 
 msgctxt "BaseContent"
 msgid "uuid"
@@ -5914,18 +6982,15 @@ msgctxt "SocialNetwork"
 msgid "uuid"
 msgstr ""
 
-msgid "validating..."
-msgstr ""
-
 msgid "values"
-msgstr "valeurs"
+msgstr "valores"
 
 msgctxt "Caches"
 msgid "values"
 msgstr ""
 
 msgid "website_url"
-msgstr "site web"
+msgstr "sitio Web"
 
 msgctxt "FindingAid"
 msgid "website_url"
@@ -5953,27 +7018,85 @@ msgstr ""
 msgid "wikidata"
 msgstr "Wikidata"
 
+msgid "wikidata_child_of"
+msgstr "Hijo(s) de"
+
+msgctxt "AgentAuthority"
+msgid "wikidata_child_of"
+msgstr ""
+
+msgid "wikidata_child_of_object"
+msgstr "Padre(s) de"
+
+msgctxt "AgentAuthority"
+msgid "wikidata_child_of_object"
+msgstr ""
+
+msgid "wikidata_member_of"
+msgstr "Miembro de"
+
+msgctxt "AgentAuthority"
+msgid "wikidata_member_of"
+msgstr ""
+
+msgid "wikidata_member_of_object"
+msgstr "Institución de"
+
+msgctxt "AgentAuthority"
+msgid "wikidata_member_of_object"
+msgstr ""
+
+msgid "wikidata_sibling_of"
+msgstr "Hermano(s)/hermana(s) de"
+
+msgctxt "AgentAuthority"
+msgid "wikidata_sibling_of"
+msgstr ""
+
+msgid "wikidata_sibling_of_object"
+msgstr "Hermano(s)/hermana(s) de"
+
+msgctxt "AgentAuthority"
+msgid "wikidata_sibling_of_object"
+msgstr ""
+
+msgid "wikidata_spouse_of"
+msgstr "Esposo(s)/Esposa(s) de"
+
+msgctxt "AgentAuthority"
+msgid "wikidata_spouse_of"
+msgstr ""
+
+msgid "wikidata_spouse_of_object"
+msgstr "Esposo(s)/Esposa(s) de"
+
+msgctxt "AgentAuthority"
+msgid "wikidata_spouse_of_object"
+msgstr ""
+
+msgid "wikirelations_explanation_text"
+msgstr ""
+"Sugerencias de búsquedas relacionadas basadas en las relaciones entre "
+"personas e instituciones en Wikidata."
+
 msgid "with fuzzy search option."
-msgstr "en mode recherche approximative."
+msgstr "en modo búsqueda aproximada."
 
 msgid "www.geonames.org"
 msgstr "GeoNames"
 
 msgid "xml_support"
-msgstr "fichier XML"
+msgstr "archivo XML"
 
 msgctxt "AuthorityRecord"
 msgid "xml_support"
 msgstr ""
 
 msgid "year"
-msgstr "année"
-
-msgid "yes"
-msgstr "oui"
+msgstr "año"
 
 msgid "zip_code"
-msgstr "code postal"
+msgstr "código postal"
 
 msgctxt "Service"
 msgid "zip_code"
@@ -5981,59 +7104,375 @@ msgstr "code postal"
 
 #, python-brace-format
 msgid "{count} circulaires"
-msgstr "{count} circulaires"
-
-#, python-brace-format
-msgid "{count} concepts"
-msgstr "{count} concepts"
+msgstr "{count} circulares"
 
 #, python-brace-format
 msgid "{count} documents"
-msgstr "{count} documents"
+msgstr "{count} documentos"
 
 #, python-brace-format
 msgid "{count} documents in this section"
-msgstr "{count} documents dans cette rubrique"
+msgstr "{count} documentos en  esta sección"
 
 #, python-brace-format
 msgid "{count} linked content"
-msgstr "{count} contenus liés"
+msgstr "{count} contenidos enlazados"
 
 #, python-brace-format
 msgid "{count} locations"
-msgstr "{count} lieux"
+msgstr "{count} lugares"
 
 #, python-brace-format
 msgid "{count} persons/organizations"
-msgstr "{count} personnes / institutions"
+msgstr "{count} personas / instituciones"
 
 #, python-brace-format
 msgid "{count} results"
-msgstr "{count} résultats"
+msgstr "{count} resultados"
 
 #, python-brace-format
 msgid "{count} themes"
-msgstr "{count} thèmes"
+msgstr "{count} temas"
 
-#, python-brace-format
-msgid "{lang}_lang"
-msgstr ""
+#~ msgid "1 concept"
+#~ msgstr "1 concepto"
 
-msgid "{} Agents"
-msgstr "{} Personnes et institutions"
+#~ msgid "All nomina records"
+#~ msgstr "Tous les enregistrements de la base de noms"
 
-msgid "{} Locations"
-msgstr "{} Lieux"
+#~ msgctxt "appjs"
+#~ msgid "Archive service"
+#~ msgstr "Service d'archives"
 
-msgid "{} Subjects"
-msgstr "{} Thèmes"
+#~ msgctxt "appjs"
+#~ msgid "By word"
+#~ msgstr "Par mot"
 
-#~ msgid "Event date"
-#~ msgstr "Date d'événement"
+#~ msgctxt "appjs"
+#~ msgid "Circular Kind"
+#~ msgstr "Nature"
+
+#~ msgid "Circulars table"
+#~ msgstr "Cuadro des circulares"
+
+#~ msgctxt "appjs"
+#~ msgid "Circulars table"
+#~ msgstr "Cuadro des circulares"
+
+#~ msgid "Display transcription"
+#~ msgstr "Mostrar la transcripción"
+
+#~ msgid "Download documents data"
+#~ msgstr "Télécharger les données du document"
 
 #~ msgid "Event type"
 #~ msgstr "Événement"
 
+#~ msgid "Export nomina as CSV"
+#~ msgstr "Exportar resultados"
+
+#~ msgid "Exporter les résultats"
+#~ msgstr "Exportar resultados"
+
+#~ msgid "Fields with <span class=\"required\">*</span> are required."
+#~ msgstr ""
+#~ "Los campos marcados de un <span class=\"required\">*</span> son "
+#~ "obligatorios."
+
+#~ msgid "First page"
+#~ msgstr "Primera página"
+
+#~ msgctxt "appjs"
+#~ msgid "First page"
+#~ msgstr "Primera página"
+
+#~ msgid "Go to the first page"
+#~ msgstr "Acceder a la primera página"
+
+#~ msgid "Go to the last page"
+#~ msgstr "Acceder a la última página"
+
+#~ msgid "Hide transcription"
+#~ msgstr "Ocultar la transcripción"
+
+#~ msgid ""
+#~ "L'export CSV est indisponible car votre recherche retourne plus de "
+#~ "{limit} résultats ({total} résultats). Veuillez affiner votre recherche "
+#~ "pour exporter moins de {limit} notices."
+#~ msgstr ""
+#~ "La exportación CSV no está disponible porque su búsqueda devuelve más de "
+#~ "{limit} resultados ({total} resultados). Por favor, refine su búsqueda "
+#~ "para exportar menos de {limit} registros."
+
+#~ msgid "L'export CSV est indisponible pour les matricules de ce département."
+#~ msgstr ""
+#~ "La exportación CSV no está disponible para los registros militares de "
+#~ "este departamento."
+
+#~ msgid "Last modification date"
+#~ msgstr "Fecha de la última actualización"
+
+#~ msgid "Last page"
+#~ msgstr "Última página"
+
+#~ msgctxt "appjs"
+#~ msgid "Last page"
+#~ msgstr "Última página"
+
+#~ msgid "Location_properties"
+#~ msgstr "Propiedades del lugar"
+
+#~ msgid "Logo of:"
+#~ msgstr "Logo de :"
+
+#~ msgid "NMN_A"
+#~ msgstr "Abjuración"
+
+#~ msgid "NMN_AN"
+#~ msgstr "Documento notarial"
+
+#~ msgid "NMN_AU"
+#~ msgstr "Otro tipo"
+
+#~ msgid "NMN_BANS"
+#~ msgstr "Edictos de matrimonio"
+
+#~ msgid "NMN_BN"
+#~ msgstr "Bautismo o nacimiento"
+
+#~ msgid "NMN_CM"
+#~ msgstr "Capitulaciones matrimoniales"
+
+#~ msgid "NMN_CO"
+#~ msgstr "Vacaciones"
+
+#~ msgid "NMN_DI"
+#~ msgstr "Divorcio"
+
+#~ msgid "NMN_E_0"
+#~ msgstr "No sabe leer ni escribir"
+
+#~ msgid "NMN_E_1"
+#~ msgstr "Sabe leer"
+
+#~ msgid "NMN_E_2"
+#~ msgstr "Sabe leer y escribir"
+
+#~ msgid "NMN_E_3"
+#~ msgstr "Sabe leer, escribir y contar"
+
+#~ msgid "NMN_E_4"
+#~ msgstr "Certificado de la enseñanza primaria"
+
+#~ msgid "NMN_E_5"
+#~ msgstr "Bachiller"
+
+#~ msgid "NMN_F"
+#~ msgstr "Noviazgos"
+
+#~ msgid "NMN_Inconnu"
+#~ msgstr "Desconocido"
+
+#~ msgid "NMN_JU"
+#~ msgstr "Sentencia"
+
+#~ msgid "NMN_M"
+#~ msgstr "Matrimonio"
+
+#~ msgid "NMN_M14-18"
+#~ msgstr "Muerto 14-18"
+
+#~ msgid "NMN_MPF"
+#~ msgstr "Caído por Francia"
+
+#~ msgid "NMN_MPF14-18"
+#~ msgstr "Caído por Francia 14-18"
+
+#~ msgid "NMN_P"
+#~ msgstr "Permisión"
+
+#~ msgid "NMN_PR"
+#~ msgstr "Promesa de matrimonio"
+
+#~ msgid "NMN_PU"
+#~ msgstr "Publicación de matrimonio"
+
+#~ msgid "NMN_RE"
+#~ msgstr "Reconocimiento"
+
+#~ msgid "NMN_REA"
+#~ msgstr "Rehabilitación"
+
+#~ msgid "NMN_RM"
+#~ msgstr "Número identificativo militar"
+
+#~ msgid "NMN_RP"
+#~ msgstr "Censo"
+
+#~ msgid "NMN_RT"
+#~ msgstr "Padrón de la talla"
+
+#~ msgid "NMN_S"
+#~ msgstr "Sepultura o defunción"
+
+#~ msgid "NMN_SV"
+#~ msgstr "Sin vida"
+
 #, python-format
 #~ msgid "No fieldnames found for doctype %s"
 #~ msgstr "Il n'existe pas de nom de colonnes pour un document de type %s"
+
+#~ msgctxt "appjs"
+#~ msgid "No match found"
+#~ msgstr "Aucun résultat correspondant à votre recherche n'a été trouvé"
+
+#~ msgid "Nomina CSV export contains at most 100000 records."
+#~ msgstr ""
+#~ "Solo los primeros 10.000 resultados pueden exportarse, por favor refine "
+#~ "su búsqueda."
+
+#~ msgid "Organization(s)"
+#~ msgstr "Institution(s)"
+
+#~ msgctxt "appjs"
+#~ msgid "Plain text"
+#~ msgstr "Plein texte"
+
+#~ msgid "Please enter a valid email address. For exemple: g.marquez@gmail.es"
+#~ msgstr ""
+#~ "El formato de la dirección de correo electrónico introducida no es "
+#~ "válido. El formato esperado es: m.marquez@gmail.es"
+
+#~ msgid "Please, enter a valid email address"
+#~ msgstr "Introduzca una dirección válida."
+
+#~ msgctxt "appjs"
+#~ msgid "Publishers"
+#~ msgstr "Lugares de conservación"
+
+#~ msgid "Read more"
+#~ msgstr "Leer más"
+
+#~ msgctxt "appjs"
+#~ msgid "Rows per page"
+#~ msgstr "Lignes par page"
+
+#~ msgid "See all nomina records for {}"
+#~ msgstr "todas las grabaciones sonoras para {}"
+
+#~ msgid "See also:"
+#~ msgstr "Ver también:"
+
+#~ msgid "See other documents"
+#~ msgstr "Ver otros documentos"
+
+#~ msgctxt "appjs"
+#~ msgid "Select a criterion for the field Service"
+#~ msgstr "Sélectionner une condition pour le champ Service"
+
+#~ msgid "Select a format to download"
+#~ msgstr "Seleccionar un formato"
+
+#~ msgctxt "appjs"
+#~ msgid "Select an option"
+#~ msgstr "Seleccionar una opción"
+
+#~ msgctxt "appjs"
+#~ msgid "Select criterion for the field"
+#~ msgstr "Sélectionner le critère pour le champ"
+
+#~ msgid "Service has a IIIF server and encode manifest in <extptr> (LIGEO)"
+#~ msgstr "El servicio dispone de un servidor IIIF"
+
+#~ msgctxt "appjs"
+#~ msgid "Show"
+#~ msgstr "Afficher"
+
+#~ msgid "Skip to content"
+#~ msgstr "Ir al contenido"
+
+#~ msgid "Skip to menu"
+#~ msgstr "Ir al menú"
+
+#~ msgid "Swikidata_child_of_object"
+#~ msgstr "Parent(s) de"
+
+#, python-brace-format
+#~ msgid ""
+#~ "The CSV export is unavailable because your search returns more than "
+#~ "{limit} results ({total} results). Please refine your search to export "
+#~ "fewer than {limit} records."
+#~ msgstr ""
+#~ "La exportación CSV no está disponible porque su búsqueda devuelve más de "
+#~ "{limit} resultados ({total} resultados). Por favor, refine su búsqueda "
+#~ "para exportar menos de {limit} registros."
+
+#~ msgctxt "appjs"
+#~ msgid "Type to search..."
+#~ msgstr "Iniciar la búsqueda..."
+
+#~ msgid "Unfold all"
+#~ msgstr "Desplegar todo"
+
+#~ msgid "Your email"
+#~ msgstr "Su dirección electrónica"
+
+#~ msgid "Your search summary"
+#~ msgstr "Resumen de Su búsqueda"
+
+#~ msgid "action_facet"
+#~ msgstr "Acción"
+
+#~ msgid "and"
+#~ msgstr "et"
+
+#~ msgid "digitized_facet"
+#~ msgstr "Digitalizado"
+
+#~ msgid "epartment or all services"
+#~ msgstr "Seleccionar un departamento o todos los servicios"
+
+#~ msgctxt "appjs"
+#~ msgid "exemple: 1600"
+#~ msgstr "p.ej. : 1600"
+
+#~ msgctxt "appjs"
+#~ msgid "exemple: 1800"
+#~ msgstr "p.ej. : 1800"
+
+#~ msgid "exist_dates_label"
+#~ msgstr "Fechas : "
+
+#~ msgid "for the query:"
+#~ msgstr "para la búsqueda:"
+
+#~ msgid "no"
+#~ msgstr "no"
+
+#~ msgid "publishers"
+#~ msgstr "Instituciones"
+
+#~ msgid "same_as_label"
+#~ msgstr "Fuente:"
+
+#~ msgid "siaf_daf_signing_year"
+#~ msgstr "Fecha"
+
+#~ msgid "time_period_facet"
+#~ msgstr "Período cronológico"
+
+#~ msgid "yes"
+#~ msgstr "sí"
+
+#, python-brace-format
+#~ msgid "{count} concepts"
+#~ msgstr "{count} conceptos"
+
+#~ msgid "{} Agents"
+#~ msgstr "{} Personas e  instituciones"
+
+#~ msgid "{} Locations"
+#~ msgstr "{} Lugares"
+
+#~ msgid "{} Subjects"
+#~ msgstr "{} Temas"

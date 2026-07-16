@@ -1,4 +1,4 @@
-recursive-include cubicweb_francearchives *.py *.css *.js *.jinja2 *.jpg *.json *.csv *.ttf *.otf *.eot *.svg *.xsl *.xslt *.html *.png *.woff *.woff2 *.xml *.yaml *.txt *.ico .editorconfig .jshintrc *.po *.pot *.scss *.md *.sql
+recursive-include cubicweb_francearchives *.py *.css *.js *.jinja2 *.jpg *.json *.csv *.ttf *.otf *.eot *.svg *.xsl *.xslt *.html *.png *.woff *.woff2 *.xml *.yaml *.txt *.ico .editorconfig .jshintrc *.po *.pot *.scss *.md *.sql *ttl
 recursive-include doc *.html *.rst *.yaml *.example
 recursive-include a11y *.js *.json
 recursive-include appjs *.js
@@ -14,6 +14,8 @@ recursive-include test *.py bootstrap_cubes *.XML *.csv *.jpg *.pdf *.png *.rdf 
 # build from sass
 include cubicweb_francearchives/data/css/francearchives.bundle.css
 include cubicweb_francearchives/data/css/francearchives.bundle.css.map
+# add csv data
+include cubicweb_francearchives/dataimport/data/*.csv
 # build from npm
 include cubicweb_francearchives/data/bundle-circular-table.js
 include cubicweb_francearchives/data/bundle-pnialocation-map.js
@@ -21,6 +23,7 @@ include cubicweb_francearchives/data/bundle-pnia-toc.js
 include cubicweb_francearchives/data/bundle-pnia-faq.js
 include cubicweb_francearchives/data/bundle-glossary.js
 include cubicweb_francearchives/data/*.geojson
+include cubicweb_francearchives/data/icons/manifest.webmanifest
 prune scss
 prune debian
 exclude gitfilter

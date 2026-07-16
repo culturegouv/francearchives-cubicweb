@@ -1,13 +1,13 @@
 {
   "@context": {
-    "schema": "http://schema.org/"
+    "schema": "https://schema.org/"
   },
-  "@id": "http://testing.fr/cubicweb/facomponent/fc-stable-id",
+  "@id": "https://testing.cubicweb/facomponent/fc-stable-id",
   "@type": "schema:ArchiveComponent",
   "schema:contentLocation": "fc-origination",
   "schema:holdingArchive": "Archives dep",
   "schema:isPartOf": {
-    "@id": "http://testing.fr/cubicweb/findingaid/FRAD084_xxx"
+    "@id": "https://testing.cubicweb/findingaid/FRAD084_xxx"
   },
   "schema:mentions": "fc-scoppecontent",
   "schema:name": "fcdid-title"

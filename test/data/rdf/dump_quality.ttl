@@ -1,0 +1,125 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
+@prefix ricoform: <https://www.ica.org/standards/RiC/vocabularies/documentaryFormTypes#> .
+@prefix schema1: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# FA-qualified
+
+<https://testing.cubicweb/findingaid/FA-qualified> a rico:RecordResource ;
+    rdfs:label "maindid-title" ;
+    rico:hasInstantiation <https://testing.cubicweb/findingaid/FA-qualified#record_resource_inst> ;
+    rico:hasOrHadManager <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:hasOrHadSubject <https://testing.cubicweb/subject/{{auth_eid}}> ;
+    rico:identifier "maindid" ;
+    rico:isOrWasDescribedBy <https://testing.cubicweb/findingaid/FA-qualified#record> ;
+    rico:title "maindid-title" .
+
+<https://testing.cubicweb/findingaid/FA-qualified#record> a rico:Record ;
+    rico:describesOrDescribed <https://testing.cubicweb/findingaid/FA-qualified> ;
+    rico:hasDocumentaryFormType ricoform:FindingAid ;
+    rico:hasInstantiation <https://testing.cubicweb/findingaid/FA-qualified#record_inst1> ;
+    rico:identifier "FRAD084_xxx" .
+
+<https://testing.cubicweb/findingaid/FA-qualified#record_inst1> a rico:Instantiation ;
+    dcterms:format "text/csv" ;
+    rdfs:seeAlso <https://testing.cubicweb/findingaid/FA-qualified.csv> ;
+    rico:isInstantiationOf <https://testing.cubicweb/findingaid/FA-qualified#record> .
+
+<https://testing.cubicweb/findingaid/FA-qualified#record_resource_inst> a rico:Instantiation ;
+    rico:hasOrHadHolder <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:isInstantiationOf <https://testing.cubicweb/findingaid/FA-qualified> ;
+    rico:physicalCharacteristics "un beau rouleau" .
+
+# FA-child-qualified
+
+<https://testing.cubicweb/findingaid/FA-child-qualified#record> a rico:Record ;
+    rico:describesOrDescribed <https://testing.cubicweb/findingaid/FA-child-qualified> ;
+    rico:hasDocumentaryFormType ricoform:FindingAid ;
+    rico:hasInstantiation <https://testing.cubicweb/findingaid/FA-child-qualified#record_inst1> ;
+    rico:identifier "FRAD084_xxx" .
+
+<https://testing.cubicweb/findingaid/FA-child-qualified> a rico:RecordResource ;
+    rdfs:label "maindid-title" ;
+    rico:hasInstantiation <https://testing.cubicweb/findingaid/FA-child-qualified#record_resource_inst> ;
+    rico:hasOrHadManager <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:identifier "maindid" ;
+    rico:includesOrIncluded <https://testing.cubicweb/facomponent/parent-facomponent>,
+        <https://testing.cubicweb/facomponent/unqualified-facomponent> ;
+    rico:isOrWasDescribedBy <https://testing.cubicweb/findingaid/FA-child-qualified#record> ;
+    rico:title "maindid-title" .
+
+<https://testing.cubicweb/findingaid/FA-child-qualified#record_inst1> a rico:Instantiation ;
+    dcterms:format "text/csv" ;
+    rdfs:seeAlso <https://testing.cubicweb/findingaid/FA-child-qualified.csv> ;
+    rico:isInstantiationOf <https://testing.cubicweb/findingaid/FA-child-qualified#record> .
+
+<https://testing.cubicweb/findingaid/FA-child-qualified#record_resource_inst> a rico:Instantiation ;
+    rico:hasOrHadHolder <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:isInstantiationOf <https://testing.cubicweb/findingaid/FA-child-qualified> ;
+    rico:physicalCharacteristics "un beau rouleau" .
+
+
+# qualified-facomponent
+
+<https://testing.cubicweb/facomponent/qualified-facomponent> a rico:RecordResource ;
+    rdfs:label "fcdid-title" ;
+    rico:beginningDate "1234"^^xsd:gYear ;
+    rico:endDate "1245"^^xsd:gYear ;
+    rico:hasInstantiation <https://testing.cubicweb/facomponent/qualified-facomponent#record_resource_inst> ;
+    rico:hasOrHadManager <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:hasOrHadSubject <https://testing.cubicweb/subject/{{auth_eid}}> ;
+    rico:history "fc-origination" ;
+    rico:identifier "fcdid" ;
+    rico:isOrWasIncludedIn <https://testing.cubicweb/facomponent/parent-facomponent> ;
+    rico:isRecordResourceAssociatedWithRecordResource <https://testing.cubicweb/findingaid/FA-child-qualified> ;
+    rico:scopeAndContent "fc-scoppecontent" ;
+    rico:title "fcdid-title" .
+
+<https://testing.cubicweb/facomponent/qualified-facomponent#record_resource_inst> a rico:Instantiation ;
+    rico:hasOrHadHolder <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:isInstantiationOf <https://testing.cubicweb/facomponent/qualified-facomponent> .
+
+# QUALIFIED_AR
+
+
+<https://testing.cubicweb/agent/{{agent_auth_eid}}> a rico:Agent,
+        rico:Person ;
+    rdfs:label "Jeanne Poulet" ;
+    rico:hasOrHadAgentName [ a rico:AgentName ;
+            rico:isOrWasAgentNameOf <https://testing.cubicweb/agent/{{ agent_auth_eid }}> ;
+            rico:textualValue "Toto" ;
+            rico:type "authorized" ] ;
+    rico:isOrWasDescribedBy <https://testing.cubicweb/authorityrecord/QUALIFIED_AR> ;
+    rico:name "Jeanne Poulet",
+        "Toto" .
+
+<https://testing.cubicweb/authorityrecord/QUALIFIED_AR> a rico:Record ;
+    rico:describesOrDescribed <https://testing.cubicweb/agent/{{agent_auth_eid}}> ;
+    rico:hasDocumentaryForm ricoform:AuthorityRecord ;
+    rico:hasInstantiation <https://testing.cubicweb/authorityrecord/QUALIFIED_AR#inst> .
+
+<https://testing.cubicweb/authorityrecord/QUALIFIED_AR#inst> a rico:Instantiation ;
+    rico:identifier "QUALIFIED_AR" ;
+    rico:isInstantiationOf <https://testing.cubicweb/authorityrecord/QUALIFIED_AR> .
+
+
+# FRAD084
+
+<https://testing.cubicweb/service/{{service_eid}}#address> a schema1:PostalAddress ;
+    schema1:addressCountry "fr" .
+
+<https://testing.cubicweb/service/{{service_eid}}> a rico:Agent,
+        rico:CorporateBody ;
+    rdfs:label "Archives dep" ;
+    schema1:address <https://testing.cubicweb/service/{{service_eid}}#address> ;
+    rico:identifier "FRAD084" ;
+    rico:name "Archives dep" .
+
+# Quality Authority
+
+<https://testing.cubicweb/subject/{{auth_eid}}> a rico:Concept,
+        rico:OccupationType, rico:ActivityType ;
+    rdfs:label "Loutre" ;
+    rico:name "Loutre" .

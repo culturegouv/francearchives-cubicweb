@@ -1,21 +1,37 @@
- {% from "./mixins.jinja2" import subtree %}
-
-<section class="section-tree-wrapper">
- <div class="section-tree-container">
-   <div class="section-tree-header">
-     <h2 id="section-title" class="section-tree-title">{{ _("Section's documents:")}}</h2>
-     {%- if has_sections is sameas true  -%}
-     <button id="fold-all-tree" class="d-print-none"
-         data-label-collapse="{{_('Fold all') }}"
-         data-label-expand="{{_('Unfold all') }}"
-         aria-expanded="false" aria-controls="tsd-1">
-         {{_('Unfold all') }}
-      </button>
-     {%- endif -%}
-   </div>
-   <nav id="section-tree" aria-labelledby="section-title">
-     {{ subtree(data, 1, 1) }}
-   </nav>
+{% from "./mixins.jinja2" import menu_subtree, subsections_tiles %}
+<section>
+  <div class="fr-mb-16v fr-p-8v fr-background-contrast--blue-cumulus d-print-none">
+  {% include "section-header.jinja2" %}
+  </div>
+  <div class="fr-container">
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12 fr-col-md-4">
+        <nav class="fr-sidemenu fr-sidemenu--sticky" role="navigation"
+             aria-label="Liste des sous-rubriques">
+          <div class="fr-sidemenu__inner">
+            <button
+                class="fr-sidemenu__btn"
+                aria-controls="fr-sidemenu-wrapper"
+                aria-expanded="false"
+            >
+              {{ _("Section's documents:") }}
+            </button>
+            <div class="fr-collapse" id="fr-sidemenu-wrapper">
+              {{ menu_subtree(sections, 1, 1, entity.eid) }}
+            </div>
+          </div> 
+        </nav>
+      </div>
+      <div class="fr-col-12 fr-col-md-8">
+        {%- if entity.printable_content %}
+        {{ entity.printable_content }}
+        {%- endif -%}
+        {%- if sections -%}
+        <div class="fr-grid-row fr-grid-row--gutters fr-mt-8v fr-mb-12v">
+          {{ subsections_tiles(subsections, _) }}
+        </div>
+        {%- endif -%}
+      </div>
+    </div>
   </div>
 </section>
-<div class="clearfix"></div>

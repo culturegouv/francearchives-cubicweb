@@ -28,17 +28,24 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-C license and that you accept its terms.
 #
-from logilab.common.decorators import cachedproperty
 
-from cubicweb.view import StartupView
+from cubicweb_web.view import View
 
 from cubicweb_francearchives.views import get_template, JinjaViewMixin
 
 
-class FAMapView(JinjaViewMixin, StartupView):
+class FAMapView(JinjaViewMixin, View):
     template = get_template("fa-map.jinja2")
     __regid__ = "fa-map"
-    notop = True
+    eulerian_tag = True
+    eulerian_pagegroup = "ir_map"
+
+    @property
+    def breadcrumbs(self):
+        return (
+            (self._cw.build_url(""), self._cw._("Home")),
+            (None, self._cw._("Carte des inventaires")),
+        )
 
     def page_title(self):
         return self._cw._("Carte des inventaires")
@@ -55,14 +62,10 @@ class FAMapView(JinjaViewMixin, StartupView):
         self.add_css()
         self.add_js()
         self.call_template(
-            a11y_alert=self._cw._("a11y_ir_map_info {link}").format(
+            a11y_alert=self._cw._("a11y_ir_map_info").format(
                 link=self._cw.build_url("inventaires")
             ),
             title=self._cw._("Carte des inventaires"),
             iconurl=self._cw.data_url("images/marker-jaune.png"),
             markerurl=self._cw.build_url("fa-map.json"),
         )
-
-    @cachedproperty
-    def xiti_chapters(self):
-        return ["ir_map"]

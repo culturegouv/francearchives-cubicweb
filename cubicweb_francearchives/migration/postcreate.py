@@ -223,31 +223,30 @@ $$ LANGUAGE plpgsql;"""
 
     cnx.system_sql(
         r"""
-CREATE OR REPLACE FUNCTION translate_entity(eid int, attr varchar, lang varchar)
+CREATE OR REPLACE FUNCTION translate_entity(etype varchar, eid int, attr varchar, lang varchar)
 RETURNS varchar AS $$
 DECLARE
-    etype varchar;
     label varchar;
     label_lang varchar;
 BEGIN
-    EXECUTE format('SELECT _E.cw_name FROM cw_CWEType AS _E, is_relation AS rel_is0
-                    WHERE rel_is0.eid_from=%s and rel_is0.eid_to=_E.cw_eid ', eid) INTO etype ;
     EXECUTE format('SELECT cw_%s FROM cw_%s WHERE cw_eid=%s', attr, etype, eid) INTO label ;
     IF lang = 'fr' THEN
         RETURN label;
-    END IF;
-    IF etype  = ANY ('{Section, BaseContent, CommemorationItem, FaqItem}'::varchar[]) THEN
-        EXECUTE format('SELECT cw_%s FROM cw_%sTranslation WHERE cw_translation_of=%s AND cw_language=''%s''', attr, etype, eid, lang) INTO label_lang ;
-        IF label_lang is NOT NULL THEN
-           RETURN label_lang;
+    ELSE
+        IF etype = ANY ('{Section, BaseContent, CommemorationItem, FaqItem}'::varchar[]) THEN
+            EXECUTE format('SELECT cw_%s FROM cw_%sTranslation WHERE cw_translation_of=%s AND cw_language=''%s''', attr, etype, eid, lang) INTO label_lang ;
+            IF label_lang is NOT NULL THEN
+               RETURN label_lang;
+            ELSE
+               RETURN label;
+            END IF;
         END IF;
+        RETURN label;
     END IF;
- RETURN label;
 END;
 $$ LANGUAGE plpgsql;
     """
     )
-
 
 for wikiid, title in (
     ("faq", "Foire aux questions"),
@@ -259,6 +258,8 @@ for wikiid, title in (
     ("about", "A propos"),
     ("tableau-circulaires", "Tableau des circulaires"),
     ("accessibility", "Accessibilité"),
+    ("sparnatural", "Recherche SPARQL"),
+    ("key_figures", "Chiffres clés"),
 ):
     for lang in SUPPORTED_LANGS:
         create_entity(
@@ -391,6 +392,18 @@ cnx.system_sql(
     """
     CREATE TABLE blacklisted_authorities (
     label varchar(2048) PRIMARY KEY NOT NULL
+    );
+    """
+)
+commit()
+
+# create a table for unnormalized authorities
+cnx.system_sql(
+    """
+    CREATE TABLE unnormalized_authorities (
+    label varchar(2048) PRIMARY KEY NOT NULL,
+    autheid int,
+    UNIQUE (label, autheid)
     );
     """
 )

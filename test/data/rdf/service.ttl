@@ -1,29 +1,31 @@
 @prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
-@prefix schema1: <http://schema.org/> .
+@prefix schema1: <https://schema.org/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-<http://testing.fr/cubicweb/service/{{eid}}#address> a schema1:PostalAddress ;
+<https://testing.cubicweb/service/{{eid}}#address> a schema1:PostalAddress ;
     schema1:addressCountry "fr" ;
     schema1:addressLocality "Paris" ;
     schema1:postalCode "75" ;
     schema1:streetAddress "s1-address" .
 
-<http://testing.fr/cubicweb/service/{{eid}}> a rico:Agent,
+<https://testing.cubicweb/service/{{eid}}> a rico:Agent,
         rico:CorporateBody ;
-    schema1:address <http://testing.fr/cubicweb/service/{{eid}}#address> ;
+    schema1:address <https://testing.cubicweb/service/{{eid}}#address> ;
     schema1:email "s1-email" ;
     schema1:employee "jean michel" ;
     schema1:openingHours "op-period" ;
     schema1:telephone "s1-phone" ;
     schema1:url "http://www.s1.fr" ;
-    rico:agentIsSourceOfAgentHierarchicalRelation <http://testing.fr/cubicweb/service/{{eid}}#hierarchical_to_{{s2_eid}}> ;
-    rico:hasOrHadSubordinate <http://testing.fr/cubicweb/service/{{s2_eid}}> ;
+    rico:agentIsSourceOfAgentHierarchicalRelation <https://testing.cubicweb/service/{{eid}}#hierarchical_to_{{s2_eid}}> ;
+    rico:hasOrHadSubordinate <https://testing.cubicweb/service/{{s2_eid}}> ;
     rico:name "s1" ;
+    rdfs:label "s1" ;
     rico:type "level-F" .
 
 
-<http://testing.fr/cubicweb/service/{{eid}}#hierarchical_to_{{s2_eid}}> a rico:AgentHierarchicalRelation ;
-    rico:agentHierarchicalRelationHasSource <http://testing.fr/cubicweb/service/{{eid}}> ;
-    rico:agentHierarchicalRelationHasTarget <http://testing.fr/cubicweb/service/{{s2_eid}}> .
+<https://testing.cubicweb/service/{{eid}}#hierarchical_to_{{s2_eid}}> a rico:AgentHierarchicalRelation ;
+    rico:agentHierarchicalRelationHasSource <https://testing.cubicweb/service/{{eid}}> ;
+    rico:agentHierarchicalRelationHasTarget <https://testing.cubicweb/service/{{s2_eid}}> .
 
-<http://testing.fr/cubicweb/service/{{s2_eid}}> rico:agentIsTargetOfAgentHierarchicalRelation <http://testing.fr/cubicweb/service/{{eid}}#hierarchical_to_{{s2_eid}}> ;
-    rico:isOrWasSubordinateTo <http://testing.fr/cubicweb/service/{{eid}}> .
+<https://testing.cubicweb/service/{{s2_eid}}> rico:agentIsTargetOfAgentHierarchicalRelation <https://testing.cubicweb/service/{{eid}}#hierarchical_to_{{s2_eid}}> ;
+    rico:isOrWasSubordinateTo <https://testing.cubicweb/service/{{eid}}> .

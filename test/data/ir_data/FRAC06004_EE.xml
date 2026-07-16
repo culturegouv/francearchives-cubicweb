@@ -1,0 +1,572 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ead>
+   <eadheader findaidstatus="validé" countryencoding="iso3166-1" dateencoding="iso8601" repositoryencoding="iso15511">
+      <eadid countrycode="fr" url="https://archives.ville-antibes.fr/4DCGI/Web_FondsListeArticles/EE/ILUMP999">FRAC06004_EE</eadid>
+      <filedesc>
+         <titlestmt>
+            <titleproper>EE - Affaires militaires</titleproper>
+            <subtitle>Série</subtitle>
+         </titlestmt>
+         <publicationstmt>
+            <publisher></publisher>
+            <address>
+               <addressline>12 rue Andréossy</addressline>
+               <addressline>06600 Antibes</addressline>
+            </address>
+            <date normal="2024-02-15">Le 15/02/2024</date>
+         </publicationstmt>
+      </filedesc>
+      <profiledesc>
+         <creation>Instrument de recherche encodé suivant la DTD/EAD par le logiciel Avenio  Version 12.0.2hf3 de la société Di'X</creation>
+         <langusage>Instrument de recherche rédigé en             <language>Français</language>
+         </langusage>
+      </profiledesc>
+   </eadheader>
+   <archdesc level="subfonds">
+      <runner>EE</runner>
+      <did>
+         <unittitle label="série">Série EE</unittitle>
+         <unittitle label="titre">Affaires militaires</unittitle>
+         <unittitle label="sous_titre">EE - Affaires militaires</unittitle>
+         <unitid label="cotes extrêmes">EE1-14</unitid>
+         <unitdate normal="1319/1788">1319-1788</unitdate>
+         <physdesc label="Importance_matérielle">
+            <extent unit="Mètre linéaire">0,4 Ml</extent>
+            <extent unit="unité de description">14</extent>
+         </physdesc>
+         <repository>
+            <corpname></corpname>
+            <address>
+               <addressline>12 rue Andréossy</addressline>
+               <addressline>06600 Antibes</addressline>
+            </address>
+         </repository>
+         <origination label="producteur">
+            <corpname>D.G.A. Vie Sociale et culturelle - Direction Animation et Activités Culturelles - Service Archives municipales</corpname>
+         </origination>
+      </did>
+      <acqinfo>
+         <head>Modalités d'entrée</head>
+         <p>Versement du             <date normal="2010-04-20">20/04/2010</date>
+         </p>
+         <p>Dernier ajout le             <date normal="2010-04-20">20/04/2010</date>
+         </p>
+      </acqinfo>
+      <accessrestrict>
+         <legalstatus>Archives publiques</legalstatus>
+      </accessrestrict>
+      <dsc>
+            <!--niveau de plan de classement-->
+         <c level="recordgrp">
+            <did>
+               <unittitle>Garnison et troupes de passage</unittitle>
+            </did>
+            <c level="file" id="14">
+               <did>
+                  <unitid label="cote_communication"> EE 1</unitid>
+                  <unittitle label="analyse">Armées, recrutement, soldes, dépenses.- Dont : Antibes doit fournir 15 hommes de pied pour les chevauchées (1319).  Protestations contre les contributions de guerre (1329).  Procuration aux syndics pour protester contre une "gagerie" faite au profit du sénéchal Foulques d'AGOUT pour paiement des cavalcades (1355).  Ordre du sénéchal d'AGOUT pour une levée en masse de tous les hommes de la viguerie (1359). Ordre de Nicolas SPINELLE, sénéchal de Provence, d'exercer une surveillance rigoureuse dans les ports et villes fortifiées car des bandes s'apprêtent à ravager le pays (1374). Jacob HUGUES est délégué par le conseil de ville pour rechercher les dettes dont sont tenus les hommes du sénéchal de Provence pour les choses prises lors de son séjour à Antibes et de les acquitter (1388).  Lettre de Geoffroy de MARLES, sénéchal de Provence, aux officiers de la viguerie de Grasse de faire parvenir aux hommes de leur viguerie qui sont à l'armée royale au siège de Pertuis, la solde du mois de mai à la Toussaint (1397). Les consuls doivent récompenser les soldats blessés pour la défense de leur ville (1532). Claude de TENDE, grand sénéchal de Provence, adresse à Pierre de SAINT-REMY, seigneur de Saint-Tropez, une commission pour lever des gens de guerre dans la viguerie de Grasse, pour la défense de la frontière (1553). Contribution pour l'entretien de la compagnie de cent hommes d'armes du Grand Prieur de France (1561). Copie d'une commission donnée par Henri d'ANGOULEME, Grand Prieur de France, gouverneur et lieutenant général du roi en Provence, au sieur du BAR, pour lever une compagnie de cent hommes de pied à Antibes. Les consuls doivent veiller à l'entretien de cette troupe (1585). Compte-rendu de l'assemblée tenue à Marseille pour la répartition entre les localités de la côte de la dépense à effectuer pour racheter les prisonniers des Turcs et assurer la sécurité du commerce (1608) Le comte de CARCES, grand sénéchal et lieutenant général pour le roi, demande aux consuls d'Antibes de dresser un état des hommes capables de servir à la guerre (1641)</unittitle>
+                  <unitdate normal="1319/1641">1319-1641</unitdate>
+                  <physdesc label="description_materielle">
+                     <extent>50 pièces</extent>
+                  </physdesc>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>AGENT DE L'ADMINISTRATION ROYALE</subject>
+                  <subject>ARMEE</subject>
+                  <subject>GENS DE GUERRE</subject>
+                  <subject>SENECHAUSSEE</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus historique :</head>
+                  <subject>GUERRE DE TRENTE ANS (1618-1648)</subject>
+                  <subject>GUERRES D'ITALIE (1494-1559)</subject>
+                  <subject>GUERRES DE RELIGION (1562-1598)</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms géographiques :</head>
+                  <geogname source="ville">Pertuis</geogname>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms de personnes :</head>
+                  <persname>AGOUT (Foulques d')</persname>
+                  <persname>HUGUES (Jacob)</persname>
+                  <persname>MARLES (Geoffroy de)</persname>
+                  <persname>SPINELLE (Nicolas)</persname>
+               </controlaccess>
+               <daogrp>
+                  <daoloc href="https://archives.ville-antibes.fr/oai/EE1_Hugues1388.jpg" role="thumbnail"></daoloc>
+                  <daoloc href="https://archives.ville-antibes.fr/4DCGI/Web_VisuImgAppelExterne/003/EE1/ILUMP9999"></daoloc>
+               </daogrp>
+            </c>
+            <c level="file" id="13">
+               <did>
+                  <unitid label="cote_communication"> EE 2</unitid>
+                  <unittitle label="analyse">Troupes de la garnison.- Etats de logement, mouvements de la citadelle à la ville, dépenses et fournitures.</unittitle>
+                  <unitdate normal="1615/1788">1615-1788</unitdate>
+                  <physdesc label="description_materielle">
+                     <extent>130 pièces</extent>
+                  </physdesc>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>ARMEE</subject>
+                  <subject>GENS DE GUERRE</subject>
+               </controlaccess>
+            </c>
+            <c level="file" id="12">
+               <did>
+                  <unitid label="cote_communication"> EE 3</unitid>
+                  <unittitle label="analyse">Liquidation d'indemnités pour logement et fournitures aux gens de guerre, comptabilité avec le pays.-  Dont requête aux Etats pour être remboursé de tous les frais occasionnés par le passage et le séjour de l'armée royale sous le duc de Guise en 1629 et notamment pour la construction d'un pont sur le Var (1629). Pièces concernant les dépenses faites par la communauté d'Antibes lors de la guerre de succession d'Autriche (1740-1748)</unittitle>
+                  <unitdate normal="1605/1768">1605-1768</unitdate>
+                  <physdesc label="description_materielle">
+                     <extent>45 pièces</extent>
+                  </physdesc>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>GENS DE GUERRE</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus historique :</head>
+                  <subject>GUERRE DE SUCCESSION D'AUTRICHE (1740-1748)</subject>
+                  <subject>GUERRE DE TRENTE ANS (1618-1648)</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms géographiques :</head>
+                  <geogname source="departement">Var</geogname>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms de personnes :</head>
+                  <persname>GUISE (de)</persname>
+               </controlaccess>
+            </c>
+            <c level="file" id="11">
+               <did>
+                  <unitid label="cote_communication"> EE 4</unitid>
+                  <unittitle label="analyse">Mouvements et passage des troupes.- Avis, feuilles de route, états de logement et fournitures aux étapiers. Dont contrôle du logement de la suite de Son Altesse Sérénissime Monseigneur le comte de Toulouse, amiral de France, arrivée à Antibes le sept septembre 1705 ; logement des officiers devant joindre l'armée du roi commandée par milord duc de BERWICK devant Nice (1705)</unittitle>
+                  <unitdate normal="1649/1788">1649-1788</unitdate>
+                  <physdesc label="description_materielle">
+                     <extent>238 pièces</extent>
+                  </physdesc>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>ARMEE</subject>
+                  <subject>GENS DE GUERRE</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus historique :</head>
+                  <subject>GUERRE DE LA LIGUE D'AUGSBOURG (1688-1697)</subject>
+                  <subject>GUERRE DE SUCCESSION D'AUTRICHE (1740-1748)</subject>
+                  <subject>GUERRE DE SUCCESSION D'ESPAGNE (1701-1714)</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms de personnes :</head>
+                  <persname>BERWICK (duc de)</persname>
+               </controlaccess>
+            </c>
+            <c level="file" id="10">
+               <did>
+                  <unitid label="cote_communication"> EE 5</unitid>
+                  <unittitle label="analyse">Troupe de passages.- Fournitures en vivres, fourrages, moyens de transport, ordres et certificats pour le remboursement par les Etats du pays. Dont : Requête du consul MILLOT pour remboursement des dépenses faites par la ville à l'occasion des troupes allant à Nice en 1629 ; Etat des sommes payées par les consuls pour la subsistance des troupes venues d'Italie en l'année 1639 ; Ordre de faire des balles du calibre des mousquets du régiment de Provence (1639) ; Fourniture de bateaux à l'armée d'Italie pour le débarquement au Golfe Juan (1649) ; Etat du foin fourni par la communauté d'Antibes pour les chevaux de Monseigneur le Maréchal de TESSE, de messieurs les officiers et de tout le quartier général de l'armée (septembre 1707) ; Etat du vin que la communauté a fourni aux soldats qui ont travaillé aux fortifications (septembre 1707) ; Fourniture de pailles pour la cavalerie espagnole (1735) ; Fourniture de mulets pour le transport de subsistance dans le comté de Nice (1744).</unittitle>
+                  <unitdate normal="1629/1788">1629-1788</unitdate>
+                  <physdesc label="description_materielle">
+                     <extent>163 pièces</extent>
+                  </physdesc>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>ARMEE</subject>
+                  <subject>GENS DE GUERRE</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus historique :</head>
+                  <subject>GUERRE DE SUCCESSION D'AUTRICHE (1740-1748)</subject>
+                  <subject>GUERRE DE SUCCESSION D'ESPAGNE (1701-1714)</subject>
+                  <subject>GUERRE DE TRENTE ANS (1618-1648)</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms géographiques :</head>
+                  <geogname source="lieu-dit">Golfe Juan</geogname>
+               </controlaccess>
+            </c>
+               <!--niveau de plan de classement-->
+         </c>
+         <c level="recordgrp">
+            <did>
+               <unittitle>Milice</unittitle>
+            </did>
+            <c level="file" id="9">
+               <did>
+                  <unitid label="cote_communication"> EE 6</unitid>
+                  <unittitle label="analyse">Milices.- Levées, congés, déserteurs : règlements et ordonnances pour la levée de milices (1688-1774) ; arrêtés et pièces diverses concernant les revues congédiées et les déserteurs (1690-1747).</unittitle>
+                  <unitdate normal="1688/1774">1688-1774</unitdate>
+                  <physdesc label="description_materielle">
+                     <extent>45 pièces</extent>
+                  </physdesc>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>INFRACTION MILITAIRE</subject>
+                  <subject>MILICES</subject>
+               </controlaccess>
+            </c>
+               <!--niveau de plan de classement-->
+         </c>
+         <c level="recordgrp">
+            <did>
+               <unittitle>Ouvrages militaires</unittitle>
+            </did>
+            <c level="file" id="8">
+               <did>
+                  <unitid label="cote_communication"> EE 7</unitid>
+                  <unittitle label="analyse">Fortifications et terrains militaires.- Dont : Ordre du baile épiscopal de faire réparer d'urgence les murs de la ville en raison de la proximité des galères de Frédéric d'Aragon qui menace les côtes (1320) ; Ordre du viguier de Grasse de terminer les fortifications de la commune (18/07/1363) ; La ville d'Antibes a été taxée à 400 florins par l'évêque de Marseille. Elle doit payer 200 florins et employer les 200 autres à la réparation des murailles et autres réparations nécessaires à sa défense (24/03/1460) ; Supplique des Antibois à Monseigneur de ROSNY, surintendant des fortifications de France, pour faire fortifier la place d'Antibes (28/12/1600) ; Ordre de Charles de Lorraine aux consuls des villes voisines d'envoyer les contingents de travailleurs pour les fortifications d'Antibes (1601) ; Ordre du marquis de VITRY, maréchal de France, aux consuls de Grasse, Mougins, Valbonne, Vallauris, Biot, de fournir les hommes nécessaires pour apporter la terre pour servir aux fortifications d'Antibes (18/06/1635) ; Rapport d'estime des terrains de particuliers à occuper pour les fortifications (1691).</unittitle>
+                  <unitdate normal="1320/1778">1320-1778</unitdate>
+                  <physdesc label="description_materielle">
+                     <extent>32 pièces</extent>
+                  </physdesc>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>AGENT DE L'ADMINISTRATION ROYALE</subject>
+                  <subject>FORTIFICATION</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus historique :</head>
+                  <subject>GUERRE DE LA LIGUE D'AUGSBOURG (1688-1697)</subject>
+                  <subject>GUERRE DE TRENTE ANS (1618-1648)</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms de personnes :</head>
+                  <persname>ARAGON (roi d')</persname>
+               </controlaccess>
+            </c>
+            <c level="file" id="7">
+               <did>
+                  <unitid label="cote_communication"> EE 8</unitid>
+                  <unittitle label="analyse">Garde du grand fort et du petit fort confiée aux Antibois.-  Henri III maintient par lettres patentes les consuls et habitants d'Antibes dans la garde et l'entretien du petit fort (1578).  Henri III ordonne au lieutenant du sénéchal de Provence à Grasse de remettre aux consuls la garde du grand fort (1579).</unittitle>
+                  <unitdate normal="1578/1579">1578-1579</unitdate>
+                  <physdesc label="description_materielle">
+                     <extent>6 pièces</extent>
+                  </physdesc>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>AGENT DE L'ADMINISTRATION ROYALE</subject>
+                  <subject>FORTIFICATION</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms d'édifices :</head>
+                  <geogname source="edifices">Fort Carré</geogname>
+                  <geogname source="edifices">Petit Fort</geogname>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms de personnes :</head>
+                  <persname>Henri III</persname>
+               </controlaccess>
+            </c>
+            <c level="file" id="6">
+               <did>
+                  <unitid label="cote_communication"> EE 9</unitid>
+                  <unittitle label="analyse">Magasins et munitions militaires.- Dont : Convention pour la fabrication de quatre pièces d'artillerie (16/11/1528) ; Ordre de Louis de Valois de livrer au gouverneur de Nice en échange d'autres, les boulets qui ne conviennent pas aux canons de la place (1638) ; Contributions pour l'établissement de plates-formes à canon et mortier (1696) ; Contribution des villes avoisinantes pour les plateformes et les batteries et pour le transport des mortiers, bombes, poudres et munitions (1696) ; Remise des fusils à Honoré LEON, major de la bourgeoisie, pour servir à la défense de la ville (1707) ; Ordre de désarmement des habitants de la viguerie de Grasse, de Saint-Paul, Aups et de la ville de Draguignan (1728).</unittitle>
+                  <unitdate normal="1528/1750">1528-1750</unitdate>
+                  <physdesc label="description_materielle">
+                     <extent>11 pièces</extent>
+                  </physdesc>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>AGENT DE L'ADMINISTRATION ROYALE</subject>
+                  <subject>DETENTION D'ARMES</subject>
+                  <subject>SENECHAUSSEE</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus historique :</head>
+                  <subject>GUERRE DE LA LIGUE D'AUGSBOURG (1688-1697)</subject>
+                  <subject>GUERRE DE SUCCESSION D'ESPAGNE (1701-1714)</subject>
+                  <subject>GUERRE DE TRENTE ANS (1618-1648)</subject>
+                  <subject>GUERRES D'ITALIE (1494-1559)</subject>
+                  <subject>GUERRES DE RELIGION (1562-1598)</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms géographiques :</head>
+                  <geogname source="ville">Draguignan</geogname>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms de personnes :</head>
+                  <persname>VALOIS (Louis de)</persname>
+               </controlaccess>
+            </c>
+               <!--niveau de plan de classement-->
+         </c>
+         <c level="recordgrp">
+            <did>
+               <unittitle>Faits de guerre</unittitle>
+            </did>
+            <c level="file" id="5">
+               <did>
+                  <unitid label="cote_communication"> EE 10</unitid>
+                  <unittitle label="analyse">Faits de guerre.-  Mémoire des syndics sur les maux et dégradations causés aux habitants par le passage des bandes armées du connétable de Bourbon (1524) ; Dépenses faites par les habitants d'Antibes dans leur défense contre les galères d'Andréa DORIA du 1 novembre au 22 décembre 1529 ;  Avis du Grand Prieur aux consuls des villes du littoral de Toulon à Saint-Laurent-du-Var d'avoir à signaler le passage de l'impératrice allant en Espagne et de veiller à la conservation des places qui leur sont confiées (1581) ; Lettre du Grand Prieur d'Angoulême aux consuls d'Antibes afin qu'ils avancent la dépense pour faire remonter en artillerie le fort de la ville (1585) ; Documents relatifs à l'ambassade envoyée par Henri III au Grand Turc (1585-1586) ;                                                                             Lettre du capitaine LEON, premier consul d’Antibes, fait prisonnier en 1592 au siège d'Antibes par le duc de Savoie : demande de secours pour payer sa rançon de 2000 écus (1595) ; Ordres du marquis de VITRY, gouverneur de Provence, concernant l'autorité de FORBIN de la BABEN, gouverneur d'Antibes (1635) ; Ordre de Louis de VALOIS de faire murer les fenêtres donnant sur les remparts côté mer (1639) ; Ordre du gouverneur d'Antibes de tenir une garde contre les Anglais (1666).</unittitle>
+                  <unitdate normal="1524/1720">1524-1720</unitdate>
+                  <physdesc label="description_materielle">
+                     <extent>45 pièces</extent>
+                  </physdesc>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>AGENT DE L'ADMINISTRATION ROYALE</subject>
+                  <subject>MARINE</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus historique :</head>
+                  <subject>GUERRE DE TRENTE ANS (1618-1648)</subject>
+                  <subject>GUERRES D'ITALIE (1494-1559)</subject>
+                  <subject>GUERRES DE RELIGION (1562-1598)</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms de personnes :</head>
+                  <persname>ANGOULEME (François d')</persname>
+                  <persname>BOURBON (de)</persname>
+                  <persname>FORBIN de la BARBEN</persname>
+                  <persname>Henri III</persname>
+                  <persname>LEON (capitaine)</persname>
+                  <persname>VALOIS (Louis de)</persname>
+                  <persname>VITRY (marquis de)</persname>
+               </controlaccess>
+            </c>
+               <!--niveau de plan de classement-->
+         </c>
+         <c level="recordgrp">
+            <did>
+               <unittitle>Marine</unittitle>
+            </did>
+            <c level="file" id="4">
+               <did>
+                  <unitid label="cote_communication"> EE 11</unitid>
+                  <unittitle label="analyse">Marine.- Edits et arrêts, enrôlement, pensions et secours.  Lettre du roi René autorisant les Antibois à conserver ce qu'ils trouvent sur mer ou au rivage si le propriétaire ne le réclame pas dans un délai d'un mois (1453) ; Edit du roi pour l'enrôlement des matelots (1673) ; Lettre de l'intendant LEBRET sur l'adjudication des prises de guerre (1702) ; Correspondance relative à l'apparition de corsaires anglais (1758).</unittitle>
+                  <unitdate normal="1543/1784">1543-1784</unitdate>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>PRIVILEGES DES COMMUNAUTES</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus historique :</head>
+                  <subject>GUERRE DE HOLLANDE (1672-1678)</subject>
+                  <subject>GUERRE DE SEPT ANS (1756-1763)</subject>
+                  <subject>GUERRE DE SUCCESSION D'ESPAGNE (1701-1714)</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms de personnes :</head>
+                  <persname>LEBRET</persname>
+                  <persname>René</persname>
+               </controlaccess>
+               <daogrp>
+                  <daoloc href="https://archives.ville-antibes.fr/oai/EE11_Marine_RoiRene_1453.jpg" role="thumbnail"></daoloc>
+                  <daoloc href="https://archives.ville-antibes.fr/4DCGI/Web_VisuImgAppelExterne/003/EE11/ILUMP9999"></daoloc>
+               </daogrp>
+            </c>
+            <c level="file" id="3">
+               <did>
+                  <unitid label="cote_communication"> EE 12</unitid>
+                  <unittitle label="analyse">Marine.- Mouvements du port, commerce.  "Extrait d'arrêt de la cour du parlement portant que les consuls d'Antibes et leur conseil de ville continueront dans la possession de donner entrée aux bâtiments abordant au Golfe Juan et défense aux consuls et administrateurs des lieux voisins de s'en mêler" (1652).</unittitle>
+                  <unitdate normal="1615/1787">1615-1787</unitdate>
+                  <physdesc label="description_materielle">
+                     <extent>32 pièces</extent>
+                  </physdesc>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>COMMERCE EXTERIEUR</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms géographiques :</head>
+                  <geogname source="lieu-dit">Golfe Juan</geogname>
+               </controlaccess>
+            </c>
+               <!--niveau de plan de classement-->
+         </c>
+         <c level="recordgrp">
+            <did>
+               <unittitle>Pêche maritime</unittitle>
+            </did>
+            <c level="file" id="2">
+               <did>
+                  <unitid label="cote_communication"> EE 13</unitid>
+                  <unittitle label="analyse">Pêche maritime.-  Droit de pêche des habitants d'Antibes aux îles de Lérins : privilèges et contestations (1469-1470).  Règlement sur la pêche et la vente du poisson.</unittitle>
+                  <unitdate normal="1469/1765">1469-1765</unitdate>
+                  <physdesc label="description_materielle">
+                     <extent>16 pièces</extent>
+                  </physdesc>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>DROITS D'USAGE</subject>
+                  <subject>PECHE MARITIME</subject>
+                  <subject>POISSON</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms géographiques :</head>
+                  <geogname source="ile">Lérins (îles de)</geogname>
+               </controlaccess>
+            </c>
+               <!--niveau de plan de classement-->
+         </c>
+         <c level="recordgrp">
+            <did>
+               <unittitle>Surveillance du littoral</unittitle>
+            </did>
+            <c level="file" id="1">
+               <did>
+                  <unitid label="cote_communication"> EE 14</unitid>
+                  <unittitle label="analyse">Gardes côtes et signaux.- Règlements et correspondance avec la Corse : Signaux qui doivent être faits le long de la côte de Provence (1707) ; Ordonnace du roi pour le service de la garde-côte en Provence (1746).</unittitle>
+                  <unitdate normal="1707/1781">1707-1781</unitdate>
+                  <physdesc label="description_materielle">
+                     <extent>12 pièces</extent>
+                  </physdesc>
+               </did>
+               <accessrestrict>
+                  <accessrestrict type="communicabilité">
+                     <head>Communicabilité</head>
+                     <p>Communicable </p>
+                  </accessrestrict>
+               </accessrestrict>
+               <controlaccess>
+                  <genreform source="typedocAvenio">LIASSE</genreform>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus administratif :</head>
+                  <subject>POLICE DES FRONTIERES</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Thesaurus historique :</head>
+                  <subject>GUERRE DE SUCCESSION D'AUTRICHE (1740-1748)</subject>
+                  <subject>GUERRE DE SUCCESSION D'ESPAGNE (1701-1714)</subject>
+               </controlaccess>
+               <controlaccess>
+                  <head>Noms géographiques :</head>
+                  <geogname source="ile">Corse</geogname>
+               </controlaccess>
+            </c>
+         </c>
+      </dsc>
+   </archdesc>
+</ead>

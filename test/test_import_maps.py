@@ -30,14 +30,14 @@
 #
 import unittest
 import mimetypes
-from cubicweb.devtools import testlib
+from cubicweb_web.devtools.testlib import WebCWTC
 
 from cubicweb_francearchives.dataimport.maps import import_maps
 
 from cubicweb_francearchives.testutils import S3BfssStorageTestMixin
 
 
-class ImporMapsTC(S3BfssStorageTestMixin, testlib.CubicWebTC):
+class ImporMapsTC(S3BfssStorageTestMixin, WebCWTC):
     def test_import_maps(self):
         """
         This test tests the inital import. It was not adapted to s3

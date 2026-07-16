@@ -1,0 +1,18 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
+
+<https://testing.cubicweb/location/{{france}}> rico:containsOrContained <https://testing.cubicweb/location/{{toulouse}}> .
+
+<https://testing.cubicweb/location/{{haute_garonne}}> rico:containsOrContained <https://testing.cubicweb/location/{{toulouse}}> .
+
+<https://testing.cubicweb/location/{{occitanie}}> rico:containsOrContained <https://testing.cubicweb/location/{{toulouse}}> .
+
+<https://testing.cubicweb/location/{{toulouse}}> a rico:Place ;
+    rdfs:label "Toulouse" ;
+    owl:sameAs <http://www.geonames.org/2972315>,
+        <http://www.geonames.org/6453974> ;
+    rico:isOrWasContainedBy <https://testing.cubicweb/location/{{france}}>,
+        <https://testing.cubicweb/location/{{haute_garonne}}>,
+        <https://testing.cubicweb/location/{{occitanie}}> ;
+    rico:name "Toulouse" .

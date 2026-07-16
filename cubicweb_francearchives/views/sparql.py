@@ -29,12 +29,15 @@
 # knowledge of the CeCILL-C license and that you accept its terms.
 #
 
+import urllib.parse
+
 from cwtags import tag as T
 
 from logilab.common.decorators import cachedproperty
 
 from cubicweb import _
-from cubicweb.view import StartupView
+from cubicweb_web.view import StartupView
+from cubicweb_francearchives.utils import find_card
 
 from cubicweb_francearchives.views import JinjaViewMixin, get_template, add_js_translations
 from cubicweb_francearchives.views import FaqMixin
@@ -44,6 +47,9 @@ class SparqlYasguiView(FaqMixin, JinjaViewMixin, StartupView):
     __regid__ = "sparql-yasgui"
     template = get_template("sparql-yasgui.jinja2")
     title = _("SPARQL Editor")
+    eulerian_tag = True
+    eulerian_pagegroup = "sparql"
+    eulerian_path = "/sparql"
 
     def add_js(self):
         self._cw.add_js("bundle-yasgui.js")
@@ -74,6 +80,69 @@ class SparqlYasguiView(FaqMixin, JinjaViewMixin, StartupView):
             "display_search_bar": True,
         }
 
+
+class SparnaturalView(FaqMixin, JinjaViewMixin, StartupView):
+    __regid__ = "sparnatural"
+    template = get_template("sparnatural.jinja2")
+    title = _("Sparnatural")
+    eulerian_tag = True
+    eulerian_pagegroup = "sparnatural"
+    eulerian_path = "/sparnatural"
+
+    def add_js(self):
+        self._cw.add_js("sparnatural/yasgui.min.js")
+        self._cw.add_js("sparnatural/sparnatural.js")
+        self._cw.add_js("sparnatural/sparnatural-yasgui-plugins.js")
+        self._cw.add_js("bundle-sparnatural.js")
+        self._cw.add_js("sparnatural/initSparnatural.js")
+
+        self._cw.add_css("sparnatural/sparnatural.css")
+        self._cw.add_css("sparnatural/yasgui.min.css")
+        self._cw.add_css(
+            "https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.min.css", localfile=False
+        )
+        self._cw.add_css("sparnatural/fa_sparnatural.css")
+
     @cachedproperty
-    def xiti_chapters(self):
-        return ["sparql"]
+    def breadcrumbs(self):
+        return [
+            (self._cw.build_url(""), self._cw._("Home")),
+            (None, self._cw._("Sparnatural")),
+        ]
+
+    def call(self):
+        self.add_js()
+        add_js_translations(self._cw)
+        card = find_card(self._cw, self.__regid__, display_empty=True)
+        if card is not None:
+            self.wview("primary", entity=card)
+        sparnatural_graph = self._cw.vreg.config.get("sparnatural_graph")
+        sparql_endpoint = self._cw.vreg.config.get("sparql_endpoint")
+        if sparnatural_graph:
+            sparql_endpoint = (
+                f"{sparql_endpoint}?default-graph-uri={urllib.parse.quote_plus(sparnatural_graph)}"
+            )
+
+        if not sparql_endpoint:
+            with T.section(self.w, klass="document-view"):
+                self.w(T.h1(self._cw._(self.title)))
+                with T.div(self.w, self.w, klass="alert alert-danger"):
+                    self.w(self._cw._("No sparql endpoint declared"))
+        else:
+            self._cw.html_headers.define_var("SPARQL_ENDPOINT", sparql_endpoint)
+            self.call_template(**self.template_context(), endpoint=sparql_endpoint)
+
+    def template_context(self):
+        return {
+            "display_search_bar": True,
+            "config": self._cw.data_url("sparnatural/sparnatural_siaf.ttl"),
+            "_": self._cw._,
+            "lang": self._cw.lang,
+            "a11y_alert": self.a11y_alert,
+        }
+
+    @property
+    def a11y_alert(self):
+        return self._cw._("a11y_alert_sparnatural {link}").format(
+            link=self._cw.build_url("inventaires")
+        )

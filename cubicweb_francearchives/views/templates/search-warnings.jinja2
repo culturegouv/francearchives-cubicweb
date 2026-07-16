@@ -1,0 +1,11 @@
+{% from "./search-mixins.jinja2" import fuzzy_alert, info_alert -%}
+
+{%- if response.hits.total.value >= 10000 -%}
+  {{ info_alert(_("es_result_limit")) }}
+{%- endif -%}
+{%- if fuzzy_extra_link -%}
+  {{ fuzzy_alert(fuzzy_extra_link, no_results)}}
+{%- endif -%}
+{%- if augmented_extra_link -%}
+  {{ info_alert(augmented_extra_link, no_results) }}
+{%- endif -%}

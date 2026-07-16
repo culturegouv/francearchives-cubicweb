@@ -31,9 +31,9 @@
 
 """pnia_content views/templates_components"""
 
-from cubicweb.view import Component
-from cubicweb.web.views.basecomponents import ApplicationName, CookieLoginComponent
-from cubicweb.web.views.boxes import SearchBox
+from cubicweb_web.view import Component
+from cubicweb_web.views.basecomponents import ApplicationName, CookieLoginComponent
+from cubicweb_web.views.boxes import SearchBox
 
 ApplicationName.context = None
 SearchBox.context = None
@@ -47,15 +47,14 @@ class PniaLangSwitchComponent(Component):
         base_url = self._cw.base_url()
         path = self._cw.url(includeparams=True)
         path = path[len(base_url) :]
-        if cur_lang and path.startswith(cur_lang + "/"):
+        if cur_lang and (path.startswith(cur_lang + "/") or path == cur_lang):
             path = path[len(cur_lang) :]
         return "%s%s/%s" % (base_url, lang, path)
 
     def get_lang_info(self, cur_lang, lang):
         title = self._cw._("%s_lang" % lang)
-        icon_url = self._cw.uiprops["FLAG_%s" % lang.upper()]
         url = self.url(cur_lang, lang)
-        return (title, icon_url, url, lang)
+        return (title, url, lang.upper())
 
     def lang_urls(self):
         cur_lang = self._cw.lang

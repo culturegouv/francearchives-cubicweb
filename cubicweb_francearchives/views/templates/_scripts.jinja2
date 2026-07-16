@@ -1,0 +1,15 @@
+{% for js in jsfiles %}
+  <script src="{{ js }}"></script>
+{% endfor %}
+{% for inlinescript in inline_scripts %}
+  <script type="text/javascript">
+    {{ inlinescript }}
+  </script>
+{% endfor %}
+{% if noreact %}
+  <script type="module" src="{{ data_url }}dsfr/dsfr.module.min.js"></script>
+  <script type="text/javascript" nomodule src="{{ data_url }}dsfr/dsfr.nomodule.min.js"></script>
+{% endif %}
+{% if tac %}
+  <script src="{{ data_url }}tarteaucitron/tarteaucitron-pnia.js"></script>
+{% endif %}

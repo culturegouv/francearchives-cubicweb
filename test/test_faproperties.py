@@ -32,13 +32,14 @@ import unittest
 
 import urllib.parse
 
-from cubicweb.devtools.testlib import CubicWebTC
-from cubicweb_francearchives.testutils import PostgresTextMixin, EADImportMixin
+from cubicweb_web.devtools.testlib import WebCWTC
+
+from cubicweb_francearchives.testutils import PostgresTextMixin, EADImportMixin, find_component
 
 from pgfixtures import setup_module, teardown_module  # noqa
 
 
-class FaPropertiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
+class FaPropertiesTests(EADImportMixin, PostgresTextMixin, WebCWTC):
     def test_findingaid_inherited_bounce_url_from_service(self):
         """Test FindingAid bounce_url. If FindingAid does not have extptr, bounce_url
         must be inherited from its related service.
@@ -48,7 +49,10 @@ class FaPropertiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
         """
         with self.admin_access.cnx() as cnx:
             service = cnx.create_entity(
-                "Service", code="FRAD051", category="L", search_form_url="http://francearchives.fr"
+                "Service",
+                code="FRAD051",
+                category="L",
+                search_form_url="http://francearchives.gouv.fr",
             )
             cnx.commit()
             filepath = "ir_data/FRAD051_est_ead_affichage.xml"
@@ -68,7 +72,10 @@ class FaPropertiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
         """
         with self.admin_access.cnx() as cnx:
             service = cnx.create_entity(
-                "Service", code="FRAD051", category="L", search_form_url="http://francearchives.fr"
+                "Service",
+                code="FRAD051",
+                category="L",
+                search_form_url="http://francearchives.gouv.fr",
             )
             cnx.commit()
             filepath = "ir_data/FRAD051_est_ead_affichage.xml"
@@ -90,7 +97,10 @@ class FaPropertiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
         """
         with self.admin_access.cnx() as cnx:
             service = cnx.create_entity(
-                "Service", code="FRAD034", category="L", search_form_url="http://francearchives.fr"
+                "Service",
+                code="FRAD034",
+                category="L",
+                search_form_url="http://francearchives.gouv.fr",
             )
             cnx.commit()
             filepath = "ir_data/FRAD034_000000248.xml"
@@ -111,7 +121,10 @@ class FaPropertiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
         """
         with self.admin_access.cnx() as cnx:
             cnx.create_entity(
-                "Service", code="FRAD037", category="L", search_form_url="http://francearchives.fr"
+                "Service",
+                code="FRAD037",
+                category="L",
+                search_form_url="http://francearchives.gouv.fr",
             )
             cnx.commit()
             filepath = "ir_data/FRAD037_E_3E18_excerpt.xml"
@@ -133,7 +146,10 @@ class FaPropertiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
         """
         with self.admin_access.cnx() as cnx:
             cnx.create_entity(
-                "Service", code="FRAD034", category="L", search_form_url="http://francearchives.fr"
+                "Service",
+                code="FRAD034",
+                category="L",
+                search_form_url="http://francearchives.gouv.fr",
             )
             cnx.commit()
             filepath = "ir_data/FRAD034_000000248.xml"
@@ -154,7 +170,10 @@ class FaPropertiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
         """
         with self.admin_access.cnx() as cnx:
             cnx.create_entity(
-                "Service", code="FRAD034", category="L", search_form_url="http://francearchives.fr"
+                "Service",
+                code="FRAD034",
+                category="L",
+                search_form_url="http://francearchives.gouv.fr",
             )
             cnx.commit()
             filepath = "ir_data/FRAD034_000000248.xml"
@@ -167,7 +186,7 @@ class FaPropertiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
             fc_rql = "Any X WHERE X is FAComponent, X did D, D unitid %(u)s"
             fc = cnx.execute(fc_rql, {"u": "test lien facomponent"}).one()
             self.assertEqual(
-                "https://francearchives.fr/file/38f8190f0295966915d3c867581eaa91a08f1fe5/integration_FA_documentation_technique.pdf",  # noqa
+                "https://francearchives.gouv.fr/file/38f8190f0295966915d3c867581eaa91a08f1fe5/integration_FA_documentation_technique.pdf",  # noqa
                 fc.bounce_url,
             )
 
@@ -218,6 +237,39 @@ class FaPropertiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
                 fc.bounce_url,
             )
 
+    def test_facomponent_proper_bounced_url_3(self):
+        """Testing FAComponent bounce_url.
+
+        Trying: FAComponent and FindingAid both have extptr
+        Expecting: bounce_url of FAComponent if its DID extptr
+        """
+        with self.admin_access.cnx() as cnx:
+            cnx.create_entity("Service", code="FRAD034", category="L")
+            cnx.commit()
+            filepath = "ir_data/FRAD063_000051242.xml"
+            self.import_filepath(cnx, filepath)
+            fa = cnx.find("FindingAid").one()
+            fa_bounce_url = "http://newurl.com"
+            fa.did[0].cw_set(extptr=fa_bounce_url)
+            cnx.commit()
+            fa = cnx.find("FindingAid").one()
+            self.assertEqual(fa.did[0].extptr, fa_bounce_url)
+            self.assertEqual(fa.bounce_url, fa_bounce_url)
+            self.assertFalse(fa.website_url)
+            fc_rql = "Any X WHERE X is FAComponent, X did D, D unitid %(u)s"
+            fc = cnx.execute(fc_rql, {"u": "B MO 283, 288"}).one()
+            self.assertEqual(
+                "http://www.archivesdepartementales.puydedome.fr/ark:/72847/2581053",  # noqa
+                fc.bounce_url,
+            )
+
+    def test_facomponent_proper_bounced_url_GREFA(self):
+        """No bounce_url found"""
+        with self.admin_access.cnx() as cnx:
+            self.import_filepath(cnx, "ir_data/GREFA_IM_Delphes.xml")
+            comp = find_component(cnx, "Photothèque : E905")
+            self.assertFalse(comp.bounce_url)
+
     def test_facomponent_inherited_extptr(self):
         """Test FAComponent's bounce_url. If related did does not contain
         extptr the FAComponent must inherit its FindingAid's extptr.
@@ -234,7 +286,7 @@ class FaPropertiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
             self.assertEqual(
                 fa.did[0].extptr,
                 (
-                    "https://francearchives.fr/file/38f8190f0295966915d3c867581eaa91a08f1fe5/"
+                    "https://francearchives.gouv.fr/file/38f8190f0295966915d3c867581eaa91a08f1fe5/"
                     "integration_FA_documentation_technique.pdf"
                 ),
             )
@@ -247,7 +299,7 @@ class FaPropertiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
     def test_illustration_url_FRBNF(self):
         """Testing illustration_url FAComponent.
 
-        Trying: BnF FindingAid and no dao tag contains supported role
+        Trying: import BnF FindingAid with dao with empty role
         Expecting: URL in any dao tag is used
         """
         url = ""  # noqa
@@ -263,6 +315,31 @@ class FaPropertiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
             self.assertTrue(1, len(fc.digitized_versions))
             expected_url = "https://gallica.bnf.fr/ark:/12148/btv1b530314180.thumbnail"
             self.assertEqual(expected_url, fc.illustration_url)
+
+    def test_iiif_manifest_url_FRBNF(self):
+        """Testing iiif_manifest_url FAComponent.
+
+        Trying: import BnF FindingAid
+        Expecting: an  iiif_manifest_url is present
+        """
+        url = ""  # noqa
+        with self.admin_access.cnx() as cnx:
+            service = cnx.create_entity(
+                "Service",
+                code="FRBNF",
+                category="L",
+                thumbnail_url="{url}.thumbnail",
+                iiif_extptr=True,
+                iiif_ead_policy="iiif_bnf",
+            )
+            cnx.commit()
+            self.import_filepath(cnx, "ir_data/FRBNF_EAD000096744.xml")
+            fc_rql = "Any X WHERE X is FAComponent, X did D, D unitid %(u)s"
+            fc = cnx.execute(fc_rql, {"u": "2011/001/0474"}).one()
+            self.assertEqual(fc.related_service.eid, service.eid)
+            self.assertTrue(1, len(fc.digitized_versions))
+            expected_url = "https://gallica.bnf.fr/iiif/ark:/12148/btv1b530314180/manifest.json"
+            self.assertEqual(expected_url, fc.iiif_manifest_url)
 
     def test_thumbnail_dest(self):
         """Test thumbnail_dest of FAComponent.
@@ -322,7 +399,7 @@ class FaPropertiesTests(EADImportMixin, PostgresTextMixin, CubicWebTC):
         """Test illustration_url of FAComponent.
 
         Trying: dao tag contains absolute URL and supported role ('thumbnail', 'image')
-        and thumbnail_url is set
+                and thumbnail_url is set
         Expecting: absolute URL takes precedence and is not formatted
         """
         with self.admin_access.cnx() as cnx:

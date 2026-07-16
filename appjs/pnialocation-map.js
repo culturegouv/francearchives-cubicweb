@@ -29,10 +29,15 @@
  */
 
 /* global L, PruneClusterForLeaflet, PruneCluster*/
+import {GestureHandling} from 'leaflet-gesture-handling'
+
+import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css'
+
+L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling)
 
 function buildMap() {
     const mapElement = document.querySelector('#fa-map'),
-        map = L.map('fa-map'),
+        map = L.map('fa-map', {gestureHandling: true}),
         settings = {
             tileProvider:
                 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',

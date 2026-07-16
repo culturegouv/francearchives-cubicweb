@@ -64,28 +64,27 @@ class Did(EntityType):
     stopyear = Int()
     abstract = RichString(default_format="text/html")
     lang_description = RichString(default_format="text/html")
-    lang_code = String(maxsize=16, indexed=True)
+    lang_code = String(maxsize=1024, indexed=True)
 
 
 class FAHeader(EntityType):
     titlestmt = RichString(default_format="text/html", fulltextindexed=True)
     titleproper = String(fulltextindexed=True)
     publicationstmt = RichString(default_format="text/html", fulltextindexed=True)
-    author = RichString(default_format="text/html", fulltextindexed=True)
+    author = RichString(default_format="text/html")
     changes = RichString(default_format="text/html")
     creation = RichString(default_format="text/html")
     descrules = RichString(default_format="text/html")
     lang_description = RichString(default_format="text/html")
-    lang_code = String(maxsize=16, indexed=True)
+    lang_code = String(maxsize=1024, indexed=True)
 
 
 class FindingAid(EntityType):
     """A descriptive document created to allow retrieval within an archive."""
 
-    name = String(required=True, unique=True, fulltextindexed=True, indexed=True)
+    name = String(required=True, unique=True, indexed=True)
     eadid = String(required=True, fulltextindexed=True)
-    publisher = String(required=True, fulltextindexed=True, indexed=True)
-    fatype = String(maxsize=64, indexed=True)
+    publisher = String(required=True, indexed=True)
     description = RichString(fulltextindexed=True, default_format="text/html")
     # acqinfo = RichString(default_format='text/html')
     accessrestrict = RichString(default_format="text/html")
@@ -173,7 +172,7 @@ class DigitizedVersion(EntityType):
 class OAIRepository(EntityType):
     name = String(maxsize=128, description=_("human-readable name for the repository"))
     service = SubjectRelation("Service", cardinality="1*", inlined=True)
-    url = String(maxsize=512, description=_("OAI-PMH ListRecords url"))
+    url = String(required=True, maxsize=512, description=_("OAI-PMH ListRecords url"))
     # "Index policy: normalize indexes labels"
     should_normalize = Boolean(default=True)
     # "Index policy: consider indexes within the service
@@ -187,6 +186,15 @@ class OAIImportTask(WorkflowableEntityType):
     oai_repository = SubjectRelation(
         "OAIRepository", cardinality="1*", inlined=True, composite="object"
     )
+
+
+class fatask_oaiharvest_file(RelationDefinition):
+    subject = "OAIImportTask"
+    object = "File"
+    cardinality = "*?"
+    # quick fix to resolve incompatibilities with jsonchema.
+    # fatask_oaiharvest_file files deletions is handled in a hook
+    # composite = "subject"
 
 
 class fa_referenced_files(RelationDefinition):

@@ -46,7 +46,6 @@ from cubicweb import crypto, NoResultError
 from cubicweb_francearchives.xy import add_statements_to_graph
 from cubicweb_francearchives.utils import find_card
 from cubicweb_francearchives.entities.cms import Service
-
 from .cwroutes import startup_view_factory
 from .csvutils import alignment_csv, indices_csv
 
@@ -108,7 +107,7 @@ def rqlbased_view(request):
 def all_services(req):
     rset = req.execute(
         "Any S,SN,SN2,SSN,SPN,SINSEE,SE,SA,SZ,SC,SCC,SU,SOP,SCODE,"
-        "SWU,SL,SI,SIF,SIFH,SIFN,PARENT,SDC,SML "
+        "SWU,SL,SI,SIF,SIFH,SIFN,PARENT,SDC,SML,SLAT,SLON "
         "ORDERBY SL,SN,PARENT "
         "WHERE S is Service, S name SN, S name2 SN2, S short_name SSN, "
         "S mailing_address SML, S dpt_code SDC, "
@@ -117,7 +116,8 @@ def all_services(req):
         "S service_image SI?, SI image_file SIF?, "
         "SIF data_hash SIFH, SIF data_name SIFN, "
         "S uuid SU, S opening_period SOP, S code SCODE, "
-        "S website_url SWU, S level SL, S annex_of PARENT?"
+        "S website_url SWU, S level SL, S annex_of PARENT?, "
+        "S latitude SLAT, S longitude SLON"
     )
     return rset
 
@@ -194,26 +194,6 @@ def virtualexhibitsview(request):
     return Response(viewsreg.main_template(cwreq, "main-template", rset=None, view=view))
 
 
-@view_config(route_name="facomponents", request_method=("GET", "HEAD"))
-def facomponents_view(request):
-    cwreq = request.cw_request
-    cwreq.form.setdefault("vid", "esearch")
-    cwreq.form.setdefault("es_cw_etype", "FAComponent")
-    viewsreg = cwreq.vreg["views"]
-    view = viewsreg.select("esearch", cwreq, rset=None)
-    return Response(viewsreg.main_template(cwreq, "main-template", rset=None, view=view))
-
-
-@view_config(route_name="findingaids", request_method=("GET", "HEAD"))
-def findingaids_view(request):
-    cwreq = request.cw_request
-    cwreq.form.setdefault("vid", "esearch")
-    cwreq.form.setdefault("es_cw_etype", "FindingAid")
-    viewsreg = cwreq.vreg["views"]
-    view = viewsreg.select("esearch", cwreq, rset=None)
-    return Response(viewsreg.main_template(cwreq, "main-template", rset=None, view=view))
-
-
 @view_config(route_name="faq", request_method=("GET", "HEAD"))
 def faq_view(request):
     cwreq = request.cw_request
@@ -232,7 +212,7 @@ def service_documents_view(request):
     cwreq.form.setdefault("vid", "esearch")
     cwreq.form.setdefault("es_escategory", "archives")
     cwreq.form.setdefault("es_publisher", service.eid)
-    cwreq.form.setdefault("inventory", True)
+    cwreq.form["inventory"] = True
     viewsreg = cwreq.vreg["views"]
     view = viewsreg.select("esearch", cwreq, rset=None)
     return Response(viewsreg.main_template(cwreq, "main-template", rset=None, view=view))
@@ -297,16 +277,29 @@ def circulars_csv_view(request):
     return {"rows": rows, "headers": headers}
 
 
-@view_config(route_name="authorityrecord-csv", renderer="csv", request_method=("GET", "HEAD"))
-def authorityrecord_csv_view(request):
+@view_config(route_name="entityrecord-csv", renderer="csv", request_method=("GET", "HEAD"))
+def entiyiyrecord_csv_view(request):
     cwreq = request.cw_request
     etype = cwreq.vreg.case_insensitive_etypes[request.matchdict["etype"]]
     entity = cwreq.find(etype, record_id=request.matchdict["record_id"]).one()
     adapter = entity.cw_adapt_to("entity.main_props")
     data = adapter.properties(export=True, vid="text", text_format="text/plain")
-    filename = "%s.csv" % entity.record_id
-    request.response.content_disposition = "attachment;filename=" + filename
+    request.response.content_disposition = f"attachment;filename={entity.record_id}.csv"
     return {"headers": [d[0] for d in data], "rows": [[d[1] for d in data]]}
+
+
+@view_config(route_name="agentrecord-xml", request_method=("GET", "HEAD"))
+def agentrecord_xml_view(request):
+    cwreq = request.cw_request
+    etype = cwreq.vreg.case_insensitive_etypes[request.matchdict["etype"]]
+    entity = cwreq.find(etype, record_id=request.matchdict["record_id"]).one()
+    data = entity.cw_adapt_to("EAC-CPF-v2").dump()
+    request.response.content_disposition = f"attachment;filename={entity.record_id}.xml"
+    return Response(
+        data,
+        content_type="application/xml",
+        content_disposition=f"attachment;filename={entity.record_id}.xml",
+    )
 
 
 REWRITE_RULES = [
@@ -332,7 +325,7 @@ REWRITE_RULES = [
         r"/{section:(rechercher|decouvrir|comprendre|gerer)}",
         {
             "vid": "primary",
-            "rql": ("Any S WHERE S is Section, NOT EXISTS(X children S), " "S name %(section)s"),
+            "rql": "Any S WHERE S is Section, NOT EXISTS(X children S), " "S name %(section)s",
         },
     ),
 ]
@@ -429,6 +422,24 @@ def rql_error_view(request):
     return HTTPNotFound()
 
 
+@view_config(
+    route_name="facontext-data-json",
+    renderer="json",
+    http_cache=600,
+    request_method=("GET", "HEAD"),
+)
+def facontext_data_view(request):
+    cnx = request.cw_request
+    cw_etype = request.matchdict["etype"]
+    stable_id = request.matchdict["stable_id"]
+    try:
+        entity = cnx.find(cw_etype, stable_id=stable_id).one()
+    except NoResultError:
+        LOG.exception("seems there is no result for this rql")
+        raise HTTPNotFound()
+    return entity.cw_adapt_to("IFAContextTree").get_tree()
+
+
 def includeme(config):
     config.add_route("absolute-url", r"/uuid/{etype:\w+}/{uuid:\w+}")
     config.add_route("annuaire-vcard", "/annuaire.vcf")
@@ -447,6 +458,7 @@ def includeme(config):
         "accessibility",
         "newsletter",
         "glossary-card",
+        "cookies_policy",
     )
     config.add_route("entrypoint-card", "/{{wiki:({})}}".format("|".join(wiki_words)))
     config.add_view(card_view, route_name="entrypoint-card", request_method=("GET", "HEAD"))
@@ -478,16 +490,18 @@ def includeme(config):
         r"/{etype:authorityrecord}/{record_id}/{format:rdf\.(xml|n3|nt|ttl|jsonld)}",
     )
     config.add_route("findingaid-csv", r"/{etype:(findingaid|facomponent)}/{stable_id}.csv")
-    config.add_route("authorityrecord-csv", r"/{etype:authorityrecord}/{record_id}.csv")
+    config.add_route("entityrecord-csv", r"/{etype:(authorityrecord|agentrecord)}/{record_id}.csv")
+    config.add_route("agentrecord-xml", r"/{etype:agentrecord}/{record_id}.xml")
     config.add_route("alignment", "/alignment.csv")
     config.add_route("fa-map", "/carte-inventaires")
     config.add_route("fa-map-json", "/fa-map.json")
     config.add_route("virtualexhibits", "/expositions")
-    config.add_route("facomponents", "/facomponent")
-    config.add_route("findingaids", "/findingaid")
     config.add_route("faq", "/faq")
     config.add_route("circulars-csv", "/circulaires.csv")
     config.add_route("glossary", "/glossaire")
     config.add_notfound_view(startup_view_factory("404", status_code=404), append_slash=HTTPFound)
+    config.add_route(
+        "facontext-data-json", r"/facontext-data/{etype:(FindingAid|FAComponent)}/{stable_id}"
+    )
 
     config.scan(__name__)

@@ -1,0 +1,129 @@
+#viewers-container .uv-viewer {
+    margin-bottom: 2.5rem;
+}
+
+#viewers-container .uv-viewer .uv .title {
+    color: #fff;
+    font-size: inherit;
+}
+
+#viewers-container .uv-viewer .uv .centerPanel .title {
+    font-size: 20px;
+}
+
+#viewers-container .uv-viewer .uv .overlay.share {
+    opacity: 1;
+    display: block;
+    top: 69% !important;
+    left: 0.8rem !important;
+    height: 0;
+}
+
+.mirador-viewer {
+    margin: 0 0 2.5rem 0;
+    border: 0;
+    height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.mirador-viewer h1,
+.mirador-viewer h2,
+.mirador-viewer h3,
+.mirador-viewer h4,
+.mirador-viewer h5 {
+    color: white;
+}
+
+.mirador-viewer a.MuiTypography-colorPrimary {
+    color: #099ef4;
+    text-decoration: none;
+}
+
+#mirador-container {
+    border: 0;
+    margin: 0;
+    position: relative;
+    poverflow-x: hidden;
+    poverflow-y: hidden;
+}
+
+#window-list-menu {
+    position: absolute !important;
+}
+
+#window-list-menu
+    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper.MuiPaper-elevation8.MuiPaper-rounded {
+    top: 4rem !important;
+    left: 4.5rem !important;
+}
+
+#workspace-menu {
+    position: absolute !important;
+}
+#workspace-menu
+    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper.MuiPaper-elevation8.MuiPaper-rounded {
+    top: 8rem !important;
+    left: 4.5rem !important;
+}
+
+#workspace-options-menu {
+    position: absolute !important;
+}
+#workspace-options-menu
+    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper.MuiPaper-elevation8.MuiPaper-rounded {
+    top: 12rem !important;
+    left: 4.5rem !important;
+}
+
+div[id^='window-menu_window'] {
+    position: absolute !important;
+}
+
+div[id^='window-menu_window']
+    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper.MuiPaper-elevation8.MuiPaper-rounded {
+    top: 4rem !important;
+    right: 10rem !important;
+    left: 50% !important;
+}
+
+div[id^='window-plugin-menu_window'] {
+    position: absolute !important;
+}
+
+div[id^='window-plugin-menu_window']
+    .MuiPaper-root.MuiMenu-paper.MuiPopover-paper.MuiPaper-elevation8.MuiPaper-rounded {
+    top: 4rem !important;
+    left: 55% !important;
+}
+
+.viewers-wrapper {
+    display: flex;
+}
+
+.fr-icon-mirador-fill {
+    color: #423842;
+    background-image: url(./images/mirador3-icon.svg);
+}
+
+.fr-icon-uv-fill {
+    color: #3e114e !important;
+    background-image: url(./images/uv-icon.svg) !important;
+}
+
+/*
+
+.fr-icon-mirador-fill::after,
+.fr-icon-mirador-fill::before {
+  -webkit-mask-image: url(./images/mirador3-icon.svg);
+  mask-image: url(./images/mirador3-icon.svg);
+}
+
+.fr-icon-uv-fill::after,
+.fr-icon-uv-fill::before {
+  -webkit-mask-image: url(./images/uv-icon.svg);
+  mask-image: url(./images/uv-icon.svg);
+}
+
+*/

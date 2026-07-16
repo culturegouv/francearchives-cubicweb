@@ -41,7 +41,7 @@ from contextlib import redirect_stdout
 from mock import patch
 
 from cubicweb import Binary
-from cubicweb.devtools.testlib import CubicWebTC
+from cubicweb_web.devtools.testlib import WebCWTC
 
 from cubicweb_francearchives import ccplugin
 from cubicweb_francearchives.testutils import EsSerializableMixIn, S3BfssStorageTestMixin
@@ -49,7 +49,7 @@ from cubicweb_francearchives.testutils import EsSerializableMixIn, S3BfssStorage
 from esfixtures import teardown_module  # noqa
 
 
-class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
+class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, WebCWTC):
     def setup_database(self):
         super().setup_database()
         with self.admin_access.cnx() as cnx:
@@ -70,8 +70,8 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
 
     @patch("elasticsearch.client.Elasticsearch.index", unsafe=True)
     @patch("elasticsearch.client.Elasticsearch.bulk", unsafe=True)
-    @patch("elasticsearch.client.indices.IndicesClient.exists", unsafe=True)
-    @patch("elasticsearch.client.indices.IndicesClient.create", unsafe=True)
+    @patch("elasticsearch.client.IndicesClient.exists", unsafe=True)
+    @patch("elasticsearch.client.IndicesClient.create", unsafe=True)
     def test_ccplugin(self, create, exists, bulk, index):
         with self.admin_access.cnx() as cnx:
             with cnx.allow_all_hooks_but("es"):
@@ -94,8 +94,8 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             self.assertTrue(cnx.execute("Any X WHERE X is AgentAuthority"))
         bulk.assert_called()
 
-    @patch("elasticsearch.client.indices.IndicesClient.create", unsafe=True)
-    @patch("elasticsearch.client.indices.IndicesClient.exists", unsafe=True)
+    @patch("elasticsearch.client.IndicesClient.create", unsafe=True)
+    @patch("elasticsearch.client.IndicesClient.exists", unsafe=True)
     @patch("elasticsearch.client.Elasticsearch.index", unsafe=True)
     def test_es_hooks_modify(self, index, exists, create):
         with self.admin_access.cnx() as cnx:
@@ -106,8 +106,8 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             cnx.commit()
             index.assert_called()
 
-    @patch("elasticsearch.client.indices.IndicesClient.create", unsafe=True)
-    @patch("elasticsearch.client.indices.IndicesClient.exists", unsafe=True)
+    @patch("elasticsearch.client.IndicesClient.create", unsafe=True)
+    @patch("elasticsearch.client.IndicesClient.exists", unsafe=True)
     @patch("elasticsearch.client.Elasticsearch.index", unsafe=True)
     def test_es_hooks_modify_ignored_etype(self, index, exists, create):
         with self.admin_access.cnx() as cnx:
@@ -118,8 +118,8 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             cnx.commit()
             index.assert_not_called()
 
-    @patch("elasticsearch.client.indices.IndicesClient.create")
-    @patch("elasticsearch.client.indices.IndicesClient.exists")
+    @patch("elasticsearch.client.IndicesClient.create")
+    @patch("elasticsearch.client.IndicesClient.exists")
     @patch("elasticsearch.client.Elasticsearch.index")
     def test_externref_index(self, index, exists, create):
         with self.admin_access.cnx() as cnx:
@@ -136,15 +136,18 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             indexer.get_connection()
             self.assertTrue(index.called)
             args, kwargs = index.call_args
-            self.assertEqual(kwargs["doc_type"], "_doc")
             for arg_name, expected_value in (
                 ("title", "externref-title"),
                 ("cw_etype", "Virtual_exhibit"),
-                ("reftype", "virtual_exhibit"),
-                ("cwuri", extref.cwuri),
                 (
                     "index_entries",
-                    [{"authority": loc.eid, "label": loc.label, "normalized": "Paris"}],
+                    [
+                        {
+                            "authority": loc.eid,
+                            "label": loc.label,
+                            "authtype": "LocationAuthority",
+                        }
+                    ],
                 ),
             ):
                 self.assertEqual(kwargs["body"][arg_name], expected_value)
@@ -154,7 +157,6 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             cnx.commit()
             self.assertTrue(index.called)
             args, kwargs = index.call_args
-            self.assertEqual(kwargs["doc_type"], "_doc")
             self.assertEqual(kwargs["body"]["cw_etype"], "Virtual_exhibit")
             self.assertEqual(kwargs["body"]["title"], new_title)
             extref.cw_set(related_authority=None)
@@ -163,8 +165,8 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             args, kwargs = index.call_args
             self.assertEqual(kwargs["body"]["index_entries"], [])
 
-    @patch("elasticsearch.client.indices.IndicesClient.create")
-    @patch("elasticsearch.client.indices.IndicesClient.exists")
+    @patch("elasticsearch.client.IndicesClient.create")
+    @patch("elasticsearch.client.IndicesClient.exists")
     @patch("elasticsearch.client.Elasticsearch.index")
     def test_index_commemo_with_authority(self, index, exists, create):
         with self.admin_access.cnx() as cnx:
@@ -185,15 +187,20 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             )
             cnx.commit()
             for args, kwargs in index.call_args_list:
-                if kwargs["doc_type"] == "_doc":
+                if kwargs["id"] == commemo_item.eid:
                     break
             else:
                 self.fail("index not called on CommemorationItem")
-            self.assertEqual(kwargs["doc_type"], "_doc")
             self.assertEqual(kwargs["body"]["cw_etype"], "CommemorationItem")
             self.assertEqual(
                 kwargs["body"]["index_entries"],
-                [{"authority": subject.eid, "label": subject.label, "normalized": "Moyen Age"}],
+                [
+                    {
+                        "authority": subject.eid,
+                        "label": subject.label,
+                        "authtype": "SubjectAuthority",
+                    }
+                ],
             )
             index.reset_mock()
             commemo_item.cw_set(related_authority=None)
@@ -206,8 +213,8 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             args, kwargs = index.call_args
             self.assertEqual(kwargs["body"]["index_entries"], [])
 
-    @patch("elasticsearch.client.indices.IndicesClient.create")
-    @patch("elasticsearch.client.indices.IndicesClient.exists")
+    @patch("elasticsearch.client.IndicesClient.create")
+    @patch("elasticsearch.client.IndicesClient.exists")
     @patch("elasticsearch.client.Elasticsearch.index")
     def test_index_single_base_content(self, index, exists, create):
         with self.admin_access.cnx() as cnx:
@@ -217,9 +224,8 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             indexer.get_connection()
             self.assertTrue(index.called)
             args, kwargs = index.call_args
-            self.assertEqual(kwargs["doc_type"], "_doc")
             self.assertEqual(kwargs["body"]["cw_etype"], "Article")
-            self.assertEqual(kwargs["body"]["content"], "31 juin")
+            self.assertEqual(kwargs["body"]["alltext"], "31 juin")
             index.reset_mock()
             # modify basecontent
             basecontent.cw_set(content="28 juin")
@@ -228,12 +234,11 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             indexer.get_connection()
             self.assertTrue(index.called)
             args, kwargs = index.call_args
-            self.assertEqual(kwargs["doc_type"], "_doc")
             self.assertEqual(kwargs["body"]["cw_etype"], "Article")
-            self.assertEqual(kwargs["body"]["content"], "28 juin")
+            self.assertEqual(kwargs["body"]["alltext"], "28 juin")
 
-    @patch("elasticsearch.client.indices.IndicesClient.create")
-    @patch("elasticsearch.client.indices.IndicesClient.exists")
+    @patch("elasticsearch.client.IndicesClient.create")
+    @patch("elasticsearch.client.IndicesClient.exists")
     @patch("elasticsearch.client.Elasticsearch.index")
     def test_index_base_content_with_authority(self, index, exists, create):
         with self.admin_access.cnx() as cnx:
@@ -249,7 +254,13 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             args, kwargs = index.call_args
             self.assertEqual(
                 kwargs["body"]["index_entries"],
-                [{"authority": agent.eid, "label": agent.label, "normalized": "Jean Valjean"}],
+                [
+                    {
+                        "authority": agent.eid,
+                        "label": agent.label,
+                        "authtype": "AgentAuthority",
+                    }
+                ],
             )
             index.reset_mock()
             # remove authority
@@ -261,8 +272,8 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             args, kwargs = index.call_args
             self.assertEqual(kwargs["body"]["index_entries"], [])
 
-    @patch("elasticsearch.client.indices.IndicesClient.create")
-    @patch("elasticsearch.client.indices.IndicesClient.exists")
+    @patch("elasticsearch.client.IndicesClient.create")
+    @patch("elasticsearch.client.IndicesClient.exists")
     @patch("elasticsearch.client.Elasticsearch.index")
     def test_index_circular_file(self, index, exists, create):
         with self.admin_access.cnx() as cnx:
@@ -296,8 +307,7 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             indexer.get_connection()
             self.assertTrue(index.called)
             args, kwargs = index.call_args
-            self.assertEqual(kwargs["doc_type"], "_doc")
-            pdf_text = "Test\nCirculaire chat\n\n\x0c"
+            pdf_text = "\nTest\nCirculaire chat\n\n\x0c"
             pdf_key = cnx.execute(f"""Any FSPATH(D) WHERE X eid {attachment.eid}, F data D""")[0][
                 0
             ].getvalue()
@@ -305,8 +315,7 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
                 ("cw_etype", "Circular"),
                 ("title", "Circular"),
                 ("sortdate", signing_date.strftime("%Y-%m-%d")),
-                ("attachment", pdf_text),
-                ("cwuri", circular.cwuri),
+                ("alltext", pdf_text),
             ):
                 self.assertEqual(kwargs["body"][arg_name], expected_value)
             self.assertEqual(len(kwargs["body"]["index_entries"]), 1)
@@ -314,6 +323,7 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
                 kwargs["body"]["index_entries"][0],
                 {
                     "authority": subject_authority.eid,
+                    "authtype": "SubjectAuthority",
                 },
             )
             # modify the pdf
@@ -330,7 +340,7 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
                 pdf_content = pdf.read()
                 attachment.cw_set(data=Binary(pdf_content))
             cnx.commit()
-            new_pdf_content = "Circulaire sérieux\n\n\x0c"
+            new_pdf_content = "\nCirculaire sérieux\n\n\x0c"
             new_pdf_key = cnx.execute(f"""Any FSPATH(D) WHERE X eid {attachment.eid}, F data D""")[
                 0
             ][0].getvalue()
@@ -340,13 +350,12 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             for arg_name, expected_value in (
                 ("title", new_title),
                 ("sortdate", signing_date.strftime("%Y-%m-%d")),
-                ("attachment", new_pdf_content),
-                ("cwuri", circular.cwuri),
+                ("alltext", new_pdf_content),
             ):
                 self.assertEqual(kwargs["body"][arg_name], expected_value)
 
-    @patch("elasticsearch.client.indices.IndicesClient.create")
-    @patch("elasticsearch.client.indices.IndicesClient.exists")
+    @patch("elasticsearch.client.IndicesClient.create")
+    @patch("elasticsearch.client.IndicesClient.exists")
     @patch("elasticsearch.client.Elasticsearch.index")
     def test_index_authorityrecord(self, index, exists, create):
         with self.admin_access.cnx() as cnx:
@@ -375,7 +384,6 @@ class ElasticSearchTC(S3BfssStorageTestMixin, EsSerializableMixIn, CubicWebTC):
             for args, kwargs in calls:
                 if kwargs["body"]["cw_etype"] == "AuthorityRecord":
                     self.assertEqual(kwargs["id"], "FRAN_NP_006883")
-                    self.assertEqual(kwargs["doc_type"], "_doc")
                     self.assertEqual(kwargs["body"]["eid"], record.eid)
 
 

@@ -81,7 +81,7 @@ class ApeEadTransformationTest(PostgresTextMixin, CubicWebTC):
         """test an ead file with all major tags"""
         filepath = "ead_complet.xml"
         ape_filepath = self.ape_ead_filepath(filepath)
-        fa_url = "https://francearchives.fr/1234"
+        fa_url = "https://francearchives.gouv.fr/1234"
         tree = preprocess_ead(self.datapath(self.ape_ead_dir, filepath))
         transform_ape_ead_file(fa_url, tree, ape_filepath)
         # test ead source file
@@ -105,7 +105,7 @@ class ApeEadTransformationTest(PostgresTextMixin, CubicWebTC):
         """
         filepath = "ead_complet.xml"
         ape_filepath = self.ape_ead_filepath(filepath)
-        fa_url = "https://francearchives.fr/1234"
+        fa_url = "https://francearchives.gouv.fr/1234"
         tree = preprocess_ead(self.datapath(self.ape_ead_dir, filepath))
         transform_ape_ead_file(fa_url, tree, ape_filepath)
         # test ead source file
@@ -114,7 +114,6 @@ class ApeEadTransformationTest(PostgresTextMixin, CubicWebTC):
         # use etree.parse to let lxml handle file and encoding
         tree = etree.parse(filepath).getroot()  # returns _ElementTree use getroot() to get Element
         eadid = tree.xpath("//e:eadid", namespaces={"e": tree.nsmap[None]})[0]
-        print(eadid.attrib)
         self.assertEqual(eadid.attrib["countrycode"], "FR")
 
     def test_ape_full_ead_conversion(self):
@@ -127,7 +126,7 @@ class ApeEadTransformationTest(PostgresTextMixin, CubicWebTC):
         ape_expected_filepath = self.datapath(
             osp.join("ape_ead_data"), "ape_ead_complet_expected.xml"
         )
-        fa_url = "https://francearchives.fr/1234"
+        fa_url = "https://francearchives.gouv.fr/1234"
         tree = preprocess_ead(self.datapath(osp.join("ape_ead_data"), filepath))
         transform_ape_ead_file(fa_url, tree, ape_filepath)
         ape_stream, ape_expected_stream = None, None
@@ -143,7 +142,7 @@ class ApeEadTransformationTest(PostgresTextMixin, CubicWebTC):
         ape_expected_filepath = self.datapath(
             osp.join("ape_ead_data"), "ape_FRAD070_115Edepot_rpnum_001_expected.xml"
         )
-        fa_url = "https://francearchives.fr/findingaid/XXX"
+        fa_url = "https://francearchives.gouv.fr/findingaid/XXX"
         tree = preprocess_ead(self.datapath(osp.join("ape_ead_data"), filepath))
         transform_ape_ead_file(fa_url, tree, ape_filepath)
         ape_stream, ape_expected_stream = None, None
@@ -157,7 +156,9 @@ class ApeEadTransformationTest(PostgresTextMixin, CubicWebTC):
         """test an ead file with all major tags"""
         filepath = "FRAD005_33FI.xml"
         ape_filepath = self.ape_ead_filepath(filepath)
-        fa_url = "https://francearchives.fr/findingaid/ee81f35ba975a0aceabfff4e2de751df3cccaff3"
+        fa_url = (
+            "https://francearchives.gouv.fr/findingaid/ee81f35ba975a0aceabfff4e2de751df3cccaff3"
+        )
         tree = preprocess_ead(self.datapath(osp.join("ape_ead_data"), filepath))
         transform_ape_ead_file(fa_url, tree, ape_filepath)
         # test ead source file
@@ -195,7 +196,9 @@ class ApeEadTransformationTest(PostgresTextMixin, CubicWebTC):
         """test an dao"""
         filepath = "FRAD051_61Fi.xml"
         ape_filepath = self.ape_ead_filepath(filepath)
-        fa_url = "https://francearchives.fr/findingaid/3d6c85cc8e4fa93d57d4c01c18d232ccc5a0d270"
+        fa_url = (
+            "https://francearchives.gouv.fr/findingaid/3d6c85cc8e4fa93d57d4c01c18d232ccc5a0d270"
+        )
         tree = preprocess_ead(self.datapath(osp.join("ape_ead_data"), filepath))
         transform_ape_ead_file(fa_url, tree, ape_filepath)
         # test ead source file
@@ -230,7 +233,7 @@ class ApeEadTransformationTest(PostgresTextMixin, CubicWebTC):
         for address in addresses:
             for line in address:
                 self.assertEqual(line.tag, "addressline")
-        fa_url = "https://francearchives.fr/findingaid/XXX"
+        fa_url = "https://francearchives.gouv.fr/findingaid/XXX"
         tree = preprocess_ead(filepath)
         tempdir = tempfile.mkdtemp()
         try:

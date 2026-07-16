@@ -2,30 +2,30 @@
 @prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-<http://testing.fr/cubicweb/findingaid/FRAD084_xxx> a rico:RecordResource ;
+<https://testing.cubicweb/findingaid/FRAD084_xxx> a rico:RecordResource ;
     rdfs:label "maindid-title" ;
-    rico:hasOrHadManager <http://testing.fr/cubicweb/service/{{service_eid}}> ;
-    rico:hasProvenance <http://testing.fr/cubicweb/agent/{{originator_eid}}> ;
+    rico:hasOrHadManager <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:hasProvenance <https://testing.cubicweb/agent/{{originator_eid}}> ;
     rico:identifier "maindid" ;
-    rico:hasInstantiation <http://testing.fr/cubicweb/findingaid/FRAD084_xxx#record_resource_inst> ;
+    rico:hasInstantiation <https://testing.cubicweb/findingaid/FRAD084_xxx#record_resource_inst> ;
 
-    rico:includesOrIncluded <http://testing.fr/cubicweb/facomponent/fc-stable-id> ;
-    rico:isOrWasDescribedBy <http://testing.fr/cubicweb/findingaid/FRAD084_xxx#record> ;
+    rico:includesOrIncluded <https://testing.cubicweb/facomponent/fc-stable-id> ;
+    rico:isOrWasDescribedBy <https://testing.cubicweb/findingaid/FRAD084_xxx#record> ;
     rico:title "maindid-title" .
 
-<http://testing.fr/cubicweb/findingaid/FRAD084_xxx#record_resource_inst> a rico:Instantiation ;
-    rico:hasOrHadHolder <http://testing.fr/cubicweb/service/{{service_eid}}> ;
-    rico:hasProvenance <http://testing.fr/cubicweb/agent/{{originator_eid}}> ;
-    rico:isInstantiationOf <http://testing.fr/cubicweb/findingaid/FRAD084_xxx> ;
+<https://testing.cubicweb/findingaid/FRAD084_xxx#record_resource_inst> a rico:Instantiation ;
+    rico:hasOrHadHolder <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:hasProvenance <https://testing.cubicweb/agent/{{originator_eid}}> ;
+    rico:isInstantiationOf <https://testing.cubicweb/findingaid/FRAD084_xxx> ;
     rico:physicalCharacteristics "un beau rouleau" .
 
-<http://testing.fr/cubicweb/findingaid/FRAD084_xxx#record_inst1> a rico:Instantiation ;
+<https://testing.cubicweb/findingaid/FRAD084_xxx#record_inst1> a rico:Instantiation ;
     dcterms:format "text/csv" ;
-    rdfs:seeAlso <http://testing.fr/cubicweb/findingaid/FRAD084_xxx.csv> ;
-    rico:isInstantiationOf <http://testing.fr/cubicweb/findingaid/FRAD084_xxx#record> .
+    rdfs:seeAlso <https://testing.cubicweb/findingaid/FRAD084_xxx.csv> ;
+    rico:isInstantiationOf <https://testing.cubicweb/findingaid/FRAD084_xxx#record> .
 
-<http://testing.fr/cubicweb/findingaid/FRAD084_xxx#record> a rico:Record ;
-    rico:describesOrDescribed <http://testing.fr/cubicweb/findingaid/FRAD084_xxx> ;
+<https://testing.cubicweb/findingaid/FRAD084_xxx#record> a rico:Record ;
+    rico:describesOrDescribed <https://testing.cubicweb/findingaid/FRAD084_xxx> ;
     rico:hasDocumentaryFormType <https://www.ica.org/standards/RiC/vocabularies/documentaryFormTypes#FindingAid> ;
-    rico:hasInstantiation <http://testing.fr/cubicweb/findingaid/FRAD084_xxx#record_inst1> ;
+    rico:hasInstantiation <https://testing.cubicweb/findingaid/FRAD084_xxx#record_inst1> ;
     rico:identifier "FRAD084_xxx" .

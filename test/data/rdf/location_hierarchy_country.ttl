@@ -1,10 +1,13 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-<http://testing.fr/cubicweb/location/{{nhatran}}> a rico:Place ;
+
+<https://testing.cubicweb/location/{{nhatran}}> a rico:Place ;
     owl:sameAs <http://www.geonames.org/1572151> ;
-    rico:isOrWasContainedBy <http://testing.fr/cubicweb/location/{{vietnam}}> ;
+    rico:isOrWasContainedBy <https://testing.cubicweb/location/{{vietnam}}> ;
+    rdfs:label "Nha Tran (Vietnam)" ;
     rico:name "Nha Tran (Vietnam)" .
 
-<http://testing.fr/cubicweb/location/{{vietnam}}> rico:containsOrContained <http://testing.fr/cubicweb/location/{{nhatran}}> .
+<https://testing.cubicweb/location/{{vietnam}}> rico:containsOrContained <https://testing.cubicweb/location/{{nhatran}}> .
 

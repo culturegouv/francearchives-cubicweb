@@ -34,21 +34,18 @@ class SegmentIsEnlargedETypePredicate(object):
     """A predicate that match if a given etype exist in schema or in its translations dict."""
 
     def __init__(self, definition, config):
-        traverse_name, traverse_index, translations = definition
+        traverse_name, translations = definition
         self.traverse_name = traverse_name
-        self.traverse_index = traverse_index
         self.translations = translations
 
     def text(self):
-        return "segment_is_enlarged_etype = (%s, %s)" % (self.traverse_name, self.traverse_index)
+        return "segment_is_enlarged_etype = %s " % self.traverse_name
 
     phash = text
 
     def __call__(self, info, request):
-        traverse = info["match"][self.traverse_name]
-        if len(traverse) <= self.traverse_index:
-            return False
-        requested_etype = traverse[self.traverse_index].lower()
+        etype = info["match"][self.traverse_name]
+        requested_etype = etype.lower()
         etypes = request.registry["cubicweb.registry"].case_insensitive_etypes
         return requested_etype in etypes or requested_etype in self.translations
 

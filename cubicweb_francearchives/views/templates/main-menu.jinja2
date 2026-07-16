@@ -1,0 +1,72 @@
+<div class="fr-header__menu fr-modal" id="modal-header-menu" aria-labelledby="button-mainmenu">
+  <div class="fr-container">
+    <button class="fr-btn--close fr-btn" aria-controls="modal-header-menu" title="{{  ('Close') }}">
+      {{ _('Close') }}
+    </button>
+    <div class="fr-header__menu-links">
+      <ul class="fr-btns-group">
+        {{ login_link }}
+        <li>
+          <a id="nomina-link-mobile" class="fr-btn fr-icon-arrow-right-line fr-link--icon-right" href="{{base_url}}/basedenoms" target="_self">
+            {{ _('Search in the name base') }}
+          </a>
+        </li>
+       {%- if display_sparql_search %}
+        <li>
+          <a id="sparql-link-mobile" class="fr-btn fr-icon-arrow-right-line fr-link--icon-right"
+             href="{{base_url}}/requeteurnaturel" target="_self">
+            {{ _('SPARQL Search') }}
+          </a>
+        </li>
+        {% endif -%}
+      </ul>
+    </div>
+    <nav class="fr-nav" id="header-navigation" role="navigation" aria-label="Menu principal">
+      <ul class="fr-nav__list">
+        {%- for eid, title, label, url, css, desc, subsections in topsections -%}
+        <li class="fr-nav__item">
+          <button class="fr-nav__btn" aria-expanded="false" aria-controls="mega-menu-{{ url }}"
+                  {% if eid in parents %}aria-current="true"{% endif %}>{{ title }}</button>
+          <div class="fr-collapse fr-mega-menu" id="mega-menu-{{ url }}" tabindex="-1">
+            <div class="fr-container fr-container--fluid fr-container-lg">
+              <button class="fr-link--close fr-btn" aria-controls="mega-menu-{{ url }}">{{ _('Close') }}</button>
+              <div class="fr-grid-row fr-grid-row-lg--gutters">
+                <div class="fr-col-12 fr-col-lg-8 fr-col-offset-lg-4--right">
+                  <div class="fr-mega-menu__leader">
+                    <p class="fr-h4 fr-mb-2v">{{ title }}</p>
+                    {%- if label -%}
+                    <p class="fr-h5 fr-mb-2v">{{ label }}</p>
+                    {%- endif -%}
+                    {%- if desc %}
+                    <p class="fr-hidden fr-displayed-lg">{{ desc }}</p>
+                    {%- endif -%}
+                    <a class="fr-link fr-fi-arrow-right-line fr-link--icon-right fr-link--align-on-content" href={{ base_url }}/{{ url }}>{{ _('See the whole section') }}</a>
+                  </div>
+                </div>
+                {%- for subeid, suburl, subtitle, subsubsections in subsections %}
+                <div class="fr-col-12 fr-col-lg-3">
+                  <div class="fr-mega-menu__category">
+                    <a class="fr-nav__link" href="{{ suburl }}"
+                       {% if subeid in parents %}aria-current="page"{% endif %}
+                       target="_self">{{ subtitle }}</a>
+                  </div>
+                  {%- if subsubsections -%}
+                  <ul class="fr-mega-menu__list">
+                    {%- for subsubeid, subsuburl, subsubtitle, subsubsubsections in subsubsections %}
+                    <li>
+                      <a class="fr-nav__link" href="{{subsuburl}}" target="_self">{{subsubtitle}}</a>
+                    </li>
+                    {%- endfor -%}
+                  </ul>
+                  {%- endif -%}
+                </div>
+               {%- endfor -%}
+              </div>
+            </div>
+          </div>
+        </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+  </div>
+</div>

@@ -1,0 +1,13 @@
+    <div class="fr-container fr-py-6w d-print-none">
+      <div class="fa-flex {% if faqs %}fa-flex--space-between{%- else -%}fa-flex--right{%- endif -%}">
+      {% if faqs %}
+      {% from "./mixins.jinja2" import modalfaq %}
+        {{  modalfaq(faqs, _) }}
+      {% endif %}
+      {%- if display_totop -%}
+       <a class="fr-link fr-icon-arrow-up-fill fr-link--icon-left" href="#top">
+        {{_('Top of the page') }}
+        </a>
+      {%- endif -%}
+      </div>
+    </div>

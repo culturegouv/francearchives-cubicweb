@@ -1,0 +1,26 @@
+.yasr .yasr_results .overlay {
+  background: transparent !important;
+}
+
+#yasgui {
+ .yasgui {
+   a, .tabsList .addTab {
+     color: var(--text-action-high-blue-france);
+   }
+
+   .tabsList .tab.active a {
+     border-bottom-color: var(--text-action-high-blue-france);
+   }
+  }
+
+ .yasr {
+    .yasr_btn.selected, .yasr .yasr_btn:focus {
+      color:var(--text-action-high-blue-france);
+      fill: var(--text-action-high-blue-france);
+    }
+
+    .yasr_btnGroup .yasr_btn.selected {
+      border-bottom: 2px solid var(--text-action-high-blue-france);
+    }
+   }
+}

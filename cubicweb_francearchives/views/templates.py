@@ -32,25 +32,38 @@
 """pnia_content views/templates"""
 
 from collections import defaultdict
-from random import randint
+import hashlib
 
 from logilab.common.decorators import monkeypatch, cachedproperty
 from logilab.mtconverter import xml_escape
 
-from cubicweb.utils import HTMLStream, json_dumps, HTMLHead
-from cubicweb.web.views import basetemplates
+from cubicweb.utils import json_dumps
+from cubicweb.uilib import remove_html_tags
 
-from cubicweb_francearchives import FEATURE_ADVANCED_SEARCH
-from cubicweb_francearchives.utils import find_card, build_faq_url, reveal_glossary
-from cubicweb_francearchives.entities import entity2schemaorg, entity2meta, entity2opengraph
+from cubicweb_web.views import basetemplates
+from cubicweb_web.utils import HTMLStream, HTMLHead
+
+from cubicweb_francearchives import (
+    FEATURE_ADVANCED_SEARCH,
+    FEATURE_SPARQL_ACCESSIBLE,
+    SITE_TYPE,
+)
+from cubicweb_francearchives.redis_utils import get_data_with_cache
+from cubicweb_francearchives.utils import build_faq_url, find_card
+
+from cubicweb_francearchives.entities import (
+    entity2schemaorg,
+    entity2meta,
+    entity2opengraph,
+)
+from cubicweb_francearchives.entities.cms import get_ancestors
 from cubicweb_francearchives.views import (
     JinjaViewMixin,
-    top_sections_desc,
+    get_top_sections_infos,
     get_template,
     load_portal_config,
 )
-from cubicweb_francearchives.views.xiti import pagename_from_chapters
-
+from cubicweb_francearchives.views.eulerian import EulerianViewsAdapter
 
 # HACK: bypass HTMLStream doctype / head generation: they're managed
 # directly by our jinja templates. We only need the body
@@ -72,6 +85,52 @@ def add_onload(self, jscode):
 
 def picklabel(labels, lang):
     return labels.get(lang) or labels.get("fr")
+
+
+def get_site_links(cnx):
+    query = """ Any X, C, U, LF, LE, LS, LD, O ORDERBY C, O WHERE
+    X is SiteLink, X link U, X order O,
+    X label_fr LF, X label_en LE,  X label_es LS, X label_de LD,
+    X context C
+    """
+    rset = cnx.execute(query)
+    links = defaultdict(list)
+    for eid, context, link, lf, le, ls, ld, order in rset:
+        hide = True if link in ("annuaire/departements") else False
+        link = link if link.startswith("http") else f"%(base_url)s{link}"
+        links[context].append(
+            {
+                "url": link,
+                "hide": hide,
+                "labels": {"fr": lf, "en": le or lf, "es": ls or lf, "de": ld or lf},
+            }
+        )
+    return links
+
+
+def get_search_faqs(cnx):
+    category = "02_faq_search"
+    query = f"""Any X, Q, A ORDERBY O WHERE X is FaqItem,
+    X question Q, X answer A,
+    X order O, X category '{category}'"""
+    rset = cnx.execute(query)
+    if rset:
+        faqs = [
+            (
+                eid,
+                cnx.build_url(f"faqitem/{eid}"),
+                remove_html_tags(question),
+                answer,
+            )
+            for eid, question, answer in rset
+        ]
+        return {
+            "faqs": faqs,
+            "category": category,
+            "faq_url": cnx.build_url("faq"),
+            "faq_label": cnx._("See all FAQs"),
+        }
+    return {}
 
 
 class PniaMainTemplate(JinjaViewMixin, basetemplates.TheMainTemplate):
@@ -103,6 +162,7 @@ class PniaMainTemplate(JinjaViewMixin, basetemplates.TheMainTemplate):
     def call(self, view):
         self.set_request_content_type()
         self._cw.html_headers.define_var("BASE_URL", self._cw.build_url(""))
+        self._cw.html_headers.define_var("DATA_URL", self._cw.datadir_url)
         context = self.template_context(view)
         page_content = view.render()
         context.update(getattr(view, "template_context", lambda: {})())
@@ -116,60 +176,7 @@ class PniaMainTemplate(JinjaViewMixin, basetemplates.TheMainTemplate):
 
     @cachedproperty
     def site_links(self):
-        rset = self._cw.execute(
-            """ Any X, C, U, LF, LE, LS, LD, O ORDERBY C, O WHERE
-            X is SiteLink, X link U, X order O,
-            X label_fr LF, X label_en LE,  X label_es LS, X label_de LD,
-            X context C
-            """
-        )
-        links = defaultdict(list)
-        for eid, context, link, lf, le, ls, ld, order in rset:
-            css = "d-none d-md-block" if link in ("annuaire/departements") else ""
-            link = link if link.startswith("http") else f"%(base_url)s{link}"
-            links[context].append(
-                {
-                    "url": link,
-                    "css": css,
-                    "labels": {"fr": lf, "en": le or lf, "es": ls or lf, "de": ld or lf},
-                }
-            )
-        return links
-
-    def heroimage_desc(self):
-        res = self._cw.execute(
-            "Any I, N WHERE  X is CssImage, "
-            'X cssid LIKE "hero-%%", X cssid I, '
-            "X cssimage_of S, S name N"
-        ).rows
-        build_url = self._cw.build_url
-        if res:
-            hcls, section_name = res[randint(0, len(res) - 1)]
-        else:
-            hcls, section_name = "", ""
-        return {
-            "hero_src": build_url("static/css/hero-{}-lr.jpg".format(section_name)),
-            "hero_xl_src": build_url("static/css/hero-{}-xl.jpg".format(section_name)),
-            "hero_lg_src": build_url("static/css/hero-{}-lg.jpg".format(section_name)),
-            "hero_md_src": build_url("static/css/hero-{}-md.jpg".format(section_name)),
-            "hero_sm_src": build_url("static/css/hero-{}-sm.jpg".format(section_name)),
-            "hero_xs_src": build_url("static/css/hero-{}-xs.jpg".format(section_name)),
-            "hero_class": hcls,
-        }
-
-    def alert(self):
-        alert = find_card(self._cw, "alert")
-        if alert is not None and alert.content.strip():
-            return alert.content
-
-    def heroimage(self, view):
-        if view and view.__regid__ == "index":
-            return {
-                "alert": self.alert(),
-                "image": self.heroimage_desc(),
-            }
-        else:
-            return None
+        return get_site_links(self._cw)
 
     def sn_data(self):
         sn_data = self.portal_config.get("sn", {})
@@ -178,112 +185,161 @@ class PniaMainTemplate(JinjaViewMixin, basetemplates.TheMainTemplate):
         return sn_data
 
     def footer_sections(self):
-        return [
-            {
-                "labels": {"fr": self._cw._(section.split("footer_")[1])},
-                "links": self.site_links.get(section, []),
-            }
-            for section in (
-                "footer_public_sites",
-                "footer_archives_sites",
-                "footer_search_notebooks",
-                "footer_usefull_links",
+        links = []
+        section_links = self.site_links.get("footer_ministries", [])
+        if section_links:
+            links.append(
+                {
+                    "labels": {"fr": self._cw._("Interministerial portal")},
+                    "links": section_links,
+                }
             )
-        ]
+        for section in (
+            "footer_public_sites",
+            "footer_archives_sites",
+            "footer_search_notebooks",
+            "footer_usefull_links",
+            "footer_links_directories",
+        ):
+            section_links = self.site_links.get(section, [])
+            if section_links:
+                links.append(
+                    {
+                        "labels": {"fr": self._cw._(section.split("footer_")[1])},
+                        "links": section_links,
+                    }
+                )
+        return links
 
     def footer_links(self):
         return self.site_links.get("footer_links", [])
 
-    def footer_ministries(self):
-        return self.site_links.get("footer_ministries", [])
-
-    def mission_link(self):
+    def mission_link(self, is_nomina=False):
         link = self.site_links.get("foundout_link")
-        return link[0] if link else None
+        if not link:
+            return
+
+        if is_nomina:
+            return link[1] if len(link) == 2 else None
+
+        return link[0]
 
     def display_top_button(self, view):
-        notop_views = ("esearch",)
-        if view.__regid__ in notop_views or "search" in self._cw.form:
-            return False
         if getattr(view, "notop", False):
             return False
         return True
 
-    def top_sections_desc(self):
-        cnx = self._cw
-        topsections = top_sections_desc(self._cw)
-        # add quick links
-        _ = self._cw._
-        title, desc, label, name = _("Quick access"), None, None, "quick_access"
-        children = []
-        for eid, link, child_label, child_desc in cnx.execute(
-            """ Any X, U, L, S ORDERBY O WHERE
-                X is SiteLink, X context "main_menu_links",
-                X order O, X link U,
-                X label_{lang} L, X description_{lang} S""".format(
-                lang=cnx.lang
-            )
-        ):
-            children.append(
-                (
-                    eid,
-                    link if link.startswith("http") else self._cw.build_url(link),
-                    child_label,
-                    child_desc or "",
-                )
-            )
-        if children:
-            topsections.append((title.upper(), label, name, name, desc or "", children))
-        return topsections
+    def view_entity(self, view):
+        if self.cw_rset and len(self.cw_rset) == 1:
+            return self.cw_rset.one()
+        if hasattr(view, "entity"):
+            # see NominaPrimaryView
+            return view.entity
+
+    @cachedproperty
+    def search_faqs(self):
+        return get_data_with_cache(self._cw, f"search_faqs_{self._cw.lang}", get_search_faqs)
+
+    def alert(self):
+        alert = find_card(self._cw, "alert")
+        if alert is not None and alert.content.strip():
+            cssclass = alert.synopsis if alert.synopsis else "fr-alert--warning"
+            return {
+                "content": alert.content,
+                "title": alert.title,
+                "class": cssclass.strip(),
+                "hash": hashlib.sha1(alert.content.encode("utf8")).hexdigest(),
+            }
+
+    def get_page_id(self, view):
+        if view and view.__regid__ == "index":
+            return "homepage"
+
+        if view and view.__regid__ == "nomina-home":
+            return "homepage"
+        return "page"
+
+    def get_base_search_route(self, view):
+        base_search_route = "basedenoms"
+        if not view:
+            base_search_route = ""
+        elif view.__regid__ == "index":
+            base_search_route = ""
+        elif view.__regid__ == "nominacensusrecord":
+            base_search_route = f"{base_search_route}_recensement"
+        elif view.__regid__ == "nominamilitaryrecord":
+            base_search_route = f"{base_search_route}_militaire"
+        elif view.__regid__ == "nominacivilstatusrecord":
+            base_search_route = f"{base_search_route}_etat_civil"
+        return base_search_route
 
     def template_context(self, view):
-        archives_label = self._cw._("###in archives###")
-        siteres_label = self._cw._("###site resources###")
+        archives_choice = {
+            "label": self._cw._("###in archives###"),
+            "info": self._cw._("archives_search_info"),
+        }
+        siteres_choice = {
+            "label": self._cw._("###site resources###"),
+            "info": self._cw._("siteres_search_info"),
+        }
         lang = self._cw.lang
-        if lang == "fr":
-            archives_label = reveal_glossary(self._cw, archives_label)
-            siteres_label = reveal_glossary(self._cw, siteres_label, cached=True)
-        heroimage = self.heroimage(view)
+
+        entity = self.view_entity(view)
+        if entity:
+            parents = [entity.eid] + get_ancestors(entity)
+        else:
+            parents = []
+        if getattr(view, "faq_category", None):
+            faqs = view.faqs_attrs()
+        else:
+            faqs = None
+        is_nomina = getattr(view, "is_nomina", False)
         ctx = {
-            "header_row": None,
+            "_": self._cw._,
             "title": view.page_title(),
-            "xml_escaped_title": xml_escape(view.page_title()),
             "lang": lang,
             "picklabel": picklabel,
             "base_url": self._cw.build_url("").rstrip("/"),
             "data_url": self._cw.datadir_url,
             "page_url": xml_escape(self._cw.url()),
+            "parents": parents,
             "search_info_url": build_faq_url(self._cw, "02_faq_search"),
-            "archives_label": archives_label,
-            "siteres_label": siteres_label,
+            "archives_choice": archives_choice,
+            "siteres_choice": siteres_choice,
             "advanced_search_url": self._cw.build_url("advancedSearch"),
             "cssfiles": self._cw.uiprops["STYLESHEETS"][:],
             "jsfiles": self._cw.uiprops["PNIA_JAVASCRIPTS"][:],
-            "homepage": bool(heroimage),
-            "mission_link": self.mission_link(),
-            "page_id": "homepage" if heroimage else "page",
-            "display_totop": self.display_top_button(view),
-            "_": self._cw._,
-            "topsections": self.top_sections_desc(),
-            "heroimage": heroimage,
+            "mission_link": self.mission_link(is_nomina),
+            "page_id": self.get_page_id(view),
+            "is_nomina": is_nomina,
+            "topsections": get_top_sections_infos(self._cw),
             "sn": self.sn_data(),
             "cms": self._cw.vreg.config.get("instance-type") == "cms",
             "footer": {
-                "ministries": self.footer_ministries(),
                 "sections": self.footer_sections(),
                 "footer_links": self.footer_links(),
             },
             "query": self._cw.form.get("q", ""),
             "default_picto_src": self._cw.uiprops["DOCUMENT_IMG"],
+            "display_sparql_search": FEATURE_SPARQL_ACCESSIBLE,
             "display_professional_access": True,
             "display_search_bar": True,
             "display_advanced_search": FEATURE_ADVANCED_SEARCH,
+            "tac_domain": self._cw.vreg.config.get("tac_domain"),
+            "tac_uuid": self._cw.vreg.config.get("tac_uuid"),
+            "search_faqs": self.search_faqs,
+            "faqs": faqs,
+            "alert": self.alert(),
+            "is_production": 1 if SITE_TYPE == "production" else 0,
+            "noreact": getattr(view, "noreact", True),
+            "base_search_route": self.get_base_search_route(view),
         }
         # XXX fix breadcrumbs implementation (listview, etc.) later
         breadcrumbs = []
-        xiti_chapters = getattr(view, "xiti_chapters", ())
-        if self.cw_rset and len(self.cw_rset) == 1:
-            entity = self.cw_rset.one()
+        eulerian_adapter = getattr(view, "eulerian_tag", False)
+        if eulerian_adapter:
+            eulerian_adapter = EulerianViewsAdapter(self._cw, view)
+        if entity:
             ibc = entity.cw_adapt_to("IBreadCrumbs")
             if ibc is not None:
                 for bc_element in ibc.breadcrumbs():
@@ -292,7 +348,15 @@ class PniaMainTemplate(JinjaViewMixin, basetemplates.TheMainTemplate):
                     elif isinstance(bc_element, str):
                         breadcrumbs.append((None, bc_element))
                     else:
-                        breadcrumbs.append((bc_element.absolute_url(), bc_element.dc_title()))
+                        if len(ibc.breadcrumbs()) == 1:
+                            breadcrumbs.extend(
+                                (
+                                    (self._cw.build_url(""), self._cw._("Home")),
+                                    (bc_element.absolute_url(), bc_element.dc_title()),
+                                )
+                            )
+                        else:
+                            breadcrumbs.append((bc_element.absolute_url(), bc_element.dc_title()))
                 ctx["breadcrumbs"] = breadcrumbs
             graph = entity2schemaorg(entity)
             if graph is not None:
@@ -302,18 +366,22 @@ class PniaMainTemplate(JinjaViewMixin, basetemplates.TheMainTemplate):
             # if the view explicitly defines some chapters, use them
             # otherwise we would have no way to distinguish chapters for
             # primary and other views for a single entity (e.g. commemo index)
-            if not xiti_chapters:
-                ixiti = entity.cw_adapt_to("IXiti")
-                if ixiti is not None:
-                    xiti_chapters = ixiti.chapters
+            if not eulerian_adapter:
+                eulerian_adapter = entity.cw_adapt_to("IEulerian")
         elif hasattr(view, "breadcrumbs"):
             ctx["breadcrumbs"] = view.breadcrumbs
-        xiti_site = self._cw.vreg.config.get("xiti_site")
-        if xiti_site:  # cms shouldn't have xiti config
-            ctx["xiti"] = {
-                "site": xiti_site,
-                "n2": self._cw.vreg.config.get("xiti_n2", ""),
-                "pagename": pagename_from_chapters(xiti_chapters),
+        eulerian_domain = self._cw.vreg.config.get("eulerian_domain")
+        if eulerian_domain and eulerian_adapter:  # cms shouldn't have eulerian config
+            page = {
+                "path": eulerian_adapter.path,
+                "pagegroup": eulerian_adapter.pagegroup,
+                "pagelabel": eulerian_adapter.pagelabel,
+            }
+            ctx["tracking"] = {
+                "domain": eulerian_domain,
+                "page": {k: v for k, v in page.items() if v},
+                "events": eulerian_adapter.events,
+                "additional": eulerian_adapter.additional,
             }
         langswitch_comp = self._cw.vreg["components"].select(
             "pnia.langswitch.component", self._cw, rset=self.cw_rset

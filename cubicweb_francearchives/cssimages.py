@@ -83,5 +83,5 @@ def generate_thumbnails(cnx, image_file, image_path, sizes):
                 "data": Binary(content),
                 "data_format": image_file.data_format,
                 "data_name": thumb_name,
-            }
+            },
         )

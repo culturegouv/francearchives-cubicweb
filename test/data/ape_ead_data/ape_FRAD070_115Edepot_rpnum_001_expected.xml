@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<ead xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="urn:isbn:1-931666-22-9">
+<ead xmlns:cpf="urn:isbn:1-931666-33-4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:isbn:1-931666-22-9">
    <eadheader countryencoding="iso3166-1" dateencoding="iso8601" repositoryencoding="iso15511">
-      <eadid countrycode="FR" identifier="FRAD70_115Edepot_Archives_communales_déposées_de_Cerre-lès-Noroy" url="https://francearchives.fr/findingaid/XXX">FRAD70_115Edepot_Archives_communales_déposées_de_Cerre-lès-Noroy</eadid>
+      <eadid countrycode="FR" identifier="FRAD70_115Edepot_Archives_communales_déposées_de_Cerre-lès-Noroy" url="https://francearchives.gouv.fr/findingaid/XXX">FRAD70_115Edepot_Archives_communales_déposées_de_Cerre-lès-Noroy</eadid>
       <filedesc>
          <titlestmt>
             <titleproper>115Edepot - Archives communales déposées de Cerre-lès-Noroy</titleproper>
@@ -24,7 +24,7 @@
          </langusage>
       </profiledesc>
    </eadheader>
-   <archdesc level="fonds">
+   <archdesc level="fonds" otherlevel="subfonds">
       <did>
          <unittitle>Série Edepot</unittitle>
          <unittitle>ARCHIVES COMMUNALES DEPOSEES. ARCHIVES DES INTERCOMMUNALITES.</unittitle>
@@ -62,16 +62,16 @@
       </accessrestrict>
       <dsc>
             <!--niveau de plan de classement-->
-         <c>
+         <c level="recordgrp">
             <did>
                <unittitle>ARCHIVES ANCIENNES</unittitle>
             </did>
                <!--niveau de plan de classement-->
-            <c>
+            <c level="recordgrp">
                <did>
                   <unittitle>CULTES-INSTRUCTION PUBLIQUE-ASSISTANCE PUBLIQUE</unittitle>
                </did>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 1</unitid>
                      <unitid>GG1</unitid>
@@ -83,7 +83,7 @@
                         <p>Communicable </p>
                      </accessrestrict>
                </c>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 2</unitid>
                      <unitid>GG2</unitid>
@@ -95,7 +95,7 @@
                         <p>Communicable </p>
                      </accessrestrict>
                </c>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 3</unitid>
                      <unitid>GG3</unitid>
@@ -107,7 +107,7 @@
                         <p>Communicable </p>
                      </accessrestrict>
                </c>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 4</unitid>
                      <unitid>GG4</unitid>
@@ -119,7 +119,7 @@
                         <p>Communicable </p>
                      </accessrestrict>
                </c>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 5</unitid>
                      <unitid>GG5</unitid>
@@ -131,7 +131,7 @@
                         <p>Communicable </p>
                      </accessrestrict>
                </c>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 6</unitid>
                      <unitid>GG6</unitid>
@@ -143,7 +143,7 @@
                         <p>Communicable </p>
                      </accessrestrict>
                </c>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 7</unitid>
                      <unitid>GG7</unitid>
@@ -158,16 +158,16 @@
                   <!--niveau de plan de classement-->
             </c>
          </c>
-         <c>
+         <c level="recordgrp">
             <did>
                <unittitle>ARCHIVES MODERNES</unittitle>
             </did>
                <!--niveau de plan de classement-->
-            <c>
+            <c level="recordgrp">
                <did>
                   <unittitle>ADMINISTRATION GENERALE DE LA COMMUNE</unittitle>
                </did>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 8</unitid>
                      <unitid>D1</unitid>
@@ -179,7 +179,7 @@
                         <p>Communicable </p>
                      </accessrestrict>
                </c>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 9</unitid>
                      <unitid>D2</unitid>
@@ -191,7 +191,7 @@
                         <p>Communicable </p>
                      </accessrestrict>
                </c>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 10</unitid>
                      <unitid>D3</unitid>
@@ -203,7 +203,7 @@
                         <p>Communicable </p>
                      </accessrestrict>
                </c>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 11</unitid>
                      <unitid>D4</unitid>
@@ -217,11 +217,11 @@
                </c>
                   <!--niveau de plan de classement-->
             </c>
-            <c>
+            <c level="recordgrp">
                <did>
                   <unittitle>POPULATION-ECONOMIE SOCIALE-STATISTIQUE</unittitle>
                </did>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 12</unitid>
                      <unitid>F1</unitid>
@@ -235,11 +235,11 @@
                </c>
                   <!--niveau de plan de classement-->
             </c>
-            <c>
+            <c level="recordgrp">
                <did>
                   <unittitle>CONTRIBUTIONS-ADMINISTRATIONS FINANCIERES</unittitle>
                </did>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 13</unitid>
                      <unitid>G1</unitid>
@@ -251,7 +251,7 @@
                         <p>Communicable </p>
                      </accessrestrict>
                </c>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 14</unitid>
                      <unitid>G2</unitid>
@@ -265,11 +265,11 @@
                </c>
                   <!--niveau de plan de classement-->
             </c>
-            <c>
+            <c level="recordgrp">
                <did>
                   <unittitle>AFFAIRES MILITAIRES</unittitle>
                </did>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 15</unitid>
                      <unitid>H1</unitid>
@@ -283,11 +283,11 @@
                </c>
                   <!--niveau de plan de classement-->
             </c>
-            <c>
+            <c level="recordgrp">
                <did>
                   <unittitle>POLICE-HYGIENE PUBLIQUE-JUSTICE</unittitle>
                </did>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 16</unitid>
                      <unitid>I1</unitid>
@@ -301,11 +301,11 @@
                </c>
                   <!--niveau de plan de classement-->
             </c>
-            <c>
+            <c level="recordgrp">
                <did>
                   <unittitle>ELECTIONS ET PERSONNEL</unittitle>
                </did>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 17</unitid>
                      <unitid>K1</unitid>
@@ -319,11 +319,11 @@
                </c>
                   <!--niveau de plan de classement-->
             </c>
-            <c>
+            <c level="recordgrp">
                <did>
                   <unittitle>FINANCES DE LA COMMUNE</unittitle>
                </did>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 18</unitid>
                      <unitid>L1</unitid>
@@ -337,11 +337,11 @@
                </c>
                   <!--niveau de plan de classement-->
             </c>
-            <c>
+            <c level="recordgrp">
                <did>
                   <unittitle>EDIFICES COMMUNAUX</unittitle>
                </did>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 19</unitid>
                      <unitid>M1</unitid>
@@ -355,11 +355,11 @@
                </c>
                   <!--niveau de plan de classement-->
             </c>
-            <c>
+            <c level="recordgrp">
                <did>
                   <unittitle>BIENS ET BOIS COMMUNAUX-EAUX-DROITS DIVERS</unittitle>
                </did>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 20</unitid>
                      <unitid>N1</unitid>
@@ -373,11 +373,11 @@
                </c>
                   <!--niveau de plan de classement-->
             </c>
-            <c>
+            <c level="recordgrp">
                <did>
                   <unittitle>TRAVAUX PUBLICS-VOIRIE-MOYENS DE TRANSPORT-REGIME DES EAUX</unittitle>
                </did>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 21</unitid>
                      <unitid>O1</unitid>
@@ -391,11 +391,11 @@
                </c>
                   <!--niveau de plan de classement-->
             </c>
-            <c>
+            <c level="recordgrp">
                <did>
                   <unittitle>ASSISTANCE ET PREVOYANCE</unittitle>
                </did>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 22</unitid>
                      <unitid>Q1</unitid>
@@ -407,7 +407,7 @@
                         <p>Communicable </p>
                      </accessrestrict>
                </c>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 23</unitid>
                      <unitid>Q2</unitid>
@@ -421,11 +421,11 @@
                </c>
                   <!--niveau de plan de classement-->
             </c>
-            <c>
+            <c level="recordgrp">
                <did>
                   <unittitle>INSTRUCTION PUBLIQUE-SCIENCES, LETTRES ET ARTS</unittitle>
                </did>
-               <c>
+               <c level="file">
                   <did>
                      <unitid>115 Edepot 24</unitid>
                      <unitid>R1</unitid>

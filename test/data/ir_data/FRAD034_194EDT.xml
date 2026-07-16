@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <ead xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="urn:isbn:1-931666-22-9">
   <eadheader countryencoding="iso3166-1" dateencoding="iso8601" repositoryencoding="iso15511">
-    <eadid countrycode="FR" identifier="FRAD034_194EDT" mainagencycode="FRAD034" url="https://francearchives.fr/findingaid/d16643a704946f953acc3f81c3008862023e0da0">FRAD034_194EDT</eadid>
+    <eadid countrycode="FR" identifier="FRAD034_194EDT" mainagencycode="FRAD034" url="https://francearchives.gouv.fr/findingaid/d16643a704946f953acc3f81c3008862023e0da0">FRAD034_194EDT</eadid>
     <filedesc>
       <titlestmt>
         <titleproper>Archives communales déposées de Paulhan (1610 - 1799) </titleproper>
@@ -259,7 +259,6 @@
                 <note type="mnesysinternal">
                   <p/>
                 </note>
-                <dao xlink:href="https://archives-pierresvives.herault.fr/ark:/37279/vtafdaa272402b05d6c/daogrp/0" xlink:type="simple" xlink:title=""/>
                 <dao xlink:href="https://archives-pierresvives.herault.fr/ark:/37279/vtafdaa272402b05d6c/daogrp/0/vignette" xlink:type="simple" xlink:role="thumbnail"/>
               </did>
               <controlaccess>
@@ -288,7 +287,6 @@
                   <p/>
                 </note>
                 <dao xlink:href="https://archives-pierresvives.herault.fr/ark:/37279/vta19b1548ac10ced00/daogrp/0" xlink:type="simple" xlink:title=""/>
-                <dao xlink:href="https://archives-pierresvives.herault.fr/ark:/37279/vta19b1548ac10ced00/daogrp/0/vignette" xlink:type="simple" xlink:role="thumbnail"/>
               </did>
               <controlaccess>
                 <geogname>Paulhan (Hérault, France)</geogname>

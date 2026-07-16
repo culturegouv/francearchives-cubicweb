@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <OAI-PMH xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.openarchives.org/OAI/2.0/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"><responseDate>2018-09-05T15:07:38Z</responseDate><request verb="GetRecord" metadataPrefix="ape_ead" identifier="FRAD095_00374">https://localhost:80/oai</request><GetRecord><record><header><identifier>FRAD095_00374</identifier><datestamp>2018-09-05T15:07:38Z</datestamp></header><metadata><ead xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="urn:isbn:1-931666-22-9" audience="external" xsi:schemaLocation="urn:isbn:1-931666-22-9 http://www.loc.gov/ead/ead.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <eadheader countryencoding="iso3166-1" dateencoding="iso8601" langencoding="iso639-2b" repositoryencoding="iso1551 1" scriptencoding="iso15924" relatedencoding="MARC21">
-      <eadid identifier="FR-AN_FRAN_IR_050236" countrycode="FR" mainagencycode="FR-AN" url="https://francearchives.fr/findingaid/FR-AN_FRAN_IR_050236">FRAN_IR_050236</eadid>
+      <eadid identifier="FR-AN_FRAN_IR_050236" countrycode="FR" mainagencycode="FR-AN" url="https://francearchives.gouv.fr/findingaid/FR-AN_FRAN_IR_050236">FRAN_IR_050236</eadid>
       <filedesc>
          <titlestmt>
             <titleproper encodinganalog="245">Papiers Marie-Antoinette (1770-1804)</titleproper>

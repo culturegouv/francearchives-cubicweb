@@ -116,6 +116,7 @@ export function useAdvancedSearch() {
     const [archivesRef, toggleArchivesRef, setArchivesRef] = useToggle()
     const [ressourcesSite, toggleRessourcesSite, setRessourcesSite] =
         useToggle()
+    const [canReset, setCanReset] = useState(false)
     const [
         searches,
         addSearchValue,
@@ -196,11 +197,13 @@ export function useAdvancedSearch() {
         addAuthorityLabel()
         addOperator()
         addSearchType()
+        setCanReset(true)
     }
 
     const updateSearch = ({value, label}, index: number) => {
         updateSearchValue(value, index)
         updateAuthorityLabel(label, index)
+        setCanReset(true)
     }
 
     const removeSearch = (index: number) => {
@@ -213,11 +216,13 @@ export function useAdvancedSearch() {
     const addService = () => {
         addServiceValue()
         addServiceLabel()
+        setCanReset(true)
     }
 
     const updateService = ({value, label}, index: number) => {
         updateServiceValue(value, index)
         updateServiceLabel(label, index)
+        setCanReset(true)
     }
 
     const removeService = (index: number) => {
@@ -229,6 +234,7 @@ export function useAdvancedSearch() {
         addProducerValue()
         addProducerType()
         addProducerOperator()
+        setCanReset(true)
     }
 
     const removeProducer = (index: number) => {
@@ -240,11 +246,12 @@ export function useAdvancedSearch() {
     // Read and load values from session storage
     const loadSessionStorage = () => {
         const previousData = sessionStorage.getItem('faAdvancedSearch')
-        if (previousData !== null) {
+        if (previousData !== null && previousData.length) {
             const data = JSON.parse(previousData)
             setArchivesRef(data['archivesRef'])
             setRessourcesSite(data['ressourcesSite'])
             setSearches(data['searches'][0])
+            setCanReset(true)
             setOperators(data['searches'][1])
             setAuthoritiesLabels(data['searches'][2])
             setSearchTypes(data['searches'][3])
@@ -263,6 +270,9 @@ export function useAdvancedSearch() {
         if (resetTypes) {
             setArchivesRef(true)
             setRessourcesSite(true)
+            setCanReset(false)
+        } else {
+            setCanReset(true)
         }
         setSearches([''])
         setOperators([])
@@ -278,6 +288,7 @@ export function useAdvancedSearch() {
         setMaxDate(null)
         setClearServicesNow(true)
         setClearProducersNow(true)
+        sessionStorage.removeItem('faAdvancedSearch')
     }
 
     const launchSearch = () => {
@@ -384,5 +395,7 @@ export function useAdvancedSearch() {
         setClearServicesNow,
         clearProducersNow,
         setClearProducersNow,
+        canReset,
+        setCanReset,
     }
 }

@@ -32,11 +32,11 @@ import os.path as osp
 import unittest
 
 from cubicweb import Unauthorized, Binary
-from cubicweb.devtools import testlib
+from cubicweb_web.devtools.testlib import WebCWTC
 from cubicweb_francearchives.testutils import S3BfssStorageTestMixin
 
 
-class HookTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
+class HookTests(S3BfssStorageTestMixin, WebCWTC):
     def test_delete_card(self):
         with self.admin_access.cnx() as cnx:
             card = cnx.create_entity("Card", title="Test", wikiid="test")
@@ -92,8 +92,11 @@ class HookTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
                     bottom_content=bottom,
                 )
             cnx.commit()
-            new_top = '<div><a href="www.google" rel="nofollow noopener noreferrer" target="_blank">google</a></div>'  # noqa
-            new_bottom = '<div><img src="http://advaldoise.fr" alt=""></div>'
+            new_top = (
+                '<div><a href="www.google" rel="nofollow noopener noreferrer external" '
+                'target="_blank">google</a></div>'
+            )
+            new_bottom = '<div><img src="http://advaldoise.fr" ' 'alt=""></div>'
             self.assertEqual(map.top_content, new_top)
             self.assertEqual(map.bottom_content, new_bottom)
 

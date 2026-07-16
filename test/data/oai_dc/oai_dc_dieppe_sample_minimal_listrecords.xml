@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+<responseDate>2024-08-29T14:17:55Z</responseDate>
+<request verb="ListRecords" metadataPrefix="oai_dc">https://patrimoine.dieppe.fr/oai</request>
+<ListRecords>
+  <record>
+    <header>
+      <identifier>oai:patrimoine.dieppe.fr:1:3</identifier>
+      <datestamp>2020-04-06T08:48:21Z</datestamp>
+      <setSpec>oai:sets:2</setSpec>
+    </header>
+    <metadata>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+        <dc:title>Château (vue du)</dc:title>
+        <dc:subject>Châteaux/Domaines/Manoirs</dc:subject>
+        <dc:description>Ste-Marguerite-sur-Mer.- Le Château</dc:description>
+        <dc:type>iconographie</dc:type>
+        <dc:format>Négatif</dc:format>
+        <dc:format>Nitrate de cellulose</dc:format>
+        <dc:format>10 x 9,5 cm</dc:format>
+        <dc:identifier>https://patrimoine.dieppe.fr/idurl/1/3</dc:identifier>
+        <dc:source>Médiathèque Jean Renoir - Fonds ancien</dc:source>
+        <dc:language>fre</dc:language>
+        <dc:rights>© Ville de Dieppe</dc:rights>
+        <dc:relation>
+          vignette : https://patrimoine.dieppe.fr/i/?IIIF=/09/88/f2/1d/0988f21d-888a-4c93-9777-42fadef86980/iiif/bm76217_gm0004_000001.tif/full/!256,256/0/default.jpg
+        </dc:relation>
+        <dc:description>Cote du document : GM0004</dc:description>
+        <dc:hasFormat>https://patrimoine.dieppe.fr/iiif/3/manifest</dc:hasFormat>
+</oai_dc:dc>
+    </metadata>
+  </record>
+</ListRecords>
+</OAI-PMH>

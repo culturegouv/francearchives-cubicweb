@@ -50,7 +50,7 @@ from cubicweb_francearchives.xmlutils import process_html
 def process_title(title):
     splited = title.split("|")
     if len(splited) > 1:
-        return "<br />".join(e.strip() for e in splited)
+        title = " ".join(e.strip() for e in splited)
     return title
 
 
@@ -92,17 +92,13 @@ class AbstractFAEntityMainPropsAdapter(EntityMainPropsAdapter):
         )
 
     def formatted_additional_resources(self):
-        return process_html(
-            self._cw,
-            self.entity.printable_value("additional_resources"),
-            text_format=self.text_format,
-            labels=["originalsloc"],
-        )
+        """do not clean HTML data in CSV export"""
+        if self.text_format == "text/html":
+            return self.clean_value(self.entity, "additional_resources")
+        return self.clean_value(self.entity, "additional_resources")
 
     def formatted_physdec(self):
-        return process_html(
-            self._cw, self.did.printable_value("physdesc"), text_format=self.text_format
-        )
+        return self.clean_value(self.did, "physdesc")
 
     def publisher_export_label(self):
         if self.entity.related_service:
@@ -112,24 +108,14 @@ class AbstractFAEntityMainPropsAdapter(EntityMainPropsAdapter):
     @cachedproperty
     def dates(self):
         if self.no_xml_attachment:
-            return self.did.unitdate or self.did.period
+            return self.did.printable_value("unitdate") or self.did.period
         if self.did.period:
             return self.did.period
-        return self.did.unitdate
+        return self.did.printable_value("unitdate")
 
     def languages(self, did):
         if did.lang_description and did.lang_code not in ("fre", "fr", "français"):
             return self.clean_value(did, "lang_description")
-
-    @cachedproperty
-    def formatted_dates(self):
-        _ = self._cw._
-        date = self.dates
-        if date:
-            date = "%s %s" % (_("Date :"), date)
-        else:
-            date = _("Sans date")
-        return date
 
     @cachedproperty
     def formatted_content(self):
@@ -181,12 +167,15 @@ class AbstractFAEntityMainPropsAdapter(EntityMainPropsAdapter):
                 (_("publisher_label"), remove_extension(self.publisher_export_label())),
             ]
         else:
+            properties = [
+                ("{}{}".format(self._cw._("Date"), self._cw._(":")), self.dates),
+            ]
             shortened_title = self.shortened_title()
             if shortened_title != formatted_title:
-                properties = [(_("title_label"), formatted_title)]
+                properties.insert(0, (_("title_label"), formatted_title))
         properties += [(_("scopecontent_label"), self.formatted_content)]
         if did.unitid:
-            properties.append((_("unitid_label"), remove_extension(did.unitid)))
+            properties.append((_("unitid_label"), remove_extension(did.printable_value("unitid"))))
         properties.extend(self.pre_additional_props())
         properties.extend(self.common_props())
         properties.extend(self.post_additional_props())
@@ -201,6 +190,8 @@ class AbstractFAEntityMainPropsAdapter(EntityMainPropsAdapter):
                 properties.append(
                     (_("file_label"), attachment.cw_adapt_to("IDownloadable").download_url())
                 )
+        if export:
+            return [entry for entry in properties if entry[-1]]
         properties_list = []
         for idx, entry in enumerate(properties):
             entry = list(entry)
@@ -208,7 +199,8 @@ class AbstractFAEntityMainPropsAdapter(EntityMainPropsAdapter):
             properties_list.append(entry)
         return [entry for entry in properties_list if entry[-1]]
 
-    def indexes(self, vid="incontext"):
+    @cachedproperty
+    def _indexes(self):
         _ = self._cw._
         entity = self.entity
         properties = []
@@ -221,13 +213,14 @@ class AbstractFAEntityMainPropsAdapter(EntityMainPropsAdapter):
             (_("name_index_label"), "name"),
             (_("famname_index_label"), "famname"),
         ):
-            properties.append(
-                (_(label), ", ".join(e.view(self.vid) for e in agent_types.get(itype, [])))
-            )
+            data = agent_types.get(itype, [])
+            if data:
+                properties.append((_(label), data))
         geognames = list(entity.geo_indexes().entities()) + list(
             entity.main_indexes("geogname").entities()
         )
-        properties.append((_("geo_indexes_label"), ", ".join(e.view(self.vid) for e in geognames)))
+        if geognames:
+            properties.append((_("geo_indexes_label"), geognames))
         subject_types = defaultdict(list)
         for index in entity.subject_indexes().entities():
             subject_types[index.type].append(index)
@@ -237,22 +230,32 @@ class AbstractFAEntityMainPropsAdapter(EntityMainPropsAdapter):
             (_("function_label"), "function"),
             (_("occupation_label"), "occupation"),
         ):
-            properties.append(
-                (_(label), ", ".join(e.view(self.vid) for e in subject_types.get(itype, [])))
-            )
-        return [entry for entry in properties if entry[-1]]
+            data = subject_types.get(itype, [])
+            if data:
+                properties.append((_(label), data))
+        return properties
+
+    def indexes(self, vid="incontext"):
+        indexes_props = []
+        for label, entities in self._indexes:
+            if vid == "incontext":
+                indexes_props.append((label, [(e.authority_url, e.dc_title()) for e in entities]))
+            else:
+                indexes_props.append((label, ", ".join([e.dc_title() for e in entities])))
+        return indexes_props
 
     def digitized_urls(self):
         entity = self.entity
         urls = entity.digitized_urls
-        if len(urls) > 2:
-            return (urls[0], urls[-1])
+        if len(urls):
+            return (urls[0],)
         return urls
 
     def csv_export_props(self):
         title = self._cw._("Download shelfmark")
         return {
-            "url": self._cw.build_url("%s.csv" % self.entity.rest_path()),
+            "url": self._cw.build_url(f"{self.entity.rest_path()}.csv"),
+            "filename": f"{self.entity.rest_path()}.csv".replace("/", "_"),
             "title": title,
             "link": title,
         }
@@ -303,6 +306,10 @@ class FAComponentEntityMainPropsAdapter(AbstractFAEntityMainPropsAdapter):
             (_("related_finding_aid_label"), entity.finding_aid[0].view(self.vid)),
         ]
 
+    @property
+    def display_fa_context(self):
+        return True
+
 
 class FindingEntityMainPropsAdapter(AbstractFAEntityMainPropsAdapter):
     __select__ = is_instance("FindingAid")
@@ -318,8 +325,14 @@ class FindingEntityMainPropsAdapter(AbstractFAEntityMainPropsAdapter):
             {"e": self.entity.eid},
         )
         if rset:
-            return rset.one()
+            return rset.complete_entity(0, 0)
         return None
+
+    @cachedproperty
+    def faheader(self):
+        faheader = self.entity.fa_header[0]
+        faheader.complete()
+        return faheader
 
     @cachedproperty
     def ape(self):
@@ -332,27 +345,25 @@ class FindingEntityMainPropsAdapter(AbstractFAEntityMainPropsAdapter):
         return None
 
     def pre_additional_props(self):
-        _ = self._cw._
-        entity = self.entity
-        faheader = entity.fa_header[0]
         return [
-            (_("publicationstmt_label"), self.clean_value(faheader, "publicationstmt")),
+            (
+                self._cw._("publicationstmt_label"),
+                self.clean_value(self.faheader, "publicationstmt"),
+            ),
         ]
 
     def post_additional_props(self):
         _ = self._cw._
-        entity = self.entity
-        faheader = entity.fa_header[0]
         return [
             # XXX we should check xslt transform before displaying this field
             # (_('titlestmt_label'), self.clean_value(faheader, 'titlestmt')),
             (_("note_label"), self.clean_value(self.did, "note")),
-            (_("changes_label"), self.clean_value(faheader, "changes")),
+            (_("changes_label"), self.clean_value(self.faheader, "changes")),
         ]
 
     def final_props(self):
         _ = self._cw._
-        return [(_("eadid_label"), remove_extension(self.entity.eadid))]
+        return [(_("eadid_label"), remove_extension(self.entity.printable_value("eadid")))]
 
     def inventory_source(self):
         _ = self._cw._
@@ -363,15 +374,30 @@ class FindingEntityMainPropsAdapter(AbstractFAEntityMainPropsAdapter):
             return
 
         adapted = attachment.cw_adapt_to("IDownloadable")
-        filename, extension = osp.splitext(adapted.download_file_name())
+        filename = adapted.download_file_name()
+        _filename, extension = osp.splitext(filename)
         attachment_format = extension[1:].upper()
+        # Do not display the download button for CSV files
+        if attachment_format == "CSV":
+            return
         file_infos = None
-        if extension:
-            file_infos = " ({}, {})".format(attachment_format, attachment.formatted_size())
-        return {
+        lang = _("french_lang") if self._cw.lang != "fr" else None
+        if attachment_format:
+            file_infos = "{} - {}".format(attachment_format, attachment.formatted_size())
+            if lang:
+                file_infos = f"{file_infos} - {lang}"
+        info = {
             "url": adapted.download_url(),
-            "target_blank": True,
-            "title": "{}{}{}".format(filename, file_infos, _("- New window")),
+            "title": "{} - {}{}".format(filename, file_infos, _("- New window")),
             "link": _("Download the inventory"),
+            "filename": filename,
+            "filetype": attachment_format,
             "info": file_infos,
         }
+        if lang:
+            info["lang"] = _("lang_fr")
+        return info
+
+    @property
+    def display_fa_context(self):
+        return bool(self.entity.top_children_count)

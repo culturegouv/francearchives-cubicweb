@@ -1,9 +1,9 @@
 {
   "@context": {
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "schema": "http://schema.org/"
+    "schema": "https://schema.org/"
   },
-  "@id": "http://testing.fr/cubicweb/authorityrecord/FRAN_NP_006883",
+  "@id": "https://testing.cubicweb/authorityrecord/FRAN_NP_006883",
   "@type": "schema:Person",
   "schema:birthDate": "1940-01-01",
   "schema:deathDate": "2000-05-01",
@@ -12,5 +12,5 @@
   "schema:name": "Jean toto",
   "schema:relatedTo": "Jean Lapin",
   "schema:sameAs": "http://toto.fr#me",
-  "schema:url": "http://testing.fr/cubicweb/authorityrecord/FRAN_NP_006883"
+  "schema:url": "https://testing.cubicweb/authorityrecord/FRAN_NP_006883"
 }

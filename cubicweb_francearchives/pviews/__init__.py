@@ -41,6 +41,7 @@ def includeme(config):
     config.include(".cwroutes")
     config.include(".tour_routes")
     config.include(".maproutes")
+    config.include(".cmsroutes")
     config.include(".nominaroutes")
     config.include("cubicweb_oaipmh.views")
     config.include("cubicweb_prometheus.views")

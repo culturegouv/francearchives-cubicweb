@@ -1,32 +1,17 @@
-{% from "./mixins.jinja2" import modalfaq -%}
-<section id="document" class="circular-view document-view">
-  {% block head %}
-    <h1><span class="visually-hidden">{{ _(entity.__regid__) }} : </span>{{ entity.title }}</h1>
-  {% endblock %}
-  {% if metadata -%}
-   <div class="content-metadata">
-    {% for label, value in metadata -%}
-        <p class="content-metadata-item">
-            {% if label -%}{{ _(label) }}{{ _(":")}}{% endif -%}{{ value }}
-        </p>
-    {% endfor -%}
+{% from "./mixins.jinja2" import mixed_values_horizontal, content_metadata -%}
+{%- set lang_attr='lang="{}"'.format(entity.lang) if entity.lang != lang else "" -%}
+<section class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+    <div id="{{ entity.cw_etype.lower() }}-{{ entity.eid }}" class="fr-col-12 fr-col-lg-8 fr-mb-md-8v">
+      <div class="fr-mb-8v fr-mb-md-12v" {{ lang_attr }}>
+        <h1>{{ entity.dc_title()|e }}</h1>
+      </div>
+      <div class="fr-col-12 fr-mb-12v">
+        {{ content_metadata(metadata, _) }}
+      </div>
+      <div class="fr-col-12 fr-mb-16v">
+        {{ mixed_values_horizontal(main_props, lang_attr, _) }}
+      </div>
     </div>
-  {% else -%}
-   <div class="empty-content-metadata"></div>
-  {% endif -%}
-  {% if main_props -%}
-     <div class="main-properties">
-     {% for propname, value in main_props -%}
-        <div class="row indexes-values align-items-center">
-          <div class="col-sm-5 index-value-title"><h2 class="no-style">{{ propname }}</h2></div>
-          {% if value %}
-          <p class="col-sm-7 index-value-text">{{ value }}</p>
-          {% endif %}
-        </div>
-     {% endfor -%}
-     </div>
-  {% endif-%}
-  {% if faqs %}
-    {{  modalfaq(faqs, _) }}
-  {% endif %}
+  </div>
 </section>

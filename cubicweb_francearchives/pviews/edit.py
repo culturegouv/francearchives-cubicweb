@@ -77,7 +77,7 @@ def load_json_value(value, ttype):
 
 
 def split_subobjects(schema, etype, posted):
-    eschema = schema.eschema(etype)
+    eschema = schema.entity_schema_for(etype)
     entity_data = {}
     relations_data = {}
     for rschema in eschema.ordered_relations():
@@ -118,7 +118,7 @@ def _get_modifications(previous_state, new_state):
 
 
 def get_uuid_attr(vreg, etype):
-    if vreg.schema.eschema(etype).has_relation("uuid", "subject"):
+    if vreg.schema.entity_schema_for(etype).has_relation("uuid", "subject"):
         return "uuid"
     eclass = vreg["etypes"].etype_class(etype)
     uuid_attr = getattr(eclass, "uuid_attr", None)
@@ -132,7 +132,7 @@ def edit_object(cnx, etype, posted, previous_state=None, _done=None):
     if _done is None:
         _done = {}
     schema = cnx.vreg.schema
-    eschema = schema.eschema(etype)
+    eschema = schema.entity_schema_for(etype)
     entity_data, relation_data = split_subobjects(schema, etype, posted)
     uuid_attr = get_uuid_attr(cnx.vreg, etype)
     uuid = entity_data[uuid_attr]
@@ -154,10 +154,10 @@ def edit_object(cnx, etype, posted, previous_state=None, _done=None):
     _done[uuid] = entity
     # 2/ update relations and recurse on related entities
     for rtype in relation_data:
-        ttypes = (t.type for t in eschema.rdef(rtype).rtype.targets())
+        ttypes = (t.type for t in eschema.relation_definition(rtype).relation_type.targets())
         for ttype in ttypes:
             target_uuid_attr = get_uuid_attr(cnx.vreg, ttype)
-            rdef = eschema.rdef(rtype, targettype=ttype, takefirst=True)
+            rdef = eschema.relation_definition(rtype, target_type=ttype, take_first=True)
             existing_uuids = set()
             previous_target_states = {}
             for rdata in previous_state.get(rtype, ()):

@@ -36,6 +36,7 @@ import urllib.parse
 import urllib.error
 
 from cubicweb import Binary
+from cubicweb.devtools import BASE_URL
 from cubicweb.devtools.testlib import CubicWebTC
 
 from cubicweb_francearchives.testutils import HashMixIn
@@ -58,8 +59,8 @@ class BfssTests(HashMixIn, CubicWebTC):
         return osp.join(self.bfss_dir, "{}_{}".format(entity.compute_hash(), entity.data_name))
 
     def expected_download_url(self, entity):
-        return "http://" + urllib.parse.quote(
-            "testing.fr/cubicweb/file/{}/{}".format(entity.data_hash, entity.data_name)
+        return urllib.parse.quote(
+            "{}file/{}/{}".format(BASE_URL, entity.data_hash, entity.data_name)
         )
 
     def test_basic_storage_basename(self):

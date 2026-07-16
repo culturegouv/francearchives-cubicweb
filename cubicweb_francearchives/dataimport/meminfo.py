@@ -28,8 +28,7 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-C license and that you accept its terms.
 #
-"""based on http://www.pixelbeat.org/scripts/ps_mem.py
-"""
+"""based on http://www.pixelbeat.org/scripts/ps_mem.py"""
 import os
 
 

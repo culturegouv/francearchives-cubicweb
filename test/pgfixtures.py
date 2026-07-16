@@ -102,9 +102,13 @@ elif "PGHOST" in os.environ:
     pgconfig["db-port"] = os.environ["PGPORT"]
 else:
 
-    def setup_module(module):
+    def setup_module_fn(module):
         startpgcluster(module.__name__)
 
-    def teardown_module(module):
+    setup_module = setup_module_fn
+
+    def teardown_module_fn(module):
         print("tearing down module", module.__name__)
         stoppgcluster(module.__name__)
+
+    teardown_module = teardown_module_fn

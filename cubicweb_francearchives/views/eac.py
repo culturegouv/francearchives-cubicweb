@@ -35,11 +35,12 @@ from cwtags import tag as T
 
 from datetime import date
 
-from cubicweb.view import EntityView
-from cubicweb.web.views.baseviews import ListView
+from cubicweb_web.view import EntityView
+from cubicweb_web.views.baseviews import ListView
 
 from cubicweb.predicates import is_instance
 from cubicweb_francearchives.entities.eac import format_eac_dates
+from cubicweb_francearchives.views import exturl_link
 
 
 class EacEntityView(EntityView):
@@ -89,13 +90,13 @@ class AgentPlaceEacView(EacEntityView):
 
     def entity_call(self, entity, **kw):
         dates = self.formatted_dates(entity)
-        with T.div(self.w, klass="agent-place"):
+        with T.div(self.w, klass="eac-agent-place"):
             if entity.role:
-                self.w(T.p(entity.role, klass="agent-place__role"))
+                self.w(T.p(entity.role, klass="eac-agent-place--role"))
             if dates:
-                self.w(T.span(dates, klass="agent-place__dates"))
+                self.w(T.span(dates, klass="eac-agent-place--dates"))
             if entity.items:
-                self.w(T.p(entity.items, klass="agent-place__items"))
+                self.w(T.p(entity.items, klass="eac-agent-place--items"))
         self.display_children(entity, "place_entry_relation", **kw)
         self.display_children(entity, "place_address", **kw)
         self.display_children(entity, "has_citation")
@@ -125,32 +126,31 @@ class DatedEacView(EacEntityView):
     )
 
     def entity_call(self, entity, **kw):
-        klass = f"{entity.cw_etype.lower()}"
-        with T.div(self.w, klass=klass):
-            title = entity.dc_title()
-            dates = self.formatted_dates(entity)
-            if dates and title:
-                self.w(T.span(f"{title} ({dates})"))
-            elif title:
-                self.w(T.span(title))
-            elif dates:
-                self.w(T.span(dates))
-            description = entity.printable_value("description")
-            if description:
-                self.w(description)
-            if entity.items:
-                self.w(entity.items)
-            for relation in ("has_citation", "place_entry_relation"):
-                if hasattr(entity, relation):
-                    self.display_children(entity, relation, **kw)
+        title = entity.dc_title()
+        dates = self.formatted_dates(entity)
+        if dates:
+            title = f"{title} ({dates})" if title else dates
+        if title:
+            self.w(title)
+        description = entity.printable_value("description")
+        if description:
+            self.w(description)
+        if entity.items:
+            self.w(entity.items)
+        for relation in ("has_citation", "place_entry_relation"):
+            if hasattr(entity, relation):
+                self.display_children(entity, relation, **kw)
 
 
 class SourceEacView(EacEntityView):
     __select__ = EacEntityView.__select__ & is_instance("EACSource")
 
     def entity_call(self, entity, **kw):
-        if entity.title:
-            self.w(T.span(entity.title))
+        url, title = entity.url, entity.title
+        if entity.url:
+            self.w(exturl_link(self._cw, url, label=title or url))
+        elif title:
+            self.w(title)
         description = entity.printable_value("description")
         if description:
             self.w(description)
@@ -180,7 +180,7 @@ class ActivityEacView(EacEntityView):
     __select__ = EacEntityView.__select__ & is_instance("Activity")
 
     def entity_call(self, entity, **kw):
-        with T.span(self.w, klass="maintenance-event__title"):
+        with T.span(self.w, klass="eac-maintenance-event--title"):
             # Activity dates are datetime.datetime
             start_date = entity.start.date() if entity.start else None
             end_date = entity.end.date() if entity.end else None
@@ -194,12 +194,12 @@ class RelationEacListView(ListView):
         if not self.cw_rset:
             return
         processed = set()
-        with T.div(self.w, role="list"):
+        with T.ul(self.w, klass="fr-list eac-related-productors"):
             for relation, target in self.cw_rset.iter_rows_with_entities():
                 if target.eid in processed:
                     continue
                 processed.add(target.eid)
-                with T.div(self.w, klass="related-productors", role="listitem"):
+                with T.li(self.w):
                     if target.__regid__ == "AuthorityRecord":
                         self.w(target.view("outofcontext"))
                     else:
@@ -212,21 +212,20 @@ class HistoryEacView(EacEntityView):
 
     def entity_call(self, entity, **kw):
         _ = self._cw._
-        with T.div(self.w):
-            if entity.abstract:
-                self.w(T.span(_("abstract"), klass="eac-sub-label"))
-                self.w(entity.dc_title())
-            if entity.text:
-                self.w(clean_html(entity.text))
-            if entity.has_event:
-                self.w(T.span(_("events"), klass="eac-sub-label"))
-                self.display_children(entity, "has_event", **kw)
-            if entity.items:
-                self.w(T.span(_("items_label"), klass="eac-sub-label"))
-                self.w(entity.items)
-            if entity.has_citation:
-                self.w(T.span(_("citation_label"), klass="eac-sub-label"))
-                self.display_children(entity, "has_citation", **kw)
+        if entity.abstract:
+            self.w(T.span(_("abstract"), klass="eac-sub-label"))
+            self.w(entity.dc_title())
+        if entity.text:
+            self.w(clean_html(entity.text))
+        if entity.has_event:
+            self.w(T.span(_("events"), klass="eac-sub-label"))
+            self.display_children(entity, "has_event", **kw)
+        if entity.items:
+            self.w(T.span(_("items_label"), klass="eac-sub-label"))
+            self.w(entity.items)
+        if entity.has_citation:
+            self.w(T.span(_("citation_label"), klass="eac-sub-label"))
+            self.display_children(entity, "has_citation", **kw)
 
 
 class HistoricalEventEacView(EacEntityView):
@@ -266,16 +265,14 @@ class RelationEacView(EacEntityView):
     def entity_call(self, entity, **kw):
         _ = self._cw._
         if entity.description and self.is_displayable(entity.printable_value("description")):
-            with T.div(self.w, klass="related-productors__description"):
-                self.w(entity.printable_value("description"))
+            self.w(entity.printable_value("description"))
         dates = self.formatted_dates(entity)
         if dates:
-            with T.div(self.w, klass="related-productors__dates"):
-                self.w(T.span(_("dates_sub_label"), klass="eac-sub-label"))
-                self.w(dates)
+            self.w(T.span(_("dates_sub_label"), klass="eac-sub-label"))
+            self.w(dates)
         places = entity.place_entry_relation
         if places:
-            with T.div(self.w, klass="related-productors__places"):
-                self.w(T.span(_("places_sub_label"), klass="eac-sub-label"))
+            with T.ul(self.w, klass="fr-list"):
                 for entry in entity.place_entry_relation:
-                    self.w(entry.dc_long_title())
+                    with T.li(self.w):
+                        self.w(entry.dc_long_title())

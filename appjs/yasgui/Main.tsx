@@ -1,13 +1,14 @@
 /* global SPARQL_ENDPOINT */
 
 import React from 'react'
-import Select from 'react-select'
+import {Select} from '@codegouvfr/react-dsfr/SelectNext'
 
 import Yasgui from '@triply/yasgui'
 import '@triply/yasgui/build/yasgui.min.css'
 
 import PREFIXES from './prefixes.js'
 import {SAMPLE_QUERIES} from './sample-queries.js'
+import {translate as t} from '../translate'
 
 const Yasqe = Yasgui.Yasqe
 const ENDPOINT = (window as any).SPARQL_ENDPOINT
@@ -44,6 +45,43 @@ Yasgui.defaults.endpointCatalogueOptions.getData = () => {
     ]
 }
 Yasgui.defaults.yasr.prefixes = PREFIXES
+
+const ResultsPermalink = ({yasqe}) => {
+    const [query, setQuery] = React.useState('')
+    const [endPointUrl, setEndPointUrl] = React.useState('')
+    const [contentType, setContentType] = React.useState('')
+    const contentTypeMapping = {
+        'application/sparql-results+json': 'application/json',
+    } // this will allow to render the result directly in the webbrowser
+
+    React.useEffect(() => {
+        if (!yasqe) {
+            return
+        }
+        yasqe.on('queryResponse', (instance, req, duration) => {
+            setQuery(
+                encodeURI(instance.getValueWithoutComments()).replace(
+                    /#/g,
+                    '%23',
+                ),
+            )
+            setEndPointUrl(req.req.url)
+            const contentType = req.header['content-type']
+            if (contentType in contentTypeMapping) {
+                setContentType(contentTypeMapping[contentType])
+            } else {
+                setContentType(contentType)
+            }
+        })
+    }, [yasqe, contentTypeMapping])
+
+    const resultsUrl = `${endPointUrl}?query=${query}&format=${contentType}`
+    return query ? (
+        <div className="permalink">
+            <a href={resultsUrl}>Permalien vers les résultats</a>
+        </div>
+    ) : null
+}
 
 export default function Main() {
     const [yasgui, setYasgui] = React.useState<Yasgui | null>(null)
@@ -85,24 +123,27 @@ export default function Main() {
             tab.getYasqe().addPrefixes(prefixes)
         }
     }
-
     return (
-        <main>
-            <div className="selectors">
-                <Select
-                    className="selector"
-                    onChange={updateSampleQuery}
-                    options={sampleQueries}
-                    placeholder="Exemple de requêtes"
-                    isSearchable
-                />
-                <Select
-                    className="selector"
-                    onChange={addNewPrefix}
-                    options={prefixes}
-                    placeholder="Espace de nom (namespace)"
-                    isSearchable
-                />
+        <div className="fr-container">
+            <div className="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+                <div className="fr-col-md-6">
+                    <Select
+                        label={t('Query examples')}
+                        nativeSelectProps={{
+                            onChange: (e) => updateSampleQuery(e.target),
+                        }}
+                        options={sampleQueries}
+                    />
+                </div>
+                <div className="fr-col-md-6">
+                    <Select
+                        label={t('Namespace')}
+                        nativeSelectProps={{
+                            onChange: (e) => addNewPrefix(e.target),
+                        }}
+                        options={prefixes}
+                    />
+                </div>
             </div>
             <div>
                 <div id="yasgui" />
@@ -110,43 +151,6 @@ export default function Main() {
             <ResultsPermalink
                 yasqe={yasgui ? yasgui.getTab()!.getYasqe() : null}
             />
-        </main>
-    )
-}
-
-const ResultsPermalink = ({yasqe}) => {
-    const [query, setQuery] = React.useState('')
-    const [endPointUrl, setEndPointUrl] = React.useState('')
-    const [contentType, setContentType] = React.useState('')
-    const contentTypeMapping = {
-        'application/sparql-results+json': 'application/json',
-    } // this will allow to render the result directly in the webbrowser
-
-    React.useEffect(() => {
-        if (!yasqe) {
-            return
-        }
-        yasqe.on('queryResponse', (instance, req, duration) => {
-            setQuery(
-                encodeURI(instance.getValueWithoutComments()).replace(
-                    /#/g,
-                    '%23',
-                ),
-            )
-            setEndPointUrl(req.req.url)
-            const contentType = req.header['content-type']
-            if (contentType in contentTypeMapping) {
-                setContentType(contentTypeMapping[contentType])
-            } else {
-                setContentType(contentType)
-            }
-        })
-    }, [yasqe, contentTypeMapping])
-
-    const resultsUrl = `${endPointUrl}?query=${query}&format=${contentType}`
-    return query ? (
-        <div className="permalink">
-            <a href={resultsUrl}>Permalien vers les résultats</a>
         </div>
-    ) : null
+    )
 }

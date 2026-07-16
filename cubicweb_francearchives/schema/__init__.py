@@ -19,7 +19,7 @@
 # software by the user in light of its specific status of free software,
 # that may mean that it is complicated to manipulate, and that also
 # therefore means that it is reserved for developers and experienced
-# professionals having in-depth computer knowledge. Users are therefore
+# professionals having in-depth computer knowledge. Users are thereforelaq
 # encouraged to load and test the software's suitability as regards their
 # requirements in conditions enabling the security of their systemsand/or
 # data to be ensured and, more generally, to use and operate it in the
@@ -41,6 +41,7 @@ from yams.buildobjs import (
     Boolean,
 )
 
+from cubicweb import _
 from cubicweb.schema import RQLConstraint
 
 from cubicweb_francearchives.schema.ead import Json
@@ -52,6 +53,7 @@ class LocationAuthority(EntityType):
     latitude = Float()
     same_as = SubjectRelation(("AuthorityRecord", "ExternalUri", "ExternalId"))
     quality = Boolean(default=False)
+    note = String()
 
 
 class Geogname(EntityType):
@@ -67,8 +69,11 @@ class AgentAuthority(EntityType):
     birthyear = Date()
     deathyear = Date()
     label = String()
-    same_as = SubjectRelation(("AuthorityRecord", "ExternalUri", "ExternalId", "NominaRecord"))
+    same_as = SubjectRelation(
+        ("AuthorityRecord", "ExternalUri", "ExternalId", "NominaRecord", "AgentRecord")
+    )
     quality = Boolean(default=False)
+    note = String()
 
 
 class AgentName(EntityType):
@@ -111,6 +116,7 @@ class SubjectAuthority(EntityType):
     label = String()
     same_as = SubjectRelation(("Concept", "ExternalUri", "ExternalId", "AuthorityRecord"))
     quality = Boolean(default=False)
+    note = String()
 
 
 class Subject(EntityType):
@@ -126,6 +132,27 @@ class ExternalId(EntityType):
     extid = String(required=True, indexed=True, maxsize=256)
     label = String(maxsize=512)
     source = String(maxsize=32, indexed=True)
+
+
+class AgentRecord(EntityType):
+    ark = String(indexed=True)  # must be requierd , required=True, unique=True
+    record_id = String(indexed=True, required=True, unique=True)
+    json_data = Json()
+
+
+class AgentRecordFunction(EntityType):
+    label = String(required=True, unique=True, fulltextindexed=True)
+    note = String()
+
+
+class AgentRecordOccupation(EntityType):
+    label = String(required=True, unique=True, fulltextindexed=True)
+    note = String()
+
+
+class AgentRecordLegalStatus(EntityType):
+    label = String(required=True, unique=True, fulltextindexed=True)
+    note = String()
 
 
 class authority_commemo(RelationDefinition):
@@ -189,6 +216,15 @@ class xml_support(RelationDefinition):
     cardinality = "11"
 
 
+class ape_eac_file(RelationDefinition):
+    subject = "AuthorityRecord"
+    object = "File"
+    cardinality = "??"
+    inlined = True
+    composite = "subject"
+    description = _("apeEAC-CPF XML version of AuthorityRecord")
+
+
 class source(RelationDefinition):
     subject = "ExternalUri"
     object = "String"
@@ -200,10 +236,31 @@ class extid(RelationDefinition):
     subject = "ExternalUri"
     object = "String"
     fulltextindexed = True
-    maxsize = 32
+    maxsize = 256
 
 
 class label(RelationDefinition):
     subject = "ExternalUri"
     object = "String"
     maxsize = 512
+
+
+class wikidata_spouse_of(RelationDefinition):
+    subject = "AgentAuthority"
+    object = "AgentAuthority"
+    cardinality = "?*"
+
+
+class wikidata_child_of(RelationDefinition):
+    subject = "AgentAuthority"
+    object = "AgentAuthority"
+
+
+class wikidata_sibling_of(RelationDefinition):
+    subject = "AgentAuthority"
+    object = "AgentAuthority"
+
+
+class wikidata_member_of(RelationDefinition):
+    subject = "AgentAuthority"
+    object = "AgentAuthority"

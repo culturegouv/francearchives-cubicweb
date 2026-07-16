@@ -1,0 +1,33 @@
+{% from "./mixins.jinja2" import mixed_values_horizontal, content_metadata, display_errors -%}
+{%- set lang_attr='lang="{}"'.format(entity.lang) if entity.lang != lang else "" -%}
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+    <div class="fr-col-12 fr-col-lg-8">
+      <div id="{{ entity.cw_etype.lower() }}-{{ entity.eid }}">
+        <div class="fr-col-12 fr-mb-8v" {{ lang_attr }}>
+          <h1>{{ entity.dc_title() | e}} </h1>
+        </div>
+        <div class="fr-col-12 fr-mb-8v">
+          {{ content_metadata(metadata, _) }}
+        </div>
+        <div class="fr-col-12 fr-mb-8v">
+          {%- if main_props | length > 0 -%}
+          {{ mixed_values_horizontal(main_props, lang_attr, _) }}
+          {%- else -%}
+          {{ description }}
+          {%- endif -%}
+        </div>
+        <div class="fr-col-12 fr-mb-8v">
+          <p class="fr-text--bold">{{ indexes["label"] }}</p>
+          {%- if indexes["docs"] -%}
+          <ul>
+          {%- for doc in  indexes["docs"] -%}
+            <li>{{ doc }}</li>
+          {%- endfor -%}
+          </ul>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,15 +1,11 @@
-<div class="index-authorities">
-    <div class="row mb-3">
-        <div class="col-sm-12 index-authorities__all">
-          {% for letter, url, class in letters["all"] %}
-           <a class="{{ class }}" href="{{ url }}">{{ letter }}</a>
-          {% endfor %}
-          {% for letter, url, class in letters["letters"] %}
-           <a class="{{ class }}" href="{{ url }}">{{ letter }}</a>
-          {% endfor %}
-          {% for letter, url, class in letters["others"] %}
-           <a class="{{ class }}" href="{{ url }}">{{ letter }}</a>
-           {% endfor %}
-        </div>
-    </div>
+<div class="fa-alphabet fr-btns-group fr-btns-group--inline">
+  {% for letter, url, class in letters["all"] %}
+  <a class="{{ class }}" href="{{ url }}">{{ letter | e }}</a>
+  {% endfor %}
+  {% for letter, url, class in letters["letters"] %}
+  <a class="{{ class }}" href="{{ url }}">{{ letter  | e }}</a>
+  {% endfor %}
+  {% for letter, url, class in letters["others"] %}
+  <a class="{{ class }}" href="{{ url }}">{{ letter  | e }}</a>
+  {% endfor %}
 </div>

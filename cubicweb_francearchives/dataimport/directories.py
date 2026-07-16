@@ -261,7 +261,7 @@ def build_extentities(directory, departements, logos_directory, schema_attrs=Non
 @log_in_db
 def import_directory(cnx, directory, departements, logos_directory):
     init_bfss(cnx.repo)
-    service_schema = cnx.vreg.schema.eschema("Service")
+    service_schema = cnx.vreg.schema.entity_schema_for("Service")
     schema_attrs = {
         rschema.type for rschema, _ in service_schema.attribute_definitions() if not rschema.meta
     }

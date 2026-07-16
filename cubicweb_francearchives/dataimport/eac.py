@@ -36,12 +36,12 @@ from os.path import basename
 from time import time
 import logging
 
+from cubicweb.dataimport.importer import cwuri2eid
 from cubicweb.dataimport.importer import SimpleImportLog
-from cubicweb.web.views.cwsources import REVERSE_SEVERITIES
+from cubicweb_web.views.cwsources import REVERSE_SEVERITIES
 
 from cubicweb_eac.dataimport import ETYPES_ORDER_HINT
 
-from cubicweb_eac.sobjects import init_extid2eid_index as eac_init_extid2eid_index
 from cubicweb_skos.dataimport import dump_relations
 
 from cubicweb_francearchives.dataimport import log_in_db, es_bulk_index
@@ -106,13 +106,11 @@ def postprocess_authorities(cnx, log):
     """
     rset = cnx.execute(
         """
-        Any E, A, R WHERE A record_id R, E cwuri R, A is AuthorityRecord
+        Any E, A, R WHERE A record_id R, E cwuri R, E is ExternalUri,  A is AuthorityRecord
     """
     )
     updated_authrecs = set()
-    msg = "Transform {} ExternalUris into AuthorityRecords".format(rset.rowcount)
-    log.info(msg)
-    print(msg)
+    log.info("Transform {} ExternalUri into AuthorityRecords".format(rset.rowcount))
     to_remove = []
     for row in rset:
         exturi_eid, authrec_eid, record_id = row
@@ -142,7 +140,7 @@ def postprocess_authorities(cnx, log):
 
 
 def postprocess_same_as(cnx, sameas_authorityrecords, authrecords, log):
-    log.info("Start processing same_as relations")
+    log.debug("Start processing same_as relations")
     for authrec_eid, record_id in authrecords:
         for autheid in sameas_authorityrecords.get(record_id, []):
             query = """
@@ -152,7 +150,7 @@ def postprocess_same_as(cnx, sameas_authorityrecords, authrecords, log):
             """
             cnx.system_sql(query, {"auth": int(autheid), "auth_rec": authrec_eid})
     cnx.commit()
-    log.info("Finish processing same_as relations")
+    log.debug("Finish processing same_as relations")
 
 
 def build_es_doc(cnx, eid, index_name, log):
@@ -170,7 +168,6 @@ def build_es_doc(cnx, eid, index_name, log):
     return {
         "_op_type": "index",
         "_index": index_name,
-        "_type": "_doc",
         "_id": serializer.es_id,
         "_source": json,
     }
@@ -198,10 +195,28 @@ def postprocess_index_es(cnx, updated_authrecs, log):
 
 
 def init_extid2eid_index(cnx, source):
-    extid2eid = eac_init_extid2eid_index(cnx, source)
+    extid2eid = cwuri2eid(cnx, ("Concept", "AgentKind"))
+    for url, ext_eid in cnx.execute("Any E, U WHERE E is ExternalUri, E uri U, NOT E uri NULL"):
+        extid2eid[ext_eid] = url
     for code, service_eid in cnx.execute("Any C, S WHERE S is Service, S code C, NOT S code NULL"):
         extid2eid["service-{}".format(code)] = service_eid
     return extid2eid
+
+
+def init_same_as(store, log):
+    query = """
+    DISTINCT Any R, A WITH R, A BEING (
+    (
+        Any R, A WHERE A same_as Y, A is AgentAuthority, Y is AuthorityRecord, Y record_id R
+    ) UNION
+    (   DISTINCT Any R, A WHERE I authority A, A is AgentAuthority,
+        I authfilenumber R, NOT I authfilenumber NULL)
+    )"""
+    log.debug("Start initializing same_as data")
+    sameas_authorityrecords = defaultdict(set)
+    for record_id, autheid in store.rql(query):
+        sameas_authorityrecords[record_id].add(autheid)
+    return sameas_authorityrecords
 
 
 @log_in_db
@@ -215,17 +230,7 @@ def eac_import_files(cnx, fpaths, store=None, log=None):
     service = cnx.vreg["services"].select("eac.import", cnx)
     extid2eid = init_extid2eid_index(cnx, cnx.repo.system_source)
     foreign_keys = eac_foreign_key_tables(cnx.vreg.schema)
-    sameas_authorityrecords = defaultdict(set)
-    query = """
-    DISTINCT Any R, A WITH R, A BEING (
-    (
-        DISTINCT Any R, A WHERE A same_as Y, Y is AuthorityRecord, Y record_id R
-    ) UNION
-    (   DISTINCT Any R, A WHERE I authority A,
-        I authfilenumber R, NOT I authfilenumber NULL)
-    )"""
-    for record_id, autheid in store.rql(query):
-        sameas_authorityrecords[record_id].add(autheid)
+    sameas_authorityrecords = init_same_as(store, log)
     created_authrecs = set()
     with sqlutil.no_trigger(cnx, foreign_keys, interactive=False):
         for fpath in fpaths:

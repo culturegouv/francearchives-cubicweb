@@ -1,0 +1,14 @@
+<div class="fr-mb-12v">
+  <h2 class="fr-h4">{{ _('Refine your search')}}{{ _(':') }}</h2>
+  <p class="fr-text--sm">{{ _('facets_search_help') }}</p>
+  {# fulltext facet #}
+  {%- include "fulltext-facet.jinja2" %}
+  {# other facets #}
+  <div class="fa-facets">
+  {%- for facet in facets %}
+    {{ facet }}
+  {% endfor -%}
+  {# date facet #}
+  {%- include "date-facet.jinja2" %}
+  </div>
+</div>

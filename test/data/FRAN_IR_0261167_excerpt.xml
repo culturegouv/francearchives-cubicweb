@@ -52,6 +52,8 @@
         <corpname authfilenumber="FRAN_NP_006122">Direction de l'eau</corpname>
       </origination>
       <physloc>Pierrefitte</physloc>
+      <note>Magnifique poulet</note>
+      <abstract>Coincoin</abstract>
     </did>
     <scopecontent encodinganalog="summary">
       <head>Sommaire</head>

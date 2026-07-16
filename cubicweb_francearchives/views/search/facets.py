@@ -33,14 +33,21 @@ import json
 
 from elasticsearch_dsl import TermsFacet, HistogramFacet, Q, query as dsl_query
 
+from logilab.common.decorators import cachedproperty
 from logilab.common.textutils import unormalize
+from logilab.mtconverter import xml_escape
 
-from cubicweb import _, UnknownEid
+from cubicweb import _
 
 from cubicweb_elasticsearch.views import CWFacetedSearch
 
-from cubicweb_francearchives.entities.nomina import nomina_translate_codetype
-from cubicweb_francearchives.views import rebuild_url, format_number, get_template
+from cubicweb_francearchives.entities.es import DZFacetValues
+from cubicweb_francearchives.entities.nomina import (
+    nomina_translate_codetype,
+    nomina_translate_gender_code,
+)
+from cubicweb_francearchives.views import rebuild_url, get_template
+from cubicweb_francearchives.utils import format_number
 
 # FIXME - this might end up being configurable by facet
 FACET_SIZE = 15
@@ -74,40 +81,6 @@ class MissingNAHistogramFacet(MissingNAMixIn, HistogramFacet):
         return out
 
 
-# TODO provide generic mechanism for missing query
-class PublisherTermsFacet(TermsFacet):
-    except_AN_key = "Tout sauf les Archives Nationales"
-
-    def add_filter(self, filter_values):
-        """Create a terms filter instead of bool containing term filters."""
-        if self.except_AN_key in filter_values:
-            return Q("bool", **{"must_not": Q("terms", publisher=["Archives Nationales"])})
-        if "N/R" in filter_values:
-            return Q("bool", **{"must_not": Q("exists", field="publisher")})
-        if filter_values:
-            return Q("terms", **{self._params["field"]: filter_values})
-
-    def get_values(self, data, filter_values):
-        except_AN_count = 0
-        out = []
-        for bucket in data:
-            key = self.get_value(bucket)
-            # TODO on es_response there is a global count, substract Archives Nationales to it
-            if key != "Archives Nationales":
-                except_AN_count += bucket["doc_count"]
-            out.append((key, bucket["doc_count"], self.is_filtered(key, filter_values)))
-        if not except_AN_count or len(data) <= 2:
-            return out
-        all_except = [
-            (
-                self.except_AN_key,
-                except_AN_count,
-                self.is_filtered(self.except_AN_key, filter_values),
-            )
-        ]
-        return all_except + out
-
-
 class ServiceTermsFacet(MissingNAMixIn, TermsFacet):
     def get_values(self, data, filter_values):
         """publisher value is a keyword in ES, but an integer in Posgres (service eid)"""
@@ -125,23 +98,27 @@ class ServiceTermsFacet(MissingNAMixIn, TermsFacet):
 class PniaCWFacetedSearch(CWFacetedSearch):
     fields = [
         "did.unitid^6",
-        "title*^3",
-        "did.unittitle^3",
-        "content*",
-        "scopecontent",
+        "title*^4",
+        "did.unittitle^4",
         "text",
-        "name",
-        "attachment",
-        "index_entries.label",
+        "index_entries.label^2",
         "alltext*",
     ]
     facets = {
         "cw_etype": TermsFacet(field="cw_etype", size=FACET_SIZE),
         # custom
         "publisher": ServiceTermsFacet(field="service.eid", size=ALL_VALUES_SIZE),
-        "digitized": TermsFacet(field="digitized"),
+        "digitalized": TermsFacet(field="digitized_all"),
         "originators": TermsFacet(field="originators", size=FACET_SIZE),
     }
+    display_date_facet = True
+
+    def highlight(self, search):
+        """
+        Add custom highlighting
+        """
+        search = search.highlight(*(f if "^" not in f else f.split("^", 1)[0] for f in self.fields))
+        return search.highlight_options(fragment_size=100, encoder="html", order="score")
 
     def add_to_query(self, bool_query, search, query):
         if bool_query is None:
@@ -258,13 +235,22 @@ class PniaCWFacetedSearch(CWFacetedSearch):
     def query(self, search, query):
         if self.extra_kwargs.get("ancestors-query") and query:
             # we are in Section primary view
-            search.query = dsl_query.Bool(must=Q("match", ancestors=query))
+            search.query = dsl_query.Bool(must=Q("term", ancestors=query))
         else:
-            search = super(PniaCWFacetedSearch, self).query(search, query)
+            search = super(PniaCWFacetedSearch, self).query(
+                search,
+                query,
+                match_kwargs={
+                    "analyzer": "french_stop_analyzer",
+                    "minimum_should_match": "2<70%",
+                },
+                slop=10,
+            )
         search = self.test_or_authority_query(search, query)
         search = self.producers_query(search, query)
         search = self.service_query(search, query)
-        search = self.add_dates_range(search, query)
+        if self.display_date_facet:
+            search = self.add_dates_range(search, query)
         search = self.fulltext_facet(search, query)
         search = self.add_escategory(search, query)
 
@@ -280,11 +266,11 @@ class PniaCWFacetedSearch(CWFacetedSearch):
             date_range["gte"] = dates_gte
         return date_range
 
-    def add_dates_range(self, search, query):
+    def add_dates_range(self, search, query, dates_field="dates"):
         date_range = self.get_dates_ranges()
         if not date_range:
             return search
-        must_query = Q("exists", field="dates") & dsl_query.Range(**{"dates": date_range})
+        must_query = Q("exists", field=dates_field) & dsl_query.Range(**{dates_field: date_range})
         if query:
             search.query.filter.append(must_query)
         else:
@@ -326,13 +312,11 @@ class PniaCWFacetedSearch(CWFacetedSearch):
 class PniaFCFacetedSearch(PniaCWFacetedSearch):
     fields = [
         "did.unitid^6",
-        "title*^3",
-        "did.unittitle^3",
-        "name^3",
-        "content*^2",
-        "content*",
-        "index_entries.label",
+        "title*^4",
+        "did.unittitle^4",
+        "index_entries.label^2",
         "alltext*",
+        "text",
     ]
 
 
@@ -348,13 +332,9 @@ class NoHighlightMixin(object):
 class PniaFAFacetedSearch(PniaCWFacetedSearch):
     fields = [
         "did.unitid^6",
-        "title^3",
-        "did.unittitle^3",
-        "name^3",
-        "content^2",
-        "acquisition_info",
-        "scopecontent",
-        "index_entries.label",
+        "title*^4",
+        "did.unittitle^4",
+        "index_entries.label^2",
         "alltext*",
     ]
 
@@ -363,19 +343,18 @@ class PniaFAFacetedSearch(PniaCWFacetedSearch):
 
 
 class PniaCircularFacetedSearch(PniaCWFacetedSearch):
+    fields = ["title^4", "alltext"]
+
     facets = {
         "cw_etype": TermsFacet(field="cw_etype", size=FACET_SIZE),
         "status": TermsFacet(field="status"),
         "business_field": MissingNATermsFacet(
             field="business_field", missing=_("N/R"), size=ALL_VALUES_SIZE
         ),
-        "historical_context": MissingNATermsFacet(
-            field="historical_context", missing=_("N/R"), size=ALL_VALUES_SIZE
-        ),
+        "historical_context": MissingNATermsFacet(field="historical_context", size=ALL_VALUES_SIZE),
         "document_type": MissingNATermsFacet(
             field="document_type", missing=_("N/R"), size=ALL_VALUES_SIZE
         ),
-        "action": MissingNATermsFacet(field="action", missing=_("N/R"), size=ALL_VALUES_SIZE),
         "siaf_daf_signing_year": MissingNAHistogramFacet(
             field="siaf_daf_signing_year", interval=10, missing=MISSING_INT, min_doc_count=1
         ),
@@ -384,8 +363,25 @@ class PniaCircularFacetedSearch(PniaCWFacetedSearch):
         ),
     }
 
+    @cachedproperty
+    def restrict_to_single_type(self):
+        return bool(self.form.get("restrict_to_single_etype"))
+
+    def filter(self, search):
+        """
+        if restricted restrict_to_single_etype, do not add a ``post_filter`` to the search
+        request narrowing the results based on the facet filters.
+        Instead use "query filter" as there is no need for facets to show all possible values,
+        only the ones that match the current search.
+        """
+        # if self.restrict_to_single_type:
+        # filters = [dsl_query.Terms(cw_etype=["Circular"])]
+        # bool_filter = Q("bool", filter=filters + list(self._filters.values()))
+        bool_filter = Q("bool", filter=list(self._filters.values()))
+        return search.query(bool_filter)
+
     def query(self, search, query):
-        search = super(PniaCircularFacetedSearch, self).query(search, query)
+        search = super().query(search, query)
         return search.sort("-sortdate")
 
 
@@ -404,11 +400,13 @@ class IndexFacetedSearchMixin(object):
         queries = [Q("term", **{"index_entries.authority": self.form["indexentry"]})]
         ancestors = self.form.get("ancestors")
         if ancestors:
-            queries.append(Q("match", ancestors=ancestors))
+            queries.append(Q("term", ancestors=ancestors))
+
         search.query = dsl_query.Bool(must=queries)
         search = self.add_dates_range(search, query)
         search = self.fulltext_facet(search, query)
         search = self.add_escategory(search, query)
+
         return search
 
 
@@ -416,23 +414,16 @@ class PniaIndexEntryFacetedSearch(IndexFacetedSearchMixin, PniaCWFacetedSearch):
     pass
 
 
-class PniaFCIndexEntryFacetedSearch(NoHighlightMixin, IndexFacetedSearchMixin, PniaFCFacetedSearch):
-    pass
-
-
 class PniaSubjectAuthorityFacetedSearch(IndexFacetedSearchMixin, PniaCWFacetedSearch):
     fields = [
-        "title*",
-        "did.unittitle",
-        "name",
-        "content*",
-        "acquisition_info",
-        "scopecontent",
+        "title*^4",
+        "did.unittitle^4",
         "index_entries.label^3",  # boost indexed documents
         "alltext*",
+        "text",
     ]
 
-    def query(self, search, query):
+    def query(self, search, query, field="dates"):
         """
         for multiple fields text search use
           Q("multi_match", query=query, type="phrase", slop=0, fields=("title", "content"))
@@ -446,12 +437,15 @@ class PniaSubjectAuthorityFacetedSearch(IndexFacetedSearchMixin, PniaCWFacetedSe
             # https://extranet.logilab.fr/ticket/74056123
             return super().query(search, query)
         # ancestors are not used with augmented query
-        date_range = self.get_dates_ranges()
         index_query_must = [
             Q("term", index_entries__authority={"value": self.form["indexentry"], "boost": 100})
         ]
         # match_phrase query can not be called on multiple fields
         text_query_must = [Q("multi_match", query=query, type="phrase", slop=0, fields=self.fields)]
+
+        # We cannot use add_dates_range, fulltext_fact and add_escategory
+        # because we have to manipulate both the indexentry query and the text query in parallel
+        date_range = self.get_dates_ranges()
         if date_range:
             dates_query = Q("exists", field="dates") & dsl_query.Range(**{"dates": date_range})
             index_query_must.append(dates_query)
@@ -461,6 +455,12 @@ class PniaSubjectAuthorityFacetedSearch(IndexFacetedSearchMixin, PniaCWFacetedSe
             fulltext_query = Q("simple_query_string", query=fulltext_query, default_operator="and")
             index_query_must.append(fulltext_query)
             text_query_must.append(fulltext_query)
+        escategory = self.extra_kwargs.get("es_escategory", None)
+        if isinstance(escategory, str):
+            category_query = dsl_query.Term(escategory=escategory)
+            index_query_must.append(category_query)
+            text_query_must.append(category_query)
+
         index_query = dsl_query.Bool(must=index_query_must)
         text_query = dsl_query.Bool(must=text_query_must)
         search.query = dsl_query.Bool(should=[index_query, text_query])
@@ -468,6 +468,8 @@ class PniaSubjectAuthorityFacetedSearch(IndexFacetedSearchMixin, PniaCWFacetedSe
 
 
 class PniaCmsSectionFacetedSearch(PniaCWFacetedSearch):
+    display_date_facet = False
+
     def query(self, search, query):
         search = super(PniaCmsSectionFacetedSearch, self).query(search, query)
         return search.sort("order", "-sortdate")
@@ -477,25 +479,39 @@ class PniaServiceFacetedSearch(PniaCWFacetedSearch):
     facets = {
         "cw_etype": TermsFacet(field="cw_etype", size=FACET_SIZE),
         "level": MissingNATermsFacet(field="level", missing=_("N/R"), size=FACET_SIZE),
+        "partner": TermsFacet(field="is_partner"),
     }
+    display_date_facet = False
 
     def query(self, search, query):
         # XXX using query because there is no sort in faceted_search
         # https://github.com/elastic/elasticsearch-dsl-py/issues/532
-        search = super(PniaServiceFacetedSearch, self).query(search, query)
+        search = super().query(search, query)
         return search.sort("sort_name")
 
 
 class PniaAuthorityRecordFacetedSearch(PniaCWFacetedSearch):
     fields = [
-        "title*^3",
-        "name^3",
-        "history",
-        "functions",
-        "occupations",
-        "index_entries.label",
+        "title*^4",
+        "index_entries.label^2",
         "alltext*",
     ]
+    facets = {
+        "cw_etype": TermsFacet(field="cw_etype", size=FACET_SIZE),
+        "publisher": ServiceTermsFacet(field="service.eid", size=ALL_VALUES_SIZE),
+    }
+
+
+def build_query_type(attr, value):
+    has_wildcard = ("*" in value) or ("?" in value)
+    if has_wildcard:
+        return Q(
+            "wildcard",
+            **{attr: {"value": value, "case_insensitive": True}},  # only supported in ES 7.10+
+        )
+    if value.startswith('"') and value.endswith('"'):
+        return Q("match_phrase", **{attr: value})
+    return Q("match", **{attr: value})
 
 
 class NominaFacetedSearch(PniaCWFacetedSearch, NoHighlightMixin):
@@ -504,28 +520,237 @@ class NominaFacetedSearch(PniaCWFacetedSearch, NoHighlightMixin):
     ]
     facets = {
         "service": ServiceTermsFacet(field="service", size=ALL_VALUES_SIZE),
-        "acte_type": TermsFacet(field="acte_type", size=ALL_VALUES_SIZE),
+        "act_type": TermsFacet(field="act_type", size=100),
+        "gender": TermsFacet(field="gender", size=5),
     }
+
+    def __init__(self, *args, include_export_aggs=False, **kwargs):
+        """
+        Initialize NominaFacetedSearch.
+
+        :param include_export_aggs: If True, adds act_type × service aggregations
+                                    for CSV export availability check
+        """
+        self.include_export_aggs = include_export_aggs
+        super().__init__(*args, **kwargs)
+
+    def sort(self, search):
+        """
+        Override sort method to handle custom sorting for nomina records.
+
+        Supported sort options:
+        - score: by relevance (_score desc) - DEFAULT
+        - title_asc: alphabetical A-Z (case-insensitive)
+        - title_desc: alphabetical Z-A (case-insensitive)
+        - event_date_asc: chronological old to recent
+        - event_date_desc: chronological recent to old
+        """
+        sort_option = self.extra_kwargs.get("script_sort", "score")
+        if sort_option == "title_asc":
+            # Tri alphabétique sur title (script Painless car champ text)
+            search = search.sort(
+                {
+                    "_script": {
+                        "type": "string",
+                        "script": {
+                            "source": """
+                                String title = params._source.title;
+                                if (title == null || title.isEmpty()) {
+                                    return 'zzzzz';
+                                }
+                                String s = title.toLowerCase();
+
+                                s = s.replace('é', 'e').replace('è', 'e').replace('ê', 'e')
+                                     .replace('ë', 'e').replace('à', 'a').replace('â', 'a')
+                                     .replace('ä', 'a').replace('ù', 'u').replace('û', 'u')
+                                     .replace('ü', 'u').replace('ô', 'o').replace('ö', 'o')
+                                     .replace('î', 'i').replace('ï', 'i').replace('ç', 'c')
+                                     .replace('œ', 'oe').replace('æ', 'ae');
+
+                                return s;
+                            """,
+                            "lang": "painless",
+                        },
+                        "order": "asc",
+                    }
+                },
+                {"stable_id": {"order": "asc"}},
+            )
+        elif sort_option == "title_desc":
+            search = search.sort(
+                {
+                    "_script": {
+                        "type": "string",
+                        "script": {
+                            "source": """
+                                String title = params._source.title;
+                                if (title == null || title.isEmpty()) {
+                                    return 'zzzzz';
+                                }
+                                String s = title.toLowerCase();
+
+                                s = s.replace('é', 'e').replace('è', 'e').replace('ê', 'e')
+                                     .replace('ë', 'e').replace('à', 'a').replace('â', 'a')
+                                     .replace('ä', 'a').replace('ù', 'u').replace('û', 'u')
+                                     .replace('ü', 'u').replace('ô', 'o').replace('ö', 'o')
+                                     .replace('î', 'i').replace('ï', 'i').replace('ç', 'c')
+                                     .replace('œ', 'oe').replace('æ', 'ae');
+
+                                return s;
+                            """,
+                            "lang": "painless",
+                        },
+                        "order": "desc",
+                    }
+                },
+                {"stable_id": {"order": "asc"}},
+            )
+        elif sort_option == "event_date_asc":
+            search = search.sort(
+                {
+                    "_script": {
+                        "type": "number",
+                        "script": {
+                            "source": """
+                                def dates = params._source.event_dates;
+                                if (dates == null) {
+                                    return -9999;
+                                }
+                                if (dates.containsKey('gte')) {
+                                    def gte = dates.gte;
+                                    try {
+                                        return Integer.parseInt(gte);
+                                    } catch (Exception e) {
+                                        return -9999;
+                                    }
+                                }
+                                return -9999;
+                            """,
+                            "lang": "painless",
+                        },
+                        "order": "asc",
+                    }
+                },
+                {"stable_id": {"order": "asc"}},
+            )
+        elif sort_option == "event_date_desc":
+            search = search.sort(
+                {
+                    "_script": {
+                        "type": "number",
+                        "script": {
+                            "source": """
+                                def dates = params._source.event_dates;
+                                if (dates == null) {
+                                    return -9999;
+                                }
+                                if (dates.containsKey('gte')) {
+                                    def gte = dates.gte;
+                                    try {
+                                        return Integer.parseInt(gte);
+                                    } catch (Exception e) {
+                                        return -9999;
+                                    }
+                                }
+                                return -9999;
+                            """,
+                            "lang": "painless",
+                        },
+                        "order": "desc",
+                    }
+                },
+                {"stable_id": {"order": "asc"}},
+            )
+        else:
+            search = search.sort({"_score": {"order": "desc"}}, {"stable_id": {"order": "asc"}})
+
+        return search
 
     def query(self, search, query):
         forenames = self.extra_kwargs.get("es_forenames")
         names = self.extra_kwargs.get("es_names")
         locations = self.extra_kwargs.get("es_locations")
         authority = self.extra_kwargs.get("authority")
-
+        household_id = self.extra_kwargs.get("household")
         must = []
         if forenames:
-            must.append(Q("match", forenames=forenames))
+            must.append(build_query_type("forenames", forenames))
         if names:
-            must.append(Q("match", names=names))
+            must.append(build_query_type("names", names))
         if locations:
-            must.append(Q("match", locations=locations))
+            must.append(
+                Q(
+                    "multi_match",
+                    type="phrase",
+                    query=locations,
+                    fields=[
+                        "event_commune.text",
+                        "event_department.text",
+                        "event_country.text",
+                    ],
+                )
+            )
         if authority:
             must.append(Q("match", authority=authority))
+        if household_id:
+            must.append(Q("match", household_id=household_id))
 
         search.query = dsl_query.Bool(must=must)
-        search = self.add_dates_range(search, query)
+        search = self.add_dates_range(search, query, dates_field="event_dates")
         search = self.fulltext_facet(search, query)
+
+        # Determine which fields to include based on csv_export parameter
+        csv_export = self.extra_kwargs.get("csv_export", False)
+        if csv_export:
+            # Include all fields needed for CSV export
+            search = search.source(
+                [
+                    "forenames",
+                    "names",
+                    "event_date",
+                    "event_commune",
+                    "event_department",
+                    "event_country",
+                    "act_type",
+                    "service",
+                    "stable_id",
+                    "title",
+                    "occupations",
+                    "occupations_index",
+                    "gender",
+                    "cote",
+                    "notice_id",
+                    "source_url",
+                ]
+            )
+        else:
+            # Minimal fields for UI display
+            search = search.source(
+                [
+                    "forenames",
+                    "names",
+                    "event_date",
+                    "event_commune",
+                    "event_department",
+                    "event_country",
+                    "act_type",
+                    "service",
+                    "stable_id",
+                    "title",
+                ]
+            )
+        # Add export aggregations if requested
+        if self.include_export_aggs:
+            agg_filter = Q("match_all")
+
+            # Apply ALL filters from facet selections (including act_type and service)
+            for facet_name, facet_filter in self._filters.items():
+                agg_filter &= facet_filter
+
+            # Add filtered nested aggregation
+            search.aggs.bucket("act_type_filtered", "filter", filter=agg_filter).bucket(
+                "act_type", "terms", field="act_type", size=100
+            ).bucket("service", "terms", field="service", size=100)
 
         return search
 
@@ -542,27 +767,23 @@ FACETED_SEARCHES = {
     "agentauthority": PniaIndexEntryFacetedSearch,
     "locationauthority": PniaIndexEntryFacetedSearch,
     "subjectauthority": PniaSubjectAuthorityFacetedSearch,
-    "facomponent_indexentry": PniaFCIndexEntryFacetedSearch,
     "authorityrecord": PniaAuthorityRecordFacetedSearch,
 }
 
 
 class PniaDefaultFacetRenderer(object):
     template = get_template("facet.jinja2")
-    item = (
-        '<li class="{css}" style="{style}">'
+    item = '<li class="{css}" style="{style}">{content}</li>'
+    item_link = (
         '    <a href="{url}" title="{alt}" class="facet__focusable-item">'
         "      {content}"
-        '      <span class="facet__item_count">{count}</span>'
         "    </a>"
-        "</li>"
+        '    <span class="facet__item_count">{count}</span>'
     )
     item_nolink = (
         '<li class="facet__value">'
-        '  <div class="facet--nolink">'
         "   {content}"
         '   <span class="facet__item_count">{count}</span>'
-        "  </div>"
         "</li>"
     )
     filter_tags = True
@@ -570,6 +791,8 @@ class PniaDefaultFacetRenderer(object):
 
     @staticmethod
     def build_content(req, content):
+        if isinstance(content, str):
+            content = xml_escape(content)
         return req._(content)
 
     def __init__(self, sort="count", items_size=FACET_SIZE, nr_tag="N/R"):
@@ -594,15 +817,11 @@ class PniaDefaultFacetRenderer(object):
 
     def item_css(self, idx, selected):
         css = ["facet__value"]
-        if idx >= self.items_size:
-            css.append("more-option")
         if selected:
             css.append("facet__value--active")
         return css
 
     def item_style(self, idx):
-        if idx >= self.items_size:
-            return "display: none"
         return ""
 
     def build_bucket(self, bucket):
@@ -630,24 +849,31 @@ class PniaDefaultFacetRenderer(object):
         )
 
     def render_item(self, idx, tag, count, selected):
-        req = self.req
-        _ = self.req._
-        param_name = "es_{}".format(self.facetid)
-        alt = _("select")
-        url_params = {
+        return self.item.format(
+            css=" ".join(self.item_css(idx, selected)),
+            style=self.item_style(idx),
+            content=self.render_item_link(idx, tag, count, selected),
+        )
+
+    def build_url_params(self, param_name, tag):
+        return {
             "vid": None,
             "page": None,
             param_name: str(tag),
         }
+
+    def render_item_link(self, idx, tag, count, selected):
+        req = self.req
+        _ = self.req._
+        param_name = "es_{}".format(self.facetid)
+        alt = _("select")
+        url_params = self.build_url_params(param_name, tag)
         if selected:
             alt = _("deselect")
-        tag = self.translate_label(tag)
-        return self.item.format(
+        return self.item_link.format(
             url=rebuild_url(req, **url_params),
-            css=" ".join(self.item_css(idx, selected)),
             alt=alt,
-            content=self.build_item_content(tag, selected),
-            style=self.item_style(idx),
+            content=self.build_item_content(self.translate_label(tag), selected),
             count=format_number(count, req),
         )
 
@@ -692,22 +918,6 @@ class PniaDefaultFacetRenderer(object):
         )
 
 
-def format_year_item(year, incr):
-    year_value = int(year)
-    return "{} - {}".format(year_value, year_value + incr)
-
-
-class PniaYearFacetRenderer(PniaDefaultFacetRenderer):
-    def render_item(self, idx, bucket_key, count, selected):
-        if isinstance(bucket_key, float):
-            bucket_key = int(bucket_key)
-        return super(PniaYearFacetRenderer, self).render_item(idx, bucket_key, count, selected)
-
-    @staticmethod
-    def build_content(req, content):
-        return format_year_item(content, 99)
-
-
 class PniaEtypeFacetRenderer(PniaDefaultFacetRenderer):
     @staticmethod
     def build_content(req, content):
@@ -718,10 +928,17 @@ class PniaEtypeFacetRenderer(PniaDefaultFacetRenderer):
 
 class PniaNominaDocumentTypeRenderer(PniaDefaultFacetRenderer):
     def translate_label(self, tag):
-        return nomina_translate_codetype(self.req, tag)
+        return nomina_translate_codetype(tag)
+
+
+class PniaNominaGenderRenderer(PniaDefaultFacetRenderer):
+    def translate_label(self, tag):
+        return nomina_translate_gender_code(tag)
 
 
 class PniaServiceRenderer(PniaDefaultFacetRenderer):
+    template = get_template("facet-service.jinja2")
+
     def render(self, bucket, facetlabel):
         self.services = {
             eid: name
@@ -736,54 +953,145 @@ class PniaServiceRenderer(PniaDefaultFacetRenderer):
         return self.services.get(tag, tag)
 
 
-class PniaAncestorsFacetRenderer(PniaDefaultFacetRenderer):
-    item = (
-        '<li data-eid="{eid}" class="{css}" style="{style}">'
-        '    <a href="{url}" title="{alt}" class="facet__focusable-item">'
-        "        {content}"
-        '        <span class="facet__item_count">{count}</span>'
-        "   </a>"
-        "</li>"
-    )
-
-    def render_nolink_item(self, idx, tag, count, selected):
-        return self.render_item(idx, tag, count, selected)
-
-    def render_item(self, idx, tag, count, selected):
-        req = self.req
-        try:
-            section = req.entity_from_eid(tag)
-        except UnknownEid:
-            req.exception("failed to get entity with eid %s (ES out of sync?)", tag)
-            return None
-        if self.searchcontext:
-            path = self.searchcontext.get("path", ())
-            if tag in path:
-                return None
-        return self.item.format(
-            url=section.absolute_url(),
-            eid=tag,
-            css=" ".join(self.item_css(idx, selected)),
-            alt=req._("select"),
-            content=section.dc_title(),
-            style=self.item_style(idx),
-            count=format_number(count, req),
-        )
-
-
-class PniaDigitizedFacetRenderer(PniaDefaultFacetRenderer):
+class PniaIsPublishedFacetRenderer(PniaDefaultFacetRenderer):
     filter_tags = False
-    unfolded = True
 
     def build_bucket(self, bucket):
         # convert int value to boolean: 0 -> False and 1 -> True
-        bucket = super(PniaDigitizedFacetRenderer, self).build_bucket(bucket)
+        bucket = super().build_bucket(bucket)
         return [(bool(item[0]),) + item[1:] for item in bucket]
 
     @staticmethod
     def build_content(req, content):
         _ = req._
-        return _("yes") if content else _("no")
+        return _("published") if content else _("draft")
+
+
+class PniaDigitalizedFacetRenderer(DZFacetValues, PniaDefaultFacetRenderer):
+    """for instnace only four following values can be found in this facet e.g DZFacetValues"""
+
+    unfolded = True
+
+    digitized_template = """
+    <li class="facet__value">
+      {parent}
+      <ul>
+      {children}
+      </ul>
+    </li>
+    """
+
+    def translate_label(self, tag):
+        return f"{tag}_value"
+
+    def process_bucket(self, bucket):
+        digitized, digitized_items, non_digitized = None, [], None
+        for item in bucket:
+            terms = item[0].split("-")
+            if terms[0] == self.dz:
+                if len(terms) == 1:
+                    digitized = item
+                else:
+                    digitized_items.append(item)
+            else:
+                non_digitized = item
+        # if "all digitized" option is selected, "iiif" and "no iiif" options
+        # must be selected
+        if digitized and digitized[2]:
+            digitized_items = [d[:2] + (True,) for d in digitized_items]
+        else:
+            digitized_items_selected = digitized_items and all([d[2] for d in digitized_items])
+            # if "iiif" and "no iiif" options is selected, all digitized" option
+            # must be selected
+            if digitized_items_selected:
+                digitized = digitized[:2] + (True,)
+        return digitized, digitized_items, non_digitized
+
+    def render(self, bucket, facetlabel):
+        items = []
+        digitized, digitized_items, non_digitized = self.process_bucket(bucket)
+        if digitized:
+            if digitized_items:
+                items.append(
+                    self.digitized_template.format(
+                        parent=self.render_item(0, *(digitized)),
+                        children="".join(
+                            [self.render_item(0, *(di)) for di in digitized_items if di[0]]
+                        ),
+                    )
+                )
+            else:
+                items.append(self.render_item(0, *(digitized)))
+        if non_digitized:
+            items.append(self.render_item(0, *(non_digitized)))
+        if not items:
+            return None
+        return self.template.render(
+            {
+                "_": self.req._,
+                "facetid": self.facetid,
+                "facet_label": facetlabel,
+                "facet_items": items,
+                "facet_unfolded": self.unfolded or self.selected,
+            }
+        )
+
+    def build_url_params(self, param_name, tag):
+        """This function handle the multiselection of the digitalized facet value.
+
+        The values of "iiif" and "no iiif" options are excusive expect if "all
+        digitalized" option is selected (OR operator). Other options are used
+        with the "AND" operator.
+
+        """
+        selected = self.req.form.get(param_name, [])
+        if not isinstance(selected, (list, tuple)):
+            selected = (selected,)
+        selected = set(selected)
+        tag = str(tag)
+        replace_keys = True
+        values = tag
+        if tag == self.dz:
+            params = set([*self.dzitems().keys(), self.dz])
+            if self.dz not in selected:
+                values = list(selected | params)
+            else:
+                values = list(selected - params)
+        elif tag in self.dzitems():
+            if self.dz in selected:
+                if tag in selected:
+                    values = list(selected - set([tag, self.dz]))
+                else:
+                    values = list(selected - set([self.dz]) | set([tag]))
+            else:
+                if tag in selected:
+                    values = list(selected - set([tag]))
+                else:
+                    reverse_dzitems = list(self.dzitems().keys())
+                    reverse_dzitems.remove(tag)
+                    values = list(selected - set(reverse_dzitems) | set([tag]))
+        elif tag == self.nondz:
+            replace_keys = False
+        return {
+            "vid": None,
+            "page": None,
+            "replace_keys": replace_keys,
+            param_name: values,
+        }
+
+
+class PniaDPartnerFacetRenderer(PniaDefaultFacetRenderer):
+    filter_tags = False
+
+    def build_bucket(self, bucket):
+        # convert int value to boolean: 0 -> False and 1 -> True
+        bucket = super().build_bucket(bucket)
+        return [(bool(item[0]),) + item[1:] for item in bucket]
+
+    @staticmethod
+    def build_content(req, content):
+        _ = req._
+        return _("Services contributors") if content else _("Services non-contributors")
 
 
 class PniaStatusFacetRenderer(PniaDefaultFacetRenderer):
@@ -810,9 +1118,9 @@ class PniaSigningYearFacetRenderer(PniaDefaultFacetRenderer):
 
 FACET_RENDERERS = {
     "default": PniaDefaultFacetRenderer(),
-    "year": PniaYearFacetRenderer(),
     "cw_etype": PniaEtypeFacetRenderer(),
-    "digitized": PniaDigitizedFacetRenderer(),
+    "digitalized": PniaDigitalizedFacetRenderer(sort="item"),
+    "partner": PniaDPartnerFacetRenderer(),
     "status": PniaStatusFacetRenderer(),
     "siaf_daf_signing_year": PniaSigningYearFacetRenderer(),
     "business_field": PniaDefaultFacetRenderer(sort="item"),
@@ -820,6 +1128,8 @@ FACET_RENDERERS = {
     "document_type": PniaDefaultFacetRenderer(sort="item"),
     "action": PniaDefaultFacetRenderer(sort="item"),
     "service": PniaServiceRenderer(),
-    "acte_type": PniaNominaDocumentTypeRenderer(),
+    "act_type": PniaNominaDocumentTypeRenderer(),
+    "gender": PniaNominaGenderRenderer(),
     "publisher": PniaServiceRenderer(),
+    "is_published": PniaIsPublishedFacetRenderer(),
 }

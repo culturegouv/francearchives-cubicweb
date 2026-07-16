@@ -1,0 +1,5 @@
+{% from "./mixins.jinja2" import services_without_rdf_accordeon -%}
+<div class="fr-mt-2w">
+  <h2 class="fr-mb-4w">{{ _("All services") }}</h2>
+  {{ services_without_rdf_accordeon(services, lang_attr, _) }}
+</div>

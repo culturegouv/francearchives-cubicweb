@@ -28,8 +28,7 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-C license and that you accept its terms.
 #
-"""Provides various data for CMS migration.
-"""
+"""Provides various data for CMS migration."""
 
 SECTION_SHORT_DESCRIPTIONS = {
     "decouvrir": """Les services d'archives publiques sont répartis

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ead xmlns="urn:isbn:1-931666-22-9"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<eadheader>
+<eadid url="https://earchives.vaucluse.fr/document/FRAD084_cadastre">FRAD084_cadastre</eadid>
+<filedesc>
+<titlestmt>
+<titleproper>Cadastre napoléonien - Plans parcellaires communaux</titleproper>
+<subtitle>Catalogue numérique</subtitle>
+</titlestmt>
+<publicationstmt>
+<publisher>Archives départementales de Vaucluse</publisher>
+<address>
+<addressline>Avignon</addressline>
+</address>
+<date>2008, mise à jour 2010</date>
+</publicationstmt>
+</filedesc>
+<profiledesc>
+<creation>Instrument de recherche produit au moyen du logiciel Arkhéïa Aide au classement de la société Anaphore sarl, version 9.3.1 du <date calendar="gregorian" era="ce" normal="2023-04-28">vendredi 28 avril 2023</date>. 
+Date de l'export : <date calendar="gregorian" era="ce" normal="2023-05-10">mercredi 10 mai 2023</date> (15:35 h)</creation>
+<langusage>Instrument de recherche rédigé en <language langcode="fre" scriptcode="Latn">français</language>
+</langusage>
+</profiledesc>
+</eadheader>
+<archdesc level="collection">
+<did>
+<unittitle>Cadastre napoléonien - Plans parcellaires communaux</unittitle>
+<unitdate label="Dates extrêmes" normal="1809/1907">1809-1907</unitdate>
+<physdesc label="Description physique">
+<extent type="unités description" label="Nombre d'unités de niveau bas">2141</extent>
+</physdesc>
+<dao xlink:type="simple" xlink:href="https://v-earchives.vaucluse.fr/viewer/image_ronde/FRAD084_cadastre_ronde.png" xlink:title="Extrait du cadastre de Gigondas, section D (détail), 1831 (AD Vaucluse 3 P 2/49 8)"/>
+<dao xlink:type="simple" xlink:href="https://v-earchives.vaucluse.fr/ajax/img/image_ronde/FRAD084_cadastre_ronde.png" xlink:title="Extrait du cadastre de Gigondas, section D (détail), 1831 (AD Vaucluse 3 P 2/49 8)/format/thumb" xlink:role="thumbnail"/>
+</did>
+<controlaccess>
+<head>Descripteurs</head>
+<genreform type="filtre">cadastre</genreform>
+<subject>cadastre</subject>
+<name role="producteur">Service du cadastre</name>
+<geogname>Vaucluse (France)</geogname>
+</controlaccess>
+<dsc type="othertype">
+<c id="FRAD084_cadastre_tt1-1">
+<did>
+<unitid>
+<extptr xlink:type="simple" xlink:href="https://earchives.vaucluse.fr/document/FRAD084_cadastre#tt1-1"/>
+</unitid>
+<unittitle type="titre">Althen-des-Paluds</unittitle>
+</did>
+<scopecontent>
+<head>Présentation du contenu</head>
+<p>La commune d'Althen-des-Paluds a été créée en 1846, par détachement d'une partie du territoire de Monteux (sections F et G1)</p>
+</scopecontent>
+<daogrp xlink:type="extended">
+<daoloc xlink:type="locator" xlink:href="https://v-earchives.vaucluse.fr/series/p/3p_w_cadastre/84-001/" xlink:title="Visualiser les feuilles d&apos;Althen-des-Paluds"/>
+<daoloc xlink:type="locator" xlink:href="https://v-earchives.vaucluse.fr/ajax/representative/p/3p_w_cadastre/84-001/format/thumb" xlink:role="thumbnail"/>
+</daogrp>
+<controlaccess>
+<head>Descripteurs</head>
+<geogname source="liste-commune" authfilenumber="84-001">Althen-des-Paluds (Vaucluse, France)</geogname>
+</controlaccess>
+<c id="FRAD084_cadastre_de-1">
+<did>
+<unitid type="cote-original" label="Cote de l'original">3 P 2-080/1<extptr xlink:type="simple" xlink:href="https://earchives.vaucluse.fr/document/FRAD084_cadastre#de-1"/>
+</unitid>
+<unittitle label="Intitulé">Tableau d'assemblage</unittitle>
+<unitdate label="Date" normal="1830">1830</unitdate>
+<materialspec type="données mathématiques" label="Échelle">1 :20000</materialspec>
+</did>
+<scopecontent>
+<head>Présentation du contenu</head>
+<p>Plan d'assemblage de la commune de Monteux.</p>
+</scopecontent>
+<dao xlink:type="simple" xlink:href="https://v-earchives.vaucluse.fr/viewer/p/3p_w_cadastre/84-080/AD84_3P2_080_001_H.jpg"/>
+<dao xlink:type="simple" xlink:href="https://v-earchives.vaucluse.fr/ajax/img/p/3p_w_cadastre/84-080/AD84_3P2_080_001_H.jpg/format/thumb" xlink:role="thumbnail"/>
+<otherfindaid>
+<extref xlink:href="https://earchives.vaucluse.fr/document/FRAD084_cadastre#de-1"/>
+</otherfindaid>
+<controlaccess>
+<head>Descripteurs</head>
+<genreform>tableau d'assemblage</genreform>
+</controlaccess>
+</c>
+<c id="FRAD084_cadastre_tt2-1">
+<did>
+<unitid>
+<extptr xlink:type="simple" xlink:href="https://earchives.vaucluse.fr/document/FRAD084_cadastre#tt2-1"/>
+</unitid>
+<unittitle type="titre">Section F dite des Paluds</unittitle>
+</did>
+<controlaccess>
+<head>Descripteurs</head>
+<genreform>plan parcellaire</genreform>
+<geogname source="liste-nom_section">Les Paluds</geogname>
+<geogname source="liste-lettre_section">Section F</geogname>
+</controlaccess>
+<c id="FRAD084_cadastre_de-2">
+<did>
+<unitid type="cote-original" label="Cote de l'original">3 P 2-001/1<extptr xlink:type="simple" xlink:href="https://earchives.vaucluse.fr/document/FRAD084_cadastre#de-2"/>
+</unitid>
+<unittitle label="Intitulé">Feuille 1</unittitle>
+<unitdate label="Date" normal="1836">1836</unitdate>
+<materialspec type="données mathématiques" label="Échelle">1 :2500</materialspec>
+</did>
+<dao xlink:type="simple" xlink:href="https://v-earchives.vaucluse.fr/viewer/e/2e09_caderousse/AD084CAD2E9_0007_03.jpg" xlink:title="Page du brouillard de l&apos;inventaire de 1695 (AD Vaucluse 2 E 9/7, fol. 30)"/>
+<dao xlink:type="simple" xlink:href="https://v-earchives.vaucluse.fr/ajax/img/e/2e09_caderousse/AD084CAD2E9_0007_03.jpg/format/thumb" xlink:role="thumbnail" xlink:title="Page du brouillard de l&apos;inventaire de 1695 (AD Vaucluse 2 E 9/7, fol. 30)"/>
+
+<dao xlink:type="simple" xlink:href="https://v-earchives.vaucluse.fr/viewer/e/2e09_caderousse/AD084CAD2E9_0007_07.jpg" xlink:title="Analyse du bref papal érigeant la seigneurie de Caderousse en duché en 1665 dans l&apos;inventaire de 1695 (AD Vaucluse 2 E 9/7, fol. 72)"/>
+<dao xlink:type="simple" xlink:href="https://v-earchives.vaucluse.fr/ajax/img/e/2e09_caderousse/AD084CAD2E9_0007_07.jpg/format/thumb" xlink:role="thumbnail" xlink:title="Analyse du bref papal érigeant la seigneurie de Caderousse en duché en 1665 dans l&apos;inventaire de 1695 (AD Vaucluse 2 E 9/7, fol. 72)"/>
+<otherfindaid>
+<extref xlink:href="https://earchives.vaucluse.fr/document/FRAD084_cadastre#de-2"/>
+</otherfindaid>
+</c>
+<c id="FRAD084_cadastre_de-3">
+<did>
+<unitid type="cote-original" label="Cote de l'original">3 P 2-001/2<extptr xlink:type="simple" xlink:href="https://earchives.vaucluse.fr/document/FRAD084_cadastre#de-3"/>
+</unitid>
+<unittitle label="Intitulé">Feuille 2</unittitle>
+<unitdate label="Date" normal="1836">1836</unitdate>
+<materialspec type="données mathématiques" label="Échelle">1 :2500</materialspec>
+</did>
+<daogrp xlink:type="extended">
+<daoloc xlink:type="locator" xlink:href="https://v-earchives.vaucluse.fr/series/p/3p_w_cadastre/84-105/" xlink:title="Visualiser les feuilles de Saignon"/>
+<daoloc xlink:type="locator" xlink:href="https://v-earchives.vaucluse.fr/ajax/representative/p/3p_w_cadastre/84-105/format/thumb" xlink:role="thumbnail"/>
+</daogrp>
+<otherfindaid>
+<extref xlink:href="https://earchives.vaucluse.fr/document/FRAD084_cadastre#de-3"/>
+</otherfindaid>
+</c>
+</c>
+<c id="FRAD084_cadastre_tt2-2">
+<did>
+<unitid>
+<extptr xlink:type="simple" xlink:href="https://earchives.vaucluse.fr/document/FRAD084_cadastre#tt2-2"/>
+</unitid>
+<unittitle type="titre">Section G dite de Beauchamp</unittitle>
+</did>
+<controlaccess>
+<head>Descripteurs</head>
+<genreform>plan parcellaire</genreform>
+<geogname source="liste-nom_section">Beauchamp</geogname>
+<geogname source="liste-lettre_section">Section G</geogname>
+</controlaccess>
+<c id="FRAD084_cadastre_de-4">
+<did>
+<unitid type="cote-original" label="Cote de l'original">3 P 2-001/3<extptr xlink:type="simple" xlink:href="https://earchives.vaucluse.fr/document/FRAD084_cadastre#de-4"/>
+</unitid>
+<unittitle label="Intitulé">Feuille unique</unittitle>
+<unitdate label="Date" normal="1836">1836</unitdate>
+<materialspec type="données mathématiques" label="Échelle">1 :2500</materialspec>
+</did>
+<scopecontent>
+<head>Présentation du contenu</head>
+<p>Ancienne feuille G2 de Monteux</p>
+</scopecontent>
+<dao xlink:type="simple" xlink:href="https://v-earchives.vaucluse.fr/viewer/p/3p_w_cadastre/84-001/AD84_3P2_001_003_H.jpg"/>
+<dao xlink:type="simple" xlink:href="https://v-earchives.vaucluse.fr/ajax/img/p/3p_w_cadastre/84-001/AD84_3P2_001_003_H.jpg/format/thumb" xlink:role="thumbnail"/>
+<otherfindaid>
+<extref xlink:href="https://earchives.vaucluse.fr/document/FRAD084_cadastre#de-4"/>
+</otherfindaid>
+</c>
+</c>
+</c>
+</dsc>
+</archdesc>
+</ead>

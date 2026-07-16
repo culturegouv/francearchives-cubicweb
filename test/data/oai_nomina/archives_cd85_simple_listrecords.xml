@@ -1,0 +1,87 @@
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+<responseDate>2022-11-14T14:10:08Z</responseDate>
+<request verb="ListRecords" metadataPrefix="nomina" set="mariage">http://www.nomsdevendee.fr/oai/oai2.php</request>
+<ListRecords>
+<record>
+<header>
+<identifier>oai:nomsdevendee.fr:4387519</identifier>
+<datestamp>2022-06-12T14:36:08Z</datestamp>
+<setSpec>mariage</setSpec>
+</header>
+<metadata>
+<nomina:document xmlns:nomina="http://www.france-genealogie.fr/ns/nomina/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.archivesdefrance.culture.gouv.fr/nomina/nomina1.4.xsd " id="oai:nomsdevendee.fr:4387519" uri="http://nomsdevendee.fr/details.php?id=4387519">
+<nomina:personne>
+<nomina:nom>GORON</nomina:nom>
+<nomina:prenoms>Etienne</nomina:prenoms>
+</nomina:personne>
+<nomina:personne>
+<nomina:nom>BALANGER</nomina:nom>
+<nomina:prenoms>Marie</nomina:prenoms>
+</nomina:personne>
+<nomina:type code="M">Mariage</nomina:type>
+<nomina:localisation code="M">
+<nomina:pays code="33">France</nomina:pays>
+<nomina:departement code="85">Vendée</nomina:departement>
+<nomina:precision>CHAILLÉ-LES-MARAIS</nomina:precision>
+</nomina:localisation>
+<nomina:date annee="1655" code="M">1655-02-08</nomina:date>
+<nomina:complement numerise="true" autre="true"/>
+</nomina:document>
+</metadata>
+</record>
+<record>
+<header>
+<identifier>oai:nomsdevendee.fr:4387520</identifier>
+<datestamp>2022-06-12T14:36:08Z</datestamp>
+<setSpec>mariage</setSpec>
+</header>
+<metadata>
+<nomina:document xmlns:nomina="http://www.france-genealogie.fr/ns/nomina/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.archivesdefrance.culture.gouv.fr/nomina/nomina1.4.xsd " id="oai:nomsdevendee.fr:4387520" uri="http://nomsdevendee.fr/details.php?id=4387520">
+<nomina:personne>
+<nomina:nom>PAUTON</nomina:nom>
+<nomina:prenoms>Mathurin</nomina:prenoms>
+</nomina:personne>
+<nomina:personne>
+<nomina:nom>SORET</nomina:nom>
+<nomina:prenoms>Marie</nomina:prenoms>
+</nomina:personne>
+<nomina:type code="M">Mariage</nomina:type>
+<nomina:localisation code="M">
+<nomina:pays code="33">France</nomina:pays>
+<nomina:departement code="85">Vendée</nomina:departement>
+<nomina:precision>CHAILLÉ-LES-MARAIS</nomina:precision>
+</nomina:localisation>
+<nomina:date annee="1655" code="M">1655-04-13</nomina:date>
+<nomina:complement numerise="true" autre="true"/>
+</nomina:document>
+</metadata>
+</record>
+<record>
+<header>
+<identifier>oai:nomsdevendee.fr:3942186</identifier>
+<datestamp>2022-06-12T14:36:08Z</datestamp>
+<setSpec>mariage</setSpec>
+</header>
+<metadata>
+<nomina:document xmlns:nomina="http://www.france-genealogie.fr/ns/nomina/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.archivesdefrance.culture.gouv.fr/nomina/nomina1.4.xsd " id="oai:nomsdevendee.fr:3942186" uri="http://nomsdevendee.fr/details.php?id=3942186">
+<nomina:personne>
+<nomina:nom>BERTHOME</nomina:nom>
+<nomina:prenoms>Henri</nomina:prenoms>
+</nomina:personne>
+<nomina:personne>
+<nomina:nom>JAGUENEAU</nomina:nom>
+<nomina:prenoms>Hyacinthe</nomina:prenoms>
+</nomina:personne>
+<nomina:type code="M">Mariage</nomina:type>
+<nomina:localisation code="M">
+<nomina:pays code="33">France</nomina:pays>
+<nomina:departement code="85">Vendée</nomina:departement>
+<nomina:precision>CHAVAGNES-EN-PAILLERS</nomina:precision>
+</nomina:localisation>
+<nomina:date annee="1739" code="M">1739-06-22</nomina:date>
+<nomina:complement numerise="true" autre="true"/>
+</nomina:document>
+</metadata>
+</record>
+</ListRecords>
+</OAI-PMH>

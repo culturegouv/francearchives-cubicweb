@@ -44,37 +44,29 @@ from cubicweb.rset import ResultSet
 
 from cubicweb_elasticsearch.views import ElasticSearchView
 
-from cubicweb_francearchives.views import get_template, rebuild_url, format_number
+from cubicweb_francearchives.views import get_template, rebuild_url
+from cubicweb_francearchives.utils import format_number
 
-from . import PaginationMixin, FakeResponse
+from . import EulerianMixin, PaginationMixin, FakeResponse
 
 
 LETTERS_TO_LABEL = {"#": _("others alphabets"), "0": _("0-9"), "!": _("punctuation")}
 
 
-class PniaAuthoritiesElasticSearchView(PaginationMixin, ElasticSearchView):
+class PniaAuthoritiesElasticSearchView(EulerianMixin, PaginationMixin, ElasticSearchView):
     __abstract__ = True
     title_count_templates = (_("No result"), _("1 result"), _("{count} results"))
-    template = get_template("searchlist.jinja2")
-    cw_etype = "SubjectAuthority"
+    template = get_template("searchlist-authority.jinja2")
     items_per_page_options = [100, 200]
     default_items_per_page = 100
+    eulerian_tag = True
 
     @property
     def breadcrumbs(self):
-        breadcrumbs = [(self._cw.build_url(""), self._cw._("Home"))]
-        breadcrumbs.append((None, self._cw._(self.title)))
-        return breadcrumbs
-
-    def add_css(self):
-        self._cw.add_css("css/font-awesome.css")
+        return ((self._cw.build_url(""), self._cw._("Home")), (None, self._cw._(self.title)))
 
     def add_js(self):
-        self._cw.add_js("cubes.pnia_search.js")
-
-    @cachedproperty
-    def xiti_chapters(self):
-        return ["Authorities", self.__regid__]
+        self._cw.add_js("bundle-pnia-search.js")
 
     # XXX This page does not have a query string, to modify or remove
     @cachedproperty
@@ -127,7 +119,8 @@ class PniaAuthoritiesElasticSearchView(PaginationMixin, ElasticSearchView):
         stop = stop if stop != 10 else self.default_items_per_page
         cwconfig = self._cw.vreg.config
         index_name = f"{cwconfig['index-name']}_suggest"
-        search = Search(doc_type="_doc", index=index_name).sort("text.raw")
+        search = Search(index=index_name).sort("text.raw")
+        search = search.extra(track_total_hits=True)
         must = [
             {"match": {"cw_etype": self.cw_etype}},
             {"match": {"quality": True}},
@@ -183,9 +176,15 @@ class PniaAuthoritiesElasticSearchView(PaginationMixin, ElasticSearchView):
         rset.req = req
         return rset
 
+    @cachedproperty
     def search_summary(self):
+        if not hasattr(self, "_search_summary"):
+            self._search_summary = self.compute_search_summary()
+        return self._search_summary
+
+    def compute_search_summary(self):
+        """Do not translate labels here"""
         summary = []
-        _ = self._cw._
         active_letter = self._cw.form.get("let", "").strip()
         if active_letter:
             reset_url = rebuild_url(self._cw, **{"let": None})
@@ -198,7 +197,10 @@ class PniaAuthoritiesElasticSearchView(PaginationMixin, ElasticSearchView):
         if value:
             reset_url = rebuild_url(self._cw, **{key: None})
             summary.append({"name": _("Contains"), "value": [(value, reset_url)]})
-        return {"summary": summary}
+        search_summary = {}
+        if summary:
+            search_summary["summary"] = summary
+        return search_summary
 
     def get_header_attrs(self):
         return {"title": self._cw._(self.title)}
@@ -207,7 +209,11 @@ class PniaAuthoritiesElasticSearchView(PaginationMixin, ElasticSearchView):
         data = {}
         active_letter = self._cw.form.get("let", "")
         data["all"] = [
-            (self._cw._("all"), self._cw.build_url(), "all active" if not active_letter else "all")
+            (
+                self._cw._("all").capitalize(),
+                self._cw.build_url(),
+                "fr-btn fr-btn--primary" if not active_letter else "fr-btn fr-btn--tertiary",
+            )
         ]
         letters = []
         for letter in ascii_uppercase:
@@ -216,7 +222,11 @@ class PniaAuthoritiesElasticSearchView(PaginationMixin, ElasticSearchView):
                 (
                     letter,
                     self._cw.build_url(let=lower),
-                    "letter active" if lower == active_letter else "letter",
+                    (
+                        "fr-btn fr-btn--primary"
+                        if lower == active_letter
+                        else "fr-btn fr-btn--tertiary"
+                    ),
                 )
             )
         # 0-9
@@ -239,7 +249,6 @@ class PniaAuthoritiesElasticSearchView(PaginationMixin, ElasticSearchView):
 
     def call(self, context=None, **kwargs):
         self.add_js()
-        self.add_css()
         try:
             response, query_string = self.cached_search_response
         except ConnectionError:
@@ -272,25 +281,24 @@ class PniaAuthoritiesElasticSearchView(PaginationMixin, ElasticSearchView):
             if not isinstance(value, (tuple, list)):
                 fulltext_params[key] = [value]
 
-        first_previous_pages, next_last_pages = self.pagination(response.hits.total.value)
+        search_summary = self.search_summary
         self.w(
             self.template.render(
                 req=self._cw,
                 _=self._cw._,
                 response=response,
-                display_facets=True,
                 results_title=self.format_results_title(response),
-                display_fulltext_facet=True,
+                display_fulltext_facet=bool(response.hits.total.value),
+                display_facets=bool(response.hits.total.value),
                 fulltext_form_action=self._cw.build_url(
                     self._cw.relative_path(includeparams=False)
                 ),
                 fulltext_params=fulltext_params,
                 fulltext_value=fulltext_value,
                 search_results=self.build_results(response),
-                search_summary=self.search_summary(),
+                search_summary=search_summary,
                 reset_all_facets_link=self.reset_all_facets_link(),
-                first_previous_pages=first_previous_pages,
-                next_last_pages=next_last_pages,
+                pagination=self.pagination(response.hits.total.value),
                 header=self.get_header_attrs(),
                 letters=self.letters(),
                 items_per_page_links=self.items_per_page_links(),
@@ -299,6 +307,7 @@ class PniaAuthoritiesElasticSearchView(PaginationMixin, ElasticSearchView):
                 page_number_form_action=self._cw.build_url(
                     self._cw.relative_path(includeparams=False)
                 ),
+                text_lead=self._cw._("quality_authorities_explanation_text"),
                 current_page=int(self._cw.form.get("page", 1)),
                 number_of_pages=self.number_of_pages(response.hits.total.value),
             )
@@ -308,23 +317,29 @@ class PniaAuthoritiesElasticSearchView(PaginationMixin, ElasticSearchView):
 class PniaSubjectAuthoriesElasticSearchView(PniaAuthoritiesElasticSearchView):
     __regid__ = "subjects"
     cw_etype = "SubjectAuthority"
-    title = _("Themes")
+    title = _("Quality themes")
     title_count_templates = (_("No themes"), _("1 theme"), _("{count} themes"))
+    eulerian_search_engine = "subjects_search"
+    eulerian_path = "/authorities/search/subjects"
 
 
 class PniaAgentAuthoriesElasticSearchView(PniaAuthoritiesElasticSearchView):
     __regid__ = "agents"
     cw_etype = "AgentAuthority"
-    title = _("Persons/organizations")
+    title = _("Quality persons/organizations")
     title_count_templates = (
         _("No persons/organizations"),
         _("1 person/organization"),
         _("{count} persons/organizations"),
     )
+    eulerian_search_engine = "agents_search"
+    eulerian_path = "/authorities/search/agents"
 
 
 class PniaLocationAuthoriesElasticSearchView(PniaAuthoritiesElasticSearchView):
     __regid__ = "locations"
     cw_etype = "LocationAuthority"
-    title = _("Locations")
+    title = _("Quality locations")
     title_count_templates = (_("No locations"), _("1 location"), _("{count} locations"))
+    eulerian_search_engine = "locations_search"
+    eulerian_path = "/authorities/search/locations"

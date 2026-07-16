@@ -53,16 +53,48 @@ for s3logger in (
     logging.getLogger(s3logger).setLevel(logging.WARN)
 
 
+class S3BucketError(Exception):
+    """raised when there is en error with S3BucketError"""
+
+
 class S3BfssStorageMixIn:
-    def __init__(self, bucket_name=None, log=None):
-        self.s3_bucket = bucket_name or os.environ.get("AWS_S3_BUCKET_NAME")
-        if self.s3_bucket:
-            self.s3 = FranceArchivesS3Storage(
-                self.s3_bucket,
-            )
+    """Helper class for S3/BFSS file storage"""
+
+    def __init__(self, bfss=False, bucket_name=None, log=None):
+        """Initialize S3BfssStorageMixIn
+        :param boolean bfss: force FileSystem storage
+        :param String bucket_name: name of S3 bucket
+        :param Logger log: log
+
+        """
         if log is None:
             log = logging.getLogger("S3BfssStorage")
         self.log = log
+        if bfss:
+            self.s3 = None
+            self.s3_bucket = None
+            return
+        self.s3_bucket = bucket_name or os.environ.get("AWS_S3_BUCKET_NAME")
+        if not self.s3_bucket:
+            msg = "No name found for S3 bucket"
+            self.log.error(msg)
+            raise S3BucketError(msg)
+        self.s3 = FranceArchivesS3Storage(self.s3_bucket)
+        if self.s3_bucket not in self.get_buckets_list():
+            msg = (
+                "No bucket '%s' found. Please, "
+                "contact the administrator to create it." % self.s3_bucket
+            )
+            self.log.error(msg)
+            raise S3BucketError(msg)
+
+    def get_buckets_list(self):
+        response = self.s3.s3cnx.list_buckets()
+        if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
+            if "Buckets" not in response:
+                self.log.error("No information about existing s3 buckets " "could be retrieved")
+                return
+        return [obj["Name"] for obj in response["Buckets"]]
 
     def s3_write_zipfile(self, zipfile, directory, exts=None):
         """Write a zipfile content in S3
@@ -178,12 +210,13 @@ class S3BfssStorageMixIn:
             return self.s3_create_zipfiles(files, archive)
         return self.bfss_create_zipfiles(files, archive)
 
-    def s3_write_file(self, filename, filecontent, subdirectories=[]):
+    def s3_write_file(self, filename, filecontent, subdirectories=[], compressed=False):
         """Write a file in S3
 
         :filename: filename
         :filecontent: file content
         :param list subdirectories: list of subdirectories
+        :param compressed: file must or not be compressed
 
         :returns: filepath
         :rtype: str
@@ -194,11 +227,12 @@ class S3BfssStorageMixIn:
         self.s3.temporary_import_upload(binary, filepath)
         return filepath
 
-    def bfss_write_file(self, filename, filecontent, subdirectories=[]):
+    def bfss_write_file(self, filename, filecontent, subdirectories=[], compressed=False):
         """Write a file on the fs
 
         :filename: filename
         :filecontent: file content
+        :param compressed: file must or not be compressed
 
         :returns: filepath
         :rtype: str
@@ -212,10 +246,59 @@ class S3BfssStorageMixIn:
             f.write(filecontent)
             return filepath
 
-    def storage_write_file(self, filepath, filecontent, subdirectories=[]):
+    def storage_write_gz_file(self, filename, buf, output_dir=None):
+        if not isinstance(buf, bytes):
+            buf = buf.getvalue().encode("utf-8")
         if self.s3_bucket:
-            return self.s3_write_file(filepath, filecontent, subdirectories)
-        return self.bfss_write_file(filepath, filecontent, subdirectories)
+            return self.s3_storage_write_gz_file(filename, buf, output_dir)
+        return self.bfss_storage_write_gz_file(filename, buf, output_dir)
+
+    def s3_storage_write_gz_file(self, filename, buf, output_dir=None):
+        """
+        Write gzip file
+
+        :param str filename: file name
+        :param StringIO buf: content to write in the file
+        :param str output_dir: directory for the file
+        """
+        if output_dir:
+            filename = "/".join([output_dir, filename])
+        key = self.s3.ensure_key(filename)
+        gz_body = BytesIO()
+        gz = gzip.GzipFile(None, "wb", 9, gz_body)
+        gz.write(buf)
+        gz.close()
+        self.s3.s3cnx.upload_fileobj(
+            Binary(gz_body.getvalue()),
+            self.s3.bucket,
+            key,
+            ExtraArgs={"ContentType": "text/plain", "ContentEncoding": "gzip"},
+        )
+
+    def bfss_storage_write_gz_file(self, filename, buf, output_dir=None):
+        """
+        Write gzip file
+
+        :param str filename: file name
+        :param StringIO buf: content to write in the file
+        :param str output_dir: directory for the file
+        """
+        if output_dir:
+            filename = os.path.join(output_dir, filename)
+        with gzip.open(filename, "wb") as stream:
+            stream.write(buf)
+
+    def storage_write_file(self, filepath, filecontent, subdirectories=[], compressed=False):
+        if compressed:
+            if subdirectories:
+                if self.s3_bucket:
+                    subdirectories = self.s3.ensure_key("/".join(subdirectories))
+                else:
+                    subdirectories = self.bfss_makedir(subdirectories)
+            return self.storage_write_gz_file(filepath, filecontent, subdirectories)
+        if self.s3_bucket:
+            return self.s3_write_file(filepath, filecontent, subdirectories, compressed=False)
+        return self.bfss_write_file(filepath, filecontent, subdirectories, compressed=False)
 
     def s3_write_csv_file(self, filename, rows, directory=None, delimiter=";"):
         """Write a csv in S3
@@ -276,10 +359,13 @@ class S3BfssStorageMixIn:
         """
 
         if self.s3_bucket:
-            # load the filecontent   try:
+            # load the filecontent
             tmpd_fdesc, tmp_filepath = mkstemp(prefix)
             try:
                 content = self.s3_get_file_content(filepath)
+                if content is None:
+                    self.log.error("'%s' content is None", filepath)
+                    content = b""
                 with open(tmp_filepath, "wb") as f:
                     f.write(content)
                 os.close(tmpd_fdesc)
@@ -487,7 +573,7 @@ class S3BfssStorageMixIn:
         if self.s3_bucket:
             from botocore.exceptions import ClientError
 
-            metadata_file = f"{self.s3.import_prefix}{os.path.dirname(filepath)}/metadata.csv"
+            metadata_file = f"{self.s3.import_prefix}{filepath}"
             metadata_key = self.s3.ensure_key(metadata_file)
             try:
                 head = self.s3.s3cnx.head_object(Key=metadata_key, Bucket=self.s3.bucket)
@@ -601,35 +687,6 @@ class S3BfssStorageMixIn:
                     os.unlink(fpath)
                 else:
                     shutil.rmtree(fpath)
-
-    def storage_write_gz_file(self, filename, buf, output_dir=None):
-        """
-        Write sitemap gzip files
-
-        :param str filename: file name
-        :param StringIO buf: content to write in the file
-        :param str output_dir: directory for the file
-        """
-        if self.s3_bucket:
-            if output_dir:
-                filename = "/".join([output_dir, filename])
-            key = self.s3.ensure_key(filename)
-            gz_body = BytesIO()
-            gz = gzip.GzipFile(None, "wb", 9, gz_body)
-            gz.write(buf.getvalue().encode("utf-8"))
-            gz.close()
-            self.s3.s3cnx.upload_fileobj(
-                Binary(gz_body.getvalue()),
-                self.s3.bucket,
-                key,
-                ExtraArgs={"ContentType": "text/plain", "ContentEncoding": "gzip"},
-            )
-        else:
-            if output_dir:
-                filename = os.path.join(output_dir, filename)
-            sitemap_file = gzip.open(filename, "wb")
-            sitemap_file.write(buf.getvalue().encode("utf8"))
-            sitemap_file.close()
 
     def storage_write_sitemap_ini_file(self, filename, output_dir, buf):
         """

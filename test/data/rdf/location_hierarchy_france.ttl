@@ -1,19 +1,21 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-<http://testing.fr/cubicweb/location/{{toulouse}}> rico:containsOrContained <http://testing.fr/cubicweb/location/{{capitole}}> .
+<https://testing.cubicweb/location/{{toulouse}}> rico:containsOrContained <https://testing.cubicweb/location/{{capitole}}> .
 
-<http://testing.fr/cubicweb/location/{{france}}> rico:containsOrContained <http://testing.fr/cubicweb/location/{{capitole}}> .
+<https://testing.cubicweb/location/{{france}}> rico:containsOrContained <https://testing.cubicweb/location/{{capitole}}> .
 
-<http://testing.fr/cubicweb/location/{{haute_garonne}}> rico:containsOrContained <http://testing.fr/cubicweb/location/{{capitole}}> .
+<https://testing.cubicweb/location/{{haute_garonne}}> rico:containsOrContained <https://testing.cubicweb/location/{{capitole}}> .
 
-<http://testing.fr/cubicweb/location/{{occitanie}}> rico:containsOrContained <http://testing.fr/cubicweb/location/{{capitole}}> .
+<https://testing.cubicweb/location/{{occitanie}}> rico:containsOrContained <https://testing.cubicweb/location/{{capitole}}> .
 
-<http://testing.fr/cubicweb/location/{{capitole}}> a rico:Place ;
+<https://testing.cubicweb/location/{{capitole}}> a rico:Place ;
     owl:sameAs <http://www.geonames.org/6301915> ;
-    rico:isOrWasContainedBy <http://testing.fr/cubicweb/location/{{toulouse}}>,
-        <http://testing.fr/cubicweb/location/{{france}}>,
-        <http://testing.fr/cubicweb/location/{{haute_garonne}}>,
-        <http://testing.fr/cubicweb/location/{{occitanie}}> ;
+    rico:isOrWasContainedBy <https://testing.cubicweb/location/{{toulouse}}>,
+        <https://testing.cubicweb/location/{{france}}>,
+        <https://testing.cubicweb/location/{{haute_garonne}}>,
+        <https://testing.cubicweb/location/{{occitanie}}> ;
+    rdfs:label "Capitole" ;
     rico:name "Capitole" .
 

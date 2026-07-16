@@ -20,7 +20,7 @@
  * therefore means that it is reserved for developers and experienced
  * professionals having in-depth computer knowledge. Users are therefore
  * encouraged to load and test the software's suitability as regards their
- * requirements in conditions enabling the security of their systemsand/or
+ * requirements in conditions enabling the security of their systems and/or
  * data to be ensured and, more generally, to use and operate it in the
  * same conditions as regards security.
  *
@@ -30,14 +30,21 @@
 
 import React, {useState} from 'react'
 import {AuthorityTypeAhead} from './authoritySearchBar'
-import {DropDown, PlusButton, RemoveRowButton, TextInput} from './widgets'
+import {DropDown, PlusButton, RemoveRowButton} from './widgets'
 import {translate as t} from '../translate'
+import {Input} from '@codegouvfr/react-dsfr/Input'
 
-const TYPE_LABELS = {
-    t: t('Plain text'),
-    l: t('Location'),
-    a: t('Person or institution'),
-    s: t('Topic'),
+const TYPE_OPTIONS = [
+    {value: 't', label: t('Tout le texte')},
+    {value: 'l', label: t('Location')},
+    {value: 'a', label: t('Person or institution')},
+    {value: 's', label: t('Topic')},
+]
+
+const PLACEHOLDERS = {
+    l: t('as_location_placeholder'),
+    a: t('as_person_placeholder'),
+    s: t('as_subject_placeholder'),
 }
 
 export function TextOrAuthorityInput({
@@ -54,77 +61,81 @@ export function TextOrAuthorityInput({
     updateOperator,
     addSearch,
     removeSearch,
+    setCanReset,
 }) {
-    const helpLabel = t('Select criterion for the field')
     const [clearNow, setClearNow] = useState(false)
+    const divClass = index == 0 ? 'as-criterion' : 'as-criterion__next'
     return (
-        <>
-            <div className="row">
+        <div
+            className={`fr-grid-row fr-grid-row--gutters fr-grid-row--bottom ${divClass}`}
+        >
+            <div className="fr-col-12 fr-col-lg-3">
                 <DropDown
                     value={type}
-                    choices={Object.keys(TYPE_LABELS)}
-                    labels={TYPE_LABELS}
-                    update={updateType}
-                    variant="as-scope"
-                    help={`#${helpLabel} #${index}`}
-                    onValueChange={() => {
+                    label={t('Select a criterion')}
+                    options={TYPE_OPTIONS}
+                    onChange={(e) => {
                         update({value: '', label: ''})
+                        updateType(e.target.value)
                         setClearNow(true)
                     }}
                 />
             </div>
-            <div className="row">
-                <div className="col-lg-10 mb-3 input-search">
-                    {type === 't' ? (
-                        <TextInput
-                            value={value}
-                            setFunction={(value) => {
-                                update({value: value, label: ''})
-                            }}
-                        />
-                    ) : (
-                        <div>
-                            <AuthorityTypeAhead
-                                archivesRef={archivesRef}
-                                ressourcesSite={ressourcesSite}
-                                endpoint={endpoint}
-                                selectedMemory={[{eid: value, label: label}]}
-                                update={update}
-                                typeaheadId={`authority-typeahead-${index}`}
-                                type={type}
-                                clearNow={clearNow}
-                                setClearNow={setClearNow}
-                            />
-                        </div>
-                    )}
-                </div>
-                <div className="col-lg-2 mb-3">
-                    {operators.length > index ? (
-                        <DropDown
-                            value={operators[index]}
-                            choices={['ET', 'OU', 'SAUF']}
-                            labels={{
-                                ET: t('AND'),
-                                OU: t('OR'),
-                                SAUF: t('EXCEPT'),
-                            }}
-                            update={(value) => {
-                                updateOperator(value, index)
-                            }}
-                            help={`#${helpLabel} #${index}`}
-                            variant="as-operators"
-                        />
-                    ) : (
-                        <PlusButton onClick={addSearch} />
-                    )}
-                    {index > 0 ? (
-                        <RemoveRowButton onClick={removeSearch} />
-                    ) : (
-                        <></>
-                    )}
-                </div>
+            <div className="fr-col-12 fr-col-lg-7">
+                {type === 't' ? (
+                    <Input
+                        label={t('Tout le texte : recherche libre')}
+                        nativeInputProps={{
+                            value: value,
+                            onChange: (e) =>
+                                update({value: e.target.value, label: ''}),
+                            type: 'text',
+                            placeholder: t('ex.: cartes postales Dieppe'),
+                        }}
+                    />
+                ) : (
+                    <AuthorityTypeAhead
+                        archivesRef={archivesRef}
+                        ressourcesSite={ressourcesSite}
+                        endpoint={endpoint}
+                        selectedMemory={
+                            typeof value === 'number'
+                                ? [{value: value, label: label}]
+                                : []
+                        }
+                        update={update}
+                        index={index}
+                        type={type}
+                        clearNow={clearNow}
+                        setClearNow={setClearNow}
+                        label={
+                            TYPE_OPTIONS.find((o) => o.value === type)?.label
+                        }
+                        placeholder={PLACEHOLDERS[type]}
+                        setCanReset={setCanReset}
+                    />
+                )}
             </div>
-        </>
+            <div className="fr-col-12 fr-col-lg-2 as-operators">
+                {operators.length > index ? (
+                    <DropDown
+                        value={operators[index]}
+                        label={t('Operator')}
+                        options={[
+                            {value: 'ET', label: t('AND')},
+                            {value: 'OU', label: t('OR')},
+                            {value: 'SAUF', label: t('EXCEPT')},
+                        ]}
+                        onChange={(e) => {
+                            updateOperator(e.target.value, index)
+                        }}
+                    />
+                ) : (
+                    <PlusButton onClick={addSearch} />
+                )}
+                {index > 0 ? <RemoveRowButton onClick={removeSearch} /> : <></>}
+            </div>
+        </div>
     )
 }
 
@@ -141,12 +152,24 @@ export function TextOrAuthoritySearchBox({
     labels,
     endpoint,
     removeSearch,
+    setCanReset,
 }) {
     return (
-        <>
-            <h2>{t('By word')}</h2>
+        <fieldset className="fr-fieldset">
+            <legend className="fr-fieldset__legend">
+                <h2 className="fr-h5">{t('Dans le texte')}</h2>
+            </legend>
+            <div className="fr-col-8">
+                <p className="fr-hidden fr-unhidden-sm fr-hint-text">
+                    {t('as_text_info')}
+                </p>
+            </div>
             {searches.map((element, index) => (
-                <div key={`search${index}`} id={`as-toasb-${index}`}>
+                <div
+                    key={`search${index}`}
+                    id={`as-toasb-${index}`}
+                    className="fr-fieldset__element"
+                >
                     <TextOrAuthorityInput
                         archivesRef={archivesRef}
                         ressourcesSite={ressourcesSite}
@@ -167,9 +190,10 @@ export function TextOrAuthoritySearchBox({
                         removeSearch={() => {
                             removeSearch(index)
                         }}
+                        setCanReset={setCanReset}
                     />
                 </div>
             ))}
-        </>
+        </fieldset>
     )
 }

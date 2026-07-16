@@ -30,8 +30,8 @@
 
 import React, {useState, useEffect, useCallback} from 'react'
 import {DropDown, PlusButton, RemoveRowButton} from './widgets'
-import {AsyncTypeahead} from 'react-bootstrap-typeahead'
 import {translate as t} from '../translate'
+import {FaAutocomplete} from './FAAutocomplete'
 
 export function ProducerTypeAhead({
     endpoint,
@@ -39,14 +39,14 @@ export function ProducerTypeAhead({
     update,
     updateType,
     typeaheadId,
+    index,
     clearNow,
     setClearNow,
     placeholder,
+    setCanReset,
 }) {
     const [isLoading, setIsLoading] = useState(false)
-    const [options, setOptions] = useState([])
     const [errorMsg, setErrorMsg] = React.useState<string | null>()
-
     useEffect(() => {
         if (clearNow) {
             update('')
@@ -54,11 +54,7 @@ export function ProducerTypeAhead({
         }
     }, [clearNow])
 
-    const handleSearch = useCallback((textSearch) => {
-        if (textSearch.length < 3) {
-            return
-        }
-
+    const handleSearch = useCallback((textSearch: string) => {
         setIsLoading(true)
         // TODO: remove accents
 
@@ -78,7 +74,7 @@ export function ProducerTypeAhead({
             },
         }
 
-        fetch(`${endpoint}`, {
+        return fetch(`${endpoint}`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -90,54 +86,62 @@ export function ProducerTypeAhead({
                 return resp.json()
             })
             .then((response) => {
+                let options = []
                 if (response.errors !== undefined) {
                     setErrorMsg(response.errors[0].details)
-                    setOptions([])
+                    update('')
                 } else {
                     setErrorMsg(null)
                     const items = response['aggregations']['producer'][
                         'buckets'
-                    ].map((element) => element['key'])
-                    setOptions(items)
+                    ].map((element) => ({
+                        value: element['key'],
+                        label: element['key'],
+                    }))
+                    options = items
                 }
                 setIsLoading(false)
+                return options
             })
             .catch((error) => {
+                setErrorMsg(t('Could not retrieve results'))
+                update('')
                 console.error(error)
+                return []
             })
     }, [])
-    const filterBy = () => true
+
     const hasError = errorMsg !== undefined && errorMsg !== null
+    const label = `${t('as_producer')} ${index + 1}`
     return (
-        <>
-            {hasError ? (
-                <div className="invalid-feedback">{errorMsg}</div>
-            ) : null}
-            <AsyncTypeahead
-                clearButton
-                filterBy={filterBy}
-                id={typeaheadId}
-                isLoading={isLoading}
-                onSearch={handleSearch}
-                options={options}
-                minLength={0}
-                onInputChange={(value, event) => {
+        <FaAutocomplete
+            value={
+                selected !== '' ? {value: selected, label: selected} : undefined
+            }
+            label={label}
+            freeSolo
+            loadOptions={handleSearch}
+            multiple={false}
+            placeholder={placeholder}
+            onInputChange={(event, value) => {
+                // do not change the type on the page load
+                if (value !== selected) {
                     update(value)
                     updateType('t')
-                }}
-                onChange={(selectedElement) => {
-                    if (selectedElement.length === 1) {
-                        update(selectedElement[0])
-                        updateType('k')
-                    } else {
-                        updateType('t')
-                    }
-                }}
-                className={hasError ? 'is-invalid' : ''}
-                selected={selected === '' ? [] : [selected]}
-                placeholder={placeholder}
-            />
-        </>
+                }
+            }}
+            onChange={(selectedElement) => {
+                if (selectedElement && typeof selectedElement !== 'string') {
+                    update(selectedElement.value)
+                    updateType('k')
+                } else {
+                    updateType('t')
+                }
+                setCanReset(true)
+            }}
+            loading={isLoading}
+            error={hasError ? errorMsg : undefined}
+        />
     )
 }
 
@@ -152,41 +156,56 @@ export function ProducerBox({
     clearNow,
     setClearNow,
     removeSearch,
+    setCanReset,
 }) {
-    const helpLabel = t('Select criterion for the field')
     return (
-        <>
-            <h2>{t("Record's creator")}</h2>
-            {searches.map((element, index) => (
-                <div key={`authority${index}`} className="mb-3">
-                    <div className="row">
-                        <div className="col-lg-10 mb-3 input-search">
+        <fieldset className="fr-fieldset">
+            <legend className="fr-fieldset__legend">
+                <h2 className="fr-h5">{t('as_producers')}</h2>
+            </legend>
+            <div className="fr-col-8 fr-fieldset__element">
+                <p className="fr-hidden fr-unhidden-sm fr-hint-text">
+                    {t('as_producers_info')}
+                </p>
+            </div>
+            <div className="fr-fieldset__element">
+                {searches.map((element, index) => (
+                    <div
+                        key={`authority${index}`}
+                        className="fr-grid-row fr-grid-row--gutters fr-grid-row--bottom fr-mb-4w fr-mb-md-2v as-criterion"
+                    >
+                        <div className="fr-col-12 fr-col-lg-10">
                             <ProducerTypeAhead
                                 endpoint={endpoint}
                                 selected={element}
                                 update={(value) => updateSearch(value, index)}
                                 updateType={(value) => updateType(value, index)}
                                 typeaheadId={`producer-typeahead-${index}`}
+                                index={index}
                                 clearNow={clearNow}
                                 setClearNow={setClearNow}
-                                placeholder="Producteur d'archives"
+                                placeholder={t(
+                                    'as_search_productor_placeholder',
+                                )}
+                                setCanReset={setCanReset}
                             />
                         </div>
-                        <div className="col-lg-2 mb-3">
+                        <div className="fr-col-12 fr-col-lg-2 as-operators">
                             {operators.length > index ? (
                                 <DropDown
                                     value={operators[index]}
-                                    choices={['ET', 'OU', 'SAUF']}
-                                    labels={{
-                                        ET: t('AND'),
-                                        OU: t('OR'),
-                                        SAUF: t('EXCEPT'),
+                                    label={t('Operator')}
+                                    options={[
+                                        {
+                                            value: 'ET',
+                                            label: t('AND'),
+                                        },
+                                        {value: 'OU', label: t('OR')},
+                                        {value: 'SAUF', label: t('EXCEPT')},
+                                    ]}
+                                    onChange={(e) => {
+                                        updateOperator(e.target.value, index)
                                     }}
-                                    update={(value) => {
-                                        updateOperator(value, index)
-                                    }}
-                                    help={`#${helpLabel} #${index}`}
-                                    variant="as-operators"
                                 />
                             ) : (
                                 <PlusButton onClick={addSearch} />
@@ -202,8 +221,8 @@ export function ProducerBox({
                             )}
                         </div>
                     </div>
-                </div>
-            ))}
-        </>
+                ))}
+            </div>
+        </fieldset>
     )
 }

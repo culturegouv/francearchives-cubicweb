@@ -28,23 +28,28 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-C license and that you accept its terms.
 #
+from cubicweb_web.devtools.testlib import WebCWTC
 
-from cubicweb_francearchives.testutils import EADImportMixin, PostgresTextMixin, OaiSickleMixin
+from cubicweb_francearchives.testutils import (
+    OaiImportMixin,
+    EADImportMixin,
+    PostgresTextMixin,
+)
 
-from cubicweb.devtools.testlib import CubicWebTC
-from cubicweb_francearchives.dataimport import oai
 from cubicweb_francearchives.utils import merge_dicts
 from cubicweb_francearchives.dataimport import (
     sqlutil,
     load_services_map,
     service_infos_from_service_code,
 )
+from cubicweb_francearchives.dataimport.oai_dc import OAIDCHarvestedReader
+from cubicweb_francearchives.dataimport.oai_ead import OAIEADHarvestedReader
+from cubicweb_francearchives.dataimport.ead import Reader
 from cubicweb_francearchives.dataimport.importer import import_filepaths
-
 from pgfixtures import setup_module, teardown_module  # noqa
 
 
-class MixedImportTC(EADImportMixin, OaiSickleMixin, PostgresTextMixin, CubicWebTC):
+class MixedImportTC(OaiImportMixin, PostgresTextMixin, WebCWTC):
     readerconfig = merge_dicts(
         {},
         EADImportMixin.readerconfig,
@@ -56,32 +61,31 @@ class MixedImportTC(EADImportMixin, OaiSickleMixin, PostgresTextMixin, CubicWebT
         super(MixedImportTC, cls).init_config(config)
         config.set_option(
             "consultation-base-url",
-            "https://francearchives.fr",
+            "https://francearchives.gouv.fr",
         )
         config.set_option("ead-services-dir", "/tmp")
         config.set_option("instance-type", "consultation")
 
-    def filepath(self):
-        assert self.filename is not None
-        return self.datapath("{}/{}".format(self.data_directory, self.filename))
+    def init_reader(self, settings, store, *args):
+        reader = settings.get("readercls", Reader)
+        return reader(settings, store, *args)
 
-    def create_repo(self, cnx, service_code, url):
-        service = cnx.create_entity(
-            "Service",
-            name="AD {}".format(service_code),
-            category="X",
-            short_name="AD {}".format(service_code),
-            code=service_code,
+    def path(self, service_infos=None):
+        service_infos = service_infos or self.service_infos
+        try:
+            prefix = self.data_directory.split("_")[1]
+        except IndexError:
+            prefix = ""
+        return "{ead_services_dir}/{code}/oaipmh/{prefix}".format(
+            ead_services_dir=self.config["ead-services-dir"],
+            prefix=prefix,
+            code=service_infos["code"],
         )
-        cnx.create_entity(
-            "Service",
-            category="?",
-            name="Les Archives Nationales",
-            short_name="Les AN",
-            code="FRAN",
-        )
-        repo = cnx.create_entity("OAIRepository", name="some-repo", service=service, url=url)
-        return repo
+
+    def filepath(self, filename=None):
+        filename = filename or self.filename
+        assert filename is not None
+        return self.datapath("{}/{}".format(self.data_directory, filename))
 
     def setup_database(self):
         super(MixedImportTC, self).setup_database()
@@ -89,15 +93,17 @@ class MixedImportTC(EADImportMixin, OaiSickleMixin, PostgresTextMixin, CubicWebT
             cnx.create_entity("Service", name="Indre-et-Loire", code="FRAD037", category="foo")
             cnx.create_entity("Service", name="Marne", code="FRAD051", category="foo")
             cnx.create_entity("Service", name="Meuse", code="FRAD055", category="foo")
+            cnx.create_entity("Service", name="FRAN", code="FRAN", category="foo")
             cnx.commit()
             self.services_map = load_services_map(cnx)
 
-    def test_reimport_oai_over_ead(self):
+    def test_reimport_oaiead_over_ead(self):
         """import an IR by oai over en existing ead-imported IR.
         Only one IR must be created.
         """
         with self.admin_access.cnx() as cnx:
             # import ead
+            self.readerconfig["readercls"] = Reader
             self.import_filepath(cnx, "FRAD037_1Q_2Q.xml")
             fa_ead = cnx.find("FindingAid").one()
             fa_ead_attrs = {"stable_id": fa_ead.stable_id, "name": fa_ead.name}
@@ -105,15 +111,16 @@ class MixedImportTC(EADImportMixin, OaiSickleMixin, PostgresTextMixin, CubicWebT
             self.assertEqual(fa_ead.dc_title(), "Domaines nationaux")
             self.filename = "FRAD037_1Q_2Q.xml"
             self.data_directory = "oai_ead"
+            self.readerconfig["readercls"] = OAIEADHarvestedReader
             service_infos = service_infos_from_service_code("FRAD037", self.services_map)
-            path = "file://{path}?verb=ListRecords&metadataPrefix=ead".format(path=self.filepath())
-            oai.import_oai(cnx, path, service_infos)
+            url = f"file://{self.filepath()}?verb=ListRecords&metadataPrefix=ead"
+            self.import_oai(cnx, url, service_infos)
             fa_oai = cnx.find("FindingAid").one()
             self.assertEqual(fa_oai.dc_title(), "Domaines nationaux oai")
             self.assertEqual(fa_oai.stable_id, fa_ead_attrs["stable_id"])
             self.assertEqual(fa_oai.name, fa_ead_attrs["name"])
 
-    def test_reimport_ead_over_oai(self):
+    def test_reimport_ead_over_oaiead(self):
         """import an IR by ead over en existing oai-imported IR.
         Only one IR must be created.
         """
@@ -121,13 +128,15 @@ class MixedImportTC(EADImportMixin, OaiSickleMixin, PostgresTextMixin, CubicWebT
             # import ead
             self.filename = "FRAD037_1Q_2Q.xml"
             self.data_directory = "oai_ead"
+            self.readerconfig["readercls"] = OAIEADHarvestedReader
             service_infos = service_infos_from_service_code("FRAD037", self.services_map)
-            path = "file://{path}?verb=ListRecords&metadataPrefix=ead".format(path=self.filepath())
-            oai.import_oai(cnx, path, service_infos)
+            path = f"file://{self.filepath()}?verb=ListRecords&metadataPrefix=ead"
+            self.import_oai(cnx, path, service_infos)
             fa_oai = cnx.find("FindingAid").one()
             fa_oai_attrs = {"stable_id": fa_oai.stable_id, "name": fa_oai.name}
             self.assertEqual(fa_oai.dc_title(), "Domaines nationaux oai")
             # import ead
+            self.readerconfig["readercls"] = Reader
             self.import_filepath(cnx, "FRAD037_1Q_2Q.xml")
             fa_ead = cnx.find("FindingAid").one()
             self.assertEqual(fa_ead.dc_title(), "Domaines nationaux")
@@ -152,17 +161,18 @@ class MixedImportTC(EADImportMixin, OaiSickleMixin, PostgresTextMixin, CubicWebT
             # import oai_dc harvested file
             self.filename = "oai_dc_sample.xml"
             self.data_directory = "oai_dc"
-            url = "file://{path}?verb=ListRecords&metadataPrefix=oai_dc".format(
-                path=self.filepath()
-            )
+            url = f"file://{self.filepath()}?verb=ListRecords&metadataPrefix=oai_dc"
             service_infos = service_infos_from_service_code("FRAD055", self.services_map)
-            oai.import_oai(cnx, url, service_infos)
+            self.readerconfig = readerconfig.copy()
+            self.readerconfig["readercls"] = OAIDCHarvestedReader
+            self.import_oai(cnx, url, service_infos)
             # import oai_ead harvested file
             self.filename = "oai_ead_sample.xml"
             self.data_directory = "oai_ead"
-            url = "file://{}?verb=ListRecords&metadataPrefix=ead".format(self.filepath())
+            url = f"file://{self.filepath()}?verb=ListRecords&metadataPrefix=ead"
             service_infos = service_infos_from_service_code("FRAD051", self.services_map)
-            oai.import_oai(cnx, url, service_infos)
+            self.readerconfig["readercls"] = OAIEADHarvestedReader
+            self.import_oai(cnx, url, service_infos)
             rql = "Any FSPATH(D) WHERE X findingaid_support F, F data D"
             filenames = [result[0].read() for result in cnx.execute(rql)]
             for filename in filenames:
@@ -173,11 +183,11 @@ class MixedImportTC(EADImportMixin, OaiSickleMixin, PostgresTextMixin, CubicWebT
             filenames.append(self.get_or_create_imported_filepath("FRAN_IR_000224.xml"))
             self.assertEqual(4, len(filenames))
             for filepath in filenames:
-                print(filepath)
+                self.assertTrue(self.fileExists(filepath))
                 self.assertTrue(self.fileExists(filepath))
             import_filepaths(cnx, filenames, readerconfig)
             actual = [row[0] for row in cnx.execute("Any E WHERE X is FindingAid, X eadid E")]
             self.assertEqual(4, cnx.find("FindingAid").rowcount)
             actual = [row[0] for row in cnx.execute("Any E WHERE X is FindingAid, X eadid E")]
-            expected = ["FRAN_IR_000224", "FRAD055_REC", "FRAD051_000000028_203M", "FRAD051_204M"]
+            expected = ["FRAN_IR_000224", "FRAD055_REC", "FRAD051_000000028_203M ", "FRAD051_204M"]
             self.assertCountEqual(actual, expected)

@@ -1,9 +1,23 @@
-<section id="document" class="card-view document-view">
-    {% block head %}
-    <h1>{{ entity.title }}</h1>
-    {% endblock %}
-    {% if entity.synopsis %}
-    <div class="card-view__summary">{{ entity.synopsis }}</div>
-    {% endif %}
-    <div class="card-view__content">{{ entity.printable_value('content') }}</div>
-</section>
+{% from "./mixins.jinja2" import content_metadata, display_errors -%}
+{%- set lang_attr='lang="{}"'.format(entity.lang) if entity.lang != lang else "" -%}
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+    <article class="fr-col-12 fr-col-lg-8" id="card-{{ entity.eid }}">
+      {{ display_errors(errors, _) }}
+      {% block head %}
+      <div class="fr-col-12 fr-mb-8v" {{ lang_attr }}>
+        <h1>{{ entity.title|e }}</h1>
+      </div>
+      {% endblock %}
+      {% if entity.synopsis %}
+      <p class="fr-text--lead fr-mb-8v" {{ lang_attr }}</p>
+      {% endif %}
+      <div class="fr-col-12 fr-mb-12v">
+      {{ content_metadata(metadata, _) }}
+      </div>
+      <div class="fr-col-12 fr-mb-18v" {{ lang_attr }}>
+        {{ entity.printable_value('content') }}
+      </div>
+    </article>
+  </div>
+</div>

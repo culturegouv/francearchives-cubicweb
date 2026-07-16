@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <ead xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="urn:isbn:1-931666-22-9">
 <eadheader>
-<eadid countrycode="FR" identifier="FRAD005_33FI" url="https://francearchives.fr/findingaid/ee81f35ba975a0aceabfff4e2de751df3cccaff3">FRAD005_33FI</eadid>
+<eadid countrycode="FR" identifier="FRAD005_33FI" url="https://francearchives.gouv.fr/findingaid/ee81f35ba975a0aceabfff4e2de751df3cccaff3">FRAD005_33FI</eadid>
 <filedesc>
 <titlestmt>
 <titleproper>Répertoire numérique du fonds 33Fi - Fonds Baranger</titleproper>

@@ -30,6 +30,9 @@
 #
 
 import datetime as dt
+import csv
+from io import BytesIO, TextIOWrapper
+from lxml import etree
 import shutil
 import os
 import os.path as osp
@@ -39,6 +42,7 @@ import boto3
 import mock
 from moto import mock_s3
 from botocore.exceptions import ClientError
+import zipfile
 
 from logilab.common.date import ustrftime
 
@@ -47,23 +51,29 @@ from cubicweb.cwconfig import CubicWebConfiguration
 
 
 # library specific imports
-from cubicweb_francearchives import S3_ACTIVE, FranceArchivesS3Storage
-from cubicweb_francearchives.dataimport import ead, load_services_map, service_infos_from_filepath
+from cubicweb_francearchives import S3_ACTIVE, FranceArchivesS3Storage, IIIF_MANIFEST_ROLE
+from cubicweb_francearchives.dataimport import (
+    eac,
+    ead,
+    load_services_map,
+    service_infos_from_filepath,
+)
+from cubicweb_francearchives.dataimport.oai import harvest_delta, harvest_oai
 from cubicweb_francearchives.dataimport.oai_utils import PniaOAIResponse, PniaSickle
 from cubicweb_francearchives.dataimport.sqlutil import (
-    no_trigger,
     disable_triggers,
     enable_triggers,
     sudocnx,
     ead_foreign_key_tables,
-    nomina_foreign_key_tables,
 )
+from cubicweb_francearchives.dataimport.csv_nomina.nomina import CSVNominaReader
+from cubicweb_francearchives.dataimport.csv_nomina.socface import CSVNominaSocfaceReader
+
+from cubicweb_francearchives.dataimport.oai_ead import OAIEADHarvestedReader
 from cubicweb_francearchives.dataimport.stores import create_massive_store
-from cubicweb_francearchives.dataimport.csv_nomina import CSVNominaReader
+from cubicweb_francearchives.storage import S3BfssStorageMixIn
 
-
-# third party imports
-from cubicweb.devtools import PostgresApptestConfiguration
+from cubicweb_web.devtools.testlib import WebPostgresApptestConfiguration
 
 
 def create_findingaid(cnx, eadid, service):
@@ -81,6 +91,15 @@ def create_findingaid(cnx, eadid, service):
     )
 
 
+def find_component(cnx, unitid):
+    rset = cnx.execute(
+        "Any X WHERE X is FAComponent, X did D, " "D unitid %(unitid)s", {"unitid": unitid}
+    )
+    if rset:
+        return rset.one()
+    return None
+
+
 class PostgresTextMixin(object):
     """unittest mixin for postgresql-based tests
 
@@ -88,7 +107,7 @@ class PostgresTextMixin(object):
     - setup postgresql extensions
     """
 
-    configcls = PostgresApptestConfiguration
+    configcls = WebPostgresApptestConfiguration
 
     def setUp(self):
         super(PostgresTextMixin, self).setUp()
@@ -108,6 +127,15 @@ class HashMixIn(object):
 
 class S3BfssStorageTestMixin(HashMixIn):
     s3_endpoint = os.environ.get("AWS_S3_ENDPOINT_URL", "")
+
+    @classmethod
+    def init_config(cls, config):
+        """Initialize configuration."""
+        super().init_config(config)
+        config.set_option("ead-services-dir", "/tmp")
+        config.set_option("eac-services-dir", "/tmp")
+        config.set_option("nomina-services-dir", "/tmp")
+        config.set_option("nomina-index-name", "nomina_index")
 
     def s3_test_with_mock(self):
         return S3_ACTIVE and "9000" not in self.s3_endpoint
@@ -141,6 +169,12 @@ class S3BfssStorageTestMixin(HashMixIn):
                 storage.s3cnx.create_bucket(Bucket=self.s3_bucket_name)
             except ClientError:
                 print("Bucket {} already exists".format(self.s3_bucket_name))
+            ape_ead_bucket_name = os.environ.get("AWS_S3_APE_BUCKET_NAME")
+            if ape_ead_bucket_name:
+                try:
+                    storage.s3cnx.create_bucket(Bucket=ape_ead_bucket_name)
+                except ClientError:
+                    print("Bucket {} already exists".format(ape_ead_bucket_name))
             print("S3 Storage activated with minio")
         else:
             # we are not on S3Storage
@@ -163,33 +197,35 @@ class S3BfssStorageTestMixin(HashMixIn):
                 print(exc)
                 print("[test.treaDown] Failed to delete bucket {}".format(self.s3_bucket_name))
 
-    def fileExists(self, fkey):
+    def fileExists(self, fkey, bucket_name=None):
         """
         Returns boolean
         """
         if not self.s3_bucket_name:
             return osp.exists(fkey)
 
+        bucket_name = bucket_name if bucket_name else self.s3_bucket_name
+
         if isinstance(fkey, bytes):
             fkey = fkey.decode()
         if self.s3_test_with_mock():
             s3 = boto3.resource("s3")
-            s3_object = s3.Object(self.s3_bucket_name, fkey)
+            s3_object = s3.Object(bucket_name, fkey)
             try:
                 return s3_object.get()["Body"]
             except s3.meta.client.exceptions.NoSuchKey:
-                print(f"[test.fileExists] no {fkey} key found in bucket")
+                print(f"[test.fileExists] no {fkey} key found in {bucket_name} bucket")
                 return False
         elif self.s3_test_with_minio():
             storage = FranceArchivesS3Storage(self.s3_bucket_name)
             try:
-                head = storage.s3cnx.head_object(Key=fkey, Bucket=self.s3_bucket_name)
+                head = storage.s3cnx.head_object(Key=fkey, Bucket=bucket_name)
                 return head["ResponseMetadata"].get("HTTPStatusCode") == 200
             except ClientError:
-                print(f"[test.fileExists] no {fkey} key found in bucket")
+                print(f"[test.fileExists] no {fkey} key found in {bucket_name} bucket")
                 return False
 
-    def getFileContent(self, fkey):
+    def getFileContent(self, fkey, bucket_name=None):
         """
         Returns file contents or None if no file is found
         """
@@ -197,27 +233,54 @@ class S3BfssStorageTestMixin(HashMixIn):
             with open(fkey, "rb") as fp:
                 return fp.read()
 
+        bucket_name = bucket_name if bucket_name else self.s3_bucket_name
+
         if isinstance(fkey, bytes):
             fkey = fkey.decode()
         if self.s3_test_with_mock():
             s3 = boto3.resource("s3")
-            s3_object = s3.Object(self.s3_bucket_name, fkey)
+            s3_object = s3.Object(bucket_name, fkey)
             try:
                 return s3_object.get()["Body"].read()
             except s3.meta.client.exceptions.NoSuchKey:
-                print(f"[test.fileExists] no {fkey} key found in bucket")
+                print(f"[test.getFileContent] no {fkey} key found in {bucket_name} bucket")
                 return False
         elif self.s3_test_with_minio():
             storage = FranceArchivesS3Storage(self.s3_bucket_name)
             try:
-                result = storage.s3cnx.get_object(Bucket=self.s3_bucket_name, Key=fkey)
+                result = storage.s3cnx.get_object(Bucket=bucket_name, Key=fkey)
                 return result["Body"].read()
             except ClientError:
-                print(f"[test.getFileContent] no {fkey} key found in bucket")
+                print(f"[test.getFileContent] no {fkey} key found in {bucket_name} bucket")
 
-    def isFile(self, fkey):
+    def deleteFile(self, fkey, bucket_name=None):
+        """
+        Delete a file
+        """
+        if not self.s3_bucket_name:
+            os.remove(fkey)
+
+        bucket_name = bucket_name if bucket_name else self.s3_bucket_name
+
+        if isinstance(fkey, bytes):
+            fkey = fkey.decode()
+        if self.s3_test_with_mock():
+            s3 = boto3.resource("s3")
+            try:
+                s3.Object(bucket_name, fkey).delete()
+            except Exception as err:
+                print(f"[test.deleteFile] coud not delete {fkey} from {bucket_name} bucket : {err}")
+        elif self.s3_test_with_minio():
+            storage = FranceArchivesS3Storage(self.s3_bucket_name)
+            try:
+                storage.s3cnx.delete_object(Bucket=bucket_name, Key=fkey)
+            except ClientError as err:
+                print(f"[test.deleteFile] coud not delete {fkey} from {bucket_name} bucket : {err}")
+
+    def isFile(self, fkey, bucket_name=None):
         if self.s3_bucket_name:
-            return self.fileExists(fkey)
+            bucket_name = bucket_name if bucket_name else self.s3_bucket_name
+            return self.fileExists(fkey, bucket_name)
         else:
             return osp.isfile(fkey)
 
@@ -236,12 +299,12 @@ class S3BfssStorageTestMixin(HashMixIn):
         else:
             return self.datapath(filepath)
 
-    def storage_write_file(self, filepath, content):
+    def storage_write_file(self, filepath, content, replace=False):
         """
         Write a file with the give content
         """
         if self.s3_bucket_name:
-            if self.fileExists(filepath):
+            if not replace and self.fileExists(filepath):
                 return filepath
             storage = FranceArchivesS3Storage(self.s3_bucket_name)
             storage.temporary_import_upload(Binary(content.encode("utf8")), filepath)
@@ -307,7 +370,38 @@ class S3BfssStorageTestMixin(HashMixIn):
                         storage.temporary_import_upload(Binary(stream.read()), fkey)
 
 
-class EADImportMixin(S3BfssStorageTestMixin):
+class APEEADMixin:
+
+    def get_ape_ead_content(self, cnx):
+        """Return ape ead file content"""
+        return cnx.execute("Any D WHERE X ape_ead_file F, F data D")[0][0].read()
+
+    def _test_ape_ead_iiif_daos(self, cnx, expected_manifests):
+        """
+        Expecting: iiif dao for ape ead has been added
+        """
+        content = self.get_ape_ead_content(cnx)
+        tree = etree.fromstring(content)
+        daos = self.get_iiif_manifests_from_tree(tree)
+        got = sorted([dao.attrib.get(f"{{{tree.nsmap['xlink']}}}href") for dao in daos])
+        self.assertEqual(sorted(got), sorted(expected_manifests))
+
+    def get_iiif_manifests_from_tree(self, tree):
+        return tree.xpath(
+            "//e:dao[@link:role='MANIFEST']",
+            namespaces={"e": tree.nsmap[None], "link": tree.nsmap["xlink"]},
+        )
+
+    def get_iiif_manifests(self, cnx):
+        return [
+            url
+            for url, in cnx.execute(
+                f"Any U WHERE X is DigitizedVersion, X url U, X role '{IIIF_MANIFEST_ROLE}'"
+            ).rows
+        ]
+
+
+class EADImportMixin(APEEADMixin, S3BfssStorageTestMixin):
     readerconfig = {
         "esonly": False,
         "index-name": "dummy",
@@ -319,6 +413,10 @@ class EADImportMixin(S3BfssStorageTestMixin):
         super(EADImportMixin, self).setUp()
         import_dir = self.datapath("tmp")
         self.config.set_option("appfiles-dir", import_dir)
+        self.config.set_option("ead-services-dir", "/tmp")
+        self.config.set_option("eac-services-dir", "/tmp")
+        self.config.set_option("eac-services-dir", "/tmp")
+
         if not osp.isdir(import_dir):
             os.mkdir(import_dir)
         self.imported_filepath = None
@@ -329,14 +427,15 @@ class EADImportMixin(S3BfssStorageTestMixin):
         if osp.exists(import_dir):
             shutil.rmtree(import_dir)
 
-    def import_filepath(self, cnx, filepath, service_infos=None, **custom_settings):
-        filepath = self.get_or_create_imported_filepath(filepath)
-        if isinstance(filepath, bytes):
-            filepath = filepath.decode("utf-8")
-        self.imported_filepath = filepath
+    def init_reader(self, settings, store, *args):
+        return ead.Reader(settings, store, *args)
+
+    def import_filepath(self, cnx, filepaths, service_infos=None, *reader_args, **custom_settings):
+        if not isinstance(filepaths, (list, tuple)):
+            filepaths = [filepaths]
         if service_infos is None:
             services_map = load_services_map(cnx)
-            service_infos = service_infos_from_filepath(filepath, services_map)
+            service_infos = service_infos_from_filepath(filepaths[0], services_map)
         if not self.readerconfig["nodrop"]:
             fk_tables = ead_foreign_key_tables(cnx.vreg.schema)
             with sudocnx(cnx, interactive=False) as su_cnx:
@@ -345,14 +444,44 @@ class EADImportMixin(S3BfssStorageTestMixin):
         settings = self.readerconfig.copy()
         settings["appfiles-dir"] = self.config["appfiles-dir"]
         settings.update(custom_settings)
-        self.reader = ead.Reader(settings, store)
-        es_docs = self.reader.import_filepath(filepath, service_infos)
+        self.reader = self.init_reader(settings, store, *reader_args)
+        es_docs = []
+        for filepath in filepaths:
+            filepath = self.get_or_create_imported_filepath(filepath)
+            if isinstance(filepath, bytes):
+                filepath = filepath.decode("utf-8")
+            self.imported_filepath = filepath
+            es_docs.extend(self.reader.import_filepath(filepath, service_infos))
         store.flush()
         store.finish()
         if not self.readerconfig["nodrop"]:
             with sudocnx(cnx, interactive=False) as su_cnx:
                 enable_triggers(su_cnx, fk_tables)
         return es_docs
+
+
+class EACImportMixin(S3BfssStorageTestMixin):
+
+    def setup_database(self):
+        # create services
+        super(EACImportMixin, self).setup_database()
+        with self.admin_access.cnx() as cnx:
+            cnx.create_entity(
+                "Service",
+                category="?",
+                name="Les Archives Nationales",
+                short_name="Les AN",
+                code="FRAN",
+            )
+            cnx.commit()
+
+    def eac_filepath(self, fname):
+        """joins the object's datadir and `fname`"""
+        return self.get_or_create_imported_filepath(f"eac/{fname}")
+
+    def massif_import_files(self, cnx, fspaths):
+        store = create_massive_store(cnx, nodrop=True)
+        eac.eac_import_files(cnx, fspaths, store=store)
 
 
 class NominaImportMixin(S3BfssStorageTestMixin):
@@ -367,11 +496,6 @@ class NominaImportMixin(S3BfssStorageTestMixin):
         "nomina-index-name": "dummy_nomina",
     }
 
-    @classmethod
-    def init_config(cls, config):
-        super(NominaImportMixin, cls).init_config(config)
-        config.set_option("nomina-services-dir", "/tmp")
-
     def tearDown(self):
         super(NominaImportMixin, self).tearDown()
         import_dir = self.datapath("tmp")
@@ -379,15 +503,10 @@ class NominaImportMixin(S3BfssStorageTestMixin):
             shutil.rmtree(import_dir)
 
     def import_filepath(self, cnx, filepath, doctype, delimiter=";"):
-        store = create_massive_store(cnx, nodrop=True)
-        reader = CSVNominaReader(self.readerconfig, store, self.service.code)
-        notrigger_tables = nomina_foreign_key_tables(cnx.vreg.schema)
-        with no_trigger(cnx, notrigger_tables, interactive=False):
-            es_docs = reader.import_records(filepath, delimiter=delimiter, doctype=doctype)
-            store.flush()
-            store.finish()
-            store.commit()
-        return es_docs
+        readercls = CSVNominaReader if doctype != "SOCFACE" else CSVNominaSocfaceReader
+        reader = readercls(self.readerconfig, cnx, self.service.code)
+        st = S3BfssStorageMixIn()
+        return list(reader.import_records(st, filepath, doctype=doctype, delimiter=delimiter))
 
 
 class XMLCompMixin(object):
@@ -397,12 +516,24 @@ class XMLCompMixin(object):
         :param Element etree0: element tree element
         :param Element etree1: element tree element
         """
+
         self.assertEqual(etree0.attrib, etree1.attrib)
         self.assertEqual(etree0.tag, etree1.tag)
         self.assertEqual(etree0.tail, etree1.tail)
         self.assertEqual(etree0.text, etree1.text)
         for child0, child1 in zip(etree0.getchildren(), etree1.getchildren()):
             self.assertXMLEqual(child0, child1)
+
+    def assertXmlValid(self, xml_data, xsd_filename, debug=False):
+        """Validate an XML file (.xml) according to an XML schema (.xsd)."""
+        with open(xsd_filename) as xsd:
+            xmlschema = etree.XMLSchema(etree.parse(xsd))
+        # Pretty-print xml_data to get meaningfull line information.
+        xml_data = etree.tostring(etree.fromstring(xml_data), pretty_print=True)
+        root = etree.fromstring(xml_data)
+        if debug and not xmlschema.validate(root):
+            print(xml_data)
+        xmlschema.assertValid(root)
 
 
 class EsSerializableMixIn(object):
@@ -458,21 +589,106 @@ class OaiSickleMixin(object):
         self.patch.stop()
 
     def mock_harvest(self, *args, **kwargs):
-        assert self.filename is not None
-        with open(self.filepath(), "r") as fp:
+        verb = kwargs.get("verb")
+        filename = self.filename
+        assert filename is not None
+        if verb:
+            if not self.filename.endswith(f"_{verb.lower()}.xml"):
+                base, ext = self.filename.split(".")
+                filename = f"{base}_{verb.lower()}.{ext}"
+        with open(self.filepath(filename), "r") as fp:
             response = MockOaiSickleResponse(fp.read())
             return PniaOAIResponse(response, kwargs)
+
+    def ListSets(self):
+        return self.sickle.ListSets()
+
+
+class OaiImportMixin(EADImportMixin, OaiSickleMixin):
+
+    def path(self, service_infos=None):
+        raise NotImplementedError
+
+    def get_create_service(self, cnx, service_infos):
+        eid = service_infos.get("eid")
+        return cnx.find("Service", eid=eid).one() if eid else None
+
+    def init_reader(self, settings, store, *args):
+        if args:
+            return OAIEADHarvestedReader(settings, store, args[0])
+        return ead.Reader(settings, store, *args)
+
+    def create_repo(self, cnx, url, service=None, delta=False):
+        if service is None:
+            service = cnx.find("Service", eid=self.service_eid).one()
+        repo = cnx.create_entity(
+            "OAIRepository", name="{} repo".format(service.code), service=service, url=url
+        )
+        if not delta:
+            oaitask = cnx.create_entity("OAIImportTask", oai_repository=repo.eid)
+        else:
+            oaitask = None
+        cnx.commit()
+        return repo, oaitask
+
+    def import_oai(self, cnx, url, service_infos=None, delta=False, repo=None):
+        """Harvest and import records"""
+        service_infos = service_infos or self.service_infos
+        service = self.get_create_service(cnx, service_infos)
+        if delta:
+            if repo is None:
+                repo, oaitask = self.create_repo(cnx, url, delta=delta)
+            harvest_delta(cnx, repo.eid, service_infos)
+            repo.cw_clear_all_caches()
+            oaitask = repo.reverse_oai_repository[0]
+        else:
+            repo, oaitask = self.create_repo(cnx, url, service=service, delta=delta)
+            harvest_oai(cnx, url, oaitask.eid, service_infos)
+        zipfiles = self.get_oaitask_zipfiles(cnx, oaitask.eid)
+        for zfile in zipfiles:
+            zf = self.get_zipfile(cnx, zfile)
+            filepaths = []
+            for filename in zf.namelist():
+                if filename.endswith(".xml"):
+                    filecontent = TextIOWrapper(zf.open(filename)).read()
+                    filepath = self.get_filepath_by_storage(
+                        os.path.join(self.path(service_infos), filename)
+                    )
+                    self.storage_write_file(filepath, filecontent, replace=True)
+                    filepaths.append(filepath)
+            self.import_filepath(cnx, filepaths, service_infos, self.get_identifiers(zf))
+
+    def get_zipfile(self, cnx, cwfile):
+        filepath = cnx.execute("Any FSPATH(D) WHERE X eid %(e)s, X data D", {"e": cwfile.eid})[0][
+            0
+        ].getvalue()
+        return zipfile.ZipFile(BytesIO(self.getFileContent(filepath)), mode="r")
+
+    def get_oaitask_zipfiles(self, cnx, oaitask_eid):
+        oaitask = cnx.entity_from_eid(oaitask_eid)
+        return oaitask.fatask_oaiharvest_file
+
+    def get_identifiers(self, zf):
+        if "identifiers.csv" in zf.namelist():
+            return dict(self.read_csv_zipfile(zf, "identifiers.csv"))
+
+    def read_csv_zipfile(self, zf, filename):
+        return list(csv.reader(TextIOWrapper(zf.open(filename), "utf-8"), delimiter="\t"))
 
 
 def format_date(date, fmt="%Y-%m-%d"):
     return ustrftime(date, fmt)
 
 
-def create_authority_record(cnx):
-    service = cnx.create_entity(
-        "Service", category="other", name="Service", code="CODE", short_name="ADP"
-    )
-    name = "Jean Cocotte"
+def create_authority_record(cnx, name=None, record_id=None):
+    rset = cnx.find("Service", code="CODE")
+    if rset:
+        service = rset.get_entity(0, 0)
+    else:
+        service = cnx.create_entity(
+            "Service", category="other", name="Service", code="CODE", short_name="ADP"
+        )
+    name = name or "Jean Cocotte"
     subject = cnx.create_entity(
         "AgentAuthority",
         label=name,
@@ -485,17 +701,23 @@ def create_authority_record(cnx):
     kind_eid = cnx.find("AgentKind", name="person")[0][0]
     record = cnx.create_entity(
         "AuthorityRecord",
-        record_id="FRAN_NP_006883",
+        record_id=record_id or "FRAN_NP_006883",
         agent_kind=kind_eid,
         maintainer=service.eid,
         reverse_name_entry_for=cnx.create_entity(
             "NameEntry", parts=name, form_variant="authorized"
         ),
         xml_support="foo",
-        start_date=dt.datetime(1940, 1, 1),
-        end_date=dt.datetime(2000, 5, 1),
+        start_date=dt.date(1940, 1, 1),
+        end_date=dt.date(2000, 5, 1),
         reverse_occupation_agent=cnx.create_entity("Occupation", term="éleveur de poules"),
         reverse_history_agent=cnx.create_entity("History", text="<p>Il aimait les poules</p>"),
         same_as=subject,
     )
     return record
+
+
+def sort_authorities(authorities):
+    # it is possible to have different indexes with different types linked to
+    # the same authority
+    return sorted(authorities, key=lambda x: (x["authority"], x["type"]))

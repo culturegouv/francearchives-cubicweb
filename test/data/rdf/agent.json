@@ -1,10 +1,10 @@
 {
   "@context": {
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "schema": "http://schema.org/"
+    "schema": "https://schema.org/"
   },
-  "@id": "http://testing.fr/cubicweb/agent/{{eid}}",
+  "@id": "https://testing.cubicweb/agent/{{eid}}",
   "@type": "schema:Thing",
   "schema:name": "Camus, Albert (1913-1960)",
-  "schema:url": "http://testing.fr/cubicweb/agent/{{eid}}"
+  "schema:url": "https://testing.cubicweb/agent/{{eid}}"
 }

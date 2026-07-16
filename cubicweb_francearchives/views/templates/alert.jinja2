@@ -1,0 +1,18 @@
+{%- if alert -%}
+
+<div class="fr-container fr-hidden" id="fa-alert-container" data-alertid="{{ alert.hash }}">
+  <div class="fr-grid-row fr-grid-row--center">
+    <div class="fr-col-12 fr-col-md-9 fr-m-4w">
+      <div class="fr-notice fr-notice--warning">
+        <div class="fr-container" tabindex="-1">
+          <div class="fr-notice__body">
+            <span class="fr-notice__title">{{ alert.title }}</span>
+             <div class="fr-notice__desc">  {{ alert.content }}</div>
+             <button title="{{ _('Hide the message') }}" onclick="const notice = this.parentNode.parentNode.parentNode; notice.parentNode.removeChild(notice)" id="alert-close-button" class="fr-btn--close fr-btn">{{ _("Hide the message") }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{%- endif -%}

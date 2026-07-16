@@ -1,0 +1,21 @@
+{% from "./mixins.jinja2" import service_info, content_metadata, sharelinks, display_errors -%}
+{%- set lang_attr='lang="{}"'.format(entity.lang) if entity.lang != lang else "" -%}
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div id="service-{{ entity.eid }}">
+      {{ display_errors(errors, _) }}
+      <div class="fr-col-12 fr-mb-8v" {{ lang_attr }}>
+        <h1>{{ entity.dc_title() | e }}</h1>
+      </div>
+      <div class="fr-col-12 fr-mb-10v">
+        {{ content_metadata(metadata, _) }}
+      </div>
+      <div class="fr-col-12 fr-mb-12v">
+        {{ service_info(entity, 1, lang_attr, _) }}
+      </div>
+    </div>
+    <div class="fr-col-12">
+      {{ sharelinks(sharelinks_data, entity.eulerian.document_title | e, "main_>_section_>_links", _) }}
+    </div>
+  </div>
+</div>

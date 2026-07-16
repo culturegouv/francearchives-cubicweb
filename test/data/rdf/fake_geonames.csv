@@ -1,5 +1,6 @@
 "6301915, 'Place du Capitole', 'Place du Capitole',NULL,43.60446,1.44344,'S','SQR','FR',NULL,'76','31','313','31555',0,150,150,'Europe/Paris','2016-02-18'"
 "6453974,'Toulouse','Toulouse','Toulouse',43.60444,1.44194,'A','ADM4','FR',NULL,'76','31','313','31555','475438',NULL,153,'Europe/Paris','2019-03-29'"
+"2972315,'Toulouse','Toulouse','Toulouse',43.60444,1.44194,'P','PPL','FR',NULL,'76','31','313','31555','475438',NULL,153,'Europe/Paris','2019-03-29'"
 "2972314,'Arrondissement de Toulouse','Arrondissement de Toulouse','Arrondissement de Toulouse,Toulouse',43.61408,1.50512,'A','ADM3','FR',NULL,'76','31','313',NULL,1049948,NULL,181,'Europe/Paris','2019-04-10'"
 "3013767,'Haute-Garonne','Haute-Garonne','Alta Garonna,Alto Garona,Departement de la Haute-Garonne,Département de la Haute-Garonne,Haute Garonne,Haute-Garonne,Upper Garonne',43.38724,1.22191,'A','ADM2','FR',NULL,'76','31',NULL,NULL,1254347,NULL,203,'Europe/Paris','2018-02-06'"
 "11071623, 'Occitanie', 'Occitanie', 'Languedoc-Roussillon-Midi-Pyrenees,Languedoc-Roussillon-Midi-Pyrénées,Linguadoca-Rossiglione-Midi-Pirenei,Occitanie,Region Occitanie,Region Occitanie (Pyrenees-Mediterranee),Région Occitanie,Région Occitanie (Pyrénées-Méditerranée),ogsitani,옥시타니', 44.02722, 1.63559, 'A', 'ADM1', 'FR', NULL, '76', NULL, NULL, NULL, 5626858, NULL, 160, 'Europe/Paris', '2017-07-18'"

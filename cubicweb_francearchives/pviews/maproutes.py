@@ -214,7 +214,7 @@ def dpt_map_view(cwreq, dpt=None):
             "Any X,XN,XC ORDERBY X "
             'WHERE X is Service, X level "level-D", '
             "X dpt_code %(dpt)s, X name XN, X dpt_code XC, "
-            "NOT X annex_of Y",
+            "NOT X annex_of Y, NOT X code NULL",
             {"dpt": dpt.upper()},
         )
         if rset:

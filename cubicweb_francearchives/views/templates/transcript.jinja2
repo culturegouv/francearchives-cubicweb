@@ -1,0 +1,55 @@
+<div class="fr-transcription" id="transcription-{{ id }}">
+  <button
+    class="fr-transcription__btn"
+    aria-expanded="false"
+    aria-controls="fr-transcription-collapse-transcription-{{ id }}"
+  >
+    {{ transcription_label }}
+  </button>
+  <div
+    class="fr-collapse"
+    id="fr-transcription-collapse-transcription-{{ id }}"
+  >
+    <div class="fr-transcription__footer">
+      <div class="fr-transcription__actions-group">
+        <button
+          class="fr-btn--fullscreen fr-btn"
+          aria-controls="fr-transcription-modal-transcription-{{ id }}"
+          aria-label="{{ enlarge_transcription_label }}"
+          data-fr-opened="false"
+          data-fr-js-modal-button="true"
+        >
+         {{ enlarge_label }}
+        </button>
+      </div>
+    </div>
+    <div
+      id="fr-transcription-modal-transcription-{{ id }}"
+      class="fr-modal"
+      aria-labelledby="fr-transcription-modal-transcription-{{ id }}-title"
+      data-fr-js-modal="true"
+    >
+      <div class="fr-container fr-container--fluid fr-container-md">
+        <div class="fr-grid-row fr-grid-row--center">
+          <div class="fr-col-12 fr-col-md-10 fr-col-lg-8">
+            <div class="fr-modal__body">
+              <div class="fr-modal__header">
+                <button
+                  id="button-{{ id }}"
+                  class="fr-btn--close fr-btn"
+                  aria-controls="fr-transcription-modal-transcription-{{ id }}"
+                  title="{{ close_label }}"
+                >
+                 {{ close_label }}
+                </button>
+              </div>
+              <div class="fr-modal__content">
+                {{ data }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

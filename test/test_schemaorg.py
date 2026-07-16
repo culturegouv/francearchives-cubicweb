@@ -28,14 +28,14 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-C license and that you accept its terms.
 #
-from datetime import datetime
+from datetime import date
 import unittest
 
+from cubicweb_web.devtools.testlib import WebCWTC
 from rdflib import Graph
 from rdflib.compare import graph_diff
 
 from cubicweb import Binary
-from cubicweb.devtools import testlib
 
 from cubicweb_francearchives.entities import entity2schemaorg
 
@@ -43,7 +43,7 @@ from cubicweb_francearchives.testutils import PostgresTextMixin, S3BfssStorageTe
 from pgfixtures import setup_module, teardown_module  # noqa
 
 
-class SchemaOrgTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
+class SchemaOrgTests(S3BfssStorageTestMixin, WebCWTC):
     def compare_graphs(self, graph, target_rdf_filepath, template_params={}):
         with open(self.datapath(target_rdf_filepath), "r") as f:
             target_rdf_content = f.read()
@@ -205,7 +205,7 @@ class SchemaOrgCmsTests(SchemaOrgTests):
                     data_name="image.png",
                     data_format="image/png",
                 ),
-                **image_data
+                **image_data,
             )
             entity = cnx.create_entity(
                 "BaseContent", metadata=metadata, basecontent_image=image, **base_content_data
@@ -244,7 +244,7 @@ class SchemaOrgCmsTests(SchemaOrgTests):
                     data_name="image.png",
                     data_format="image/png",
                 ),
-                **image_data
+                **image_data,
             )
             entity = cnx.create_entity(
                 "NewsContent", metadata=metadata, news_image=image, **news_content_data
@@ -373,8 +373,8 @@ class SchemaOrgCmsTests(SchemaOrgTests):
                     "NameEntry", parts=name, form_variant="authorized"
                 ),
                 xml_support="foo",
-                start_date=datetime(1940, 1, 1),
-                end_date=datetime(2000, 5, 1),
+                start_date=date(1940, 1, 1),
+                end_date=date(2000, 5, 1),
                 reverse_occupation_agent=cnx.create_entity("Occupation", term="éleveur de poules"),
                 reverse_history_agent=cnx.create_entity(
                     "History", text="<p>Il aimait les poules</p>"
@@ -414,8 +414,8 @@ class SchemaOrgCmsTests(SchemaOrgTests):
                     "NameEntry", parts=name, form_variant="authorized"
                 ),
                 xml_support="foo",
-                start_date=datetime(1940, 1, 1),
-                end_date=datetime(2000, 5, 1),
+                start_date=date(1940, 1, 1),
+                end_date=date(2000, 5, 1),
                 reverse_hierarchical_parent=cnx.create_entity(
                     "HierarchicalRelation",
                     entry="Toto poules",

@@ -30,11 +30,11 @@
 # knowledge of the CeCILL-C license and that you accept its terms.
 #
 
-STYLESHEETS[:] = [
-    data("css/bootstrap.min.css"),
-    data("css/font-awesome.css"),
+STYLESHEETS = [
+    data("dsfr/dsfr.min.css"),
+    data("dsfr/utility/utility.min.css"),
+    data("dsfr/utility/icons/icons.min.css"),
     data("css/francearchives.bundle.css"),
-    data("jquery-typeahead/jquery.typeahead.min.css"),
 ]
 
 # don't use ``JAVASCRIPTS`` since CW will automatically add
@@ -43,8 +43,7 @@ PNIA_JAVASCRIPTS = [
     data("jquery-3.1.1.min.js"),
     data("jquery-typeahead/jquery.typeahead.min.js"),
     data("cubes.pnia_portal.js"),
-    data("js/bootstrap.bundle.min.js"),
-    data("bundle-pnia-mainmenu.js"),
+    data("bundle-portal-francearchives.js"),
 ]  # noqa
 
 IIIF_LOGO = data("images/logo-iiif.png")
@@ -57,3 +56,8 @@ FLAG_FR = data("images/header_topbar_language-france.png")
 FLAG_EN = data("images/header_topbar_language-united-kingdom.png")
 FLAG_DE = data("images/header_topbar_language-germany.png")
 FLAG_ES = data("images/header_topbar_language-spain.png")
+
+CITY_PICTO = data("dsfr/artwork/pictograms/buildings/city-hall.svg")
+SIGN_DOC_PICTO = data("dsfr/artwork/pictograms/document/document-signature.svg")
+SEARCH_PICTO = data("dsfr/artwork/pictograms/digital/search.svg")
+DOC_PICTO = data("dsfr/artwork/pictograms/document/document.svg")

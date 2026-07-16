@@ -1,0 +1,21 @@
+{%- if breadcrumbs and breadcrumbs|length != 0 -%}
+<div class="fr-container">
+  <nav role="navigation" class="fr-breadcrumb fr-mb-5w" aria-label="{{_('breadcrumb_label')}}">
+    <button class="fr-breadcrumb__button" aria-expanded="false"
+            aria-controls="breadcrumb-line">{{ _('See breadcrumb')}}</button>
+    <div class="fr-collapse" id="breadcrumb-line">
+      <ol class="fr-breadcrumb__list">
+        {%- for url, label in breadcrumbs -%}
+        <li>
+          {%- if url and not loop.last -%}
+          <a class="fr-breadcrumb__link" href="{{ url | e }}">{{ label | e }}</a>
+          {% else %}
+          <a class="fr-breadcrumb__link" aria-current="page">{{ label | e }}</a>
+          {%- endif -%}
+        </li>
+        {%- endfor -%}
+      </ol>
+    </div>
+  </nav>
+</div>
+{%- endif -%}

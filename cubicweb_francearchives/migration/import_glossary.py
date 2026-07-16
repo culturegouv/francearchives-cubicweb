@@ -29,9 +29,9 @@ def import_glossary(cnx):
             kwargs.update(
                 {
                     "description": description.strip(),
-                    "short_description": short.strip()
-                    if short.strip()
-                    else description.strip()[:1000],
+                    "short_description": (
+                        short.strip() if short.strip() else description.strip()[:1000]
+                    ),
                     "term_plural": term_plural.strip() if term_plural.strip() else None,
                     "sort_letter": term[0].lower(),
                 }

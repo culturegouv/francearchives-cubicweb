@@ -1,0 +1,140 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ead xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns="http://www.openarchives.org/OAI/2.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eadheader>
+    <eadid identifier="FRAD089_30640004" countrycode="FR" mainagencycode="FRAD089">FRAD089_30640004</eadid>
+    <filedesc>
+      <titlestmt>
+        <titleproper>Yonne. Conservation des hypothèques (Sens)</titleproper>
+        <subtitle>Répertoire numérique détaillé</subtitle>
+        <author>
+          par Jean-Luc Benoit, assistant de conservation du patrimoine ; sous la direction de Pierre-Frédéric Brau, conservateur du patrimoine, directeur des archives départementales de l'Yonne
+        </author>
+      </titlestmt>
+      <publicationstmt>
+        <date normal="2012/2012">2012</date>
+        <publisher>Archives départementales de l'Yonne</publisher>
+        <address>
+          <addressline>Auxerre</addressline>
+        </address>
+      </publicationstmt>
+    </filedesc>
+    <profiledesc>
+      <creation>
+        Cet instrument de recherche a été généré avec la suite Ligeo ArchivesInstrument de recherche produit au moyen du logiciel Arkhéïa Aide au classement de la société Anaphore sarl, version 7-4.8 du. Date de l'export :(17:20 h)23/11/2017vendredi 18 mars 2016 23/11/2017 vendredi 18 mars 2016
+        <date calendar="gregorian" era="ce" normal="2017/2017"> 23/11/2017</date>
+        <date calendar="gregorian" era="ce" normal="2016-03-18">vendredi 18 mars 2016</date>
+      </creation>
+      <langusage>
+        Instrument de recherche rédigé en
+        <language> français</language>
+      </langusage>
+      <descrules>
+        Instrument de recherche rédigé conformément à la norme générale et internationale de description archivistique (ISAD-G) du Conseil international des archives, deuxième édition, 2000.
+      </descrules>
+    </profiledesc>
+  </eadheader>
+  <archdesc id="ark--56431-vtab265c3600982e0f8" level="fonds">
+    <did>
+      <unittitle>Yonne. Conservation des hypothèques (Sens)</unittitle>
+      <unitid label="Cotes extrêmes">
+        4 Q 4 1-4380
+        <extptr xlink:href="https://archivesenligne.yonne.fr//ark:/56431/vtab265c3600982e0f8"/>
+      </unitid>
+      <unitdate label="ligeo-date-automatique" normal="1795-09-23/1955-12-31">[an IV]-1955</unitdate>
+      <physdesc label="Description physique">
+        <genreform source="genreform_document">Document d'archives</genreform>
+        <extent label="Métrage linéaire" unit="ml">237,09</extent>
+        <extent label="Nombre d'unités de niveau bas" type="unités description">4380</extent>
+      </physdesc>
+      <repository>Archives départementales de l'Yonne</repository>
+      <origination label="les poulets">
+        Jean poulet le Bégé
+        <corpname authfilenumber="6179"> Yonne. Conservation des hypothèques (Sens)</corpname>
+      </origination>
+    </did>
+    <bioghist>
+      Les bureaux de la conservation des hypothèques sont institués par la loi du 21 ventôse an VII. Leurs ressorts et leurs sièges sont d'abord les mêmes que ceux des tribunaux de police correctionnelle (art. 2). Ces derniers sont supprimés par la loi du 27 ventôse an VIII qui instaure à leur place des tribunaux de première instance compétents dans les "arrondissements communaux" dont les ressorts avaient été définis par la loi du 28 pluviôse de la même année ; la compétence de chaque bureau des hypothèques s'étend donc, pour plus d'un siècle, aux territoires des arrondissements, dont ils suivent les modifications ponctuelles. Le bureau de la conservation des hypothèques de Sens est donc compétent, depuis l'an VIII, sur les cantons de Chéroy, de Pont-sur-Yonne, de Sens-Nord, de Sens-Sud, de Sergines, de Thorigny-sur-Oreuse, de Villeneuve-la-Guyard et de Villeneuve-l'Archevêque. La suppression de l'arrondissement de Joigny en 1926 est sans effet sur la compétence territoriale du bureau de Sens, le bureau de Joigny ayant été maintenu par dérogation à la loi de l'an VII.
+    </bioghist>
+    <acqinfo>
+      Versements du bureau des hypothèques de Sens des 19 juin 1972, 16 décembre 1982, 2 mai 1990 et 11 juin 2015.
+    </acqinfo>
+    <scopecontent>
+      Fonds du bureau de la conservation des hypothèques de Sens. L'hypothèque est définie, aux termes de la loi sur le régime hypothécaire du 11 brumaire an VII, comme « un droit réel sur les immeubles affectés au paiement d'une obligation » ; elle est associée au privilège sur les immeubles qui est « le droit d'être préféré aux autres créanciers, quoique antérieurs en hypothèque ». Ce sont donc avant tout des informations liées aux immeubles que donnent les archives hypothécaires dans plusieurs séries de volumes, principalement des registres de formalité (essentiellement registres d'inscriptions et de transcriptions), ainsi que des registres d'ordre (répertoires et tables) qui facilitent les recherches. Registres d'ordre : registre indicteur (1829-1955), tables alphabétiques du répertoire (1829-1955), répertoires (an VII-1955). Registres de formalités : inscriptions (1860-1947), transcriptions (an VII-1955), transcriptions spéciales concernant les chemins de fer (1844-1872), transcription des saisies (1809-1952), dénonciations des saisies (1807-1812). Pour des raisons pratiques, on a choisi de n'ouvrir la sous-série 4 Q qu'avec la mise en service des nouveaux registres imprimés selon des formulaires nationaux, en application des lois des 11 brumaire et 21 ventôse an VII ; cette entrée en usage s'est effectuée, pour le bureau des hypothèques de Sens, à partir du 3 floréal an VII (22 avril 1799). La fin de la période couverte correspond à l'application du décret du 4 janvier 1955 qui réforme l'organisation des bureaux des hypothèques à compter du 1er janvier 1956. Il est à noter que les premiers répertoires du bureau de Sens ont pris en compte des indications provenant de registres de formalités ouverts en application des lois hypothécaires de l'an III.
+    </scopecontent>
+    <arrangement>
+      Le fonds du bureau des hypothèques de Sens a été classé selon l'instruction n° DAF/DPACI/RES/2009/025 relative à l'archivage de la documentation hypothécaire.
+    </arrangement>
+    <accessrestrict type="commentaire">
+      Archives publiquesArchives publiques Archives publiquesArchives publiques
+      <legalstatus type="arch_publique"> Archives publiquesArchives publiques</legalstatus>
+    </accessrestrict>
+    <accessrestrict type="commentaire">
+      Conformément au Code du patrimoine. Conformément au Code du patrimoine.
+      <note>Conformément au Code du patrimoine.</note>
+    </accessrestrict>
+    <accessrestrict type="statut_publication">Publiable sur internet</accessrestrict>
+    <userestrict>Conformément au règlement de la salle de lecture </userestrict>
+    <relatedmaterial type="source_interne">
+      Voir en sous-série 3 Q, pour compléter partiellement certaines lacunes, les bureaux de l'enregistrement dont les communes ressortissaient au bureau des hypothèques de Sens.
+    </relatedmaterial>
+    <controlaccess>
+      <subject authfilenumber="850f493b59616c6df61114904c1190f0" source="matiere_libre">publicité foncière</subject>
+      <corpname authfilenumber="e3f37976a5d7b7e7d4f4e5124fb6f69b" source="personne_morale">Yonne. Conservation des hypothèques (Sens)</corpname>
+      <geogname authfilenumber="61f3fe2092a381c502879404ce47328b" source="nom_geographique">Chéroy, Canton de (Yonne, France ; 1790-2015)</geogname>
+      <geogname authfilenumber="49dfa9f6a12e77de531257094abc3e9d" source="nom_geographique">
+        Égriselles-le-Bocage, Canton d' (Yonne, France ; 1790-1800)
+      </geogname>
+      <geogname authfilenumber="1caf9d595f05875fb908f9841febd44f" source="nom_geographique">
+        Pont-sur-Yonne, Canton de (Yonne, France ; 1790-2015)
+      </geogname>
+      <geogname authfilenumber="fb6f1a3f760a58b1bc74c130a98beae0" source="nom_geographique">
+Saint-Clément, Canton de (Yonne, France ; 1790-1800)
+      </geogname>
+      <geogname authfilenumber="811e0f8e40872081f1cdc33c58ca68f2" source="nom_geographique">Sens, Canton de (Yonne, France ; 1790-1800)</geogname>
+      <geogname authfilenumber="2ee01bd907dc47b1e33719666b3f47e2" source="nom_geographique">Sens-Nord (Yonne, France ; canton ; 1800-1972)</geogname>
+      <geogname authfilenumber="693462d4c031b8cffb9acdac22ab3721" source="nom_geographique">Sens-Sud (Yonne, France ; canton ; 1800-1972)</geogname>
+      <geogname authfilenumber="6e40660898d62a3208c98f8e5d43eebc" source="nom_geographique">Sergines, Canton de (Yonne, France ; 1790-2015)</geogname>
+      <geogname authfilenumber="8311dd736179ac3e7f6ac58294b6eb79" source="nom_geographique">
+        Thorigny-sur-Oreuse, Canton de (Yonne, France ; 1790-1800)
+      </geogname>
+      <geogname authfilenumber="0b3e47d841fdf7aaf8263179d20cc957" source="nom_geographique">Véron, Canton de (Yonne, France ; 1790-1800)</geogname>
+      <geogname authfilenumber="66e21bb0a70601196d0036308416c84e" source="nom_geographique">
+        Villeneuve-la-Guyard, Canton de (Yonne, France ; 1790-1800)
+      </geogname>
+      <geogname authfilenumber="5892cad28d7b188c88397c93e4f23a39" source="nom_geographique">
+        Villeneuve-l'Archevêque, Canton de (Yonne, France ; 1790-2015)
+      </geogname>
+      <genreform authfilenumber="ac81991393f6ba3ddadf3b54ee532fda" source="genreform_document" type="typir">Recherche orientation</genreform>
+    </controlaccess>
+    <dsc type="in-depth">
+      <c altrender="ligeo-article-standardisadg" id="ark--56431-vta5354d2c6c0c47" level="file">
+        <did>
+          <unittitle>Volume n° 1084</unittitle>
+          <unitid>
+            4 Q 4 954
+            <extptr xlink:href="https://archivesenligne.yonne.fr//ark:/56431/vta5354d2c6c0c47"/>
+          </unitid>
+          <physdesc>
+            <extent type="ligeo-recolement">0.04</extent>
+            <physfacet label="Registre" type="forme">Oui</physfacet>
+          </physdesc>
+          <unitdate label="ligeo-date-automatique" normal="1924-04-24/1924-10-03">24 avril-3 octobre 1924</unitdate>
+        </did>
+        <acqinfo>
+          <chronlist>
+            <chronitem>
+              <date normal="1972-06-19" type="entree">1972-06-19</date>
+              <event>
+                versement numérovia
+                <num type="numéro d'entrée"> reprise-10000</num>
+                <persname role="vendeur" source="annuaire_producteurs">Yonne. Conservation des hypothèques (Sens)</persname>
+              </event>
+            </chronitem>
+          </chronlist>
+        </acqinfo>
+      </c>
+    </dsc>
+  </archdesc>
+</ead>

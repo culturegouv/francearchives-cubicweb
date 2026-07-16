@@ -51,6 +51,26 @@ options = (
         },
     ),
     (
+        "contact-adocs-email",
+        {
+            "type": "string",
+            "default": REQUIRED,
+            "help": "@Docs site email used in the contact form.",
+            "group": "pnia",
+            "level": 2,
+        },
+    ),
+    (
+        "contact-simplead-email",
+        {
+            "type": "string",
+            "default": REQUIRED,
+            "help": "SimplEAD site email used in the contact form.",
+            "group": "pnia",
+            "level": 2,
+        },
+    ),
+    (
         "sitemap-dir",
         {
             "type": "string",
@@ -111,6 +131,16 @@ options = (
         },
     ),
     (
+        "agents-reference-index-name",
+        {
+            "type": "string",
+            "default": REQUIRED,
+            "help": "name of the elasticsearch index for agents reference data",
+            "group": "agents",
+            "level": 2,
+        },
+    ),
+    (
         "newsletter-cypher-seed",
         {
             "type": "string",
@@ -124,7 +154,7 @@ options = (
         "consultation-base-url",
         {
             "type": "string",
-            "default": "https://francearchives.fr",
+            "default": "https://francearchives.gouv.fr",
             "help": "public base url to make link between synchronized entity",
             "group": "pnia",
             "level": 2,
@@ -165,7 +195,7 @@ options = (
         {
             "type": "string",
             "default": "document_siaf",
-            "help": ("Name of kibana FindingAid / FAComponents Elastic Search index"),
+            "help": "Name of kibana FindingAid / FAComponents Elastic Search index",
             "group": "elasticsearch",
             "level": 2,
         },
@@ -188,7 +218,7 @@ options = (
         {
             "type": "string",
             "default": "service_siaf",
-            "help": ("Name of kibana Services Elastic Search index"),
+            "help": "Name of kibana Services Elastic Search index",
             "group": "elasticsearch",
             "level": 2,
         },
@@ -198,28 +228,48 @@ options = (
         {
             "type": "string",
             "default": "",
-            "help": ("Sparql endpoint"),
+            "help": "Sparql endpoint",
             "group": "Sparql",
             "level": 2,
         },
     ),
     (
-        "xiti_site",
+        "sparnatural_graph",
         {
             "type": "string",
-            "default": "",
-            "help": ("Xiti: value for xiti_site"),
-            "group": "Xiti",
+            "default": "urn:francearchives:graph:sparnatural",
+            "help": "Sparnatural data named graph",
+            "group": "Sparql",
             "level": 2,
         },
     ),
     (
-        "xiti_n2",
+        "eulerian_domain",
         {
             "type": "string",
             "default": "",
-            "help": ("Xiti: value for n2"),
-            "group": "Xiti",
+            "help": "Tracking domain for Eulerian",
+            "group": "Eulerian",
+            "level": 2,
+        },
+    ),
+    (
+        "tac_uuid",
+        {
+            "type": "string",
+            "default": "",
+            "help": "uuid tarteaucitron uuid",
+            "group": "tarteaucitron",
+            "level": 2,
+        },
+    ),
+    (
+        "tac_domain",
+        {
+            "type": "string",
+            "default": "",
+            "help": "tarteaucitron domain",
+            "group": "tarteaucitron",
             "level": 2,
         },
     ),
@@ -240,7 +290,7 @@ register_function(NORMALIZE_ENTRY)
 
 
 class TRANSLATE_ENTITY(FunctionDescr):
-    minargs = maxargs = 3
+    minargs = maxargs = 4
     rtype = "String"
     supported_backends = ("postgres", "sqlite")
 

@@ -35,7 +35,8 @@ import os.path as osp
 
 from urllib.parse import urlparse, parse_qs, urlunsplit, urlsplit
 
-from babel import dates as babel_dates, numbers as babel_numbers, Locale
+from babel import Locale
+from cubicweb_web.bwcompat import CubicWebPyramidRequest
 
 from jinja2 import Environment, PackageLoader
 
@@ -49,15 +50,17 @@ from cubicweb.uilib import cut
 from logilab.mtconverter import xml_escape
 from logilab.common.decorators import monkeypatch
 
-from cubicweb.pyramid.core import CubicWebPyramidRequest
-from cubicweb.web.views.bookmark import BookmarksBox
-from cubicweb.web.views.boxes import SearchBox, EditBox
-from cubicweb.web.views.basecomponents import RQLInputForm, MetaDataComponent
-from cubicweb.web.views.baseviews import InContextView, OutOfContextView
+from cubicweb_web.views.basecomponents import RQLInputForm, MetaDataComponent
+from cubicweb_web.views.basecontrollers import ViewController
+from cubicweb_web.views.bookmark import BookmarksBox
+from cubicweb_web.views.boxes import SearchBox, EditBox
+from cubicweb_web.views.baseviews import InContextView, OutOfContextView
 from cubicweb.uilib import remove_html_tags
 
 from cubicweb_card.hooks import CardAddedView
-from cubicweb_francearchives.utils import is_external_link
+from cubicweb_file.views import FileOutOfContext
+from cubicweb_francearchives.redis_utils import get_data_with_cache
+from cubicweb_francearchives.utils import format_number, is_external_link
 
 
 _ = str
@@ -72,16 +75,6 @@ STRING_SEP = "#####"
 
 def get_template(template_name):
     return env.get_template(template_name)
-
-
-def format_date(date, req, fmt="short"):
-    if date:
-        try:
-            return babel_dates.format_date(date, format=fmt, locale=req.lang)
-        except Exception as exc:
-            req.warning("failed to format date %s with locale %s because %s", date, req.lang, exc)
-            return ""
-    return ""
 
 
 def format_agent_date(cnx, date, precision="d", isbc=False, iso=True):
@@ -108,18 +101,6 @@ def format_agent_date(cnx, date, precision="d", isbc=False, iso=True):
     )
 
 
-def format_number(number, req):
-    if number is not None:
-        try:
-            return babel_numbers.format_decimal(number, locale=req.lang)
-        except Exception as exc:
-            req.warning(
-                "failed to format number %s with locale %s because %s", number, req.lang, exc
-            )
-            return ""
-    return ""
-
-
 env.filters["format_number"] = format_number
 
 
@@ -130,61 +111,73 @@ def is_list(value):
 env.filters["is_list"] = is_list
 
 
-def top_sections_desc(cnx):
+def get_subsections_infos(cnx, sections_eid):
+    subsections = {eid: [] for eid in sections_eid}
+    for parent_eid, subsection_eid, title_fr, title_lang in cnx.execute(
+        """Any X, Y, TITLE_FR,  TITLE_LANG ORDERBY O
+            WHERE X is Section,
+            X eid in ({eids}), X children Y,
+            E? translation_of Y, E language "{lang}",
+            Y title TITLE_FR, Y short_description DESC_FR,
+            E title TITLE_LANG, E short_description DESC_LANG,
+            EXISTS (Y children Z), Y order O""".format(
+            lang=cnx.lang, eids=",".join(str(x) for x in sections_eid)
+        )
+    ):
+        subsections[parent_eid].append(
+            [
+                subsection_eid,
+                cnx.entity_from_eid(subsection_eid).absolute_url(),
+                title_lang or title_fr,
+                [],
+            ]
+        )
+    return subsections
+
+
+def get_top_sections_infos(cnx):
     """retrieve info for the 4 top sections"""
+    key = f"mainmenu_{cnx.lang}"
+    return get_data_with_cache(cnx, key, _get_top_sections_infos)
+
+
+def _get_top_sections_infos(cnx):
     top_sections = []
+    query = f"""Any X, N, TITLE_FR, TITLE_LANG, DESC_FR, DESC_LANG,
+                SUBTITLE_FR, SUBITLE_LANG ORDERBY O WHERE X is Section,
+                X name N,
+                E? translation_of X, E language "{cnx.lang}",
+                X title TITLE_FR, X short_description DESC_FR, X subtitle SUBTITLE_FR,
+                E title TITLE_LANG, E short_description DESC_LANG, E subtitle SUBITLE_LANG,
+                X name IN (%s), X order O"""
     sections = {
         "rechercher": "search",
         "comprendre": "understand",
         "decouvrir": "discover",
         "gerer": "manage",
     }
-    infos = {
-        n: (tl or tf, dl or df, sl or sf)
-        for n, tf, tl, df, dl, sf, sl in cnx.execute(
-            (
-                """Any N, TITLE_FR, TITLE_LANG, DESC_FR, DESC_LANG,
-                   SUBTITLE_FR, SUBITLE_LANG ORDERBY O WHERE X is Section,
-                   X name N,
-                   E? translation_of X, E language "{lang}",
-                   X title TITLE_FR, X short_description DESC_FR, X subtitle SUBTITLE_FR,
-                   E title TITLE_LANG, E short_description DESC_LANG, E subtitle SUBITLE_LANG,
-                   X name IN (%s), X order O""".format(
-                    lang=cnx.lang
+    params = ",".join('"%s"' % s for s in sections.keys())
+    rset = cnx.execute(query % params)
+    if rset:
+        infos = {e: (n, tl or tf, dl or df, sl or sf) for e, n, tf, tl, df, dl, sf, sl in rset}
+
+        subsections_infos = get_subsections_infos(cnx, infos.keys())
+
+        for top_section_eid in infos.keys():
+            name, title, desc, label = infos.get(top_section_eid, (None, None, None, None))
+            cssclass = sections[name]
+            if title:
+                # may not exist (in tests)
+                children = []
+                for subsection in subsections_infos[top_section_eid]:
+                    subsection_info = subsection
+                    children.append(subsection_info)
+
+                top_sections.append(
+                    (top_section_eid, title, label, name, cssclass, desc or "", children)
                 )
-            )
-            % ",".join('"%s"' % s for s in sections.keys())
-        )
-    }
-    # for name, cssclass in sections:
-    for name in infos.keys():
-        title, desc, label = infos.get(name, (None, None, None))
-        cssclass = sections[name]
-        if title:
-            # may not exist (in tests)
-            children = []
-            for eid, child_tf, child_tl, child_df, child_dl in cnx.execute(
-                """Any Y, TITLE_FR,  TITLE_LANG, DESC_FR, DESC_LANG ORDERBY O WHERE X is Section,
-                   X name '%s', X children Y,
-                   E? translation_of Y, E language "{lang}",
-                   Y title TITLE_FR, Y short_description DESC_FR,
-                   E title TITLE_LANG, E short_description DESC_LANG,
-                    EXISTS (Y children Z), Y order O""".format(
-                    lang=cnx.lang
-                )
-                % name
-            ):
-                children.append(
-                    (
-                        eid,
-                        cnx.entity_from_eid(eid).absolute_url(),
-                        child_tl or child_tf,
-                        child_dl or child_df or "",
-                    )
-                )
-            if children:
-                top_sections.append((title.upper(), label, name, cssclass, desc or "", children))
-    return top_sections
+        return top_sections
+    return {}
 
 
 class JinjaViewMixin(object):
@@ -264,19 +257,20 @@ def rebuild_url(req, url=None, replace_keys=False, **newparams):
             # remove the old values
             if replace_keys:
                 query.pop(key, None)
+            if not isinstance(val, (list, tuple)):
+                val = (val,)
             # if param is already in query
             if key in query:
                 # if param value exists in query, remove value from query
-                if val in query[key]:
-                    query[key].remove(val)
-                # else, add param value to the param
-                else:
-                    query[key].append(val)
+                for _val in val:
+                    if _val in query[key]:
+                        query[key].remove(_val)
+                        # else, add param value to the param
+                    else:
+                        query[key].append(_val)
 
             # if param is not in query
             else:
-                if not isinstance(val, (list, tuple)):
-                    val = (val,)
                 query[key] = val
     query = "&".join(
         "%s=%s" % (param, req.url_quote(value))
@@ -286,92 +280,80 @@ def rebuild_url(req, url=None, replace_keys=False, **newparams):
     return urlunsplit((schema, netloc, path, query, fragment))
 
 
-def html_link(cnx, url, label=None, icon=None, iconFirst=True):
+def html_link(cnx, url, label=None, klass=None):
     if is_external_link(url, cnx.base_url()):
-        return exturl_link(cnx, url, label=label, icon=icon, iconFirst=iconFirst)
-    return internurl_link(cnx, url, label=label, icon=icon, iconFirst=iconFirst)
+        return exturl_link(cnx, url, label=label, klass=klass)
+    return internurl_link(cnx, url, label=label, klass=klass)
 
 
-def internurl_link(cnx, url, label=None, icon=None, title=None, iconFirst=True):
+def internurl_link(cnx, url, label=None, klass=None, title=None):
     url = xml_escape(url)
     if label is None:
         label = url
     else:
         label = xml_escape(label)
-    if icon is None:
-        link_content = label
-    else:
-        if iconFirst:
-            link_content = T.span(
-                "{} {}".format(T.i(_class="fa fa-{}".format(icon), aria_hidden="true"), label),
-                _class="nowrap",
-            )
-        else:
-            link_content = T.span(
-                "{} {}".format(label, T.i(_class="fa fa-{}".format(icon), aria_hidden="true")),
-                _class="nowrap",
-            )
     if title:
-        return T.a(link_content, href=url, title=title)
-    return T.a(link_content, href=url)
+        return T.a(label, href=url, title=title, klass=klass or "fr-link")
+    return T.a(label, href=url, klass=klass or "fr-link")
 
 
-def exturl_link(cnx, url, label=None, icon=None, iconFirst=True, **kwargs):
+def exturl_link(cnx, url, label=None, klass=None, title=None, **kwargs):
     url = xml_escape(url)
+    title = title or label
+    if title:
+        title = "{} - {}".format(title, cnx._("new window"))
     if label is None:
         label = url
-        title = blank_link_title(cnx, url)
-    else:
-        title = "{} {}".format(label, cnx._("- New window"))
-    if icon is None:
-        link_content = label
-    else:
-        if iconFirst:
-            link_content = T.span(
-                "{} {}".format(T.i(_class="fa fa-{}".format(icon), aria_hidden="true"), label),
-                _class="nowrap",
-            )
-        else:
-            link_content = T.span(
-                "{} {}".format(label, T.i(_class="fa fa-{}".format(icon), aria_hidden="true")),
-                _class="nowrap",
-            )
+        if title is None:
+            title = blank_link_title(cnx, url)
     return T.a(
-        link_content,
+        label,
+        klass=klass or "fr-link",
         href=url,
         target="_blank",
-        rel="nofollow noopener noreferrer",
+        rel="nofollow noopener noreferrer external",
         title=title,
-        **kwargs
+        **kwargs,
     )
 
 
-def blank_link_title(cnx, site):
-    site = urlparse(site).netloc or site
-    return "{} {}".format(site, cnx._("- New window"))
+def blank_link_title(cnx, link=None):
+    link = link or urlparse(link).netloc
+    return f"{link} - {cnx._('new window')}"
 
 
 @monkeypatch(InContextView)
-def cell_call(self, row, col):
+def cell_call(self, row, col, **kwargs):
     entity = self.cw_rset.get_entity(row, col)
     entity = entity.cw_adapt_to("ITemplatable").entity_param()
-    desc = entity.dc_description()
-    self.w(internurl_link(self._cw, entity.absolute_url(), label=entity.dc_title(), title=desc))
+    kwargs["href"] = xml_escape(entity.absolute_url())
+    desc = cut(entity.dc_description(), 50)
+    title = entity.dc_title()
+    if desc and desc != title:
+        kwargs["title"] = xml_escape(desc)
+    entity_lang = getattr(entity, "lang", "fr")
+    if self._cw.lang == entity_lang:
+        self.w(T.a(xml_escape(title), **kwargs))
+    else:
+        with T.a(self.w, **kwargs):
+            self.w(T.span(xml_escape(title), lang=entity_lang))
 
 
 @monkeypatch(OutOfContextView)  # noqa
-def cell_call(self, row, col):  # noqa
+def cell_call(self, row, col, **kwargs):  # noqa
     entity = self.cw_rset.get_entity(row, col)
     entity = entity.cw_adapt_to("ITemplatable").entity_param()
+    kwargs["href"] = xml_escape(entity.absolute_url())
     desc = cut(entity.dc_description(), 50)
     title = entity.dc_long_title()
     if desc and desc != title:
-        self.w(
-            '<a href="%s" title="%s">%s</a>'
-            % (xml_escape(entity.absolute_url()), xml_escape(desc), xml_escape(title))
-        )
+        kwargs["title"] = xml_escape(desc)
+    entity_lang = getattr(entity, "lang", "fr")
+    if self._cw.lang == entity_lang:
+        self.w(T.a(xml_escape(title), **kwargs))
     else:
-        self.w('<a href="%s">%s</a>' % (xml_escape(entity.absolute_url()), xml_escape(title)))
+        with T.a(self.w, **kwargs):
+            self.w(T.span(xml_escape(title), lang=entity_lang))
 
 
 class SiteTourMixin(object):
@@ -392,29 +374,34 @@ class SiteTourMixin(object):
 class FaqMixin(object):
     faq_category = None
 
-    def call(self, **kwargs):
-        self._cw.add_js("bundle-pnia-faq.js")
-        super(FaqMixin, self).call(**kwargs)
-
     def faqs_attrs(self):
         if not self.faq_category:
             return {}
-        rset = self._cw.execute(
-            """Any X, Q, A ORDERBY O WHERE X is FaqItem,
-               X question Q, X answer A,
-               X order O, X category %(c)s""",
-            {"c": self.faq_category},
-        )
+
+        sql_query = """
+        SELECT faq.cw_eid eid,
+               TRANSLATE_ENTITY('FaqItem', faq.cw_eid, 'question', %(lang)s) AS question,
+               TRANSLATE_ENTITY('FaqItem', faq.cw_eid, 'answer', %(lang)s) AS answer,
+               faq.cw_category as category,
+               faq.cw_order as order,
+               faq.cw_question as fr_question,
+               faq.cw_answer as fr_answer
+        FROM cw_FaqItem AS faq WHERE faq.cw_category=%(c)s ORDER BY 4"""
+        # TODO rewrite the TRANSLATE_ENTITY to return the actual entity language
+        # and avoid comparing values
+        rset = self._cw.cnx.system_sql(
+            sql_query, {"c": self.faq_category, "lang": self._cw.lang}
+        ).fetchall()
         if rset:
-            faqs = [
-                (
-                    eid,
-                    self._cw.build_url("faqitem/{}".format(eid)),
-                    remove_html_tags(question),
-                    answer,
+            faqs = []
+            fr_lang = self._cw.lang == "fr"
+            for eid, question, answer, category, order, fr_question, fr_answer in rset:
+                qlang_attr = 'lang="fr"' if not fr_lang and question == fr_question else ""
+                alang_attr = 'lang="fr"' if not fr_lang and answer == fr_answer else ""
+                faq_url = self._cw.build_url("faqitem/{}".format(eid))
+                faqs.append(
+                    (eid, faq_url, remove_html_tags(question), answer, qlang_attr, alang_attr)
                 )
-                for eid, question, answer in rset
-            ]
             return {
                 "faqs": faqs,
                 "category": self.faq_category,
@@ -431,11 +418,31 @@ def add_js_translations(req):
     req.html_headers.jsfiles.insert(0, {"src": js_i18n_url})
 
 
+class ControllerWithCSRFCheckDisabled(ViewController):
+    require_csrf = False
+
+
+class FAFileOutOfContext(FileOutOfContext):
+
+    def cell_call(self, row, col):
+        entity = self.cw_rset.get_entity(row, col)
+        url = entity.cw_adapt_to("IDownloadable").download_url()
+        self.w(
+            f'<a class="fr-link fr-link--download" download href="{url}">'
+            + entity.dc_title()
+            + "</a>"
+        )
+
+
 def registration_callback(vreg):
-    vreg.register_all(list(globals().values()), __name__)
+    vreg.register_all(
+        list(globals().values()), __name__, (ControllerWithCSRFCheckDisabled, FAFileOutOfContext)
+    )
     vreg.unregister(BookmarksBox)
     vreg.unregister(SearchBox)
     vreg.unregister(RQLInputForm)
     vreg.unregister(EditBox)
     vreg.unregister(MetaDataComponent)
     vreg.unregister(CardAddedView)
+    vreg.register_and_replace(ControllerWithCSRFCheckDisabled, ViewController)
+    vreg.register_and_replace(FAFileOutOfContext, FileOutOfContext)

@@ -1,146 +1,182 @@
-<section class="document-view">
-  {% if site_tour_url %}
-  {% include "site-tour.jinja2"%}
-  {% endif %}
-</section>
-<section id="document" class="document-view finding-document">
-  <div class="page-main-content">
-    {% block head %}
-    <h1><span class="visually-hidden">{{ _(entity.__regid__) }} : </span>{{ title }}</h1>
-    {% endblock %}
-    {% block metadata %}
-    <div class="content-metadata">
-      <p class="content-metadata-item">
-        {{date}}
-      </p>
-      <p class="content-metadata-item">
-        <a class="fi-context" href="#tree-hierarchy">{{ _('See the context of the notice') }}</a>
-      </p>
+{% from "./mixins.jinja2" import document_values, download_card, rdf_download_button -%}
+{% set heading_hierarchy = eulerian.document_title -%}
+{%- set lang_attr='lang="{}"'.format(entity.lang) if entity.lang != lang else "" -%}
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--right fr-mb-4v">
+    <div class="fr-btns-group fr-btns-group--sm fr-btns-group--right">
     </div>
-    {% endblock %}
-    {% block subhead %}
-    {% endblock %}
-    {% set publisher_title = entity.publisher_title %}
-    <div class="left-col">
-      <div class="document-header{% if illustation_src or digitized_urls %} document-digit-versions{% endif %}">
-        {% if iiif_manifest %}
-            {% from "./mixins.jinja2" import mirador_viewer %}
-            {{  mirador_viewer(iiif_manifest, data_url, lang) }}
-        {% else %}
-        {% if illustation_src %}
-        <div class="media-left">
-          <a target="_blank"
-             rel="noopener noreferrer nofollow"
-             href="{{ entity.thumbnail_dest }}"
-             {% if publisher.xiti %}
-             data-xiti-level="C"
-             data-xiti-type="{{ publisher.xiti.type }}"
-             data-xiti-name="{{ publisher.xiti.thumbnail_access_site }}"
-             data-xiti-n2="{{ publisher.xiti.n2}}"
-             {% endif %}
-             >
-            <img src="{{ illustation_src }}"
-                 alt="{{ _("Expand image") }} {{ _('- New window') }}"
-                 data-defaultsrc="{{ default_picto_src }}"
-            />
-          </a>
-        </div>
-        {% endif %}
-        <div class="header-buttons-wrapper">
-          {% if digitized_urls -%}
-          {% for url in digitized_urls -%}
-          <div class="grey-button">
-            <a href="{{url}}" title="{{_("Consult the digitized version")}}"
-               {% if publisher.xiti %}
-               data-xiti-level="C"
-               data-xiti-type="{{ publisher.xiti.type }}"
-               data-xiti-name="{{ publisher.xiti.digitized_version }}"
-               data-xiti-n2="{{ publisher.xiti.n2}}"
-               {% endif %}
-               target="_blank" rel="noopener noreferrer nofollow">
-              {{_("Consult the digitized version")}}
-            </a>
-          </div>
-          {% endfor -%}
-          {% endif -%}
-          {% if inventory_source %}
-          <div class="pdf-download-button">
-            <a href="{{ inventory_source.url | e }}" class="blue-button"
-               {% if inventory_source.target_blank %}
-               target="_blank" rel="noopener noreferrer nofollow"
-               {% endif %}
-               {% if inventory_source.title %}
-               title="{{ inventory_source.title }}"
-               {% endif %}
-            >
-              {{ inventory_source.link }}
-              <span class="doc-info">{{ inventory_source.info }}</span>
-              <i class="fa fa-download" aria-hidden="true"></i>
-            </a>
-          </div>
-          {% endif %}
-        </div>
-        {% endif %}
-      </div>
-      {% from "./mixins.jinja2" import index_values %}
-      {{  index_values(main_props) }}
-      {% if indexes_props %}
-      {{  index_values(indexes_props, "ir-indexes") }}
-      {% endif %}
-    </div>
-    <div class="clearfix"></div>
-    {% if faqs %}
-    {% from "./mixins.jinja2" import modalfaq %}
-    {{  modalfaq(faqs, _) }}
-    {% endif %}
   </div>
-  {% set publisher_title = entity.publisher_title %}
-  <div class="ir-right-sidebar right-col">
-    {% if publisher %}
-    <div class="ir-location">
-      <div class="ir-location__header">
-        <h2>{{ _('To consult this document') }}&nbsp;:</h2>
-        <p class="publisher-title">{{ publisher.title }}</p>
+</div>
+<section id="{{ entity.cw_etype.lower() }}-{{ entity.eid }}" class="fr-container fa-inventory">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div id="ir-content-top" class="fa-inventory-content fr-col-12 fr-col-lg-8 fr-col-offset-lg-1--right">
+      <div class="fa-inventory-content__title fr-mb-8v" {{ lang_attr }}>
+        <h1>{{ title }}</h1>
       </div>
-      <div class="ir-location__buttons">
-        {% if publisher.site_url %}
-        <a class="service-site-button blue-button" href="{{ publisher.site_url }}"
-           title="{{ publisher_title }} {{ _('- New window') }}"
-           {% if publisher.xiti %}
-           data-xiti-level="C"
-           data-xiti-type="{{ publisher.xiti.type }}"
-           data-xiti-name="{{ publisher.xiti.access_site}}"
-           data-xiti-n2="{{ publisher.xiti.n2}}"
+      {%- if display_context -%}
+      <p class="fa-inventory-content__context">
+          <a class="fr-link" href="#tree-hierarchy">{{ _('Locate in the inventory') }}</a>
+      </p>
+      {%- endif -%}
+      {%- set publisher_title = entity.publisher_title %}
+      {%- if iiif_manifest %}
+      {%- if a11y_alert -%}
+      <div class="fr-skiplinks fr-p-2w fr-mb-2w">
+        <p>{{ a11y_alert }}</p>
+        <nav class="fr-container" role="navigation"
+          aria-label="{{ _('quick access to IR top content') }}">
+          <ul class="fr-skiplinks__list">
+            <li><a class="fr-link" href="#ir-content-bottom">{{ _("Skip the IIIF viewer") }}</a></li>
+          </ul>
+        </nav>
+      </div>
+      {%- endif -%}
+      <div class="fr-hidden fr-unhidden-sm fr-col-12">
+        <div id="viewers-container"
+             data-manifest="{{ iiif_manifest }}"
+             data-language="{{ lang }}"
+             data-viewer="{{ iiif_viewer }}">
+        </div>
+      </div>
+      {%- if a11y_alert -%}
+      <div class="fr-skiplinks fr-p-2w fr-mb-2w">
+        <nav class="fr-container fr-mb-2w" role="navigation"
+          aria-label="{{ _('quick access to IR bottom content') }}">
+          <ul class="fr-skiplinks__list">
+            <li><a class="fr-link" href="#ir-content-top">{{ _("Skip the IIIF viewer") }}</a></li>
+          </ul>
+        </nav>
+        <p>{{ a11y_alert }}</p>
+      </div>
+      {%- endif -%}
+      {%- endif -%}
+      {%- if illustation_src or digitized_url -%}
+      <div class="fa-illustration-card fa-inventory-content__digitized fr-col-12 fr-col-md-10 fr-mb-12v {% if iiif_manifest -%}fr-hidden-sm{%- endif -%}">
+        <div class="fa-illustration-card__image">
+            <img
+                src="{{ illustation_src }}" alt=""
+                data-defaultsrc="{{ default_picto_src }}"
+            >
+        </div>
+        {%- if digitized_urls -%}
+        <div class="fa-illustration-card__body {% if not iiif_manifest -%}fa_tour_dv{%- endif -%}">
+          {%- for url in digitized_urls -%}
+          <a href="{{ url }}" title="{{_("Consult the digitized version")}} {{ _('- New window') }}"
+             class="eulerian-button fr-link"
+             data-eulerian-actionname="digitized_version_{{ heading_hierarchy | e }}"
+             data-eulerian-actionlabel="digitized_version,{{ eulerian.page_type}},{{ eulerian.type_doc }},consulter_le_document_numerise,{{ eulerian.service_code }}"
+             data-eulerian-headinghierarchy="{{ heading_hierarchy | e }}"
+             data-eulerian-componenthierarchy="main_>_section_>_link"
+             data-eulerian-componentlabel="consulter_le_document_numerise"
+             data-eulerian-componentvalue="{{ url }}"
+             target="_blank" rel="noopener noreferrer nofollow external">
+            {{_("Consult the digitized version")}}
+          </a>
+          {%- endfor -%}
+        </div>
+        {%- endif -%}
+      </div>
+      {%- endif -%}
+      {%- if inventory_source -%}
+      <div class="fa-inventory-content__pdf fr-col-10 fr-col-lg-6 fr-col-offset-4--right fr-col-offset-lg-6--right fr-mb-12v">
+        <a href="{{ inventory_source.url }}"
+           class="fr-btn fr-btn--secondary eulerian-button"
+           target="_blank" rel="noopener noreferrer nofollow"
+           {% if inventory_source.title %}
+           title="{{ inventory_source.link }} - {{ inventory_source.title }}"
            {% endif %}
-           target="_blank" rel="noopener noreferrer nofollow" >
-           {{ publisher.site_label }}
-          <i class="fa fa-external-link" aria-hidden="true"></i>
+           {% if inventory_source.lang %}
+             hreflang="fr"
+           {% endif %}
+           data-eulerian-actionname="download_pdf_{{ heading_hierarchy }}"
+           data-eulerian-actionlabel="download_pdf,{{ eulerian.page_type }},{{ eulerian.type_doc }},{{ eulerian.document_title }}_pdf,{{ eulerian.service_code }}"
+           data-eulerian-headinghierarchy="{{ heading_hierarchy }}"
+           data-eulerian-componenthierarchy="main_>_section_>_button"
+           data-eulerian-componentlabel="{{ eulerian.document_title }}"
+        >
+          {{ inventory_source.link }}
         </a>
-        {% endif %}
-        {% if publisher.contact_url %}
-        <a class="service-url-button white-button"
-           href="{{ publisher.contact_url }}">
-           {{ publisher.contact_label }}
-        </a>
-        {% endif %}
+      </div>
+      {%- endif -%}
+      <div id="ir-content-bottom" class="fr-col-12 fr-mb-12v">
+        {{ document_values(main_props, lang_attr) }}
+        {%- if indexes_props -%}
+        {%- for category, data in indexes_props -%}
+        <div class="fr-mb-10v">
+          <h2 class="fr-h4 fr-mb-4v">{{ category }}</h2>
+          <ul class="fr-tags-group fa-inventory-content__index">
+            {%- for uri, label in data -%}
+            <li>
+              <a href="{{ uri }}" class="fr-tag fr-tag--blue-ecume" target="_self">
+                {%- if lang_attr -%}<span {{ lang_attr }}>{{ label }}</span>
+                {%- else -%}{{ label }}{%- endif -%}
+              </a>
+            </li>
+            {% endfor -%}
+          </ul>
+        </div>
+        {% endfor -%}
+        {%- endif -%}
       </div>
     </div>
-    {% endif %}
-    <div class="ir-location__buttons">
-      <a class="csv-download-button white-button" href="{{ csv_props.url | e }}"
-         {% if csv_props.target_blank %}
-         target="_blank" rel="noopener noreferrer nofollow"
-         {% endif %}
-         {% if csv_props.title %}
-         title="{{ csv_props.title }}"
-         {% endif %}
-      >
-        {{ csv_props.link }}
-        <i class="fa fa-download" aria-hidden="true"></i>
-
-      </a>
-
-      {% include "rdf-download-button.jinja2"%}
+    {% set publisher_title = entity.publisher_title %}
+    <div class="fr-col-12 fr-col-lg-3">
+      <div class="fa-inventory-utils">
+        <div class="fa-inventory-utils__address">
+            {% if publisher %}
+            <h2 class="fr-h4">{{ _('To consult this document') }}{{ _(":")}}</h2>
+            <p class="fr-text--lg" {{ lang_attr }}>
+            {{ publisher.title | e }}</p>
+            {%- set heading_hierarchy = eulerian.document_title+"_>_consulter_le_document" %}
+            <div class="fr-btns-group">
+              {%- if publisher.site_url %}
+              <a class="fr-btn fr-btn--primary eulerian-button fa-inventory-content__service-site" href="{{ publisher.site_url }}"
+                 title="{{ publisher.site_label }} - {{ publisher_title }} - {{ _('new window') }}"
+                 data-eulerian-actionname="site_access_{{ heading_hierarchy | e }}"
+                 data-eulerian-actionlabel="site_access,{{ eulerian.page_type }},{{ eulerian.type_doc }},voir_le_site_d_origine,{{ eulerian.service_code }}"
+                 data-eulerian-headinghierarchy="{{ heading_hierarchy | e }}"
+                 data-eulerian-componenthierarchy="main_>_section_>_link"
+                 data-eulerian-componentlabel="voir_le_site_d_origine"
+                 data-eulerian-componentvalue={{ publisher.site_url }}
+                 target="_blank" rel="noopener noreferrer nofollow" >
+                {{ publisher.site_label | e }}
+              </a>
+              {% endif -%}
+            {%- if publisher.contact_url %}
+              <a class="fr-btn fr-btn--secondary fa-inventory-content__service-info"
+                 href="{{ publisher.contact_url  }}">
+                {{ publisher.contact_label | e }}
+              </a>
+              {% endif -%}
+            </div>
+            {% endif %}
+        </div>
+        <div class="fa-inventory-utils__downloads">
+          {%- if csv_props %}
+          <a class="fr-link fr-link--download eulerian-button fa-inventory-content__csv"
+             download="true"
+             {% if lang != "fr" -%}
+             hreflang="fr"
+             {% endif -%}
+             href="{{ csv_props.url }}"
+             {% if csv_props.target_blank %}
+             target="_blank" rel="noopener noreferrer nofollow"
+             {% endif %}
+             data-eulerian-actionname="download_csv_{{ heading_hierarchy | e }}"
+             data-eulerian-actionlabel="download_csv,{{ eulerian.page_type }},{{ eulerian.type_doc }},{{ eulerian.document_title | e }}_csv,{{ eulerian.service_code | e }}"
+             data-eulerian-headinghierarchy="{{ heading_hierarchy | e }}"
+             data-eulerian-componenthierarchy="main_>_section_>_button"
+             data-eulerian-componentlabel="{{ eulerian.document_title | e}}"
+          >
+            {{ csv_props.title }}
+            <span class="fr-link__detail">CSV – {{ _('approximately') }} {{  csv_props.size }}</span>
+        </a>
+        {% endif -%}
+        <div class="fr-col-12 fr-col-sm-8 fr-col-md-12 fr-pt-4v">
+        {{ rdf_download_button(entity, rdf_formats, lang, _) }}
+        </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>

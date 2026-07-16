@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<ead xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="urn:isbn:1-931666-22-9">
+  <eadheader countryencoding="iso3166-1" dateencoding="iso8601" repositoryencoding="iso15511">
+    <eadid countrycode="FR" identifier="FRAD080_TEST" mainagencycode="FRAD080" url="https://francearchives.gouv.fr/findingaid/test">FRAD080_TEST</eadid>
+    <filedesc>
+      <titlestmt>
+        <titleproper>Test IIIF manifest avec URL contenant /manifest</titleproper>
+        <subtitle>Test pour vérifier que les URLs manifest sont conservées</subtitle>
+        <author>Test</author>
+      </titlestmt>
+      <publicationstmt>
+        <publisher>Archives Départementales Test</publisher>
+        <address>
+          <addressline>Test</addressline>
+        </address>
+        <date normal="2026-01-01">2026</date>
+      </publicationstmt>
+    </filedesc>
+  </eadheader>
+  <archdesc level="fonds">
+    <did>
+      <unitid>TEST_COMPONENT<extptr xlink:href="https://archives.somme.fr/ark:/58483/hvmz5n1jx9sc/manifest" xlink:type="simple"/></unitid>
+      <unittitle>Test component with manifest URL</unittitle>
+      <unitdate normal="2026-01-01">2026</unitdate>
+    </did>
+    <dsc type="in-depth">
+      <c01 id="test_component_1" level="file">
+        <did>
+          <unitid>TEST_001<extptr xlink:href="https://archives.somme.fr/ark:/58483/hvmz5n1jx9sc/manifest" xlink:type="simple"/></unitid>
+          <unittitle>Test document 1</unittitle>
+          <unitdate normal="2026-01-01">2026</unitdate>
+          <dao xlink:href="https://archives.somme.fr/ark:/58483/hvmz5n1jx9sc/manifest" xlink:type="simple" xlink:role="iiif_manifest"/>
+          <dao xlink:href="https://archives.somme.fr/ark:/58483/hvmz5n1jx9sc/viewer" xlink:type="simple" xlink:title="Viewer"/>
+        </did>
+      </c01>
+      <c01 id="test_component_2" level="file">
+        <did>
+          <unitid>TEST_002<extptr xlink:href="https://archives.somme.fr/ark:/58483/hvmz5n1jx9sc/manifest.json" xlink:type="simple"/></unitid>
+          <unittitle>Test document 2 with .json</unittitle>
+          <unitdate normal="2026-01-01">2026</unitdate>
+          <dao xlink:href="https://archives.somme.fr/ark:/58483/hvmz5n1jx9sc/manifest.json" xlink:type="simple" xlink:role="iiif_manifest"/>
+        </did>
+      </c01>
+      <c01 id="test_component_3" level="file">
+        <did>
+          <unitid>TEST_003<extptr xlink:href="https://archives.somme.fr/ark:/58483/3kf1z6rt07pb/47498ef1-d5e1-43f5-9e74-9d1dc2a5721a" xlink:type="simple"/></unitid>
+          <unittitle>Test document 3 with UUID</unittitle>
+          <unitdate normal="2026-01-01">2026</unitdate>
+          <dao xlink:href="https://archives.somme.fr/ark:/58483/3kf1z6rt07pb/47498ef1-d5e1-43f5-9e74-9d1dc2a5721a" xlink:type="simple"/>
+        </did>
+      </c01>
+    </dsc>
+  </archdesc>
+</ead>

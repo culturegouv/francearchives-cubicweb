@@ -1,4 +1,6 @@
 @prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-<http://testing.fr/cubicweb/subject/{{eid}}> a rico:ActivityType, rico:Concept ;
+<https://testing.cubicweb/subject/{{eid}}> a rico:ActivityType, rico:Concept ;
+    rdfs:label "Loutre" ;
     rico:name "Loutre" .

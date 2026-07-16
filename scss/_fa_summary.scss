@@ -1,0 +1,13 @@
+
+.fr-summary {
+  overflow-x: auto;
+}
+
+.fr-summary .fr-sidemenu__inner {
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.fr-collapse--expanded .fr-summary__title {
+  display: none;
+}

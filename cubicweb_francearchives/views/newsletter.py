@@ -32,7 +32,7 @@
 from cwtags import tag as T
 
 from cubicweb import _
-from cubicweb.view import StartupView
+from cubicweb_web.view import StartupView
 
 from cubicweb_francearchives.utils import find_card
 
@@ -40,20 +40,32 @@ from cubicweb_francearchives.utils import find_card
 class NewsLetterView(StartupView):
     __regid__ = "newsletter"
     title = _("Newsletter")
+    eulerian_tag = True
+    eulerian_pagegroup = "editorial"
+
+    @property
+    def breadcrumbs(self, view=None, recurs=None):
+        _ = self._cw._
+        return [
+            (self._cw.build_url(""), _("Home")),
+            (None, self._cw._(self.title)),
+        ]
 
     def call(self, **kwargs):
         card = find_card(self._cw, self.__regid__)
         if card is not None:
             self.wview("primary", entity=card)
-        with T.div(self.w, Class="document-view"):
-            self.w(
-                T.iframe(
-                    id="newsletter-frame",
-                    width="100%",
-                    frameborder="0",
-                    scrolling="no",
-                    marginheight="0",
-                    marginwidth="0",
-                    src="https://app.mailjet.com/widget/iframe/5Wl9/FtC",
-                )
-            )
+        with T.div(self.w, Class="fr-container fa-mb"):
+            with T.div(self.w, klass="fr-grid-row fr-grid-row--gutters fr-grid-row--center"):
+                with T.div(self.w, klass="fr-col-12 fr-col-lg-8"):
+                    self.w(
+                        T.iframe(
+                            id="newsletter-frame",
+                            width="100%",
+                            height="100%",
+                            overflow="auto;",
+                            frameborder="0",
+                            scrolling="auto",
+                            src="https://go.formulaire.info/form?p=iWw6BYP8",
+                        )
+                    )

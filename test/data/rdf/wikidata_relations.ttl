@@ -1,0 +1,87 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
+
+<https://testing.cubicweb/agent/{{sibling}}> rico:hasFamilyAssociationWith <https://testing.cubicweb/agent/{{person}}> ;
+    rico:hasSibling <https://testing.cubicweb/agent/{{person}}> ;
+    rico:personHasFamilyRelation <https://testing.cubicweb/agent/{{sibling}}#sibling_to_{{person}}> ;
+    rico:personHasSiblingRelation <https://testing.cubicweb/agent/{{sibling}}#sibling_to_{{person}}> .
+
+<https://testing.cubicweb/agent/{{sibling}}#sibling_to_{{person}}> a rico:FamilyRelation,
+        rico:SiblingRelation ;
+    rico:familyRelationConnects <https://testing.cubicweb/agent/{{sibling}}>,
+        <https://testing.cubicweb/agent/{{person}}> ;
+    rico:siblingRelationConnects <https://testing.cubicweb/agent/{{sibling}}>,
+        <https://testing.cubicweb/agent/{{person}}> .
+
+<https://testing.cubicweb/agent/{{spouse}}> rico:hasFamilyAssociationWith <https://testing.cubicweb/agent/{{person}}> ;
+    rico:hasOrHadSpouse <https://testing.cubicweb/agent/{{person}}> ;
+    rico:personHasFamilyRelation <https://testing.cubicweb/agent/{{spouse}}#spouse_to_{{person}}> ;
+    rico:personHasSpouseRelation <https://testing.cubicweb/agent/{{spouse}}#spouse_to_{{person}}> .
+
+<https://testing.cubicweb/agent/{{spouse}}#spouse_to_{{person}}> a rico:FamilyRelation,
+        rico:SpouseRelation ;
+    rico:familyRelationConnects <https://testing.cubicweb/agent/{{spouse}}>,
+        <https://testing.cubicweb/agent/{{person}}> ;
+    rico:spouseRelationConnects <https://testing.cubicweb/agent/{{spouse}}>,
+        <https://testing.cubicweb/agent/{{person}}> .
+
+<https://testing.cubicweb/agent/{{parent}}> rico:hasChild <https://testing.cubicweb/agent/{{person}}> ;
+    rico:hasFamilyAssociationWith <https://testing.cubicweb/agent/{{person}}> ;
+    rico:personHasFamilyRelation <https://testing.cubicweb/agent/{{parent}}#child_to_{{person}}> ;
+    rico:personIsSourceOfChildRelation <https://testing.cubicweb/agent/{{parent}}#child_to_{{person}}> .
+
+<https://testing.cubicweb/agent/{{parent}}#child_to_{{person}}> a rico:ChildRelation,
+        rico:FamilyRelation ;
+    rico:childRelationHasSource <https://testing.cubicweb/agent/{{parent}}> ;
+    rico:childRelationHasTarget <https://testing.cubicweb/agent/{{person}}> ;
+    rico:familyRelationConnects <https://testing.cubicweb/agent/{{parent}}>,
+        <https://testing.cubicweb/agent/{{person}}> .
+
+<https://testing.cubicweb/agent/{{child}}> rico:isChildOf <https://testing.cubicweb/agent/{{person}}> ;
+    rico:hasFamilyAssociationWith <https://testing.cubicweb/agent/{{person}}> ;
+    rico:personHasFamilyRelation <https://testing.cubicweb/agent/{{person}}#child_to_{{child}}> ;
+    rico:personIsTargetOfChildRelation <https://testing.cubicweb/agent/{{person}}#child_to_{{child}}> .
+
+<https://testing.cubicweb/agent/{{person}}#child_to_{{child}}> a rico:ChildRelation,
+        rico:FamilyRelation ;
+    rico:childRelationHasSource <https://testing.cubicweb/agent/{{person}}> ;
+    rico:childRelationHasTarget <https://testing.cubicweb/agent/{{child}}> ;
+    rico:familyRelationConnects <https://testing.cubicweb/agent/{{child}}>,
+        <https://testing.cubicweb/agent/{{person}}> .
+
+<https://testing.cubicweb/agent/{{person}}> a rico:Agent, rico:Person ;
+    rdfs:label "Jean Poulet" ;
+    rico:hasFamilyAssociationWith <https://testing.cubicweb/agent/{{child}}>,
+        <https://testing.cubicweb/agent/{{parent}}>,
+        <https://testing.cubicweb/agent/{{sibling}}>,
+        <https://testing.cubicweb/agent/{{spouse}}> ;
+    rico:hasOrHadSpouse <https://testing.cubicweb/agent/{{spouse}}> ;
+    rico:hasSibling <https://testing.cubicweb/agent/{{sibling}}> ;
+    rico:isChildOf <https://testing.cubicweb/agent/{{parent}}> ;
+    rico:hasChild <https://testing.cubicweb/agent/{{child}}> ;
+    rico:name "Jean Poulet" ;
+    rico:isOrWasMemberOf <https://testing.cubicweb/agent/{{institution}}> ;
+    rico:isAgentAssociatedWithAgent <https://testing.cubicweb/agent/{{institution}}> ;
+    rico:agentIsConnectedToAgentRelation <https://testing.cubicweb/agent/{{institution}}#member_to_{{person}}> ;
+    rico:personIsTargetOfMembershipRelation <https://testing.cubicweb/agent/{{institution}}#member_to_{{person}}> ;
+    rico:personHasFamilyRelation <https://testing.cubicweb/agent/{{person}}#child_to_{{child}}>,
+        <https://testing.cubicweb/agent/{{parent}}#child_to_{{person}}>,
+        <https://testing.cubicweb/agent/{{sibling}}#sibling_to_{{person}}>,
+        <https://testing.cubicweb/agent/{{spouse}}#spouse_to_{{person}}> ;
+    rico:personHasSiblingRelation <https://testing.cubicweb/agent/{{sibling}}#sibling_to_{{person}}> ;
+    rico:personHasSpouseRelation <https://testing.cubicweb/agent/{{spouse}}#spouse_to_{{person}}> ;
+    rico:personIsSourceOfChildRelation <https://testing.cubicweb/agent/{{person}}#child_to_{{child}}> ;
+    rico:personIsTargetOfChildRelation <https://testing.cubicweb/agent/{{parent}}#child_to_{{person}}> .
+
+<https://testing.cubicweb/agent/{{institution}}> rico:agentIsConnectedToAgentRelation <https://testing.cubicweb/agent/{{institution}}#member_to_{{person}}> ;
+    a rico:CorporateBody;
+    rico:groupIsSourceOfMembershipRelation <https://testing.cubicweb/agent/{{institution}}#member_to_{{person}}> ;
+    rico:hasOrHadMember <https://testing.cubicweb/agent/{{person}}> ;
+    rico:isAgentAssociatedWithAgent <https://testing.cubicweb/agent/{{person}}> .
+
+<https://testing.cubicweb/agent/{{institution}}#member_to_{{person}}> a rico:AgentToAgentRelation,
+        rico:MembershipRelation ;
+    rico:agentRelationConnects <https://testing.cubicweb/agent/{{institution}}>,
+        <https://testing.cubicweb/agent/{{person}}> ;
+    rico:membershipRelationHasSource <https://testing.cubicweb/agent/{{institution}}> ;
+    rico:membershipRelationHasTarget <https://testing.cubicweb/agent/{{person}}> .

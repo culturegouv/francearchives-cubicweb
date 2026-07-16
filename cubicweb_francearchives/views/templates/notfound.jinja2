@@ -1,20 +1,24 @@
-<div class="content-404">
-  <p>{{ notfound_msg }}</p>
-  <img src="{{ notfound_picture }}" class="img-fluid mx-auto d-block notfound_img"
-       alt="" />
-</div>
-
-<section id="content-headings" class="search-page-container headings-404">
-  <div class="row">
-    {% for sectdesc in section_descs %}
-      <div class="col-md-3">
-        <a href="{{ sectdesc.url }}">
-          <span class="heading-item-top">{{ sectdesc.title }}</span>
-          {% if sectdesc.label %}
-          <span class="heading-item-bottom">{{ sectdesc.label }}</span>
-          {% endif %}
-        </a>
+<div class="fr-container">
+  <div class="fr-my-7w fr-mt-md-5w fr-mb-md-10w fr-grid-row fr-grid-row--gutters fr-grid-row--middle fr-grid-row--center">
+    <div class="fr-py-0 fr-col-12 fr-col-lg-6">
+    {%- if card -%}
+        <h1>{{ card.title }}</h1>
+        {{ card.content }}
+      {%- else -%}
+      <div lang="fr">
+      <h1>Page non trouvée</h1>
+      <p class="fr-text--sm fr-mb-3w">Erreur 404</p>
+      <p class="fr-text--lead fr-mb-3w">La page que vous cherchez est introuvable. Excusez-nous pour la gène occasionnée.</p>
+      <p class="fr-text--sm fr-mb-5w">
+        Si vous avez tapé l'adresse web dans le navigateur, vérifiez qu'elle est correcte. La page n’est peut-être plus disponible.
+        <br>Dans ce cas, pour continuer votre visite vous pouvez consulter notre page d’accueil, ou effectuer une recherche avec notre moteur de recherche en haut de page.
+        <br>Sinon contactez-nous pour que l’on puisse vous rediriger vers la bonne information.
+      </p>
       </div>
-    {% endfor %}
+      {%- endif -%}
+    </div>
+    <div class="fr-col-12 fr-col-lg-5 fr-col-offset-lg-1 fr-px-6w fr-px-lg-0 fr-py-10v fr-py-lg-0">
+      <img src="{{ notfound_picture }}" class="notfound_img" alt="" >
+    </div>
   </div>
-</section>
+</div>

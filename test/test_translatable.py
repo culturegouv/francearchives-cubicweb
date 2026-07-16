@@ -31,9 +31,7 @@
 
 import unittest
 
-from cubicweb.devtools import testlib
-
-from cubicweb.devtools import PostgresApptestConfiguration
+from cubicweb_web.devtools.testlib import WebCWTC, WebPostgresApptestConfiguration
 
 from cubicweb_francearchives import SUPPORTED_LANGS
 from cubicweb_francearchives.testutils import S3BfssStorageTestMixin
@@ -44,8 +42,8 @@ LANGS = list(SUPPORTED_LANGS[:])
 LANGS.remove("fr")
 
 
-class SectionTranslatableTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
-    configcls = PostgresApptestConfiguration
+class SectionTranslatableTests(S3BfssStorageTestMixin, WebCWTC):
+    configcls = WebPostgresApptestConfiguration
 
     def setup_database(self):
         with self.admin_access.cnx() as cnx:
@@ -130,8 +128,8 @@ class SectionTranslatableTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
             self.assertEqual("titre - sous-titre", section.dc_title())
 
 
-class BaseContentTranslatableTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
-    configcls = PostgresApptestConfiguration
+class BaseContentTranslatableTests(S3BfssStorageTestMixin, WebCWTC):
+    configcls = WebPostgresApptestConfiguration
 
     def setup_database(self):
         with self.admin_access.cnx() as cnx:
@@ -213,8 +211,8 @@ class BaseContentTranslatableTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
             self.assertEqual("titre", bc.dc_title())
 
 
-class CommemorationItemTranslatableTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
-    configcls = PostgresApptestConfiguration
+class CommemorationItemTranslatableTests(S3BfssStorageTestMixin, WebCWTC):
+    configcls = WebPostgresApptestConfiguration
 
     def setup_database(self):
         with self.admin_access.cnx() as cnx:
@@ -253,7 +251,10 @@ class CommemorationItemTranslatableTests(S3BfssStorageTestMixin, testlib.CubicWe
             citem = cnx.find("CommemorationItem", eid=self.citem.eid).one()
             for lang, values in citem.translations().items():
                 for attr in citem.i18nfields:
-                    self.assertEqual("{}_{}".format(getattr(citem, attr), lang), values[attr])
+                    if attr in ("summary",):
+                        self.assertEqual(None, values[attr])
+                    else:
+                        self.assertEqual("{}_{}".format(getattr(citem, attr), lang), values[attr])
 
     def test_commemo_item_translation_in_lang(self):
         """
@@ -297,8 +298,8 @@ class CommemorationItemTranslatableTests(S3BfssStorageTestMixin, testlib.CubicWe
             self.assertEqual("titre", citem.dc_title())
 
 
-class FaqItemTranslatableTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
-    configcls = PostgresApptestConfiguration
+class FaqItemTranslatableTests(S3BfssStorageTestMixin, WebCWTC):
+    configcls = WebPostgresApptestConfiguration
 
     def setup_database(self):
         with self.admin_access.cnx() as cnx:

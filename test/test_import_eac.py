@@ -35,13 +35,12 @@ import unittest
 
 from cubicweb import devtools  # noqa
 
-from cubicweb.devtools.testlib import CubicWebTC
 from cubicweb.dataimport.importer import SimpleImportLog
 from cubicweb_eac.dataimport import EACCPFImporter
+from cubicweb_web.devtools.testlib import WebCWTC
 
 from cubicweb_francearchives.dataimport import eac
-from cubicweb_francearchives.dataimport.stores import create_massive_store
-from cubicweb_francearchives.testutils import PostgresTextMixin, S3BfssStorageTestMixin
+from cubicweb_francearchives.testutils import PostgresTextMixin, EACImportMixin
 
 from pgfixtures import setup_module, teardown_module  # noqa
 
@@ -79,27 +78,7 @@ class EACXMLParserTC(unittest.TestCase):
         self.assertFalse(expected.difference(etypes))
 
 
-class EACImportTC(S3BfssStorageTestMixin, PostgresTextMixin, CubicWebTC):
-    def setup_database(self):
-        # create services
-        super(EACImportTC, self).setup_database()
-        with self.admin_access.cnx() as cnx:
-            cnx.create_entity(
-                "Service",
-                category="?",
-                name="Les Archives Nationales",
-                short_name="Les AN",
-                code="FRAN",
-            )
-            cnx.commit()
-
-    def eac_filepath(self, fname):
-        """joins the object's datadir and `fname`"""
-        return self.get_or_create_imported_filepath(f"eac/{fname}")
-
-    def massif_import_files(self, cnx, fspaths):
-        store = create_massive_store(cnx, nodrop=True)
-        eac.eac_import_files(cnx, fspaths, store=store)
+class EACImportTC(EACImportMixin, PostgresTextMixin, WebCWTC):
 
     def test_import_eac_files(self):
         """Test import eac
@@ -133,9 +112,24 @@ class EACImportTC(S3BfssStorageTestMixin, PostgresTextMixin, CubicWebTC):
         Expecting: no AuthorityRecord created
         """
         with self.admin_access.cnx() as cnx:
-            fspaths = [self.eac_filepath("FRAN_NP_150159.xml")]
+            fspaths = [self.eac_filepath("FRAN_NP_150159_bis.xml")]
             self.massif_import_files(cnx, fspaths)
             self.assertFalse(cnx.execute("Any X WHERE X is AuthorityRecord"))
+
+    def test_maintenance_events(self):
+        """Test maintenance events import an AuthorityRecord
+
+        Trying: import a Noitce
+        Expecting: no AuthorityRecord created
+        """
+        with self.admin_access.cnx() as cnx:
+            fspaths = [self.eac_filepath("FRAN_NP_150159.xml")]
+            self.massif_import_files(cnx, fspaths)
+            r = cnx.execute("Any X WHERE X is AuthorityRecord").one()
+            self.assertEqual(
+                [("Creation date", "25 novembre 2015"), ("Identifier", "FRAN_NP_050159")],
+                r.cw_adapt_to("entity.main_props").metadata(),
+            )
 
     def test_authority_same_as_authorityrecord(self):
         """Test `same_as` relation between an AgentAuthority and the corresponding
@@ -209,9 +203,10 @@ class EACImportTC(S3BfssStorageTestMixin, PostgresTextMixin, CubicWebTC):
             authrec = cnx.find("AuthorityRecord", record_id="FRAN_NP_010232").one()
             agent = cnx.find("AgentAuthority", eid=agent.eid).one()
             agent2 = cnx.find("AgentAuthority", eid=agent2.eid).one()
-            self.assertEqual(
-                dict(authrec.authorities)["indexes_label"], [agent.view("outofcontext")]
-            )
+            expected = f"""<ul class="fr-list eac-related-productors">
+<li>{agent.view("outofcontext")}</li>
+</ul>\n"""  # noqa
+            self.assertEqual(dict(authrec.authorities)["all_archives_label"], expected)
             cnx.create_entity(
                 "CommemorationItem",
                 alphatitle="TITLE",
@@ -221,10 +216,13 @@ class EACImportTC(S3BfssStorageTestMixin, PostgresTextMixin, CubicWebTC):
             )
             cnx.commit()
             authrec = cnx.find("AuthorityRecord", record_id="FRAN_NP_010232").one()
-            self.assertEqual(
-                dict(authrec.authorities)["indexes_label"],
-                [a.view("outofcontext") for a in (agent, agent2)],
-            )
+            print(dict(authrec.authorities)["all_archives_label"])
+            expected = f"""<ul class="fr-list eac-related-productors">
+<li>{agent.view("outofcontext")}</li>
+<li>{agent2.view("outofcontext")}</li>
+</ul>\n"""  # noqa
+            print(repr(expected))
+            self.assertEqual(dict(authrec.authorities)["all_archives_label"], expected)
 
     def test_patch_authorized_name_entries(self):
         """Test on the overloading of `build_name_entry`
@@ -260,7 +258,7 @@ class EACImportTC(S3BfssStorageTestMixin, PostgresTextMixin, CubicWebTC):
 
     def test_remove_authority_with_sameas_relations(self):
         """Test on the deletion of the same_as relationships
-        wich link AuthorityRecords and AgentAuthorities
+        which link AuthorityRecords and AgentAuthorities
         """
         with self.admin_access.cnx() as cnx:
             agent = cnx.create_entity(
@@ -278,6 +276,35 @@ class EACImportTC(S3BfssStorageTestMixin, PostgresTextMixin, CubicWebTC):
             agent = cnx.find("AgentAuthority", eid=agent.eid).one()
             self.assertEqual(record.eid, agent.same_as[0].eid)
             record.cw_delete()
+            cnx.commit()
+
+    def test_import_authority_with_existing_sameas(self):
+        """Test AuthorityRecord import with existing ExternalUrl"""
+        with self.admin_access.cnx() as cnx:
+            urls = [
+                "https://data.bnf.fr/ark:/12148/cb11865019j",
+                "https://www.wikidata.org/wiki/Q1168019",
+                "https://catalogue.bnf.fr/ark:/12148/cb11865019j",
+                "https://www.legifrance.gouv.fr/loda/id/JORFTEXT000000360157/",
+            ]
+            for url in urls:
+                cnx.create_entity("ExternalUri", uri=url)
+            cnx.commit()
+            fspath = self.eac_filepath("FRAN_NP_053078.xml")
+            self.massif_import_files(cnx, [fspath])
+            record = cnx.execute("Any X WHERE X is AuthorityRecord").one()
+            self.assertEqual(record.record_id, "FRAN_NP_053078")
+            urls.extend(
+                [
+                    "d5blonb3ky--u69ytier8ih6",
+                    "FRAN_IR_059679",
+                    "FRAN_IR_060007",
+                    "FRAN_NP_005223",
+                    "https://www.wikidata.org/wiki/Q11680199",
+                ]
+            )
+            got = [u for u, in cnx.execute("Any U WHERE X is ExternalUri, X uri U")]
+            self.assertEqual(sorted(urls), sorted(got))
             cnx.commit()
 
     def test_patch_date_range_on_name_entries(self):
@@ -362,6 +389,81 @@ class EACImportTC(S3BfssStorageTestMixin, PostgresTextMixin, CubicWebTC):
                 "Siège social : 47 avenue de la Chaussée d\u2019Antin, 75009 Paris",
             ]
             self.assertCountEqual(expected, nomLieu)
+
+    def test_import_ape_eac_files(self):
+        """Import EAC notices and test ape_eac_files are generated
+
+        Trying: Import 2 EAC notices
+        Expecting: 2 AuthorityRecords are created and their ApeEAC files are generated
+        """
+        with self.admin_access.cnx() as cnx:
+            fspaths = [
+                self.eac_filepath("FRAN_NP_010232.xml"),
+                self.eac_filepath("FRAN_NP_010931.xml"),
+            ]
+            self.massif_import_files(cnx, fspaths)
+            ar1 = cnx.find("AuthorityRecord", record_id="FRAN_NP_010931").one()
+            ar2 = cnx.find("AuthorityRecord", record_id="FRAN_NP_010232").one()
+            self.assertEqual(len(ar1.ape_eac_file), 1)
+            self.assertEqual(len(ar2.ape_eac_file), 1)
+
+    def test_defferrable_constraints_tables(self):
+        with self.admin_access.cnx() as cnx:
+            expected = {
+                "close_match_relation",
+                "convention_of_relation",
+                "created_by_relation",
+                "cw_activity",
+                "cw_agentfunction",
+                "cw_agentkind",
+                "cw_agentplace",
+                "cw_associationrelation",
+                "cw_authorityrecord",
+                "cw_chronologicalrelation",
+                "cw_citation",
+                "cw_concept",
+                "cw_conceptscheme",
+                "cw_convention",
+                "cw_cwetype",
+                "cw_cwsource",
+                "cw_cwuser",
+                "cw_dateentity",
+                "cw_eacfunctionrelation",
+                "cw_eacotherrecordid",
+                "cw_eacresourcerelation",
+                "cw_eacsource",
+                "cw_externaluri",
+                "cw_familyrelation",
+                "cw_generalcontext",
+                "cw_hierarchicalrelation",
+                "cw_historicalevent",
+                "cw_history",
+                "cw_identityrelation",
+                "cw_legalstatus",
+                "cw_mandate",
+                "cw_nameentry",
+                "cw_occupation",
+                "cw_parallelnames",
+                "cw_placeentry",
+                "cw_postaladdress",
+                "cw_source_relation",
+                "cw_structure",
+                "date_relation_relation",
+                "entities",
+                "equivalent_concept_relation",
+                "exact_match_relation",
+                "has_citation_relation",
+                "has_event_relation",
+                "is_instance_of_relation",
+                "is_relation",
+                "owned_by_relation",
+                "parallel_names_of_relation",
+                "place_entry_relation_relation",
+                "same_as_relation",
+                "simple_name_relation_relation",
+                "vocabulary_source_relation",
+            }
+            self.assertEqual(expected, eac.eac_foreign_key_tables(cnx.vreg.schema))
 
 
 if __name__ == "__main__":

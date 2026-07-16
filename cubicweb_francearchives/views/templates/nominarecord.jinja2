@@ -1,84 +1,100 @@
-{% from "./mixins.jinja2" import index_values, sharelinks, content_metadata -%}
-{% from "./mixins.jinja2" import index_values -%}
-<section id="document" class="nominarecord-view finding-document document-view">
-  <div class="page-main-content">
-    {%- block head -%}
-    <h1><span class="visually-hidden">{{ _(entity.__regid__) }} : </span>{{ entity.dc_title() }}</h1>
-    {%- endblock -%}
-    {%- set publisher_title = entity.publisher_title -%}
-    <div class="left-col">
-     {% if digitized_url -%}
-      <div class="document-header document-digit-versions">
-        <div class="header-buttons-wrapper">
-          <div class="grey-button" role="button">
-            <a href="{{ digitized_url }}"
-               title="{{ _("Consult the site link")}} {{ _("- New window") }}"
-               {% if publisher.xiti %}
-               data-xiti-level="C"
-               data-xiti-type="{{ publisher.xiti.type }}"
-               data-xiti-name="{{ publisher.xiti.digitized_version }}"
-               data-xiti-n2="{{ publisher.xiti.n2}}"
-               {% endif %}
-               target="_blank" rel="noopener noreferrer nofollow">
-              {{_("Consult the digitized version")}}
-              <i class="fa fa-external-link" aria-hidden="true"></i>
-            </a>
+{% from "./mixins.jinja2" import list, content_metadata, sharelinks -%}
+{%- set heading_hierarchy = eulerian.document_title+"_>_ou_consulter_le_document" %}
+{%- set lang_attr='lang="fr"' if lang != "fr" else "" -%}
+<section class="fr-container fa-nomina">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div id="nominarecord-{{ entity['stable_id'] }}" class="fr-col-12 fr-col-lg-8">
+      <div class="fa-nomina-content__title fr-mb-8v">
+        <h1>{{ entity["title"] | e }}</h1>
+      </div>
+      {%- set publisher_title = entity["publisher_title"] -%}
+      <div class="fr-col-12 fr-mb-16v">
+      {%- for label, values in main_props -%}
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <h2 class="fr-col-md-4 fr-text--md fr-text--bold fr-my-0">{{ label.capitalize() }}</h2>
+          <div class="fr-col-md-8 fr-mb-2v">
+          {%- if not values | is_list %}
+            <p class="fr-m-0"{{ lang_attr }}>{{ values }}</p>
+          {% else %}
+            {{ list(values, "", lang_attr, _) }}
+          {%- endif -%}
           </div>
         </div>
+      {%- endfor -%}
+      {%- if household_link -%}
+      <div class="fr-grid-row fr-grid-row--gutters">
+          <h2 class="fr-col-md-4 fr-text--md fr-text--bold fr-my-0">{{ household_link[0] }}</h2>
+          <div class="fr-col-md-8 fr-mb-2v"><a class="fr-link" href="{{ household_link[1] }}">{{ household_link[0] }}</a></div>
       </div>
-     {% endif -%}
-      <div class="nominarecord-info">
-        {% for propname, value in main_props -%}
-        <div class="row">
-          <p class="nominarecord-info__title col-sm-4" role="heading" aria-level="2">{{ propname }}</p>
-          {% if value %}
-          {% if value | is_list %}
-          <ul class="list list-unstyled col-sm-7 offset-md-right-1">
-            {% for val in value %}
-            <li>{{ val }}</li>
-            {% endfor %}
-          </ul>
-          {% else %}
-          <p class="col-sm-8">{{ value }}</p>
+      {%- endif -%}
+      {%- if see_others -%}
+      <div class="fr-grid-row fr-grid-row--gutters">
+          <h2 class="fr-col-md-4 fr-text--md fr-text--bold fr-my-0">{{ see_others[0].capitalize() }}</h2>
+          <div class="fr-col-md-8 fr-mb-2v">{{ list(see_others[1], "fa-links--entity-props", "", _) }}</div>
+      </div>
+      {%- endif -%}
+      {%- if warning -%}
+      	  <div class="fr-background-alt--blue-france fr-mt-4w fr-pt-3w fr-pb-1v fr-px-3w">
+     	        <p>{{ warning }}</p>
+      	  </div>
+      {%- endif -%}
+      </div>
+    </div>
+
+    <div class="fr-col-12 fr-col-lg-4">
+      <div class="fa-nomina-utils">
+        {%- if publisher -%}
+        <div class="fa-nomina-utils__address">
+          <h2 class="fr-h4">{{ _('To consult this document') }}&nbsp;:</h2>
+          <p class="fr-text--lg" {{ lang_attr }}>{{ publisher.title | e}}</p>
+	</div>
+        <div class="fr-btns-group">
+          {% if source_url %}
+          <a class="fr-btn fr-btn--primary eulerian-button" href="{{ source_url }}"
+             title="{{ _("Consult the digitized version of")  }} {{ title | e }} {{ _('in a new window') }}"
+             data-eulerian-actionname="digitized_version_{{ heading_hierarchy | e }}"
+             data-eulerian-actionlabel="digitized_version,{{ eulerian.page_type}},{{ eulerian.type_doc }},consulter_le_document_numerise,{{ eulerian.service_code | e }}"
+             data-eulerian-headinghierarchy="{{ heading_hierarchy | e}}"
+             data-eulerian-componenthierarchy="main_>_section_>_link"
+             data-eulerian-componentlabel="consulter_le_document_numerise"
+             data-eulerian-componentvalue="{{ source_url }}"
+             target="_blank" rel="noopener noreferrer nofollow external" >
+            {{_("Consult the digitized version") }}
+          </a>
           {% endif %}
+          {% if publisher.contact_url %}
+          <a class="fr-btn fr-btn--secondary" href="{{ publisher.contact_url }}">{{ publisher.contact_label | e  }}</a>
           {% endif %}
         </div>
-        {% endfor -%}
-      </div>
-    </div>
-    <div class="clearfix"></div>
-    {% if faqs %}
-    {% from "./mixins.jinja2" import modalfaq %}
-    {{  modalfaq(faqs, _) }}
-    {% endif %}
-  </div>
-  {%- if publisher -%}
-  <div class="ir-right-sidebar right-col">
-    <div class="ir-location">
-      <div class="ir-location__header">
-        <h2>{{ _('To consult this document') }}{{_(':')}}</h2>
-        <p class="publisher-title">{{ publisher.title }}</p>
-      </div>
-      <div class="ir-location__buttons">
-        {% if source_url %}
-        <a class="service-site-button blue-button" href="{{ source_url }}"
-           title="{{ _("Consult the digitized version of")  }} {{ entity.dc_title() }} {{ _('in a new window') }}"
-           {% if publisher.xiti %}
-           data-xiti-level="C"
-           data-xiti-type="{{ publisher.xiti.type }}"
-           data-xiti-name="{{ publisher.xiti.access_site}}"
-           data-xiti-n2="{{ publisher.xiti.n2}}"
-           {% endif %}
-           target="_blank" rel="noopener noreferrer nofollow" >
-           {{_("Consult the digitized version") }}
-          <i class="fa fa-external-link" aria-hidden="true"></i>
-        </a>
-        {% endif %}
-        {% if publisher.contact_url %}
-        <a class="service-url-button white-button" href="{{ publisher.contact_url }}">{{ publisher.contact_label }}</a>
-        {% endif %}
+	{%- endif -%}
+	{%- if csv_props -%}
+	<div class="fa-nomina-utils__downloads">
+          <a class="fr-link fr-link--download eulerian-button" href="{{ csv_props.url }}"
+             download="true"
+             {% if lang != "fr" -%}
+             hreflang="fr"
+             {% endif -%}
+             {% if csv_props.target_blank %}
+             target="_blank" rel="noopener noreferrer nofollow"
+             {% endif %}
+             {% if csv_props.title %}
+             title="{{ csv_props.title | e }}"
+             {% endif %}
+             data-eulerian-actionname="download_csv_{{ heading_hierarchy | e }}"
+             data-eulerian-actionlabel="download_csv,{{ eulerian.page_type }},{{ eulerian.type_doc }},{{ eulerian.document_title | e }}_csv,{{ eulerian.service_code | e }}"
+             data-eulerian-headinghierarchy="{{ heading_hierarchy | e }}"
+             data-eulerian-componenthierarchy="main_>_section_>_button"
+             data-eulerian-componentlabel="{{ eulerian.document_title | e }}"
+             >
+            {{ csv_props.link }}
+            <span class="fr-link__detail">CSV – {{ _('approximately') }} {{  csv_props.size }}</span>
+          </a>
+	</div>
+	{%- endif -%}
       </div>
     </div>
   </div>
-  {%- endif -%}
+  <div class="fr-pt-8v">
+  {{ sharelinks(sharelinks_data, eulerian.document_title, "main_>_section_>_links", _) }}
+  </div>
 </section>

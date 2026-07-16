@@ -30,13 +30,13 @@ from io import StringIO
 import gzip
 import unittest
 
-from cubicweb.devtools.testlib import CubicWebTC
+from cubicweb_web.devtools.testlib import WebCWTC
 
 from cubicweb_francearchives.storage import S3BfssStorageMixIn
 from cubicweb_francearchives.testutils import S3BfssStorageTestMixin
 
 
-class S3BfssStorageTest(S3BfssStorageTestMixin, CubicWebTC):
+class S3BfssStorageTest(S3BfssStorageTestMixin, WebCWTC):
     def setUp(self):
         super().setUp()
         self.storage = S3BfssStorageMixIn()

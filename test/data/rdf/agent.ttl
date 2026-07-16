@@ -1,7 +1,7 @@
 @prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 
-<http://testing.fr/cubicweb/agent/{{eid}}> a rico:Agent,
+<https://testing.cubicweb/agent/{{eid}}> a rico:Agent,
         rico:CorporateBody ;
     rico:name "CNRS";
     rdfs:label "CNRS" .

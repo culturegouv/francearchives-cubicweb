@@ -30,14 +30,14 @@
 #
 import unittest
 
-from cubicweb.devtools import testlib
 from cubicweb import NoResultError
+from cubicweb_web.devtools.testlib import WebCWTC
 
 from cubicweb_francearchives.dataimport.directories import import_directory, get_dpt_code
 from cubicweb_francearchives.testutils import S3BfssStorageTestMixin
 
 
-class ImportDirectoryTC(S3BfssStorageTestMixin, testlib.CubicWebTC):
+class ImportDirectoryTC(S3BfssStorageTestMixin, WebCWTC):
     def test_dpt_code_computation(self):
         res = get_dpt_code("2000")
         self.assertEqual(res, "02")

@@ -1,0 +1,13 @@
+{% from "./mixins.jinja2" import display_errors -%}
+<div class="fr-container">
+  <div class="fr-col-12 fr-col-lg-8">
+    {{ display_errors(errors, _) }}
+      <h1>{{ entity.title }}</h1>
+      {%- if entity.subtitle %}
+        <h2 class="fr-h5">{{ entity.printable_value("subtitle") }}</h2>
+      {% endif -%}
+      {%- if entity.short_description %}
+       <p class="fr-text--lead">{{ entity.printable_value("short_description") }}</p>
+      {% endif -%}
+  </div>
+</div>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0"?>
+<?xml version="1.0"?>
 <!DOCTYPE ead PUBLIC "+//ISBN 1-931666-00-8//DTD ead.dtd (Encoded Archival Description (EAD) Version 2002)//EN" "ead.dtd">
 <ead>
     <eadheader findaidstatus="unverified-partial-draft">
@@ -140,7 +140,7 @@
             <p>For information about Prints and Photographs Division collections and services, see
                 the Prints and Photographs Division's Reading Room Home Page: <extptr
                     actuate="onrequest"
-                    href="https://francearchives.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29"
+                    href="https://francearchives.gouv.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29"
                 />
             </p>
         </note>
@@ -356,7 +356,7 @@
                         livres de comptabilité ou répertoire de clients sont bien des archives
                         privées appartenant à l'étude notariale.</p>
                     <extref
-                        href="https://francearchives.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29"
+                        href="https://francearchives.gouv.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29"
                         >lien extref</extref>
 
                 </relatedmaterial>
@@ -412,7 +412,7 @@
 
             </c>
 
-            <c level="item" id="a0113415785899QTube">
+            <c id="a0113415785899QTube">
                 <did>
                     <unitid>1 R 110</unitid>
                     <unittitle>Classe<unitdate normal="1868"> 1868 </unitdate></unittitle>
@@ -434,7 +434,7 @@
                     <p/>
                 </note>
             </c>
-            <c level="item" id="a011341578589DfPjvp">
+            <c id="a011341578589DfPjvp">
                 <did>
                     <unitid>1 R 111</unitid>
                     <unittitle>Classe <unitdate normal="1869">1869</unitdate>
@@ -456,7 +456,7 @@
                     <p/>
                 </note>
             </c>
-            <c level="item" id="a011341578589WRSVuz">
+            <c id="a011341578589WRSVuz">
                 <did>
                     <unitid>1 R 112</unitid>
                     <unittitle>Classe <unitdate normal="1870">1870</unitdate>
@@ -479,12 +479,12 @@
                     <p/>
                 </note>
             </c>
-            <c level="file" id="a0113415785891BxIHa">
+            <c id="a0113415785891BxIHa">
                 <did>
                     <unitid>1 R 113 - 115</unitid>
                     <unittitle>Classe <unitdate normal="1871">1871</unitdate></unittitle>
                 </did>
-                <c level="item" id="a011341578589VnT0uU">
+                <c id="a011341578589VnT0uU">
                     <did>
                         <unitid identifier="1R/113">1 R 113</unitid>
                         <unittitle>Nos 1-598 avec table</unittitle>

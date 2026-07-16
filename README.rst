@@ -52,48 +52,15 @@ Installation de l'environnement de développement du projet FranceArchives
 Mise en place de l'environnement (virtualenv)
 ---------------------------------------------
 
-On suppose qu'on travaille dans un répertoire principal <monprojet>.
+Installer par pip install dans un  virtualenv ou avec l'image Docker.
 
-
-On installe le ou les cubes sur lesquels on va développer (c'est-à-dire, *pas
-ceux qui sont juste des dépendances*, comme le cube file dans notre cas).
-
-::
-
-    [monprojet]$ hg clone https://forge.extranet.logilab.fr/francearchives/cubicweb-francearchives
-    [monprojet]$ hg clone https://forge.extranet.logilab.fr/francearchives/cubicweb-frarchives-edition
-
-Création d'un virtualenv (ou ``mkvirtualenv fa-venv`` avec le paquet `virtualenvwrapper`)
-
-::
-
-    [monprojet]$ virtualenv --system-site-packages fa-venv
-    [monprojet]$ .fa-venv/bin/activate
-
-
-Installation des dépendances :
-
-::
-
-    (fa-venv)[monprojet]$ cd cubicweb-francearchives
-    (fa-venv)[cubicweb-francearchives]$ pip install -e .
-    (fa-venv)[cubicweb-francearchives]$ pip install -r dev-requirements.txt
-    (fa-venv)[monprojet]$ cd ../cubicweb-frarchives-edition
-    (fa-venv)[cubicweb-frarchives-edition]$ pip install -e .
-    (fa-venv)[cubicweb-frarchives-edition]$ pip install -r dev-requirements.txt
-
-Pour avoir les mêmes versions des dépendances que l'instance en production, il
-est aussi possible de faire un `pip install -r requirements.txt` dans les 2 dossiers.
+* https://hub.docker.com/r/francearchives/cubicweb-francearchives
+* https://hub.docker.com/r/francearchives/cubicweb-frarchives-edition
 
 Installation de redis
 ---------------------
 
-L'instance va nécessiter un serveur redis sur votre ordinateur :
-
-::
-
-    $ sudo apt-get install redis-server
-    $ system-ctl start redis
+L'instance va nécessiter un serveur redis sur votre ordinateur. https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/install-redis-on-linux/
 
 
 Utiliser S3Storage en local
@@ -189,32 +156,39 @@ Il faut installer un fichier ``pyramid.ini`` dans le répertoire de
 l'instance (par ex. ``~/etc/cubicweb.d/atelier/`` contenant) :
 
 ::
+[main]
 
-  [main]
+cubicweb.auth.authtkt.session.secret = stuff
+cubicweb.auth.authtkt.persistent.secret = stuff
+cubicweb.auth.authtkt.session.secure = yes
+cubicweb.auth.authtkt.persistent.secure = yes
+cubicweb.auth.authtkt.session.timeout = 3600
+cubicweb.auth.authtkt.session.samesite = Strict
+cubicweb.pyramid.enable_csrf=no
 
-  cubicweb.auth.authtkt.session.secret = stuff
-  cubicweb.auth.authtkt.persistent.secret = stuff
-  cubicweb.auth.authtkt.session.secure = no
-  cubicweb.auth.authtkt.persistent.secure = no
-  cubicweb.auth.authtkt.session.timeout = 3600
+cubicweb.includes =
+      cubicweb.pyramid.auth
+      cubicweb_frarchives_edition.cms
+      cubicweb.pyramid.rest_api.include_rdf
+            # cubicweb_api
 
-  cubicweb.bwcompat = no
-  cubicweb.defaults = no
+pyramid.includes =
+      # pyramid_debugtoolbar
+      pyramid_session_redis
 
-  cubicweb.includes =
-        cubicweb.pyramid.auth
-        cubicweb.pyramid.login
-        cubicweb_frarchives_edition.cms
+#  pyramid_debugtoolbar
+redis.sessions.timeout = 1200
+redis.sessions.secret = stuff
+redis.sessions.prefix = pniacms:
+redis.sessions.url = redis://localhost:6379/0
+rq.redis_url = redis://localhost:6379/
 
-  pyramid.includes =
-      pyramid_redis_sessions
-      #         pyramid_debugtoolbar
+# cubicweb.auth.authtkt.session.samesite = Strict
+cubicweb.auth.authtkt.session.reissue_time = 42300
+cubicweb.auth.authtkt.session.max_age = 42300
+cubicweb.auth.authtkt.persistent.timeout = 42300
+cubicweb.auth.authtkt.persistent.reissue_time = 42300
 
-  redis.sessions.timeout = 1200
-  redis.sessions.secret = stuff
-  redis.sessions.prefix = pniacms:
-  redis.sessions.url = redis://localhost:6379/0
-  rq.redis_url = redis://localhost:6379/0
 
 Configuration CubicWeb
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -239,22 +213,18 @@ Pour avoir un build continu ::
 Compilier les css
 -----------------
 
-Il est nécessaire d'installer ``sass``;
-
-::
-
-    npm install -g sass
+Il est nécessaire d'utiliser le paquet ``sass`` avec npx.
 
 1. Pour compiler la feuille des styles unique utiliser la commande suivante dans le
 ::
 
-  [cubicweb-francearchives]$ sass scss/main.scss:cubicweb_francearchives/data/css/francearchives.bundle.css
+  npx sass scss/main.scss:cubicweb_francearchives/data/css/francearchives.bundle.css
 
 2. Utiliser -watch pour tenir compte des modifications :
 
 ::
 
-  [cubicweb-francearchives]$ sass --watch scss/main.scss:cubicweb_francearchives/data/css/francearchives.bundle.css
+  npx sass --watch scss/main.scss:cubicweb_francearchives/data/css/francearchives.bundle.css
 
 Si vous tombez sur l'erreur suivante ::
 
@@ -286,7 +256,7 @@ Avant de lancer votre instance, n'oubliez pas d'avoir :
 
 ::
 
-    (fa-env)$ cubicweb-ctl pyramid -D atelier
+    (fa-env)$ cubicweb-ctl start -D atelier
 
 
 Démarrer un worker
@@ -318,6 +288,13 @@ Indexer les autorités :
 ::
 
     (fa-env)$ cubicweb-ctl index-es-suggest atelier
+
+Indexer les données nominatives :
+
+::
+
+    (fa-env)$ cubicweb-ctl index-es-nomina atelier
+
 
 
 Configurer son instance de consultation
@@ -391,7 +368,7 @@ Avant de lancer votre instance, n'oubliez pas d'avoir :
 
 ::
 
-    (fa-env)$ cubicweb-ctl pyramid -D consultation
+    (fa-env)$ cubicweb-ctl start -D consultation
 
 
 Bonnes pratiques de développement
@@ -498,50 +475,6 @@ Lancer les tests a11y
 2. Lancer les tests
 
    BASEURL=<host:port>/fr  node a11y/test.js
-
-Déployer Kubernetes en local
-----------------------------
-
-Pour préparer le déploiement en local, il faut
-
-* récupérer le fichier de configuration du cluster Kubernetes et ajouter la variable KUBECONFIG::
-
-      export KUBECONFIG=<path to config>
-
-* se créer un access token pour le project cubicweb-francearchives
-
-Pour déployer, il faut
-
-1. se connecter au dépôt des images docker avec son access token::
-
-      docker login -u <username> -p <password> <registry>
-
-2. récupérer les données à remplir et les crédentiels de la CI
-3. copier le fichier ``env.example``::
-
-      cp env.example .env
-
-   et remplir le nouveau fichier avec les données récupérés
-4. lancer le script en utilisant les crédentiels de la CI::
-
-      CI_REGISTRY=<registry> REGISTRY_DEPLOY_TOKEN=<registry deploy token> REGISTRY_DEPLOY_USERNAME=<registry deploy username> ./deploy.sh .env
-
-5. pour voir seulement les changements sans les déploier, il est possible de rajouter l'option
-   ``--dry-run``
-
-
-Documentation supplémentaire
-----------------------------
-
-Des éléments supplémentaires de documentation sont dans `doc/`, dont notamment :
-
-* `doc_dev.rst` explique des problèmes qui peuvent être rencontrés
-  lors de l'installation ;
-
-Des informations sur la mise en production, le fonctionnement interne du site, et
-des études réalisées pour le client sont disponibles sur dans le repo :
-
-https://forge.extranet.logilab.fr/francearchives/documentation/
 
 
 Contributrices et contributeurs

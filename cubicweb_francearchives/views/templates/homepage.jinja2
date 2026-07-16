@@ -1,26 +1,5 @@
-<h1 class="visually-hidden">{{ _('Content') }} </h1>
-<nav id="content-headings">
-  <div class ="row">
-    {% for title, label, url, cssclass, desc, subsections in topsections %}
-    {% if url in ("decouvrir", "comprendre", "rechercher") %}
-    <div class="col-lg-4 heading-container" id="heading-{{ cssclass }}">
-      <div class="content-heading">
-        <div class="content-heading__icon-{{ cssclass }}"></div>
-        <a href="{{ base_url }}/{{  url }}" class="content-heading__title">
-          <h2>{{ title }}</h2>
-        </a>
-        <ul>
-          {% for eid, suburl, subtitle, subdesc in subsections[:3] %}
-          <li>
-            <a href="{{ suburl }}">{{ _(subtitle) }}</a>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-    {% endif %}
-    {% endfor %}
-  </div>
-</nav>
-{% block onhomepage %}
-{% endblock %}
+{%- include "home_sections.jinja2" -%}
+{%- include "onhomepage.jinja2" -%}
+{% if not is_nomina %}
+   {%- include "key-figures.jinja2" -%}
+{% endif %}

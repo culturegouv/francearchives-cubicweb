@@ -41,13 +41,14 @@ import glob
 
 # third party imports
 # library specific imports
-from cubicweb.devtools.testlib import CubicWebTC
+from cubicweb_web.devtools.testlib import WebCWTC
+
 from cubicweb_francearchives.dataimport import oai_utils
 
 from cubicweb_francearchives.testutils import S3BfssStorageTestMixin
 
 
-class TestOAIPMHWriter(S3BfssStorageTestMixin, CubicWebTC):
+class TestOAIPMHWriter(S3BfssStorageTestMixin, WebCWTC):
     """OAIPMHWriter test cases.
 
     :cvar dict SERVICE_INFOS: service information

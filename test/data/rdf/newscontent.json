@@ -1,9 +1,9 @@
 {
    "@context": {
-     "schema": "http://schema.org/"
+     "schema": "https://schema.org/"
    },
  
-   "@id": "http://testing.fr/cubicweb/actualite/{{eid}}",
+   "@id": "https://testing.cubicweb/actualite/{{eid}}",
    "@type": "schema:NewsArticle",
    "schema:author": {
      "@type": "schema:Person",
@@ -13,17 +13,17 @@
    "schema:dateModified": "2000-01-01",
    "schema:datePublished": "2017-03-10",
    "schema:headline": "the-title",
-   "schema:image": "http://testing.fr/cubicweb/file/87b2b0e8c632bfbace95bf693f8e99f4acc92eca/image.png",
+   "schema:image": "https://testing.cubicweb/file/87b2b0e8c632bfbace95bf693f8e99f4acc92eca/image.png",
    "schema:inLanguage": "FR",
    "schema:isAccessibleForFree": "True",
    "schema:keywords": "the-keywords",
-   "schema:mainEntityOfPage": "http://testing.fr/cubicweb/actualite/{{eid}}",
+   "schema:mainEntityOfPage": "https://testing.cubicweb/actualite/{{eid}}",
    "schema:name": "the-title",
    "schema:publisher": {
      "@type": "schema:Organization",
      "schema:name": "FranceArchives",
-     "schema:logo": "http://testing.fr/cubicweb/data/images/logo_francearchives_amp.png"
+     "schema:logo": "https://testing.cubicweb/data/images/logo_francearchives_amp.png"
    },
-   "schema:url": "http://testing.fr/cubicweb/actualite/{{eid}}"
+   "schema:url": "https://testing.cubicweb/actualite/{{eid}}"
  }
  

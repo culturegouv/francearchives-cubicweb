@@ -1,9 +1,9 @@
 {
   "@context": {
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-    "schema": "http://schema.org/"
+    "schema": "https://schema.org/"
   },
-  "@id": "http://testing.fr/cubicweb/authorityrecord/FRAN_NP_00644",
+  "@id": "https://testing.cubicweb/authorityrecord/FRAN_NP_00644",
   "@type": "schema:Organization",
   "schema:dissolutionDate": "2000-05-01",
   "schema:foundingDate": "1940-01-01",
@@ -11,5 +11,5 @@
   "schema:parentOrganization": "ACME",
   "schema:sameAs": "http://toto.fr#me",
   "schema:subOrganization": "Toto poules",
-  "schema:url": "http://testing.fr/cubicweb/authorityrecord/FRAN_NP_00644"
+  "schema:url": "https://testing.cubicweb/authorityrecord/FRAN_NP_00644"
 }

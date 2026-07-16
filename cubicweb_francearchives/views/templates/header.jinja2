@@ -1,0 +1,78 @@
+<header role="banner" class="fr-header">
+  <div class="fr-header__body">
+    <div class="fr-container">
+      <div class="fr-header__body-row">
+        <div class="fr-header__brand fr-enlarge-link">
+          <div class="fr-header__brand-top">
+            <div class="fr-header__logo">
+              <p class="fr-logo">
+                République
+                <br>
+                Française
+              </p>
+            </div>
+            <div class="fr-header__navbar">
+              <button class="fr-btn--menu fr-btn" data-fr-opened="false"
+                      aria-controls="modal-header-menu" aria-haspopup="menu"
+                      id="button-mainmenu"
+                      title="{{ _('Menu') }}">
+                {{ _('Menu') }}
+              </button>
+            </div>
+          </div>
+          <div class="fr-header__service">
+            <a href="{{ base_url }}" title="Accueil - FranceArchives">
+              <p class="fr-header__service-title">
+                FranceArchives
+              </p>
+            </a>
+            <p class="fr-header__service-tagline">Portail national des Archives</p>
+          </div>
+        </div>
+        <div class="fr-header__tools">
+          <div class="fr-header__tools-links">
+            <ul class="fr-btns-group">
+             {{ login_link }}
+              <li>
+                <a class="fr-btn fr-icon-arrow-right-line fr-link--icon-right" id="nomina-link" href="{{base_url}}/basedenoms">
+                  {{ _('Search in the name base') }}
+                </a>
+              </li>
+              {%- if display_sparql_search %}
+              <li>
+                <a class="fr-btn fr-icon-arrow-right-line fr-link--icon-right" id="sparql-link" href="{{base_url}}/requeteurnaturel">
+                  {{ _('SPARQL Search') }}
+                </a>
+              </li>
+              {% endif -%}
+            </ul>
+            <nav role="navigation" class="fr-translate fr-nav fr-ml-3v ">
+              <div class="fr-nav__item">
+                <button class="fr-translate__btn fr-btn fr-btn--tertiary" aria-controls="langswitch" aria-expanded="false" title="{{ _("Select a language") }}">
+                 {{ langswitch[0][0] }}<span class="fr-hidden-lg"> - {{ langswitch[0][2] }}</span>
+                </button>
+                <div class="fr-collapse fr-translate__menu fr-menu" id="langswitch">
+                  <ul class="fr-menu__list">
+                    {%- for title, url, lang in langswitch[1:] -%}
+                    <li>
+                      <a class="fr-translate__language fr-nav__link" hreflang="{{ lang }}" lang="{{ lang }}" href="{{ url }}" {%- if langswitch[0][0] == lng -%} aria-current="true"{%- endif -%}>{{ lang }} - {{ title }}</a>
+                    </li>
+                    {%- endfor -%}
+                  </ul>
+                </div>
+              </div>
+            </nav>
+          </div>
+          <div class="fr-header__search fr-modal" id="modal-474">
+            <div class="fr-container fr-container-lg--fluid">
+              <button class="fr-btn--close fr-btn" aria-controls="modal-474" title="Fermer">
+                {{ _("Close") }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include "main-menu.jinja2" %}
+</header>

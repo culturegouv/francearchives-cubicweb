@@ -1,77 +1,124 @@
-<h2>{{ _("Your message") }}</h2>
+<div class="fr-grid fr-grid-row fa-mb">
+  <div class="fr-col-12 fr-col-lg-8">
+    <p class="fr-text--heavy">{{ _('All fields are mandatory') }}</p>
+  </div>
 
-<p>{{ _("Fields with <span class=\"required\">*</span> are required.") }}</p>
-
-{% if message_error %}
-<div class="alert alert-danger">
-   <div class="form-message-content-error">{{ message_error }}</div>
- </div>
-
-{% endif %}
-
-   <div class="mb-4">
-       <label class="form-label" for="name">
-           <span class="required" title="{{ required_info }}">*</span>
-           {{ contact_name_label }}
-       </label>
-       {% if contact_name_error %}
-         <span id="cel_name" class="error text-danger"> {{ contact_name_error }}</span>
-       {% endif %}
-        <input name="name" id="name" class="form-control" type="text" autocomplete="family-name"
-               {% if contact_name_error %}aria-describedby="cel_name" aria-invalid="true"{% endif %}
-               aria-required="true" required="required" value="{{ name_value }}">
-    </div>
-    <div class="mb-4">
-        <label class="form-label" for="email">
-               <span class="required" title="{{ required_info }}">*</span>
-               {{ contact_email_label }}
-        </label>
-        {% if contact_email_error %}
-          <span id="cel_email" class="error text-danger">{{ contact_email_error }}</span>
-        {% endif %}
-        <input name="email" id="email" class="form-control" type="text" autocomplete="email"
-               {% if contact_email_error %}aria-describedby="cel_email" aria-invalid="true"{% endif %}
-               pattern="^[_A-Za-z0-9-\+-]+(\.[_A-Za-z0-9-\+-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9-\+-]+)*(\.[A-Za-z]{2,})$"
-               oninvalid="setCustomValidity('{{ email_error }}')"
-               oninput="setCustomValidity('')"
-               aria-required="true" required="required" value="{{ email_value }}">
-    </div>
-    <div class="mb-4">
-        <label class="form-label" for="contact-object">
-               <span class="required" title="{{ required_info }}">*</span>
-               {{ contact_object_label }}
-        </label>
-        {% if contact_select_error %}
-          <span  id="cel_select" class="error text-danger">{{ contact_select_error }}</span>
-        {% endif %}
-        <select name="object" id="contact-object" class="form-select"
-                {% if contact_select_error %}aria-describedby="cel_select" aria-invalid="true"{% endif %}          oninvalid="setCustomValidity('{{ object_select_message }}')"
-                oninput="setCustomValidity('')"
-                aria-required="true" required="required">
-           <option value="" disabled selected>{{ object_select_message }}</option>
-           {% for option in contact_objects %}
-           {% set option_val = ["contact_object", loop.index]|join('_') %}
-           <option value="{{ option_val}}" {% if option_val == object_value|string()%} selected="selected" {% endif %}>{{option}}</option>
-           {% endfor %}
-        </select>
-      </div>
-      <div class="mb-4">
-        <label class="form-label" for="message">
-               <span class="required" title="{{ required_info }}">*</span>
-               {{ contact_message_label }}
-        </label>
-        {% if contact_message_error %}
-          <span  id="cel_message" class="error text-danger">{{ contact_message_error }}</span>
-        {% endif %}
-        <textarea cols="29" rows="10" id="message" class="form-control" name="message"
-                  {% if contact_message_error %}aria-describedby="cel_message" aria-invalid="true"{% endif %}
-                  aria-required="true" required="required">{{ message_value }}
-        </textarea>
-      </div>
-      <div class="captcha visually-hidden">
-         <label class="form-label" for="captcha">{{ contact_captcha_label }}
-                <span class="required" title="{{ required_info }}"></span>
-         </label>
-          <input class="form-control" id="captcha" name="captcha" value="" type="text" tabindex="-1">
+  <div class="fr-col-12 fr-col-lg-8">
+    <fieldset class="fr-fieldset" aria-labelledby="contact-form-legend--identification">
+      <legend class="fr-sr-only fr-fieldset__legend--regular fr-fieldset__legend"
+              id="contact-form-legend--identification">
+        _('Identification')
+      </legend>
+      <div class="fr-fieldset__element fr-mb-8v">
+        <div class="fr-input-group{%- if contact_name_error %} fr-input-group--error{%- endif -%}"
+             data-fr-js-input-actionee="true">
+          <label for="contact-form--name" class="fr-label">
+            {{ contact_name_label }}
+          </label>
+          <input type="text" id="contact-form--name" name="name" class="fr-input"
+                 required
+                 spellcheck="false" autocomplete="family-name"
+                 {% if contact_name_error %}
+                 aria-describedby="contact-form--name-error"
+                 {%- endif %}
+                 value="{{ name_value }}">
+          {%- if contact_name_error %}
+          <div id="contact-form--name-error" class="fr-messages-group">
+            <p class="fr-message fr-message--error">{{ contact_name_error }}</p>
           </div>
-      <button class="btn btn-primary" name="submit" type="submit">{{ submit_value }}</button>
+          {%- endif -%}
+        </div>
+      </div>
+      <div class="fr-fieldset__element fr-mb-4v">
+        <div class="fr-input-group {%- if contact_email_error %} fr-input-group--error{%- endif -%}"
+             data-fr-js-input-actionee="true">
+          <label for="contact-form--email" class="fr-label">
+            {{ contact_email_label }}
+            <span id="contact-form--email-help" class="fr-hint-text">
+              {{ contact_email_help }}{{ _(':') }}nom@domaine.fr
+            </span>
+          </label>
+          <input type="email" id="contact-form--email"
+                 name="email"
+                 {% if contact_email_error %}
+                 aria-describedby="contact-form--email-error"
+                 {%- else %}
+                 aria-describedby="contact-form--email-help"
+                 {%- endif %}
+                 autocomplete="email"
+                 spellcheck="false"
+                 required
+                 value="{{ email_value }}"
+                 class="fr-input">
+          {%- if contact_email_error %}
+          <div id="contact-form--email-error" class="fr-messages-group">
+            <p class="fr-message fr-message--error">{{ contact_email_error }}</p>
+          </div>
+          {%- endif -%}
+        </div>
+      </div>
+    </fieldset>
+  </div>
+  <div class="fr-col-12 fr-col-lg-8">
+    <fieldset class="fr-fieldset" aria-labelledby="contact-form-legend--message">
+      <legend class="fr-sr-only fr-fieldset__legend--regular fr-fieldset__legend"
+              id="contact-form-legend--message">
+        {{ _('Message') }}
+      </legend>
+      <div class="fr-fieldset__element fr-mb-8v">
+        <div class="fr-input-group {%- if contact_object_error %} fr-input-group--error{%- endif -%}"
+             data-fr-js-input-actionee="true">
+          <label for="contact-form--object" class="fr-label">
+            {{ contact_object_label }}
+          </label>
+          <select id="contact-form--object" class="fr-select" name="object" required
+              {% if contact_object_error -%}
+              aria-describedby="contact-form--object-error"
+              {%- endif %}
+          >
+            <option value="" disabled>{{ object_select_message }}</option>
+            {% for option in contact_objects %}
+            {% set option_val = ["contact_object", loop.index]|join('_') %}
+            <option value="{{ option_val}}" {%- if option_val == selected_object or option_val == object_value|string()%} selected {% endif %}>{{option}}</option>
+            {% endfor %}
+          </select>
+          {%- if contact_object_error %}
+          <div id="contact-form--object-error" class="fr-messages-group">
+            <p class="fr-message fr-message--error">{{ contact_object_error }}</p>
+          </div>
+          {%- endif -%}
+        </div>
+      </div>
+      <div class="fr-fieldset__element fr-mb-4v">
+        <div class="fr-input-group {%- if contact_message_error %} fr-input-group--error{%- endif -%}"
+             data-fr-js-input-actionee="true">
+          <label for="contact-form--message" class="fr-label">
+            {{ contact_message_label }}
+          </label>
+          <textarea id="contact-form--message"
+                    name="message"
+                    rows="5"
+                    cols="60"
+                    maxlength="8000"
+                    required
+                    {% if contact_message_error -%}
+                    aria-describedby="contact-form--message-error"
+                    {% endif -%}
+                    class="fr-input">{{ message_value }}</textarea>
+          {%- if contact_message_error %}
+          <div id="contact-form--message-error" class="fr-messages-group">
+            <p class="fr-message fr-message--error">{{ contact_message_error }}</p>
+          </div>
+          {%- endif -%}
+        </div>
+      </div>
+    </fieldset>
+  </div>
+  <div class="fr-col-12 fr-col-lg-8">
+    <button type="submit" id="contact-form--button-submit"
+            name="submit"
+            class="fr-btn"
+            data-fr-js-button-actionee="true">{{ submit_value }}
+    </button>
+  </div>
+</div>

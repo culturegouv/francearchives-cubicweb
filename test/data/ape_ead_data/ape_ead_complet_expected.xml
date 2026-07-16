@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<ead xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="urn:isbn:1-931666-22-9">
+<ead xmlns:cpf="urn:isbn:1-931666-33-4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:isbn:1-931666-22-9">
     <eadheader>
-        <eadid countrycode="FR" identifier="eadid: A required subelement of eadheader that designates a unique code for a&#10;            particular EAD finding aid document. Two of the attributes, COUNTRYCODE and&#10;            MAINAGENCYCODE, are required to make the eadid compliant with ISAD(G) element 3.1.1.&#10;            MAINAGENCYCODE provides the ISO 15511 code for the institution that maintains the&#10;            finding aid (which may not be the same as the institution that is the custodian of the&#10;            materials described). COUNTRYCODE supplies the ISO 3166-1 code for the country of the&#10;            maintenance agency. In addition to these two attributes, it is recommended that&#10;            repositories also use at least one of the following attributes: URL, PUBLICID, or&#10;            IDENTIFIER to make the eadid globally unique. PUBLICID should be a Formal Public&#10;            Identifier, URL an absolute or relative address, and IDENTIFIER a machine-readable&#10;            unique identifier for the finding aid file. (The proper syntax for PUBLICID is defined&#10;            in ISO/IEC 9070:1991 Information technology -- SGML support facilities -- Registration&#10;            procedures for public text owner identifiers." url="https://francearchives.fr/1234"> eadid: A required subelement of eadheader that designates a unique code for a
+        <eadid countrycode="FR" identifier="eadid: A required subelement of eadheader that designates a unique code for a&#10;            particular EAD finding aid document. Two of the attributes, COUNTRYCODE and&#10;            MAINAGENCYCODE, are required to make the eadid compliant with ISAD(G) element 3.1.1.&#10;            MAINAGENCYCODE provides the ISO 15511 code for the institution that maintains the&#10;            finding aid (which may not be the same as the institution that is the custodian of the&#10;            materials described). COUNTRYCODE supplies the ISO 3166-1 code for the country of the&#10;            maintenance agency. In addition to these two attributes, it is recommended that&#10;            repositories also use at least one of the following attributes: URL, PUBLICID, or&#10;            IDENTIFIER to make the eadid globally unique. PUBLICID should be a Formal Public&#10;            Identifier, URL an absolute or relative address, and IDENTIFIER a machine-readable&#10;            unique identifier for the finding aid file. (The proper syntax for PUBLICID is defined&#10;            in ISO/IEC 9070:1991 Information technology -- SGML support facilities -- Registration&#10;            procedures for public text owner identifiers." url="https://francearchives.gouv.fr/1234"> eadid: A required subelement of eadheader that designates a unique code for a
             particular EAD finding aid document. Two of the attributes, COUNTRYCODE and
             MAINAGENCYCODE, are required to make the eadid compliant with ISAD(G) element 3.1.1.
             MAINAGENCYCODE provides the ISO 15511 code for the institution that maintains the
@@ -78,7 +78,7 @@
 
             <note><!-- non affiché dans IHM -->
             <p>For information about Prints and Photographs Division collections and services, see
-                the Prints and Photographs Division's Reading Room Home Page: <extref xlink:type="simple" xlink:actuate="onRequest" xlink:href="https://francearchives.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29">https://francearchives.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29</extref>
+                the Prints and Photographs Division's Reading Room Home Page: <extref xlink:type="simple" xlink:actuate="onRequest" xlink:href="https://francearchives.gouv.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29">https://francearchives.gouv.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29</extref>
             </p>
         </note>
         </did>
@@ -286,7 +286,7 @@
                         effet, si les minutes et les répertoires sont des archives publiques, les
                         livres de comptabilité ou répertoire de clients sont bien des archives
                         privées appartenant à l'étude notariale.</p>
-                    <p><extref xlink:type="simple" xlink:href="https://francearchives.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29">lien extref</extref>
+                    <p><extref xlink:type="simple" xlink:href="https://francearchives.gouv.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29">lien extref</extref>
 
                 </p></relatedmaterial>
 

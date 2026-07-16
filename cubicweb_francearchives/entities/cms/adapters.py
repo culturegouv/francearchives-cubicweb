@@ -19,13 +19,13 @@
 # software by the user in light of its specific status of free software,
 # that may mean that it is complicated to manipulate, and that also
 # therefore means that it is reserved for developers and experienced
-# professionals having in-depth computer knowledge. Users are therefore
+# professionals having in-depth comezputer knowledge. Users are therefore
 # encouraged to load and test the software's suitability as regards their
 # requirements in conditions enabling the security of their systemsand/or
 # data to be ensured and, more generally, to use and operate it in the
 # same conditions as regards security.
 #
-# The fact that you are presently reading this means that you have had
+# The fact that you are presently reading this means that you have hadredis
 # knowledge of the CeCILL-C license and that you accept its terms.
 #
 
@@ -42,8 +42,11 @@ from cubicweb.entities.adapters import ITreeAdapter
 
 from cubicweb_francearchives import FIRST_LEVEL_SECTIONS, SECTIONS
 
+from cubicweb_francearchives.entities.rdf import RDF_FORMAT_EXTENSIONS
+from cubicweb_francearchives.redis_utils import RedisConnector
 from cubicweb_francearchives.schema.cms import CMS_OBJECTS
-from cubicweb_francearchives.views import format_date
+from cubicweb_francearchives.utils import format_date
+from cubicweb_francearchives.views import exturl_link
 
 
 class ITemplatableApdater(EntityAdapter):
@@ -53,15 +56,24 @@ class ITemplatableApdater(EntityAdapter):
     def entity_param(self):
         return self.entity
 
+    def main_props(self):
+        return []
+
 
 class TranslatableMixIn(object):
     def cache_entity_translations(self):
         """update entity cache with translated value for translatable attributes"""
         if self._cw.lang == "fr":
             return self.entity
+        if hasattr(self, "_cached_translation") and self._cached_translation == self._cw.lang:
+            return self.entity
+        self._cached_translation = {}
         translations = self.entity.translations_in_lang()
-        for attr, value in translations.items():
-            self.entity.cw_attr_cache[attr] = value
+        if translations:
+            for attr, value in translations.items():
+                self.entity.cw_attr_cache[attr] = value
+                self.entity.cw_attr_cache["lang"] = self._cw.lang
+        self._cached_translation = self._cw.lang
         return self.entity
 
 
@@ -82,6 +94,126 @@ class CommemoITemplatable(ITemplatableTranslatableApdater):
 
     def entity_param(self):
         return self.cache_entity_translations()
+
+
+class IndexITemplatable(ITemplatableApdater):
+    __select__ = ITemplatableApdater.__select__ & is_instance("AgentName", "Geogname", "Subject")
+
+    def documents(self, limit=200):
+        _ = self._cw._
+        index_nb = self._cw.execute(
+            "Any COUNT(I) WHERE X eid %(eid)s, X index I", {"eid": self.entity.eid}
+        )[0][0]
+        label = f"{_('FindingAid_plural')} {_('or')} {_('FAComponent_plural')}"
+        if index_nb == 1:
+            label = f"{_(self.entity.index[0].cw_etype)}"
+        label = _("This index is linked to %s.") % f"{index_nb} {label}"
+        data = {}
+        if index_nb > limit:
+            warning = _("Only display %s links.") % limit
+            label = f"{label} {warning}"
+        data["label"] = label
+        query = f"""
+            Any F, N, I ORDERBY N, I LIMIT {limit} WHERE X eid %(eid)s, X index F,
+            F did D?, D unittitle N, D unitid I"""
+        rset = self._cw.execute(query, {"eid": self.entity.eid})
+        data["docs"] = [e.view("incontext") for e in rset.entities()]
+        return data
+
+    def main_props(self):
+        _ = self._cw._
+        entity = self.entity
+        properties = [
+            (_("type"), entity.type),
+            (_("role"), entity.role),
+            (_("Authfilenumber"), entity.authfilenumber),
+            (_("authority"), ", ".join(e.view("incontext") for e in entity.authority)),
+        ]
+        return properties
+
+
+class ServiceITemplatable(ITemplatableApdater):
+    __select__ = ITemplatableApdater.__select__ & is_instance("Service")
+
+    def meta_props(self):
+        return ((self._cw._("Last update on"), self.entity.fmt_modification_date),)
+
+    def main_props(self):
+        _ = self._cw._
+        entity = self.entity
+        main_props = {}
+        n_level = entity.level in ("level-D", "level-N")
+        contact_label = _("Service_direction") if n_level else _("Service_manager")
+        gps = ", ".join(str(c) for c in (entity.latitude, entity.longitude) if c)
+        web_url = entity.printable_value("website_url")
+        if web_url:
+            web_url = exturl_link(self._cw, web_url)
+        properties = [
+            (contact_label, entity.printable_value("contact_name")),
+            (_("service_level_facet"), entity.printable_value("level")),
+            (_("Phone number"), entity.printable_value("phone_number")),
+            (_("Address"), entity.printable_physical_address()),  # must be a propery
+            (_("Opening period"), entity.printable_value("opening_period")),
+            (_("Annual closure"), entity.printable_value("annual_closure")),
+            (_("Email"), entity.printable_value("email")),
+            (_("Write to us"), entity.printable_value("mailing_address")),
+            (_("Website"), web_url),
+            (
+                _("SocialNetwork_plural"),
+                ", ".join(e.view("urlattr", rtype="url") for e in entity.service_social_network),
+            ),
+            (_("Code INSEE commune"), entity.printable_value("code_insee_commune")),
+            (_("GPS coordinates"), gps),
+        ]
+        if entity.annex_of:
+            properties.insert(0, (_("main_service"), entity.annex_of[0].view("incontext")))
+        info = [entry for entry in properties if entry[-1]]
+        if info:
+            main_props["info"] = info
+        if entity.annex_of:
+            properties.insert(0, (_("main_service"), entity.annex_of[0].view("incontext")))
+        if gps:
+            main_props["json_map_url"] = self._cw.build_url("services-map.json", srv=entity.eid)
+        related_services = list(entity.related("annex_of", "object").entities())
+        if related_services:
+            main_props["related_services"] = [e.view("incontext") for e in related_services]
+            main_props["related_entities"] = [
+                e.cw_adapt_to("ITemplatable").entity_param() for e in related_services
+            ]
+        note = entity.printable_value("other")
+        if note:
+            main_props["note"] = note
+        main_props["lang"] = self._cw.lang
+        return main_props
+
+    def documents_links(self):
+        entity = self.entity
+        documents_links = (
+            (
+                self._cw._("see service related documents"),
+                entity.documents_url() if entity.has_documents else None,
+            ),
+            (
+                self._cw._("see service related nominarecords"),
+                (entity.nominarecords_url() if entity.has_nominarecords else None),
+            ),
+        )
+        return [entry for entry in documents_links if entry[-1]]
+
+    def rdf_formats(self):
+        uri = self._cw.build_url(f"service/{self.entity.eid}")
+        return [
+            (f"{uri}/rdf.{extension}", extension, name)
+            for extension, name in RDF_FORMAT_EXTENSIONS.items()
+        ]
+
+    def entity_param(self):
+        self.entity.meta_props = self.meta_props()
+        self.entity.properties = self.main_props()
+        self.entity.documents_links = self.documents_links()
+        self.entity.eulerian = self.entity.cw_adapt_to("IEulerian").actions
+        self.entity.rdf_formats = self.rdf_formats()
+        return self.entity
 
 
 class CMSObjectITreeAdapter(ITreeAdapter):
@@ -107,7 +239,7 @@ class Service2VcardAdapater(EntityAdapter):
         entity = self.entity
         title = entity.dc_title() or self._cw._("n/r")  # title is mandatory
         props = {
-            "n": vobject.vcard.Name(given=entity.dc_title()),
+            "n": vobject.vcard.Name(given=title),
             "fn": title,
             "nickname": entity.code,
             "email": entity.email,
@@ -121,7 +253,7 @@ class Service2VcardAdapater(EntityAdapter):
             ),
             "url": entity.website_url,
             "note": entity.opening_period,
-            "uid": entity.uuid,
+            "uid": str(entity.eid),
         }
         if entity.service_image:
             imgfile = entity.service_image[0].image_file[0]
@@ -164,6 +296,7 @@ class Service2CSV(Absctract2CSV):
     __select__ = EntityAdapter.__select__ & is_instance("Service")
 
     headers = (
+        "Id_FranceArchives",
         "Nom_du_service",
         "Identifiant_du_service",
         "Courriel",
@@ -186,6 +319,7 @@ class Service2CSV(Absctract2CSV):
     def properties(self):
         entity = self.entity
         props = {
+            "Id_FranceArchives": entity.eid,
             "Nom_du_service": entity.dc_title(),
             "Identifiant_du_service": entity.code,
             "Courriel": entity.email,
@@ -334,18 +468,16 @@ class SectionTreeAdapter(EntityAdapter):
         variables = []
         for i in range(depth):
             for attribute in attributes:
+                _etype = etype if i == depth - 1 else "Section"
                 if attribute == "title":
                     variables.append(
-                        "translate_entity(_X%(i)s.cw_eid, '%(attr)s', '%(lang)s')"
-                        % {"i": i, "lang": self._cw.lang, "attr": attribute}
+                        "translate_entity('%(etype)s', _X%(i)s.cw_eid, '%(attr)s', '%(lang)s')"
+                        % {"etype": _etype, "i": i, "lang": self._cw.lang, "attr": attribute}
                     )
-                elif attribute == "display_mode" and i == depth - 1:
+                elif attribute in ("display_mode", "short_description") and i == depth - 1:
                     variables.append("null")
                 elif attribute == "etype":
-                    if i == depth - 1:
-                        variables.append(f"'{etype}'")
-                    else:
-                        variables.append("'Section'")
+                    variables.append(f"'{_etype}'")
                 else:
                     variables.append("_X%s.cw_%s" % (i, attribute))
         # Fill variables with null until max_depth is reached
@@ -418,14 +550,18 @@ class SectionTreeAdapter(EntityAdapter):
         return section_dict
 
     def retrieve_subsections(self, section_mode=None):
+        redis_key = f"submenu_{self.entity.eid}_{section_mode or 'none'}_{self._cw.lang}"
+        redis_connection = RedisConnector(self._cw)
+        cached_data = redis_connection.get(redis_key)
+        if cached_data:
+            return cached_data
         # Get all subsections having documents of the following types
-        attributes = ["eid", "display_mode", "title", "order", "etype"]
+        attributes = ["eid", "display_mode", "title", "order", "etype", "short_description"]
         sql_query = self.generate_query(attributes)
         sys_source = self._cw.cnx.repo.system_source
         attrs = {"eid": self.entity.eid, "section_mode": section_mode}
         cu = sys_source.doexec(self._cw.cnx, sql_query, attrs)
         res = cu.fetchall()
-
         sections_dict = {}
         for row in res:
             self.parse_results(row, attributes, sections_dict, section_mode=section_mode)
@@ -437,4 +573,6 @@ class SectionTreeAdapter(EntityAdapter):
             if section:
                 sections.append(section)
 
-        return sorted(sections, key=lambda x: x["order"] if x["order"] else 1000)
+        result = sorted(sections, key=lambda x: x["order"] if x["order"] else 1000)
+        redis_connection.set(redis_key, result, expire=86400)
+        return result

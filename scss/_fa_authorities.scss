@@ -1,0 +1,11 @@
+.quality-authority__title {
+  margin: var(--title-spacing);
+
+  h1 {
+    position: relative;
+    display: inline;
+    margin-right: 0.5rem;
+
+    >  * { position: relative; top: -0.3rem;}
+  }
+}

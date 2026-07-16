@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <OAI-PMH xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.openarchives.org/OAI/2.0/" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"><responseDate>2018-10-12T08:33:46Z</responseDate><request verb="GetRecord" metadataPrefix="ape_ead" identifier="300c316509c34bd7c830f1420f7a46e275fc4f95">https://localhost:80/oai</request><GetRecord><record><header><identifier>300c316509c34bd7c830f1420f7a46e275fc4f95</identifier><datestamp>2018-10-12T08:33:46Z</datestamp></header><metadata><ead xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="urn:isbn:1-931666-22-9" audience="external" xsi:schemaLocation="urn:isbn:1-931666-22-9 http://www.loc.gov/ead/ead.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <eadheader>
-    <eadid identifier="FRAD092_9FI_cartes-postales" url="https://francearchives.fr/findingaid/300c316509c34bd7c830f1420f7a46e275fc4f95" countrycode="FR">FRAD092_9FI_cartes-postales</eadid>
+    <eadid identifier="FRAD092_9FI_cartes-postales" url="https://francearchives.gouv.fr/findingaid/300c316509c34bd7c830f1420f7a46e275fc4f95" countrycode="FR">FRAD092_9FI_cartes-postales</eadid>
     <filedesc>
       <titlestmt>
         <titleproper>Cartes postales anciennes</titleproper>
@@ -14,7 +14,7 @@
   <archdesc level="fonds">
     <did>
       <unitid>
-        <extptr xlink:href="https://opendata.hauts-de-seine.fr/explore/dataset/cartes-postales/" xlink:type="simple"/>
+        <extptr xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/explore/dataset/cartes-postales/"/>
       </unitid>
       <unittitle>Cartes postales anciennes</unittitle>
       <unitdate>1900 - 1944-05-31</unitdate>
@@ -33,6 +33,7 @@
       <geogname>Paris</geogname>
       <geogname>Sisteron (Alpes-de-Haute-Provence, France ; arrondissement)</geogname>
       <geogname>méditerranée (mer)</geogname>
+      <name>Archives des Hauts-de-Seine</name>
       <persname>Alphonse Germain</persname>
       <persname>Jules Ferry</persname>
       <subject>Cartes postales</subject>
@@ -50,17 +51,20 @@
     <dsc>
       <c>
         <did>
-          <unitid><extptr xlink:href="https://opendata.hauts-de-seine.fr/api/datasets/1.0/cartes-postales/images/8ee3d34b124926666f78afa361566542" xlink:type="simple"/>9FI/BAG_10</unitid>
+          <unitid>9FI/BAG_10</unitid>
           <unittitle>Le Dépot des Tramways</unittitle>
           <unitdate>1900</unitdate>
           <physdesc>12x19 cm</physdesc>
           <origination>Archives privées Mr X</origination>
+          <dao xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/api/datasets/1.0/cartes-postales/images/8ee3d34b124926666f78afa361566542" xlink:role="thumbnail"/>
+          <dao xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/explore/dataset/cartes-postales/table/?sort=id"/>
         </did>
         <controlaccess>
           <genreform>photographie</genreform>
           <geogname>Bagneux</geogname>
+          <name>Archives privées Mr X</name>
           <persname>Charles Baudelaire</persname>
-          <subject>Bâtiment public > Gare</subject>
+          <subject>Bâtiment public &gt; Gare</subject>
         </controlaccess>
         <accessrestrict>
           <p>Libre accès</p>
@@ -71,18 +75,21 @@
       </c>
       <c>
         <did>
-          <unitid><extptr xlink:href="https://opendata.hauts-de-seine.fr/api/datasets/1.0/cartes-postales/images/8ee3d34b124926666f78afa361566542" xlink:type="simple"/>9FI/BAG_16</unitid>
+          <unitid>9FI/BAG_16</unitid>
           <unittitle>La Fontaine</unittitle>
           <unitdate>1900</unitdate>
           <physdesc>13x19 cm</physdesc>
           <origination>Archives privées Mr X</origination>
+          <dao xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/api/datasets/1.0/cartes-postales/images/8ee3d34b124926666f78afa361566542" xlink:role="thumbnail"/>
+          <dao xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/explore/dataset/cartes-postales/table/?sort=id"/>
         </did>
         <controlaccess>
           <genreform>plaque de verre</genreform>
           <geogname>Bagneux</geogname>
+          <name>Archives privées Mr X</name>
           <persname>Claudette Levy</persname>
           <persname>Emma Bovary</persname>
-          <subject>Edicule public > Fontaine</subject>
+          <subject>Edicule public &gt; Fontaine</subject>
         </controlaccess>
         <accessrestrict>
           <p>Libre accès</p>
@@ -93,15 +100,18 @@
       </c>
       <c>
         <did>
-          <unitid><extptr xlink:href="https://opendata.hauts-de-seine.fr/api/datasets/1.0/cartes-postales/images/a2f59c7e228d2c624a092f87e1727739" xlink:type="simple"/>9FI/BAG_17</unitid>
+          <unitid>9FI/BAG_17</unitid>
           <unittitle>Place Dampierre - Monument élevé à la mémoire de soldats tombés dans le combat du 13 octobre 1870 [...]</unittitle>
           <unitdate>1900</unitdate>
           <physdesc>14x19 cm</physdesc>
           <origination>Entreprise Pajol</origination>
+          <dao xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/api/datasets/1.0/cartes-postales/images/a2f59c7e228d2c624a092f87e1727739" xlink:role="thumbnail"/>
+          <dao xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/explore/dataset/cartes-postales/table/?sort=id"/>
         </did>
         <controlaccess>
           <genreform>photographie</genreform>
           <geogname>Bagneux</geogname>
+          <name>Entreprise Pajol</name>
           <persname>Claudette Levy</persname>
           <persname>Emma Bovary</persname>
           <subject>Monument Rue et place</subject>
@@ -120,10 +130,12 @@
           <unitdate>1900</unitdate>
           <physdesc>15x19 cm</physdesc>
           <origination>Entreprise Pajol</origination>
+          <dao xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/explore/dataset/cartes-postales/table/?sort=id"/>
         </did>
         <controlaccess>
           <genreform>photographie</genreform>
           <geogname>Bagneux</geogname>
+          <name>Entreprise Pajol</name>
           <persname>Claudette Levy</persname>
           <persname>Emma Bovary</persname>
           <subject>Monument</subject>
@@ -142,10 +154,12 @@
           <unitdate>1900</unitdate>
           <physdesc>16x19 cm</physdesc>
           <origination>Entreprise Pajol</origination>
+          <dao xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/explore/dataset/cartes-postales/table/?sort=id"/>
         </did>
         <controlaccess>
           <genreform>photographie</genreform>
           <geogname>Bagneux</geogname>
+          <name>Entreprise Pajol</name>
           <persname>Claudette Levy</persname>
           <persname>Emma Bovary</persname>
           <subject>Monument Parc et jardin</subject>
@@ -164,11 +178,13 @@
           <unitdate>1900</unitdate>
           <physdesc>17x19 cm</physdesc>
           <origination>Entreprise Pajol</origination>
+          <dao xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/explore/dataset/cartes-postales/table/?sort=id"/>
         </did>
         <controlaccess>
           <corpname>Société Beguin-Say</corpname>
           <genreform>photographie</genreform>
           <geogname>Bagneux</geogname>
+          <name>Entreprise Pajol</name>
           <persname>Claudette Levy</persname>
           <persname>Emma Bovary</persname>
           <subject>Bâtiment public</subject>
@@ -187,12 +203,14 @@
           <unitdate>1932</unitdate>
           <physdesc>18x19 cm</physdesc>
           <origination>Entreprise Pajol</origination>
+          <dao xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/explore/dataset/cartes-postales/table/?sort=id"/>
         </did>
         <controlaccess>
           <corpname>Société Beguin-Say</corpname>
           <genreform>photographie</genreform>
           <geogname>Bagneux</geogname>
-          <subject>Logement social > Cité du Champ des Oiseaux</subject>
+          <name>Entreprise Pajol</name>
+          <subject>Logement social &gt; Cité du Champ des Oiseaux</subject>
         </controlaccess>
         <accessrestrict>
           <p>Libre accès</p>
@@ -208,12 +226,14 @@
           <unitdate>1932</unitdate>
           <physdesc>19x19 cm</physdesc>
           <origination>Entreprise Pajol</origination>
+          <dao xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/explore/dataset/cartes-postales/table/?sort=id"/>
         </did>
         <controlaccess>
           <corpname>Société Beguin-Say</corpname>
           <genreform>photographie</genreform>
           <geogname>Bagneux</geogname>
-          <subject>Logement social > Cité du Champ des Oiseaux</subject>
+          <name>Entreprise Pajol</name>
+          <subject>Logement social &gt; Cité du Champ des Oiseaux</subject>
         </controlaccess>
         <accessrestrict>
           <p>Libre accès</p>
@@ -229,12 +249,14 @@
           <unitdate>1932</unitdate>
           <physdesc>20x19 cm</physdesc>
           <origination>Entreprise Pajol</origination>
+          <dao xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/explore/dataset/cartes-postales/table/?sort=id"/>
         </did>
         <controlaccess>
           <corpname>Société Beguin-Say</corpname>
           <genreform>photographie</genreform>
           <geogname>Bagneux</geogname>
-          <subject>Logement social > Cité du Champ des Oiseaux</subject>
+          <name>Entreprise Pajol</name>
+          <subject>Logement social &gt; Cité du Champ des Oiseaux</subject>
         </controlaccess>
         <accessrestrict>
           <p>Libre accès</p>
@@ -250,12 +272,14 @@
           <unitdate>1932</unitdate>
           <physdesc>21x19 cm</physdesc>
           <origination>Entreprise Pajol</origination>
+          <dao xlink:type="simple" xlink:href="https://opendata.hauts-de-seine.fr/explore/dataset/cartes-postales/table/?sort=id"/>
         </did>
         <controlaccess>
           <corpname>Société Beguin-Say</corpname>
           <genreform>photographie</genreform>
           <geogname>Bagneux</geogname>
-          <subject>Logement social > Cité du Champ des Oiseaux</subject>
+          <name>Entreprise Pajol</name>
+          <subject>Logement social &gt; Cité du Champ des Oiseaux</subject>
         </controlaccess>
         <accessrestrict>
           <p>Libre accès</p>

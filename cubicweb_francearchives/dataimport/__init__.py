@@ -40,6 +40,8 @@ import os.path as osp
 import unicodedata
 from datetime import datetime
 from contextlib import contextmanager
+
+from cubicweb_web.devtools.testlib import FakeRequest
 from psycopg2.errorcodes import READ_ONLY_SQL_TRANSACTION
 
 import sentry_sdk
@@ -49,12 +51,11 @@ from lxml import etree
 from logilab.common.textutils import unormalize
 from logilab.common.decorators import cachedproperty
 
-from elasticsearch.exceptions import ConnectionTimeout, SerializationError
+from elasticsearch.exceptions import ConnectionTimeout, SerializationError, ConnectionError
 from elasticsearch import helpers as es_helpers
 
 from cubicweb import Binary
 from cubicweb.dataimport.importer import ExtEntity, ExtEntitiesImporter
-from cubicweb.devtools.fake import FakeRequest
 
 from cubicweb_francearchives import Authkey
 from cubicweb_francearchives.entities import compute_file_data_hash
@@ -70,20 +71,50 @@ RELFILES_DIR = "RELFILES"
 OAIPMH_DC_PATH = "oaipmh/dc"
 OAIPMH_EAD_PATH = "oaipmh/ead"
 QUALITY_SERVICE_EID = -1
+OAIPMH_EAD_PREFIXES = ("oai_ead", "ead")
 
 logging.getLogger("ead.transform").setLevel(logging.CRITICAL)
 logging.getLogger("glamconv.transform").setLevel(logging.CRITICAL)
 
+INDEX_AUTHORITY_TYPE_MAP = {
+    "persname": ("AgentName", "AgentAuthority"),
+    "corpname": ("AgentName", "AgentAuthority"),
+    "name": ("AgentName", "AgentAuthority"),
+    "famname": ("AgentName", "AgentAuthority"),
+    "geogname": ("Geogname", "LocationAuthority"),
+    "subject": ("Subject", "SubjectAuthority"),
+    "function": ("Subject", "SubjectAuthority"),
+    "genreform": ("Subject", "SubjectAuthority"),
+    "occupation": ("Subject", "SubjectAuthority"),
+}
 
-def es_bulk_index(es, es_docs, max_retry=3, **kwargs):
+
+def get_oaipmh_ead_dirs(cnx, service_code):
+    ead_services_dir = cnx.vreg.config["ead-services-dir"]
+    return [ead_services_dir, service_code] + OAIPMH_EAD_PATH.split("/")
+
+
+def get_oaipmh_dc_dirs(cnx, service_code):
+    ead_services_dir = cnx.vreg.config["ead-services-dir"]
+    return [ead_services_dir, service_code] + OAIPMH_DC_PATH.split("/")
+
+
+def es_bulk_index(es, es_docs, max_retry=3, logger=None, **kwargs):
+    if not logger:
+        logger = LOGGER
     if not es:
+        logger.error("Failed to index, could not connect to ES")
         return
     numtry = 0
     while numtry < max_retry:
         try:
-            es_helpers.bulk(es, es_docs, stats_only=True, **kwargs)
-        except (ConnectionTimeout, SerializationError):
-            LOGGER.warning("failed to bulk index in ES, will retry in 0.5sec")
+            success, failed = es_helpers.bulk(es, es_docs, stats_only=True, **kwargs)
+            if failed:
+                # failed is number of errors if ``stats_only`` is set to ``True``
+                # and list of errors otherwise
+                logger.error("Failed to bulk %s document(s) in ES", failed)
+        except (ConnectionTimeout, SerializationError, ConnectionError):
+            logger.warning("failed to bulk index in ES, will retry in 0.5sec")
             numtry += 1
             time.sleep(0.5)
         else:
@@ -178,18 +209,32 @@ def remove_extension(identifier):
     return identifier
 
 
+def compute_ape_relpath(cnx, prefix, filepath_or_id, service_infos):
+    if service_infos is None:
+        service_map = load_services_map(cnx)
+        service_infos = service_infos_from_filepath(filepath_or_id, service_map)
+    basename = osp.basename(filepath_or_id)
+    if not basename.endswith(".xml"):
+        # can happen when basename comes from the <eadid> tag content
+        basename += ".xml"
+    publisher_code = service_infos.get("code") or default_service_name(basename)
+    # XXX make sure to provide a different basename than the original EAD file
+    # or else the importer will believe the file has already been imported.
+    return f"{prefix}/{publisher_code}/ape-{basename}"
+
+
+def unique_indices(entries, keys=("type", "normalized")):
+    done = set()
+    uniques = []
+    for entry in entries:
+        key = tuple(entry[k] for k in keys)
+        if key not in done:
+            done.add(key)
+            uniques.append(entry)
+    return uniques
+
+
 class IndexImporterMixin(object):
-    type_map = {
-        "persname": ("AgentName", "AgentAuthority"),
-        "corpname": ("AgentName", "AgentAuthority"),
-        "name": ("AgentName", "AgentAuthority"),
-        "famname": ("AgentName", "AgentAuthority"),
-        "geogname": ("Geogname", "LocationAuthority"),
-        "subject": ("Subject", "SubjectAuthority"),
-        "function": ("Subject", "SubjectAuthority"),
-        "genreform": ("Subject", "SubjectAuthority"),
-        "occupation": ("Subject", "SubjectAuthority"),
-    }
 
     def __init__(self, *args, **kwargs):
         self.indices = {}
@@ -221,6 +266,13 @@ class IndexImporterMixin(object):
         sql = self.store._cnx.system_sql
         cu = sql("select label from blacklisted_authorities")
         self.blacklisted_authorities = [e for e, in cu.fetchall()]
+
+    def _init_unnormalized_authorities(self):
+        """authorities that must not be normalized for alignment."""
+        cu = self.store._cnx.system_sql("select label, autheid from unnormalized_authorities")
+        self.unnormalized_authorities = {label: autheid for label, autheid in cu.fetchall()}
+        # cache values
+        self.unnormalized_authorities_eids = self.unnormalized_authorities.values()
 
     def global_authorities_rql_parts(self, auth_types):
         # return rqlquery with:
@@ -261,7 +313,7 @@ class IndexImporterMixin(object):
 
     def _init_authorities(self):
         autodedupe_authorities = self.index_policy.get("autodedupe_authorities")
-        self.log.info("Start initiating authorities with index policy: %r", autodedupe_authorities)
+        self.log.debug("Start initiating authorities with index policy: %r", autodedupe_authorities)
         if not autodedupe_authorities:
             self.global_authorities = {}
             return
@@ -340,7 +392,7 @@ class IndexImporterMixin(object):
                 rql.format(label=label), build_descr=False
             )
         }
-        self.log.info(f"Found {len(self.all_authorities)} all_authorities")
+        self.log.debug(f"Found {len(self.all_authorities)} all_authorities")
 
     def update_authorities_cache(self, service_eid):
         """This will update `all_authorities` attribute.
@@ -418,22 +470,26 @@ class IndexImporterMixin(object):
         )
         self.all_authorities = self.global_authorities.copy()
         sql = self.store._cnx.system_sql
-        self.log.info(
+        self.log.debug(
             "Start fetching authorities for service with eid %s with index policy: %r",
             service_eid,
             autodedupe_authorities,
         )
         for autheid, authlabel, authtype in sql(q, {"s": service_eid}).fetchall():
             self.all_authorities[hash((authtype, authlabel, service_eid))] = autheid
-        self.log.info("End fetching authorities %s", service_eid)
+        self.log.debug("End fetching authorities %s", service_eid)
 
     def create_authority(self, authtype, indextype, label, quality, service, hist_key):
         if hist_key.as_tuple() in self.auth_history:
             return self.auth_history[hist_key.as_tuple()]
+        if label in self.unnormalized_authorities:
+            return self.unnormalized_authorities[label]
         keys = self.build_authority_key(authtype, label, service)
         for key in keys:
             if key in self.all_authorities:
-                return self.all_authorities[key]
+                eid = self.all_authorities[key]
+                if eid not in self.unnormalized_authorities_eids:
+                    return eid
         key = keys[0]  # preferred key is in first position
         self.all_authorities[key] = self.global_authorities[key] = auth = self.create_entity(
             authtype, {"label": label, "quality": quality}
@@ -479,7 +535,7 @@ class IndexImporterMixin(object):
         # key will be fields for Geogname, AgentName, Subject entities
         # and values are set of targets that will be index relations
         # if authority is blacklisted, do nothing
-        indextype, authtype = self.type_map[infos["type"]]
+        indextype, authtype = INDEX_AUTHORITY_TYPE_MAP[infos["type"]]
         # if SubjectAuthority is blacklisted, do nothing
         if authtype == "SubjectAuthority" and infos["label"] in self.blacklisted_authorities:
             return
@@ -711,6 +767,7 @@ class ExtentityWithIndexImporter(IndexImporterMixin, OptimizedExtEntitiesImporte
         self.store = store
         self._init_authorities()
         self._init_blacklisted_authorities()
+        self._init_unnormalized_authorities()
         self._init_auth_history()
         if extid2eid is None:
             extid2eid = {}
@@ -806,33 +863,10 @@ def usha1(content):
     return compute_file_data_hash(content)
 
 
-YEAR_RE = re.compile("[0-9]{4}")
-
-
-def get_year(date):
-    """Extract a year from a string representing a date"""
-    if not date:
-        return
-    year = YEAR_RE.findall(date)
-    if year:
-        return year[0]
-
-
-def get_date(start, stop):
-    chunks = []
-    if start:
-        chunks.append(start)
-    if stop and stop != start:
-        chunks.append(stop)
-    if chunks:
-        return " - ".join(chunks)
-    return None
-
-
 def default_csv_metadata(title):
     return {
         "identifiant_fichier": title,  # ead
-        "titre": title,
+        "titre": remove_extension(title),
         "origine": default_service_name(title),
         "date1": None,
         "date2": None,
@@ -876,11 +910,32 @@ def normalize_for_filepath(data):
         return ""
     data = data.strip()
     data = "".join(char if char not in PUNCTUATION else "_" for char in data)
-    return unormalize(data)
+    return unormalize(data, substitute="_")
 
 
 class InvalidFindingAid(Exception):
     """raised when finding aid is invalid (e.g. required elements missing)"""
+
+
+def cleanup_ns(tree, ns=None):
+    """hack: remove default NS.
+
+    Some EAD files use the 'urn:isbn:1-931666-22-9' namesapce, some don't.
+    To ease XML processing, remove it to access nodes using unqualified
+    names in all cases.
+    """
+    if hasattr(tree, "getroot"):
+        root = tree.getroot()
+    else:
+        root = tree
+    if ns in root.nsmap:
+        for elt in root.getiterator():
+            if not hasattr(elt.tag, "find"):
+                continue
+            ns_idx = elt.tag.find("}")
+            if ns_idx > 0:
+                elt.tag = elt.tag[ns_idx + 1 :]
+    return root
 
 
 def to_unicode(obj):
@@ -923,9 +978,9 @@ def capture_exception(exc, filepath):
 def load_services_map(cnx):
     services = {}
     rset = cnx.execute(
-        """Any X, C, N, N2, SN, L WHERE X is Service,
+        """Any X, C, N, N2, SN, L, IP, IS WHERE X is Service,
         X code C, X name N, X name2 N2, X short_name SN,
-        X level L"""
+        X level L, X iiif_ead_policy IP, X iiif_extptr IS"""
     )
     for service in rset.entities():
         code = service.code
@@ -948,6 +1003,7 @@ def service_infos_from_filepath(filepath, services_map):
                 "title": service.dc_title(),
                 "level": service.level,
                 "eid": service.eid,
+                "iiif_ead_policy": service.save_iiif_ead_policy,
             }
             break
     if infos is None:
@@ -958,6 +1014,7 @@ def service_infos_from_filepath(filepath, services_map):
             "title": service_code,
             "level": None,
             "eid": None,
+            "iiif_ead_policy": None,
         }
     return infos
 
@@ -971,6 +1028,7 @@ def service_infos_from_service_code(service_code, services_map):
             "title": service.dc_title(),
             "level": service.level,
             "eid": service.eid,
+            "iiif_ead_policy": service.save_iiif_ead_policy,
         }
     return {
         "code": service_code,
@@ -978,6 +1036,7 @@ def service_infos_from_service_code(service_code, services_map):
         "title": service_code,
         "level": None,
         "eid": None,
+        "iiif_ead_policy": None,
     }
 
 
@@ -1010,3 +1069,145 @@ def clean(*labels):
         label = whitespace.sub(" ", label).strip()
         label = "".join(char for char in label if not unicodedata.category(char).startswith("C"))
         yield (label)
+
+
+YEAR_RGX = [
+    re.compile(
+        r"""
+        ^\s*(?P<year>\d{2,4})/\d{1,2}/\d{1,2}\s*$""",
+        re.X,
+    ),
+    re.compile(
+        r"""
+        ^\s*(?P<year>\d{2,4})-\d{1,2}-\d{1,2}\s*$""",
+        re.X,
+    ),
+    re.compile(
+        r"^\s*(?P<start>\d{2,4})/\d{1,2}/\d{1,2}\s*$",
+        re.X,
+    ),
+    re.compile(r"^\s*(?P<year>\d{2,4})\s*$"),
+]
+
+
+def get_year(date):
+    """Extract a year from string representing a date
+
+    Known formats are:
+     - yyyy-mm-dd
+     - yyyy/mm/dd
+     - yyyy
+    """
+    if not date:
+        return
+    for rgx in YEAR_RGX:
+        match = rgx.match(date)
+        if match:
+            return match.group("year")
+
+
+def get_date(start, stop):
+    chunks = []
+    if start:
+        chunks.append(start)
+    if stop and stop != start:
+        chunks.append(stop)
+    if chunks:
+        return " - ".join(chunks)
+    return None
+
+
+YEAR_RANGE_RGX = [
+    re.compile(
+        r"""
+        ^\s*(?P<start>\d{2,4})/\d{1,2}/\d{1,2}\s*-
+        \s*(?P<stop>\d{2,4})/\d{1,2}/\d{1,2}\s*$""",
+        re.X,
+    ),
+    re.compile(
+        r"""
+        ^\s*(?P<start>\d{2,4})-\d{1,2}-\d{1,2}\s*/
+        \s*(?P<stop>\d{2,4})-\d{1,2}-\d{1,2}\s*$""",
+        re.X,
+    ),
+    re.compile(
+        r"""
+        ^\s*(?P<start>\d{2,4})-\d{1,2}\s*[/-]\s*
+        (?P<stop>\d{2,4})-\d{1,2}\s*$""",
+        re.X,
+    ),
+    re.compile(r"^\s*(?P<start>\d{2,4})\s*[/-]\s*(?P<stop>\d{2,4})\s*$"),
+    re.compile(
+        r"^\s*(?P<start>\d{2,4})-\d{1,2}-\d{1,2}\s*$",
+        re.X,
+    ),
+    re.compile(
+        r"^\s*(?P<start>\d{2,4})/\d{1,2}/\d{1,2}\s*$",
+        re.X,
+    ),
+    re.compile(r"^\s*(?P<start>\d{2,4})\s*$"),
+]
+
+
+def parse_normalized_daterange(value):
+    """try to guess {start, stop} date range from a unitdate label
+
+    Known formats are:
+        - yyyy-mm-dd / yyyy-dd-dd
+        - yyyy/mm/dd - yyyy/mm/dd
+        - yyyy-mm / yyyy-mm (with / or - separator)
+        - yyyy - yyyy
+        - yyyy-mm-dd
+        - yyyy/mm/dd
+        - yyyy
+
+    If ``start`` is greater than ``stop``, ``stop`` gets lowered back
+    to ``start``.
+
+    If ``start`` or ``stop`` are greater than 2100, they are ignored.
+    If ``stop`` is not defined, it defaults to ``start``.
+    Returns:
+        - None if nothing could be parsed
+        - {'start', 'stop'} mapping on success
+    """
+    start = stop = None
+    if value is not None:
+        for rgx in YEAR_RANGE_RGX:
+            match = rgx.match(value)
+            if match is not None:
+                start = int(match.group("start"))
+                if "stop" in match.groupdict():
+                    stop = int(match.group("stop"))
+                if start and start > 2100:
+                    start = None
+                if stop and stop > 2100:
+                    stop = None
+                if start and stop and start > stop:
+                    stop = None
+                stop = start if stop is None else stop
+                if start and stop:
+                    return {"start": start, "stop": stop}
+    return None
+
+
+def parse_unitdate(date_info):
+    """
+    Parse date related infos
+
+    :param dict date_info: {"text": data, "normal": date ISO}
+    """
+    infos = {
+        "date": None,
+        "start": None,
+        "stop": None,
+    }
+    text = date_info.get("text")
+    if text:
+        text = text.strip()
+        infos["date"] = text
+        for datelabel in (date_info.get("normal"), text):
+            year_range = parse_normalized_daterange(datelabel)
+            if year_range is not None:
+                infos.update(year_range)
+                break
+    return infos

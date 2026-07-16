@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ead xmlns="urn:isbn:1-931666-22-9" xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:skos="http://www.w3.org/2004/02/skos/core" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:isbn:1-931666-22-9 ead.xsd">
+   <eadheader langencoding="iso639-2b" countryencoding="iso3166-1" dateencoding="iso8601" repositoryencoding="iso15511" scriptencoding="iso15924" relatedencoding="DC">
+      <eadid identifier="IM_Delphes" countrycode="GR" mainagencycode="GREFA" encodinganalog="identifier">IM_Delphes</eadid>
+      <filedesc>
+         <titlestmt>
+            <titleproper>Inventaire méthodique des archives de l'École française d'Athènes relatives au site : Delphes</titleproper>
+         </titlestmt>
+         <publicationstmt>
+            <publisher>EFA Service des archives</publisher>
+            <address>
+               <addressline id="addressRoad_2">Didotou, 6</addressline>
+               <addressline id="addressTown_2">106 80 Athènes</addressline>
+               <addressline id="addressCountry_2">Grèce</addressline>
+               <addressline id="addressPhone_2">+30 210 36 79 942</addressline>
+               <addressline id="addressEmail_2">archives@efa.gr</addressline>
+            </address>
+            <date normal="2024-11-14" encodinganalog="date">14 novembre 2024</date>
+         </publicationstmt>
+      </filedesc>
+      <profiledesc>
+         <creation>Inventaire créé et converti en XML conforme à la DTD EAD (version 2002) via l'application Archimage.</creation>
+         <langusage>
+            <language langcode="fre">français</language>
+         </langusage>
+      </profiledesc>
+   </eadheader>
+   <archdesc level="series" relatedencoding="ISAD(G)">
+      <did>
+         <unitid countrycode="" repositorycode="GREFA">IM_Delphes</unitid>
+         <unittitle id="titleSeries_1">Delphes</unittitle>
+         <unitdate normal="1989/2015" encodinganalog="date">1989-01-01/2015-12-31</unitdate>
+         <physdesc>
+            <extent>2997 notices descriptives.</extent>
+            <genreform type="type de document">Archive</genreform>
+         </physdesc>
+         <repository>
+            <extref id="urlRepository_1" href="https://archimage.efa.gr/">website</extref>
+            <corpname>École française d'Athènes</corpname>
+            <address>
+               <addressline id="addressRoad_1">Didotou, 6</addressline>
+               <addressline id="addressTown_1">106 80 Athènes</addressline>
+               <addressline id="addressCountry_1">Grèce</addressline>
+               <addressline id="addressPhone_1">+30 210 36 79 942</addressline>
+               <addressline id="addressEmail_1">archives@efa.gr</addressline>
+            </address>
+         </repository>
+         <origination>
+            <corpname role="creator">Missions de l'EFA sur le site : Delphes</corpname>
+         </origination>
+         <langmaterial>
+            <language langcode="fre">français</language>
+         </langmaterial>
+      </did>
+      <scopecontent>
+         <p>Ensemble des documents relatifs aux fouilles et travaux, financés en tout ou en partie par l\'École française d’Athènes, sur le site : Delphes</p>
+      </scopecontent>
+      <accruals>
+         <p>Série ouverte.</p>
+      </accruals>
+      <arrangement>
+         <p>Présentation de chaque série géographique par secteurs de fouille, puis selon deux grandes périodes (1846-2014 et à partir de 2014). Pour la période 1846-2014, classement par décennie, puis par année, par collection (photothèque, planothèque, archives manuscrites, estampages, données texte, données tableur, etc.), et enfin par document. Pour la période 2014 à nos jours, classement par mission, puis par collection, et enfin par document.</p>
+      </arrangement>
+      <controlaccess>
+         <geogname>Delphes</geogname>
+      </controlaccess>
+      <dsc type="combined">
+         <c level="otherlevel" otherlevel="subseries" id="secteur_6393">
+            <did>
+               <unitid countrycode="" />
+               <unittitle id="titleSubSeries_1">Sanctuaire d'Apollon, Aire</unittitle>
+               <unitdate normal="2020-06-25 12:33:24">2020-06-25 12:33:24</unitdate>
+               <langmaterial>
+                  <language langcode="fre">français</language>
+               </langmaterial>
+            </did>
+            <c level="otherlevel" otherlevel="subsubseries" id="mission_0__1">
+               <did>
+                  <unittitle id="titleSubSeries_2">sans_mission</unittitle>
+                  <unitdate normal="" />
+                  <langmaterial>
+                     <language langcode="fre">français</language>
+                  </langmaterial>
+               </did>
+               <c level="recordgrp" id="dizaine-1980-1989_1">
+                  <did>
+                     <unittitle id="titleType_2">1980-1989</unittitle>
+                     <unitdate normal="1980-1989">1980-1989</unitdate>
+                     <langmaterial>
+                        <language langcode="fre">français</language>
+                     </langmaterial>
+                  </did>
+                  <c level="recordgrp" id="annee-1989_1">
+                     <did>
+                        <unittitle id="titleType_3">1989</unittitle>
+                        <unitdate normal="1989">1989</unitdate>
+                        <langmaterial>
+                           <language langcode="fre">français</language>
+                        </langmaterial>
+                     </did>
+                     <c level="subgrp" id="subtype_t-0_2">
+                        <did>
+                           <unitid countrycode="fr" />
+                           <unittitle id="titleType_4">Photothèque</unittitle>
+                           <physdesc>
+                              <physfacet id="physfacetType_2" type="support">Photothèque</physfacet>
+                              <genreform type="type de document">Archive</genreform>
+                              <physfacet id="physfacetNature_4" type="nature">Couleur</physfacet>
+                              <physfacet id="physfacetNature_5" type="nature">Diapositive</physfacet>
+                              <physfacet id="physfacetNature_6" type="nature">Numérisé</physfacet>
+                           </physdesc>
+                           <langmaterial>
+                              <language langcode="fre">français</language>
+                           </langmaterial>
+                        </did>
+                        <c level="item" xlink:type="simple" xlink:href="https://archimage.efa.gr/?r=fiche_publique&amp;id=3" id="document_item_doc-3_1">
+                           <did>
+                              <unitid countrycode="fr">Photothèque : E1063</unitid>
+                              <unittitle id="titleItem_4">
+                                 <title>&lt;p&gt;figure en ronde bosse&lt;/p&gt;&lt;p&gt;Matériau : ivoire or&lt;/p&gt;&lt;p&gt;Décor : homme Apollon&lt;/p&gt;&lt;p&gt;Technique : ronde bosse&lt;/p&gt;&lt;p&gt;Fragment : tête&lt;/p&gt;&lt;/p&gt;</title>
+                              </unittitle>
+                              <unitdate normal="1989-01-01">1989-01-01</unitdate>
+                              <langmaterial>
+                                 <language langcode="fre">français</language>
+                              </langmaterial>
+                              <origination>
+                                 <persname normal="Collet, Philippe (photographe)" source="Sudoc" authfilenumber="034698922" role="creator">Collet, Philippe</persname>
+                              </origination>
+                              <daogrp>
+                                 <daoloc href="https://archimage.efa.gr//?r=visionneuse_iiif&amp;id=3" role="viewer" />
+                                 <daoloc href="https://archimage.efa.gr/image_request_iiif/3/full/200,/0/default.jpg" role="thumbnail" />
+                                 <daoloc href="https://archimage.efa.gr//action.php?r=iiif_json_manifest&amp;id=3" role="iiif_manifest" />
+                              </daogrp>
+                           </did>
+                           <userestrict>
+                              <p>@CC BY-NC-SA 4.0</p>
+                           </userestrict>
+                           <controlaccess>
+                              <persname id="auteursFiche_2" normal="Deliniari, Despina" role="creator">Deliniari, Despina</persname>
+                              <subject id="subjectDomaine_2">Sculpture</subject>
+                              <geogname id="geognameSector_2" normal="Sanctuaire d'Apollon, Aire" source="Sudoc" role="Document d'archives">Sanctuaire d'Apollon, Aire</geogname>
+                           </controlaccess>
+                        </c>
+                     </c>
+                  </c>
+                  <c level="recordgrp" id="annee-1988_3">
+                     <did>
+                        <unittitle id="titleType_734">1988</unittitle>
+                        <unitdate normal="1988">1988</unitdate>
+                        <langmaterial>
+                           <language langcode="fre">français</language>
+                        </langmaterial>
+                     </did>
+                     <c level="subgrp" id="subtype_t-0_547">
+                        <did>
+                           <unitid countrycode="fr" />
+                           <unittitle id="titleType_737">Photothèque</unittitle>
+                           <physdesc>
+                              <physfacet id="physfacetType_551" type="support">Photothèque</physfacet>
+                              <genreform type="type de document">Archive</genreform>
+                              <physfacet id="physfacetNature_1091" type="nature">Couleur</physfacet>
+                              <physfacet id="physfacetNature_1092" type="nature">Diapositive</physfacet>
+                              <physfacet id="physfacetNature_1093" type="nature">Numérisé</physfacet>
+                           </physdesc>
+                           <langmaterial>
+                              <language langcode="fre">français</language>
+                           </langmaterial>
+                        </did>
+                        <c level="item" xlink:type="simple" xlink:href="https://archimage.efa.gr/?r=fiche_publique&amp;id=1907" id="document_item_doc-1907_1">
+                           <did>
+                              <unitid countrycode="fr">Photothèque : E905</unitid>
+                              <unittitle id="titleItem_1102">
+                                 <title>&lt;p&gt;applique&lt;/p&gt;&lt;p&gt;Matériau : ivoire&lt;/p&gt;&lt;p&gt;Décor : Boreades - Harpies&lt;/p&gt;&lt;p&gt;Technique : relief&lt;/p&gt;&lt;/p&gt;</title>
+                              </unittitle>
+                              <unitdate normal="1988-01-01">1988-01-01</unitdate>
+                              <langmaterial>
+                                 <language langcode="fre">français</language>
+                              </langmaterial>
+                              <origination>
+                                 <persname normal="Collet, Philippe (photographe)" source="Sudoc" authfilenumber="034698922" role="creator">Collet, Philippe</persname>
+                              </origination>
+                              <daogrp>
+                                 <daoloc href="https://archimage.efa.gr//?r=visionneuse_iiif&amp;id=1907" role="viewer" />
+                                 <daoloc href="https://archimage.efa.gr/image_request_iiif/1907/full/200,/0/default.jpg" role="thumbnail" />
+                                 <daoloc href="https://archimage.efa.gr//action.php?r=iiif_json_manifest&amp;id=1907" role="iiif_manifest" />
+                              </daogrp>
+                           </did>
+                           <userestrict>
+                              <p>@CC BY-NC-SA 4.0</p>
+                           </userestrict>
+                           <controlaccess>
+                              <persname id="auteursFiche_880" normal="Deliniari, Despina" role="creator">Deliniari, Despina</persname>
+                              <persname id="auteursFiche_881" normal="Christofi, Calliopi (1956-)" source="Sudoc" authfilenumber="120383519" role="creator">Christofi, Kalliopi</persname>
+                              <subject id="subjectDomaine_551">Petite plastique</subject>
+                              <geogname id="geognameSector_407" normal="Sanctuaire d'Apollon, Aire" source="Sudoc" role="Document d'archives">Sanctuaire d'Apollon, Aire</geogname>
+                           </controlaccess>
+                        </c>
+                     </c>
+                  </c>
+                  <c level="recordgrp" id="annee-1982_2">
+                     <did>
+                        <unittitle id="titleType_827">1982</unittitle>
+                        <unitdate normal="1982">1982</unitdate>
+                        <langmaterial>
+                           <language langcode="fre">français</language>
+                        </langmaterial>
+                     </did>
+                     <c level="subgrp" id="subtype_t-0_622">
+                        <did>
+                           <unitid countrycode="fr">Photothèque : E906</unitid>
+                           <unittitle id="titleType_826">Photothèque : E906</unittitle>
+                           <physdesc>
+                              <physfacet id="physfacetType_626" type="support">Photothèque</physfacet>
+                              <genreform type="type de document">Archive</genreform>
+                              <physfacet id="physfacetNature_1227" type="nature">Couleur</physfacet>
+                              <physfacet id="physfacetNature_1228" type="nature">Diapositive</physfacet>
+                              <physfacet id="physfacetNature_1229" type="nature">Numérisé</physfacet>
+                              <physfacet id="physfacetNature_1230" type="nature">Repiquage</physfacet>
+                           </physdesc>
+                           <dao href="https://archimage.efa.gr/vtae0897032ffb2bd0b.manifest.json" xlink:type="simple" xlink:role="iiif_manifest"/>
+                           <langmaterial>
+                              <language langcode="fre">français</language>
+                           </langmaterial>
+                        </did>
+                     </c>
+                  </c>
+               </c>
+            </c>
+         </c>
+      </dsc>
+   </archdesc>
+</ead>

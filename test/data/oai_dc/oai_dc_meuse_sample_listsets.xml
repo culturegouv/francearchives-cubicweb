@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2024-01-24T11:24:16Z</responseDate>
+  <request verb="ListSets">http://archives.meuse.fr/oaipmh/repository/</request>
+   <set>
+      <setSpec>FRAD055_EC</setSpec>
+      <setName>FRAD055_SET_EC</setName>
+    </set>
+  <ListSets>
+  </ListSets>
+  </OAI-PMH>

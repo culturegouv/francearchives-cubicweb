@@ -27,48 +27,13 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C license and that you accept its terms.
  */
+import {ChangeEventHandler} from 'react'
 
 import React, {useEffect, useState} from 'react'
-import Form from 'react-bootstrap/Form'
-import Button from 'react-bootstrap/Button'
-import Dropdown from 'react-bootstrap/Dropdown'
-import DropdownButton from 'react-bootstrap/DropdownButton'
+import {Button} from '@codegouvfr/react-dsfr/Button'
+import SelectNext from '@codegouvfr/react-dsfr/SelectNext'
+import {Input, InputProps} from '@codegouvfr/react-dsfr/Input'
 import {translate as t} from '../translate'
-
-export interface ICheckbox {
-    label: string
-    value: boolean
-    toggleFunction: () => void
-    className?: string
-}
-
-export function Checkbox({label, value, toggleFunction, className}: ICheckbox) {
-    return (
-        <Form.Check inline type="checkbox" className={className}>
-            <Form.Check.Input
-                type="checkbox"
-                checked={value}
-                onChange={toggleFunction}
-            />
-            <Form.Check.Label>{label}</Form.Check.Label>
-        </Form.Check>
-    )
-}
-
-export interface ITextInput {
-    value: string
-    setFunction: (input: string) => void
-}
-
-export function TextInput({setFunction, value}: ITextInput) {
-    return (
-        <Form.Control
-            value={value}
-            onChange={(e) => setFunction(e.target.value)}
-            type="text"
-        />
-    )
-}
 
 export interface IPlusButton {
     onClick: () => void
@@ -76,14 +41,33 @@ export interface IPlusButton {
 
 export function PlusButton({onClick}: IPlusButton) {
     return (
-        <Button
-            onClick={onClick}
-            variant="as-plus"
-            title={t('Add a criterion')}
-            aria-label={t('Add a criterion')}
-        >
-            +
-        </Button>
+        <>
+            <div className="fr-hidden fr-unhidden-lg">
+                <Button
+                    title={t('Add a criterion')}
+                    iconId="fr-icon-add-line"
+                    priority="secondary"
+                    nativeButtonProps={{
+                        onClick: onClick,
+                    }}
+                />
+            </div>
+            <div className="fr-hidden-lg">
+                <Button
+                    title={t('Add a criterion')}
+                    iconId="fr-icon-add-line"
+                    // @ts-ignore: react-dsfr bug adding an unwanted fr-btn--icon-left class by default
+
+                    iconPosition=""
+                    priority="secondary"
+                    nativeButtonProps={{
+                        onClick: onClick,
+                    }}
+                >
+                    {t('Add')}
+                </Button>
+            </div>
+        </>
     )
 }
 
@@ -93,105 +77,181 @@ export interface IRemoveRowButton {
 
 export function RemoveRowButton({onClick}: IRemoveRowButton) {
     return (
-        <Button
-            onClick={onClick}
-            variant="as-remove"
-            title={t('Remove a criterion')}
-            aria-label={t('Remove a criterion')}
-        >
-            -
-        </Button>
-    )
-}
-
-export function DropDown({
-    value,
-    choices,
-    labels,
-    update,
-    variant,
-    help,
-    onValueChange = () => {},
-}) {
-    return (
-        <DropdownButton
-            title={labels[value]}
-            variant={variant}
-            arial-label={help}
-        >
-            {choices.map((choice, index) => (
-                <Dropdown.Item
-                    key={choice}
-                    onClick={() => {
-                        if (choice !== value) {
-                            onValueChange()
-                        }
-                        update(choice)
+        <>
+            <div className="fr-hidden fr-unhidden-lg">
+                <Button
+                    title={t('Remove the criterion')}
+                    iconId="fr-icon-subtract-line"
+                    priority="secondary"
+                    nativeButtonProps={{
+                        onClick: onClick,
+                        'aria-label': t('Remove the criterion'),
                     }}
+                    onClick={onClick}
+                />
+            </div>
+            <div className="fr-hidden-lg">
+                <Button
+                    title={t('Remove the criterion')}
+                    iconId="fr-icon-subtract-line"
+                    priority="secondary"
+                    nativeButtonProps={{
+                        onClick: onClick,
+                    }}
+                    onClick={onClick}
                 >
-                    {labels[choice]}
-                </Dropdown.Item>
-            ))}
-        </DropdownButton>
+                    {t('Remove')}
+                </Button>
+            </div>
+        </>
     )
 }
 
-export function YearInput({id, label, value, setValue, minValue}) {
-    const [invalid, setInvalid] = useState(false)
-    const [aboveMin, setAboveMin] = useState(value < minValue)
+export interface IDropDown {
+    value: string
+    label: string | null
+    options: Array<{label: string; value: string}>
+    help?: string
+    onChange?: ChangeEventHandler<HTMLSelectElement>
+}
+
+export function DropDown({value, label, options, help, onChange}: IDropDown) {
+    return (
+        <SelectNext
+            label={label}
+            nativeSelectProps={{
+                onChange,
+                value,
+                //@ts-expect-error is actually works
+                'arial-label': help,
+            }}
+            options={options}
+            placeholder={help}
+        />
+    )
+}
+
+export interface IToggle {
+    value: string
+    options: Array<{label: string; value: string}>
+    onChange: any
+}
+
+export function Toggle({value, options, onChange}: IToggle) {
+    const option1 = options[0]
+    const option2 = options[1]
+    return (
+        <fieldset className="fr-segmented">
+            <legend className="fr-segmented__legend fr-segmented__legend--inline">
+                {t('Filter')}
+            </legend>
+            <div className="fr-segmented__elements" role="group">
+                <div className="fr-segmented__element">
+                    <input
+                        id="segmented-toggle-1"
+                        value={option1.value}
+                        checked={option1.value == value}
+                        type="radio"
+                        name="segmented-toggle"
+                        role="button"
+                        aria-label={option1.label}
+                        aria-pressed={option1.value == value ? true : false}
+                        onClick={() => {
+                            onChange(option1.value)
+                        }}
+                    />
+                    <label className="fr-label" htmlFor="segmented-toggle-1">
+                        {option1.label}
+                    </label>
+                </div>
+                <div className="fr-segmented__element">
+                    <input
+                        id="segmented-toggle-2"
+                        value={option2.value}
+                        checked={option2.value == value}
+                        type="radio"
+                        name="segmented-toggle"
+                        aria-label={option2.label}
+                        role="button"
+                        aria-pressed={option2.value == value ? true : false}
+                        onClick={() => {
+                            onChange(option2.value)
+                        }}
+                    />
+                    <label className="fr-label" htmlFor="segmented-toggle-2">
+                        {option2.label}
+                    </label>
+                </div>
+            </div>
+        </fieldset>
+    )
+}
+
+export interface IYearInput {
+    id: string
+    label: string
+    value: number | null
+    setValue: (value: number | null) => void
+    minValue: number | null
+    placeholder: string
+    onStateChange: (value: boolean) => void
+}
+
+export function YearInput({
+    id,
+    label,
+    value,
+    setValue,
+    minValue,
+    placeholder,
+    onStateChange,
+}: IYearInput) {
+    const [state, setState] = useState<InputProps['state']>('default')
+    const [stateRelatedMessage, setStateRelatedMessage] = useState('')
+
+    useEffect(() => {
+        onStateChange(state === 'default')
+    }, [state])
+
     useEffect(() => {
         if (minValue && value && value < minValue) {
-            setAboveMin(true)
+            setState('error')
+            setStateRelatedMessage(
+                t('The end date must be greater than the start date'),
+            )
         } else {
-            setAboveMin(false)
+            setState('default')
+            setStateRelatedMessage('')
         }
     }, [minValue, value])
 
     const checkNumberOrNull = (input) => {
         if (!isNaN(parseInt(input))) {
             setValue(parseInt(input))
-            setInvalid(false)
+            setState('default')
+            setStateRelatedMessage('')
         } else if (input === '') {
             setValue(null)
-            setInvalid(false)
+            setState('default')
+            setStateRelatedMessage('')
         } else {
             setValue(null)
-            setInvalid(true)
+            setState('error')
+            setStateRelatedMessage(t('The value entered must be a number'))
         }
     }
     return (
-        <>
-            <Form.Group className="as-dates">
-                {invalid ? (
-                    <Form.Control.Feedback type="invalid">
-                        Saisie doit être un nombre
-                    </Form.Control.Feedback>
-                ) : (
-                    <></>
-                )}
-                {aboveMin ? (
-                    <Form.Control.Feedback type="invalid">
-                        La date de fin doit être supérieure à la date de début
-                    </Form.Control.Feedback>
-                ) : (
-                    <></>
-                )}
-
-                <Form.Control
-                    id={id}
-                    placeholder={label}
-                    value={value ?? ''}
-                    onChange={(e) => checkNumberOrNull(e.target.value)}
-                    onFocus={() => {
-                        setInvalid(false)
-                    }}
-                    onBlur={() => {
-                        setInvalid(false)
-                    }}
-                    isInvalid={invalid || aboveMin}
-                    aria-label={label}
-                />
-            </Form.Group>
-        </>
+        <Input
+            label={label}
+            state={state}
+            stateRelatedMessage={stateRelatedMessage}
+            hintText={placeholder}
+            nativeInputProps={{
+                id: id,
+                value: value ?? '',
+                onChange: (e) => checkNumberOrNull(e.target.value),
+                placeholder: placeholder,
+            }}
+        />
     )
 }

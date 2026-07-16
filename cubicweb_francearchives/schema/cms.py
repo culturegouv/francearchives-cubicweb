@@ -115,6 +115,7 @@ class Metadata(EntityType):
 ON_FRONTPAGE_VOC = (
     "",
     _("onhp_hp"),
+    _("onhp_nhp"),
     _("onhp_arch"),
 )
 
@@ -147,6 +148,11 @@ class Section(CmsObject):
         ),
         default=_("mode_tree"),
         internationalizable=True,
+    )
+    children_sorting_order = String(
+        description=_(
+            "Sortorder for item order (e.g '-sortdate' for sorting in reverse chronological order or '-sortdate -order'). Multiple values must be separated by a space (e.g '-sortdate -order'). If the field is left empty, the reverse chronological sorting will be applied."  # noqa
+        )
     )
 
 
@@ -259,9 +265,9 @@ class CommemorationItem(CmsObject):
     )
     subtitle = String(fulltextindexed=True)
     alphatitle = String(indexed=True)
-    start_year = Int(fulltextindexed=True)
-    stop_year = Int(fulltextindexed=True)
-    commemoration_year = Int(fulltextindexed=True)
+    start_year = Int()
+    stop_year = Int()
+    commemoration_year = Int()
     commemo_dates = SubjectRelation("CommemoDate")
     on_homepage = String(
         vocabulary=ON_FRONTPAGE_VOC, default=_(""), internationalizable=True, indexed=True
@@ -520,7 +526,7 @@ class Service(EntityType):
     category = String(required=True, fulltextindexed=True)
     name = String(fulltextindexed=True)
     name2 = String(fulltextindexed=True, description=_("long name"))
-    short_name = String(maxsize=64, indexed=True, description=_("short name"))
+    short_name = String(maxsize=64, fulltextindexed=True, indexed=True, description=_("short name"))
     phone_number = String()
     code_insee_commune = String(maxsize=20)
     email = String()
@@ -534,10 +540,6 @@ class Service(EntityType):
     )
     thumbnail_url = String(description=_("Use {url} substitution pattern"))
     thumbnail_dest = String(description=_("Use {url} substitution pattern"))
-    iiif_extptr = Boolean(
-        default=False,
-        description=_("Service has a IIIF server and encode manifest in <extptr> (LIGEO)"),
-    )
     annual_closure = String()
     opening_period = String()
     contact_name = String(fulltextindexed=True)
@@ -564,6 +566,19 @@ class Service(EntityType):
     latitude = Float()
     dpt_code = String(maxsize=3, indexed=True)
     other = RichString(default_format="text/html", fulltextindexed=True)
+    iiif_extptr = Boolean(
+        default=False,
+        description=_("Service has a IIIF server"),
+    )
+    iiif_ead_policy = String(
+        vocabulary=(
+            _("iiif_role"),  # role == IIIF_MANIFEST_ROLE
+            _("iiif_ligeo_extptr"),  # LIGEO
+            _("iiif_bnf"),  # Pattern standard IIIF (BNF, Mnesys, etc.)
+            _("iiif_ajlsm"),  # "FRAD053", "FRCDF"
+        ),
+        internationalizable=True,
+    )
 
 
 class annex_of(RelationDefinition):
@@ -688,6 +703,7 @@ class FaqItem(EntityType):
             _("04_faq_circular"),
             _("05_faq_basecontent_pro"),
             _("06_faq_eac"),
+            _("07_faq_nomina"),
         ),
         default=_("03_faq_ir"),
         internationalizable=True,
@@ -744,6 +760,7 @@ class SiteLink(EntityType):
             _("footer_archives_sites"),
             _("footer_search_notebooks"),
             _("footer_usefull_links"),
+            _("footer_links_directories"),
             _("footer_links"),
             _("foundout_link"),
         ),

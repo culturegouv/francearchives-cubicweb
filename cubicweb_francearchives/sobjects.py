@@ -33,9 +33,11 @@ import logging
 from cubicweb_eac import sobjects as eac
 from cubicweb_eac import dataimport
 
-from cubicweb_francearchives.dataimport import OptimizedExtEntitiesImporter, first
 
 from cubicweb_francearchives.storage import S3BfssStorageMixIn
+from cubicweb_francearchives.dataimport import OptimizedExtEntitiesImporter, first
+from cubicweb_francearchives.dataimport.eac import init_extid2eid_index
+from cubicweb_francearchives.dataimport.ape_eac import create_ape_eac_xml, preprocess_eac
 
 LOGGER = logging.getLogger()
 
@@ -72,6 +74,22 @@ class EACOptimizedExtEntitiesImporter(OptimizedExtEntitiesImporter):
     def add_xml_support(self, ext_entity):
         ext_entity.values["xml_support"] = {self.storage.storage_ufilepath(self.fpath)}
 
+    def add_ape_ead_file(self, ext_entity):
+        xml_path = first(ext_entity.values["xml_support"])
+        record_id = first(ext_entity.values["record_id"])
+        binary = self.storage.storage_get_file_content(xml_path)
+        try:
+            binary = self.storage.storage_get_file_content(xml_path)
+            tree = preprocess_eac(binary)
+        except Exception as ex:
+            self.log.error(f"[ape_ead] Could not generate ape_ead_file for {record_id}: {ex}")
+            return
+        service_infos = {"service_code": record_id.split("_")[0]}
+        ape_file = create_ape_eac_xml(self.store._cnx, self.storage, tree, record_id, service_infos)
+        self.extid2eid["file-{ape_file.eid}"] = ape_file.eid
+        # add ape_file to
+        ext_entity.values["ape_eac_file"] = {"file-{ape_file.eid}"}
+
     def create_maintainer(self, ext_entity):
         record_id = first(ext_entity.values["record_id"])
         service_code = record_id.split("_")[0]
@@ -90,6 +108,7 @@ class EACOptimizedExtEntitiesImporter(OptimizedExtEntitiesImporter):
             if ext_entity.etype == "AuthorityRecord":
                 self.create_maintainer(ext_entity)
                 self.add_xml_support(ext_entity)
+                self.add_ape_ead_file(ext_entity)
             yield ext_entity
 
     def import_entities(self, extentities):
@@ -140,16 +159,17 @@ class EACImportService(eac.EACImportService):
         return EACCPFImporter(stream, import_log, self._cw._)
 
     def _import_eac_stream(self, stream, import_log, store, extid2eid=None, **kwargs):
-        source = self._cw.repo.system_source
         if extid2eid is None:
-            extid2eid = eac.init_extid2eid_index(self._cw, source)
+            source = self._cw.repo.system_source
+            extid2eid = init_extid2eid_index(self._cw.cnx, source)
+            # extid2eid = eac.init_extid2eid_index(self._cw, source)
         importer = EACOptimizedExtEntitiesImporter(
             self._cw.vreg.schema,
             store,
             import_log=import_log,
             extid2eid=extid2eid,
             etypes_order_hint=dataimport.ETYPES_ORDER_HINT,
-            **kwargs
+            **kwargs,
         )
         generator = self.external_entities_generator(stream, import_log)
         generator.check_notice_validity(extid2eid)

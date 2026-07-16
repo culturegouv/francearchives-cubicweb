@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eac xmlns="https://archivists.org/ns/eac/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" audience="external" xsi:schemaLocation="https://archivists.org/ns/eac/v2  https://eac.staatsbibliothek-berlin.de/schema/v2/eac.xsd">
+  <control audience="external" maintenanceStatus="derived" publicationStatus="inProcess" languageOfElement="fr" languageEncoding="iso639-1" scriptEncoding="iso15924" scriptOfElement="Latn" id="control" dateEncoding="iso8601">
+    <recordId>FRSIAF_RAA_00000001</recordId>
+    <maintenanceAgency>
+      <agencyCode>FRSIAF</agencyCode>
+      <agencyName>Service interministériel des Archives de France</agencyName>
+    </maintenanceAgency>
+    <maintenanceHistory>
+      <maintenanceEvent maintenanceEventType="created">
+        <agent agentType="human">Jean Valjean</agent>
+        <eventDateTime standardDateTime="2025-01-09T14:35:52">09/01/2025 14:35</eventDateTime>
+      </maintenanceEvent>
+      <maintenanceEvent maintenanceEventType="revised">
+        <agent agentType="human">Jean Valjean</agent>
+        <eventDateTime standardDateTime="2025-07-09T14:35:52">09/07/2025 14:35</eventDateTime>
+      </maintenanceEvent>
+    </maintenanceHistory>
+    <sources>
+      <source>
+        <reference href="https://data.bnf.fr/ark:/12148/cb11927825h">Notice data.bnf.fr</reference>
+      </source>
+      <source>
+        <reference href="https://www.wikidata.org/wiki/Q1418">Notice Wikidata</reference>
+      </source>
+    </sources>
+    <conventionDeclaration>
+      <reference href="https://eac.staatsbibliothek-berlin.de/schema/v2/eac.xsd"/>
+      <descriptiveNote languageOfElement="fre" scriptOfElement="Ltn">
+        <p>Notice établie conformément à la norme ICA-ISAAR (CPF) 2004, aux normes ISO 8601 pour le système de normalisation des dates utilisé.</p>
+      </descriptiveNote>
+    </conventionDeclaration>
+    <conventionDeclaration>
+      <reference href="https://code.rdafr.fr/">Code RDA-FR/Agent</reference>
+    </conventionDeclaration>
+    <languageDeclaration languageCode="fre" scriptCode="Latn"/>
+    <representation href="https://testing.cubicweb/agentrecord/FRSIAF_RAA_00000001">Simone Veil</representation>
+    <rightsDeclaration>
+      <reference href="https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf">Licence etalab-2.0</reference>
+    </rightsDeclaration>
+  </control>
+  <cpfDescription>
+    <identity>
+      <entityType value="person"/>
+      <nameEntrySet>
+        <nameEntry languageOfElement="fre" scriptOfElement="Latn" preferredForm="true" status="authorized">
+          <part>Simone Veil</part>
+        </nameEntry>
+        <nameEntry languageOfElement="fr" preferredForm="false" status="alternative">
+          <part>Simone Annie Liline Jacob</part>
+          <useDates>
+            <dateRange>
+              <fromDate standardDate="1927-01-01" certainty="certain">1927</fromDate>
+              <toDate standardDate="2017-01-01" certainty="certain">2017</toDate>
+            </dateRange>
+          </useDates>
+        </nameEntry>
+        <nameEntry languageOfElement="fr" preferredForm="false" status="alternative">
+          <part>Simone Jacob</part>
+        </nameEntry>
+      </nameEntrySet>
+      <identityId valueURI="https://data.bnf.fr/ark:/12148/cb11927825h" vocabularySource="data.bnf">ark:/12148/cb11927825h</identityId>
+      <identityId valueURI="https://www.wikidata.org/wiki/Q1418" vocabularySource="Wikidata">Q1418</identityId>
+    </identity>
+    <description>
+      <demographicDescriptions>
+        <demographicDescription localType="sexe">
+          <term>female</term>
+        </demographicDescription>
+      </demographicDescriptions>
+    </description>
+  </cpfDescription>
+</eac>

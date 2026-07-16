@@ -33,10 +33,10 @@ import unittest
 
 import datetime as dt
 
-from cubicweb.devtools.testlib import CubicWebTC
+from cubicweb_web.devtools.testlib import WebCWTC
 
 
-class MetaTests(CubicWebTC):
+class MetaTests(WebCWTC):
     def test_newscontent_default_metadata(self):
         """tests IMeta when no Metadata entity is created"""
         with self.admin_access.cnx() as cnx:
@@ -130,7 +130,7 @@ class MetaTests(CubicWebTC):
             )
 
 
-class OpenGraphTests(CubicWebTC):
+class OpenGraphTests(WebCWTC):
     def test_news_opengraph(self):
         with self.admin_access.cnx() as cnx:
             metadata = cnx.create_entity(

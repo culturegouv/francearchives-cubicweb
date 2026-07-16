@@ -1,44 +1,52 @@
-<form id="nomnia-search-bar-form" action="{{ base_url }}/basedenoms" class="row">
-  <div class="col-lg-12">
-    <div class="row">
-      <div class="col-lg-4">
-        <label for="es_names" class="visually-hidden">{{ _('Names') }}</label>
-        <input id="es_names" class="search-query form-control" type="text"
-               autocomplete="off" name="es_names"
-               value="{{ query_names |e }}"
-               placeholder="{{ _('Names') }}" />
-      </div>
-      <div class="col-lg-4">
-        <label for="es_forenames" class="visually-hidden">{{ _('Forenames') }}</label>
-        <input id="es_forenames" class="search-query form-control" type="text"
-               autocomplete="off" name="es_forenames"
-               value="{{ query_forenames |e }}"
-               placeholder="{{ _('Forenames') }}" />
-      </div>
-      <div class="col-lg-4">
-        <label for="es_locations" class="visually-hidden">{{ _('Locations') }}</label>
-        <input id="es_locations" class="search-query form-control" type="text"
-               autocomplete="off" name="es_locations"
-               value="{{ query_locations |e }}"
-               placeholder="{{ _('Locations') }}" />
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-lg-12">
-        <label for="es_fulltext_facet" class="visually-hidden">{{ _('Nomina free search') }}</label>
-        <input id="es_fulltext_facet" class="search-query form-control" type="text"
-               autocomplete="off" name="fulltext_facet"
-               value="{{ query_fulltext |e }}"
-               placeholder="{{ _('Nomina free search') }}" />
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-lg-4 offset-lg-8">
-        <button type="submit" class="search-nomina-submit" value="" title="{{ _("Search in the name base") }}">
-          <i aria-hidden="true" class="icon"></i>
-          <span class="text">{{ _("###ToSearch###") }}</span>
-        </button>
+<div id="header-search" class="fr-container">
+  <div id="nomnia-search-bar" class="fr-px-3w fr-pb-0">
+    <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+      <div class="fr-col-12 fr-col-lg-10">
+        <form id="nomnia-search-bar-form" action="{{ base_url }}/{{ base_search_route }}" class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+          <fieldset class="fr-fieldset">
+            <div class="fr-fieldset__element fr-fieldset__element--inline@md">
+              <label for="es_names" class="fr-label">{{ _('Names') }}</label>
+              <input id="es_names" class="fr-input" type="text"
+                     autocomplete="off" name="es_names"
+                     value="{{ query_names |e }}"
+                     placeholder="{{ _('ex.')}}{{_(':') }}Bieu Dupont"
+              >
+            </div>
+            <div class="fr-fieldset__element fr-fieldset__element--inline@md">
+              <label for="es_forenames" class="fr-label">{{ _('Forenames') }}</label>
+              <input id="es_forenames" class="fr-input" type="text"
+                     autocomplete="off" name="es_forenames"
+                     value="{{ query_forenames |e }}"
+                     placeholder="{{ _('ex.')}}{{_(':') }}Jeanne Marie" >
+            </div>
+            <div class="fr-fieldset__element fr-fieldset__element--inline@md fr-fieldset__element--inline-grow">
+              <label for="es_locations" class="fr-label">{{ _('Document location label') }}</label>
+              <input id="es_locations" class="fr-input" type="text"
+                     autocomplete="off" name="es_locations"
+                     value="{{ query_locations |e }}"
+                     placeholder="{{ _('ex.')}}{{_(':') }}Dugny-sur-Meuse" >
+            </div>
+            <div class="fr-fieldset__element fr-fieldset__element--inline@md fr-fieldset__element--inline-grow">
+              <label for="es_fulltext_facet" class="fr-label">{{ _('Nomina free search') }}</label>
+              <div class="fr-grid-row">
+                <div class="fr-col">
+                  <input id="es_fulltext_facet" class="fr-input" type="text"
+                         autocomplete="off" name="fulltext_facet"
+                         placeholder="{{ _('ex.')}}{{_(':') }} boulanger Besançon">
+                </div>
+                <div class="fr-col-auto fr-align-center">
+                  <button type="submit" class="fr-btn" value="" title="{{ _("Search in the name base") }}">{{ _("###ToSearch###") }}</button>
+                  <a class="fr-link fr-icon-arrow-right-line fr-link--icon-right fr-ml-2v"
+                     target="_blank"
+                     rel="noopener external"
+                     href="{{ search_info_url }}"
+                     title="FAQ - {{ _("See in FAQ:") }} {{ _('How to search on FranceArchives?') }} {{ _("- New window") }}">FAQ</a>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </form>
       </div>
     </div>
   </div>
-</form>
+</div>

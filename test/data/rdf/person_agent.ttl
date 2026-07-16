@@ -2,58 +2,58 @@
 @prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<http://testing.fr/cubicweb/agent/{{family_eid}}> rico:groupIsSourceOfMembershipRelation <http://testing.fr/cubicweb/authorityrecord/A123#family_to_F123> ;
-    rico:hasOrHadMember <http://testing.fr/cubicweb/agent/{{agent_eid}}> .
+<https://testing.cubicweb/agent/{{family_eid}}> rico:groupIsSourceOfMembershipRelation <https://testing.cubicweb/authorityrecord/A123#family_to_F123> ;
+    rico:hasOrHadMember <https://testing.cubicweb/agent/{{agent_eid}}> .
 
-<http://testing.fr/cubicweb/authorityrecord/A123#family_to_B123> a rico:FamilyRelation ;
-    rico:familyRelationConnects <http://testing.fr/cubicweb/agent/{{agent_eid}}>,
-        <http://testing.fr/cubicweb/authorityrecord/B123#agent> .
+<https://testing.cubicweb/authorityrecord/A123#family_to_B123> a rico:FamilyRelation ;
+    rico:familyRelationConnects <https://testing.cubicweb/agent/{{agent_eid}}>,
+        <https://testing.cubicweb/authorityrecord/B123#agent> .
 
-<http://testing.fr/cubicweb/authorityrecord/A123#family_to_B234> a rico:FamilyRelation ;
-    rico:familyRelationConnects <http://testing.fr/cubicweb/agent/{{agent_eid}}>,
-        <http://testing.fr/cubicweb/authorityrecord/B234#agent> .
+<https://testing.cubicweb/authorityrecord/A123#family_to_B234> a rico:FamilyRelation ;
+    rico:familyRelationConnects <https://testing.cubicweb/agent/{{agent_eid}}>,
+        <https://testing.cubicweb/authorityrecord/B234#agent> .
 
-<http://testing.fr/cubicweb/authorityrecord/A123#family_to_F123> a rico:MembershipRelation ;
-    rico:membershipRelationHasSource <http://testing.fr/cubicweb/agent/{{family_eid}}> ;
-    rico:membershipRelationHasTarget <http://testing.fr/cubicweb/agent/{{agent_eid}}> .
+<https://testing.cubicweb/authorityrecord/A123#family_to_F123> a rico:MembershipRelation ;
+    rico:membershipRelationHasSource <https://testing.cubicweb/agent/{{family_eid}}> ;
+    rico:membershipRelationHasTarget <https://testing.cubicweb/agent/{{agent_eid}}> .
 
-<http://testing.fr/cubicweb/authorityrecord/B123#agent> rico:hasFamilyAssociationWith <http://testing.fr/cubicweb/agent/{{agent_eid}}> ;
-    rico:personHasFamilyRelation <http://testing.fr/cubicweb/authorityrecord/A123#family_to_B123> .
+<https://testing.cubicweb/authorityrecord/B123#agent> rico:hasFamilyAssociationWith <https://testing.cubicweb/agent/{{agent_eid}}> ;
+    rico:personHasFamilyRelation <https://testing.cubicweb/authorityrecord/A123#family_to_B123> .
 
-<http://testing.fr/cubicweb/authorityrecord/B234#agent> rico:hasFamilyAssociationWith <http://testing.fr/cubicweb/agent/{{agent_eid}}> ;
-    rico:personHasFamilyRelation <http://testing.fr/cubicweb/authorityrecord/A123#family_to_B234> .
+<https://testing.cubicweb/authorityrecord/B234#agent> rico:hasFamilyAssociationWith <https://testing.cubicweb/agent/{{agent_eid}}> ;
+    rico:personHasFamilyRelation <https://testing.cubicweb/authorityrecord/A123#family_to_B234> .
 
-<http://testing.fr/cubicweb/externaluri/1234567--aadd4445> a rico:OccupationType ;
+<https://testing.cubicweb/externaluri/1234567--aadd4445> a rico:OccupationType, rico:ActivityType ;
     rdfs:label "fan de poules" ;
-    rico:isOrWasOccupationTypeOf <http://testing.fr/cubicweb/agent/{{agent_eid}}> .
+    rico:isOrWasOccupationTypeOf <https://testing.cubicweb/agent/{{agent_eid}}> .
 
-<http://testing.fr/cubicweb/agent/{{agent_eid}}> a rico:Agent,
+<https://testing.cubicweb/agent/{{agent_eid}}> a rico:Agent,
         rico:Person ;
     rico:agentIsTargetOfPerformanceRelation _:N8df99ca0aea3491480d2456759387b17 ;
     rico:birthDate "2010-01-01"^^xsd:date ;
     rico:deathDate "2050-05-02"^^xsd:date ;
-    rico:hasFamilyAssociationWith <http://testing.fr/cubicweb/authorityrecord/B123#agent>,
-        <http://testing.fr/cubicweb/authorityrecord/B234#agent> ;
+    rico:hasFamilyAssociationWith <https://testing.cubicweb/authorityrecord/B123#agent>,
+        <https://testing.cubicweb/authorityrecord/B234#agent> ;
     rico:hasOrHadAgentName [ a rico:AgentName ;
-            rico:isOrWasAgentNameOf <http://testing.fr/cubicweb/agent/{{agent_eid}}> ;
+            rico:isOrWasAgentNameOf <https://testing.cubicweb/agent/{{agent_eid}}> ;
             rico:textualValue "Jean Jacques" ;
             rico:type "authorized" ] ;
-    rico:hasOrHadOccupationOfType <http://testing.fr/cubicweb/externaluri/1234567--aadd4445> ;
-    rico:isOrWasDescribedBy <http://testing.fr/cubicweb/authorityrecord/A123> ;
-    rico:isOrWasMemberOf <http://testing.fr/cubicweb/agent/{{family_eid}}> ;
+    rico:hasOrHadOccupationOfType <https://testing.cubicweb/externaluri/1234567--aadd4445> ;
+    rico:isOrWasDescribedBy <https://testing.cubicweb/authorityrecord/A123> ;
+    rico:isOrWasMemberOf <https://testing.cubicweb/agent/{{family_eid}}> ;
     rico:name "Jean JACQUES",
         "Jean Jacques" ;
     rdfs:label "Jean JACQUES" ;
     rico:performsOrPerformed _:Na631569fd7ea42e08173c884fcfe993b ;
-    rico:personHasFamilyRelation <http://testing.fr/cubicweb/authorityrecord/A123#family_to_B123>,
-        <http://testing.fr/cubicweb/authorityrecord/A123#family_to_B234> ;
-    rico:personIsTargetOfMembershipRelation <http://testing.fr/cubicweb/authorityrecord/A123#family_to_F123> .
+    rico:personHasFamilyRelation <https://testing.cubicweb/authorityrecord/A123#family_to_B123>,
+        <https://testing.cubicweb/authorityrecord/A123#family_to_B234> ;
+    rico:personIsTargetOfMembershipRelation <https://testing.cubicweb/authorityrecord/A123#family_to_F123> .
 
 _:N8df99ca0aea3491480d2456759387b17 a rico:PerformanceRelation ;
     rico:performanceRelationHasSource _:Na631569fd7ea42e08173c884fcfe993b ;
-    rico:performanceRelationHasTarget <http://testing.fr/cubicweb/agent/{{agent_eid}}> .
+    rico:performanceRelationHasTarget <https://testing.cubicweb/agent/{{agent_eid}}> .
 
 _:Na631569fd7ea42e08173c884fcfe993b a rico:Activity ;
     rico:activityIsSourceOfPerformanceRelation _:N8df99ca0aea3491480d2456759387b17 ;
-    rico:hasActivityType <http://testing.fr/cubicweb/externaluri/1234567--aadd4445> ;
-    rico:isOrWasPerformedBy <http://testing.fr/cubicweb/agent/{{agent_eid}}> .
+    rico:hasActivityType <https://testing.cubicweb/externaluri/1234567--aadd4445> ;
+    rico:isOrWasPerformedBy <https://testing.cubicweb/agent/{{agent_eid}}> .

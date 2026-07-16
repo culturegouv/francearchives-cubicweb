@@ -1,35 +1,45 @@
 {%- if display_date_facet %}
-<div id="facet-dates" class="facet d-print-none">
-  <h3 class="no-style facet__title">
-    <a href="#" class="cwjs-facet-title {% if facet_date_unfolded %}unfolded{%- endif %}"
-       aria-expanded="{% if facet_unfolded %}true{% else %}false{% endif %}"
-        aria-controls="facet-dates-content" role="button"
-    >
-      <span class="arrow">{{ _('Dates') }}</span>
-    </a>
+<section  id="fa-facet-dates" class="fr-accordion">
+  <h3 class="fr-accordion__title">
+    <button class="fr-accordion__btn"
+            aria-expanded="{% if date_facet_unfolded %}true{% else %}false{% endif %}"
+            aria-controls="facet-dates">{{ _('Dates') }}</button>
   </h3>
-  <div id="facet-dates-content"
-       class="facet__body" {% if  facet_date_unfolded %}style="display:block"{%- endif %}>
-    <form id="date-facet" action="{{ fulltext_form_action }}" onsubmit="return checkDateRange()">
-      <div class="mb3">
+  {# XXX the expense must be triggered by javascript #}
+  <div class="fr-collapse{% if date_facet_unfolded %} fr-collapse--expanded{% endif %}" id="facet-dates">
+    <form id="date-facet" action="{{ fulltext_form_action }}">
+      <fieldset id="date-facet-fieldset" class="fr-fieldset" role="group" aria-labelledby="date-facet-legend">
+        <legend class="fr-sr-only" id="date-facet-legend">{{ _('Dates') }}</legend>
         {% for name, values in date_params.items() %}
         {% for value in values %}
-        <input type="hidden" name="{{ name |e}}" value="{{ value | escape }}" />
+        <input type="hidden" name="{{ name |e}}" value="{{ value | escape }}" >
         {% endfor %}
         {% endfor %}
-        <div id="date-facet__dates_interval">
-          <div id="date-facet__dates_interval_min">
-            <label for="date-min-input">{{ _('date-min-label') | escape }}</label>
-            <input id="date-min-input" name="es_date_min" value="{{ es_date_min |e }}" class="form-control facet__focusable-item" type="number" placeholder="{{ _('year') }}" />
-          </div>
-          <div id="date-facet__dates_interval_max">
-            <label for="date-max-input">{{ _('date-max-label') | escape }}</label>
-            <input id="date-max-input" name="es_date_max" value="{{ es_date_max |e}}" class="form-control facet__focusable-item" type="number" placeholder="{{ _('year') }}" />
+        <div class="fr-fieldset__element fr-fieldset__element--inline fr-fieldset__element--inline-grow fr-fieldset__element--year">
+          <div class="fr-input-group" id="date-facet__dates_interval_min">
+            <label class="fr-label" for="date-min-input">{{ _('date-min-facet') | escape }}
+              <span class="fr-hint-text">{{ _("Expected format:") }}{{ _(":") }} 1789 </span>
+            </label>
+            <input id="date-min-input" name="es_date_min" value="{{ es_date_min |e }}" class="fr-input" type="number" placeholder="{{ _('es_date_min_placeholder') }}">
           </div>
         </div>
-        <input type="submit" class="hidden" aria-label="{{ _("Send") }}"/>
+        <div class="fr-fieldset__element fr-fieldset__element--inline fr-fieldset__element--inline-grow fr-fieldset__element--year">
+          <div class="fr-input-group" id="date-facet__dates_interval_max">
+            <label  class="fr-label" for="date-max-input">{{ _('date-max-facet') | escape }}
+              <span class="fr-hint-text">{{ _("Expected format:") }}{{ _(":") }} 2010 </span>
+            </label>
+            <input id="date-max-input" name="es_date_max" value="{{ es_date_max |e}}" class="fr-input" type="number" placeholder="{{ _('es_date_max_placeholder')  }}">
+          </div>
+        </div>
+        <div id="date-facet-message" class="fr-messages-group fr-hidden" aria-hidden="true">
+          <p id="date-facet-message-error" class="fr-message fr-message--error"
+          aria-live="assertive">{{_('facet_date_min_maix_error') }}</p>
+        </div>
+      </fieldset>
+      <div>
+      <button class="fr-btn fa-dates-button" type="submit" title="{{ _("Submit the dates") }}">{{ _("Validate") }}</button>
       </div>
     </form>
   </div>
-</div>
+</section>
 {% endif -%}

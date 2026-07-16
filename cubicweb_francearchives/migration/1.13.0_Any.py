@@ -49,7 +49,9 @@ with sqlutil.sudocnx(cnx, interactive=False) as su_cnx:
     # remove default value for FAComponent.additional_resources_format
     # to avoid excuting the "UPDATE cw_facomponent SET cw_a...='text/html' that
     # takes ages
-    adr_fmt_rdef = fsschema.rschema("additional_resources_format").rdef("FAComponent", "String")
+    adr_fmt_rdef = fsschema.relation_schema_for("additional_resources_format").relation_definition(
+        "FAComponent", "String"
+    )
     adr_fmt_rdef.default = None
     for etype, attrs in (
         ("FindingAid", ("accessrestrict", "userestrict", "additional_resources")),

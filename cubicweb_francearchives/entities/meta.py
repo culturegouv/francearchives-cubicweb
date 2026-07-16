@@ -31,6 +31,8 @@
 
 from logilab.common.decorators import cachedproperty
 
+from logilab.mtconverter import xml_escape
+
 from cubicweb.entity import EntityAdapter, Adapter
 from cubicweb.predicates import match_kwargs
 
@@ -61,7 +63,7 @@ class MetaMixin(object):
                 ("twitter:site", twitter_account_name(self._cw.vreg.config)),
             ]
         )
-        return [(name, value) for name, value in data if value]
+        return [(name, xml_escape(value)) for name, value in data if value]
 
     def title(self):
         entity = self.entity

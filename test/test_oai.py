@@ -31,11 +31,12 @@
 import os.path as osp
 
 from functools import wraps
+
+from cubicweb_web.devtools.testlib import PyramidWebCWTC
 from lxml import etree
 import unittest
 
 from cubicweb import Binary
-from cubicweb.pyramid.test import PyramidCWTest
 
 
 from cubicweb_francearchives.dataimport import usha1
@@ -69,7 +70,7 @@ def no_validate_xml(method):
     return wrapper
 
 
-class OAIPMHViewsTC(PostgresTextMixin, PyramidCWTest, OAITestMixin):
+class OAIPMHViewsTC(PostgresTextMixin, PyramidWebCWTC, OAITestMixin):
     _validate_xml = True
     _debug_xml = True
     settings = {
@@ -177,7 +178,6 @@ class OAIPMHViewsTC(PostgresTextMixin, PyramidCWTest, OAITestMixin):
                 did=fadid,
                 fa_header=fa_header,
                 service=service,
-                fatype="fatype",
                 scopecontent="<div>fa-scoppecontent</div>",
                 reverse_index=[
                     fa_loc_index,
@@ -278,7 +278,7 @@ class OAIEADViewsTC(S3BfssStorageTestMixin, XMLCompMixin, OAIPMHViewsTC):
                 self.assertIn(data, result)
 
     @no_validate_xml
-    def test_fa_ead__oai_ead(self):
+    def test_fa_ead_oai_ead(self):
         with self.admin_access.web_request() as req:
             fa = req.find("FindingAid", eid=self.fa_eid).one()
             result = etree.ElementTree(etree.XML(fa.cw_adapt_to("OAI_EAD").dump())).getroot()

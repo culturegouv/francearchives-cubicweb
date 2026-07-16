@@ -28,7 +28,7 @@
 }
 
 .map-view-title {
-  color: $royal-blue;
+  color: $blue-france-sun-113-625;
   margin: 1em 0;
 }
 
@@ -59,13 +59,6 @@
   }
 }
 
-.service-geo-map {
-  margin-bottom: 1rem;
-}
-
-#service-map {
-  height: 300px;
-}
 
 #fa-map {
   margin: auto;
@@ -113,15 +106,19 @@
 
 
 $sidebar-touch-border: 1px solid rgba(0, 0, 0, 0.2);
-$tab-active-bg: $royal-blue;
+$tab-active-bg: $blue-france-sun-113-625;
 $tab-bg: null;
 $tab-hover-bg: transparent;
 @import "leaflet-sidebar.scss";
 
 
-#page .leaflet-container {
-  font-family: "Open Sans", sans-serif;
+body .leaflet-container  {
+  font-family: "Marianne, arial, sans-serif", sans-serif;
   font-size: 14px;
+
+  a {
+    background-image: none;
+  }
 
 }
 
@@ -168,15 +165,6 @@ $tab-hover-bg: transparent;
     a {
       border-bottom-style: none;
     }
-
-    i.fa-question {
-      background-color: black;
-      color: white;
-      cursor: pointer;
-      border-radius: 2em;
-      padding: 3px 7px;
-      font-size: 75%;
-    }
   }
 
   .leaflet-sidebar-content {
@@ -197,7 +185,7 @@ $tab-hover-bg: transparent;
       }
 
       a {
-        color: $royal-blue;
+        color: $blue-france-sun-113-625;
       }
 
       .white-button:hover a {
@@ -224,10 +212,9 @@ $tab-hover-bg: transparent;
   }
 }
 
-
 .leaflet-control-zoomhome  {
   a {
-    font: bold 18px "Lucida Console",Monaco,monospace;
+    font: bold 18px Marianne, arial, sans-serif;
     display: inline-block !important;
     border-bottom: none !important;
   }
@@ -236,11 +223,9 @@ $tab-hover-bg: transparent;
     border-left: 2px solid #ccc;
   }
 
-  i.fa {
-    padding: 0 !important;
+  a.leaflet-control-zoomhome-home {
   }
 }
-
 
 a.leaflet-control-zoomhome-in,
 a.leaflet-control-zoomhome-out {
@@ -264,7 +249,7 @@ a.leaflet-control-zoomhome-out {
 
 
 .blue-marker {
-  background-color: $royal-blue;
+  background-color: $blue-france-sun-113-625;
   width: 1.5rem;
   height: 1.5rem;
   display: block;

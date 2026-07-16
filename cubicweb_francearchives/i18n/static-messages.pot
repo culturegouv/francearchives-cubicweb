@@ -177,8 +177,16 @@ msgstr ""
 msgid "usefull_links"
 msgstr ""
 
-msgid "Follow us on Twitter"
+msgid "links_directories"
 msgstr ""
+
+
+msgid "Follow us"
+msgstr ""
+
+msgid "on social networks"
+msgstr ""
+
 
 msgid "do_index"
 msgstr ""
@@ -216,13 +224,19 @@ msgstr ""
 msgid "accessibility_map_info"
 msgstr ""
 
-msgid "Go to FranceArchives homepage"
+msgid "Homepage"
 msgstr ""
 
 msgid "main menu"
 msgstr ""
 
-msgid "breadcrumb"
+msgid "Main search"
+msgstr ""
+
+msgid "breadcrumb_label"
+msgstr ""
+
+msgid "See breadcrumb"
 msgstr ""
 
 msgid "quick access links"
@@ -246,5 +260,163 @@ msgstr ""
 msgid "in a new window"
 msgstr ""
 
+msgid "new window"
+msgstr ""
+
 msgid "Page number"
+msgstr ""
+
+msgid "geonames_A"
+msgstr ""
+
+msgid "geonames_P"
+msgstr ""
+
+msgid "Display/hide SPARQL editor"
+msgstr ""
+
+msgid "subscribe_newsletter_title"
+msgstr ""
+
+msgid "See with UniversalViewer"
+msgstr ""
+
+msgid "See with another viewer:"
+msgstr ""
+
+msgid "address"
+msgstr ""
+
+msgid "licence_etalab_text"
+msgstr ""
+
+msgid "licence_etalab"
+msgstr ""
+
+msgid "French national portal of archives"
+msgstr ""
+
+msgid "Log in"
+msgstr ""
+
+msgid "Logout"
+msgstr ""
+
+msgid "Address copied to clipboard."
+msgstr ""
+
+msgid "Select a language"
+msgstr ""
+
+msgid "Disabled"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "Similar subjects"
+msgstr ""
+
+msgid "Related people/institutions"
+msgstr ""
+
+msgid "quality authority"
+msgstr ""
+
+msgid "quality authorities"
+msgstr ""
+
+msgid "Display the definition of:"
+msgstr ""
+
+msgid "Location properties"
+msgstr ""
+
+msgid "Subject properties"
+msgstr ""
+
+msgid "Agent properties"
+msgstr ""
+
+msgid "Quick acces"
+msgstr ""
+
+msgid "Link to:"
+msgstr ""
+
+msgid "See in glossary:"
+msgstr ""
+
+msgid "See in FAQ:"
+msgstr ""
+
+msgid "No match found"
+msgstr ""
+
+msgid "Remove"
+msgstr ""
+
+msgid "Pagination"
+msgstr ""
+
+msgid "Validate"
+msgstr ""
+
+msgid "fr"
+msgstr ""
+
+msgid "ex."
+msgstr ""
+
+msgid "es_date_max_placeholder"
+msgstr ""
+
+msgid "es_date_min_placeholder"
+msgstr ""
+
+msgid "siteres_search_info"
+msgstr ""
+
+msgid "archives_search_info"
+msgstr ""
+
+msgctxt "appjs"
+msgid "as_producer"
+msgstr ""
+
+msgctxt "appjs"
+msgid "as_publisher"
+msgstr ""
+
+msgid "Submit the dates"
+msgstr ""
+
+msgid "main_search_placeholder"
+msgstr ""
+
+msgid "facets_search_help"
+msgstr ""
+
+msgid "open in a mailer"
+msgstr ""
+
+msgid "back to homepage"
+msgstr ""
+
+msgid "digitized_value"
+msgstr ""
+
+msgid "digitized-iiif_value"
+msgstr ""
+
+msgid "digitized-noniiif_value"
+msgstr ""
+
+msgid "non-digitized_value"
+msgstr ""
+
+msgid "title"
+msgstr ""
+
+msgid "or"
 msgstr ""

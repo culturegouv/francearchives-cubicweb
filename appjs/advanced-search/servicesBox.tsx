@@ -33,9 +33,9 @@ import {
     SearchRequest,
     QueryDslBoolQuery,
 } from '@elastic/elasticsearch/lib/api/types'
-import {DropDown, PlusButton, RemoveRowButton} from './widgets'
-import {AsyncTypeahead} from 'react-bootstrap-typeahead'
+import {PlusButton, RemoveRowButton, Toggle} from './widgets'
 import {translate as t} from '../translate'
+import {FaAutocomplete} from './FAAutocomplete'
 
 export function ServiceTypeAhead({
     archivesRef,
@@ -43,18 +43,28 @@ export function ServiceTypeAhead({
     update,
     selectedMemory,
     typeaheadId,
+    index,
     clearNow,
     setClearNow,
     endpoint,
     placeholder,
+    setCanReset,
 }) {
     const [isLoading, setIsLoading] = useState(false)
-    const [options, setOptions] = useState(selectedMemory)
-    const [selected, setSelected] = useState(selectedMemory)
+    const [selected, setSelected] =
+        useState<Array<{value: string; label: string}>>(selectedMemory)
     const [errorMsg, setErrorMsg] = React.useState<string | null>()
-    const handleSearch = (textSearch) => {
+
+    useEffect(() => {
+        if (clearNow) {
+            setSelected([{value: '', label: ''}])
+            setClearNow(false)
+        }
+    }, [clearNow])
+
+    const handleSearch = (textSearch: string) => {
         setIsLoading(true)
-        let must: QueryDslBoolQuery['must'] = [
+        const must: QueryDslBoolQuery['must'] = [
             {
                 simple_query_string: {
                     query: `${textSearch}*`,
@@ -63,12 +73,9 @@ export function ServiceTypeAhead({
                 },
             },
         ]
-        let countAttr = 'documents_count'
         if (archivesRef && !ressourcesSite) {
-            countAttr = 'archives'
             must.push({range: {archives: {gte: 1}}})
         } else if (!archivesRef && ressourcesSite) {
-            countAttr = 'siteres'
             must.push({range: {siteres: {gte: 1}}})
         } else {
             must.push({range: {documents_count: {gte: 1}}})
@@ -84,7 +91,7 @@ export function ServiceTypeAhead({
             from: 0,
             size: 100,
         }
-        fetch(`${endpoint}`, {
+        return fetch(`${endpoint}`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -96,15 +103,17 @@ export function ServiceTypeAhead({
                 return resp.json()
             })
             .then((response) => {
+                let options = []
                 if (response.errors !== undefined) {
                     setErrorMsg(response.errors[0].details)
-                    setOptions([])
+                    console.error(response.error)
+                    setSelected([{value: '', label: ''}])
                 } else {
                     setErrorMsg(null)
                     const items = response['hits']['hits']
                         .map((element) => {
                             return {
-                                eid: element['_source']['eid'],
+                                value: element['_source']['eid'],
                                 label:
                                     element['_source']['short_name'] ||
                                     element['_source']['title'],
@@ -113,54 +122,42 @@ export function ServiceTypeAhead({
                         .filter((element) => {
                             return element['label'] !== null
                         })
-                    setOptions(items)
+                    options = items
                 }
                 setIsLoading(false)
+                return options
             })
             .catch((error) => {
+                setErrorMsg(t('Could not retrieve results'))
+                setSelected([{value: '', label: ''}])
                 console.error(error)
+                return []
             })
     }
-    const filterBy = () => true
+
     const hasError = errorMsg !== undefined && errorMsg !== null
-    useEffect(() => {
-        if (clearNow) {
-            setSelected([{eid: '', label: ''}])
-            setClearNow(false)
-        }
-    }, [clearNow])
+    const label = `${t('as_publisher')} ${index + 1}`
     return (
-        <>
-            {hasError ? (
-                <div className="invalid-feedback">{errorMsg}</div>
-            ) : null}
-            <AsyncTypeahead
-                filterBy={filterBy}
-                clearButton
-                id={typeaheadId}
-                isLoading={isLoading}
-                labelKey="label"
-                minLength={2}
-                onSearch={handleSearch}
-                options={options}
-                onChange={(selectedElement) => {
-                    if (selectedElement.length == 1) {
-                        update({
-                            value: selectedElement[0].eid,
-                            label: selectedElement[0].label,
-                        })
-                    } else {
-                        //Nothing is selected
-                        update({value: '', label: ''})
-                    }
-                    setSelected(selectedElement)
-                }}
-                className={hasError ? 'is-invalid' : ''}
-                selected={selected}
-                useCache={false}
-                placeholder={placeholder}
-            />
-        </>
+        <FaAutocomplete
+            value={selected[0]}
+            label={label}
+            loadOptions={handleSearch}
+            multiple={false}
+            placeholder={placeholder}
+            onChange={(selectedElement) => {
+                if (selectedElement) {
+                    update(selectedElement)
+                    setSelected([selectedElement])
+                    setCanReset(true)
+                } else {
+                    //Nothing is selected
+                    update({value: '', label: ''})
+                    setSelected([{value: '', label: ''}])
+                }
+            }}
+            loading={isLoading}
+            error={hasError ? errorMsg : undefined}
+        />
     )
 }
 
@@ -177,61 +174,80 @@ export function ServicesBox({
     removeService,
     ressourcesSite,
     archivesRef,
+    setCanReset,
 }) {
     return (
-        <>
-            <h2>{t('Publisher')}</h2>
-            <>
-                <DropDown
-                    value={operator}
-                    choices={['OU', 'SAUF']}
-                    labels={{OU: t('Include'), SAUF: t('Exclude')}}
-                    update={(value) => {
-                        setOperator(value)
-                    }}
-                    help={`"Sélectionner une condition pour le champ Service`}
-                    variant="as-operators-service"
-                />
+        <fieldset className="fr-fieldset">
+            <legend className="fr-fieldset__legend">
+                <h2 className="fr-h5">{t('as_publishers')}</h2>
+            </legend>
+            <div className="fr-col-8 fr-fieldset__element">
+                <p className="fr-hidden fr-unhidden-sm fr-hint-text">
+                    {t('as_publishers_info')}
+                </p>
+            </div>
+            <div className="fr-fieldset__element">
+                <div className="fr-mb-2w">
+                    <Toggle
+                        value={operator}
+                        options={[
+                            {value: 'OU', label: t('Include')},
+                            {value: 'SAUF', label: t('Exclude')},
+                        ]}
+                        onChange={(value) => {
+                            setOperator(value)
+                            setCanReset(true)
+                        }}
+                    />
+                </div>
                 {searches.map((element, index) => (
-                    <div key={`service${index}`} className="mb-3">
-                        <div className="row">
-                            <div className="col-lg-10 mb-3 input-search">
-                                <ServiceTypeAhead
-                                    update={(value) =>
-                                        updateSearch(value, index)
-                                    }
-                                    selectedMemory={[
-                                        {eid: element, label: labels[index]},
-                                    ]}
-                                    typeaheadId={`service-typeahead-${index}`}
-                                    endpoint={endpoint}
-                                    clearNow={clearNow}
-                                    setClearNow={setClearNow}
-                                    placeholder={t('Archive service')}
-                                    ressourcesSite={ressourcesSite}
-                                    archivesRef={archivesRef}
+                    <div
+                        key={`service${index}`}
+                        className="fr-grid-row fr-grid-row--gutters fr-grid-row--bottom fr-mb-2w fr-mb-md-2v"
+                    >
+                        <div className="fr-col-12 fr-col-lg-10">
+                            <ServiceTypeAhead
+                                update={(value) => updateSearch(value, index)}
+                                selectedMemory={
+                                    typeof element === 'number'
+                                        ? [
+                                              {
+                                                  value: element,
+                                                  label: labels[index],
+                                              },
+                                          ]
+                                        : []
+                                }
+                                typeaheadId={`service-typeahead-${index}`}
+                                index={index}
+                                endpoint={endpoint}
+                                clearNow={clearNow}
+                                setClearNow={setClearNow}
+                                placeholder={t('as_search_service_placeholder')}
+                                ressourcesSite={ressourcesSite}
+                                archivesRef={archivesRef}
+                                setCanReset={setCanReset}
+                            />
+                        </div>
+                        <div className="fr-col-12 fr-col-lg-2 as-operators">
+                            {index == searches.length - 1 ? (
+                                <PlusButton onClick={addSearch} />
+                            ) : (
+                                <></>
+                            )}
+                            {index > 0 ? (
+                                <RemoveRowButton
+                                    onClick={() => {
+                                        removeService(index)
+                                    }}
                                 />
-                            </div>
-                            <div className="col-lg-2 mb-3">
-                                {index == searches.length - 1 ? (
-                                    <PlusButton onClick={addSearch} />
-                                ) : (
-                                    <></>
-                                )}
-                                {index > 0 ? (
-                                    <RemoveRowButton
-                                        onClick={() => {
-                                            removeService(index)
-                                        }}
-                                    />
-                                ) : (
-                                    <></>
-                                )}
-                            </div>
+                            ) : (
+                                <></>
+                            )}
                         </div>
                     </div>
                 ))}
-            </>
-        </>
+            </div>
+        </fieldset>
     )
 }

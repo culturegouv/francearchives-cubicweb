@@ -1,0 +1,78 @@
+{% extends "./searchlist.jinja2" %}
+{% from "./search-mixins.jinja2" import quality_badge  -%}
+{% from "./mixins.jinja2" import authority_sources, authority_props_horizontal, wikidata_links, content_metadata, rdf_download_button_tab -%}
+{%- block context_abstract -%}
+{%- set fa_lang_attr='lang="fr"' if lang != "fr" else "" -%}
+<section class="fr-container">
+<div class="fr-grid-row fr-grid-row--gutters fr-mb-8v">
+  {%- if header.quality -%}
+  <div class="fr-col-12 fr-col-lg-10 quality-authority__title">
+    <h1><span {{ fa_lang_attr }}>{{ header.entity.dc_title() }}</span>
+      {{ quality_badge(header, _) }}</h1>
+  </div>
+  {%- else -%}
+  <div class="fr-col-12 fr-col-lg-10" {{ fa_lang_attr }}>
+    <h1>{{ header.entity.dc_title() }}</h1>
+  </div>
+  {%- endif -%}
+  {%- if header.editable -%}
+  <div class="fr-col-12">
+    <p class="fr-text--bold fr-mb-1w"">{{ _('Note') }} :  </p>
+    {{ header.entity.note or ''}}
+    {{ content_metadata(header.metadata, _) }}
+  </div>
+  {%- endif -%}
+  {%- if header.display_tab -%}
+  <div class="fr-col-12">
+    <div class="fr-tabs">
+      <ul class="fr-tabs__list" role="tablist" aria-label="{{_("Agent properties")}}">
+        {%- if header.authority_properties or header.sources -%}
+        <li role="presentation">
+          <button id="tabpanel-bio" class="fr-tabs__tab" tabindex="0" role="tab" aria-selected="true" aria-controls="tabpanel-bio-panel">{{ _("General information") }}</button>
+        </li>
+        {%- endif -%}
+        {%- if header.wikirelations -%}
+        <li role="presentation">
+          <button id="tabpanel-wikirelations" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-wikirelations-panel">{{ _("Related people/institutions") }}</button>
+        </li>
+        {%- endif -%}
+        {%- if rdf_formats -%}
+        <li role="presentation">
+          <button id="tabpanel-rdf" class="fr-tabs__tab" tabindex="-1" role="tab" aria-selected="false" aria-controls="tabpanel-rdf-panel">{{_("Download RDF") }}</button>
+        </li>
+        {%- endif -%}
+      </ul>
+      {%- if header.authority_properties or header.sources -%}
+      <div id="tabpanel-bio-panel" class="fr-tabs__panel fr-tabs__panel--selected" role="tabpanel" aria-labelledby="tabpanel-bio" tabindex="0">
+        {%- if header.authority_properties -%}
+          <div class="fr-mb-10v">
+          {{ authority_props_horizontal(header.authority_properties, _) }}
+          </div>
+        {%- endif -%}
+        {%- if header.sources -%}
+        {{ authority_sources(header.sources, 3, 8, _) }}
+        {%- endif -%}
+      </div>
+      {%- endif -%}
+      {%- if header.wikirelations -%}
+      <div id="tabpanel-wikirelations-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-wikirelations" tabindex="0">
+        <div class="fr-mb-10v">
+          <p class="fr-col-12 fr-col-lg-8">{{_("wikirelations_explanation_text")}}</p>
+        </div>
+        {{ wikidata_links(header.wikirelations, _) }}
+      </div>
+      {%- endif -%}
+      {%- if rdf_formats -%}
+      <div id="tabpanel-rdf-panel" class="fr-tabs__panel" role="tabpanel" aria-labelledby="tabpanel-rdf" tabindex="0">
+        {%- set heading_hierarchy = eulerian.document_title -%}
+        <div class="fr-col-8">
+        {{ rdf_download_button_tab(header.entity, rdf_formats, header.lang, _) }}
+        </div>
+      </div>
+      {%- endif -%}
+    </div>
+  </div>
+  {%- endif -%}
+  </div>
+</section>
+{%- endblock -%}

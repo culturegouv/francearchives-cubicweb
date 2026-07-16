@@ -1,13 +1,17 @@
-<div class="search-results__page-input d-print-none">
-    <span>{{ _('Page')}}</span>
-    <form id="page-number-input-form" action="{{ page_number_form_action }}">
+<nav role="navigation" aria-label="{{ _('Pagination') }}" class="fr-select-group fa-search-options--pages">
+    <form id="page-number-input-form" class="fa-page-number-input-form" novalidate action="{{ page_number_form_action }}">
         {% for name, values in page_number_params.items() %}
           {% for value in values %}
-            <input type="hidden" name="{{ name |e}}" value="{{ value | escape }}" />
+            <input type="hidden" name="{{ name |e}}" value="{{ value | escape }}" >
           {% endfor %}
         {% endfor %}
-        <label for="page-number-input" class="visually-hidden">{{ _('Go to page')}}</label>
-        <input id="page-number-input" name="page" type="number" min="1" max="{{ number_of_pages }}" value="{{ current_page }}" title="{{ _("Page number")}}" class="form-control facet__focusable-item"/>
+        <div class="fr-input-group" id="page-number-error-group">
+          <label class="fr-label fr-text--sm fr-m-0" for="page-number-input">{{ _('Go to page')}}{{_(":")}}</label>
+          <input id="page-number-input" type="number" class="fr-input fa-page-number-input fr-mb-1w" name="page" min="1" max="{{ number_of_pages }}" value="{{ current_page }}" title="{{ _("Page number")}}" aria-current="page">
+          <span class="fr-text--sm">{{ _('out_of') }} {{ number_of_pages }}</span>
+          <div id="page-number-message" class="fr-messages-group fr-hidden" aria-hidden="true" aria-live="polite">
+          <p class="fr-message fr-message--error" id="page-number--message-error">{{ _('page-number-error %s') % number_of_pages }}</p>
+          </div>
+        </div>
     </form>
-  <span>{{ _('out of %s') % number_of_pages }}</span>
-</div>
+</nav>

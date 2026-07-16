@@ -31,27 +31,133 @@
 
 """:synopsis: OAI-PMH utils."""
 
-
 # standard library imports
-
+import datetime
+from io import BytesIO
 import hashlib
-
+import logging
 from lxml import etree
 
 import os
 import os.path
-
 from sickle import Sickle
 from sickle.iterator import OAIItemIterator
+from sickle.models import Record
 from sickle.response import OAIResponse, XMLParser
+from sickle.utils import get_namespace
+
+from uuid import uuid4
+import zipfile
 
 import urllib.parse
 
 from logilab.common.decorators import cachedproperty
 
+from cubicweb import Binary
 
-from cubicweb_francearchives.dataimport import normalize_for_filepath
+from cubicweb_francearchives.dataimport import (
+    normalize_for_filepath,
+    cleanup_ns,
+    parse_unitdate,
+)
+
 from cubicweb_francearchives.storage import S3BfssStorageMixIn
+
+
+def build_header(header, sets, eadid=None):
+    # check on the eadid is done before this method is called
+    setSpec = header.setSpecs[0] if header.setSpecs else None  # should not happen
+    setNames = [setName.text for setName in header.xml.findall(header._oai_namespace + "setName")]
+    setName = setNames[0] if setNames else None
+    if setName is None and setSpec:
+        setName = sets.get(setSpec)
+    eadid = eadid or setSpec
+    return {"identifier": header.identifier, "name": setName, "eadid": eadid}
+
+
+def build_metadata(data):
+    keys = [
+        "title",
+        "creator",
+        "subject",
+        "description",
+        "publisher",
+        "contributor",
+        "type",
+        "format",
+        "identifier",
+        "source",
+        "language",
+        "relation",
+        "coverage",
+        "rights",
+    ]
+    metadata = dict.fromkeys(keys, [])
+    metadata.update(data)
+    date = ""
+    if "date" in metadata:
+        date = metadata.pop("date")
+        if date and isinstance(date, (list, tuple)):
+            date = date[0]
+    infos = parse_unitdate({"text": date})
+    metadata["date"] = date
+    metadata["date1"] = str(infos["start"]) if infos["start"] else ""
+    metadata["date2"] = str(infos["stop"]) if infos["stop"] else ""
+    return metadata
+
+
+def get_oai_dc_url_from_tree(tree):
+    if hasattr(tree, "getroot"):
+        root = tree.getroot()
+    else:
+        root = tree
+    request = root.findall("{ns}request".format(ns=get_namespace(root)))
+    if request is not None:
+        url = request[0].text
+        if url:
+            parsed = urllib.parse.urlparse(url)
+            qs = urllib.parse.parse_qs(parsed.query)
+            allowed = {"from", "until", "set", "metadataPrefix", "verb"}
+            if allowed.intersection(qs):
+                url = urllib.parse.urlunparse(parsed._replace(query=""))
+            return f"{url}?{'&'.join(f'{k}={v}' for k, v in request[0].attrib.items())}"
+
+
+def parse_oai_url(url):
+    url = urllib.parse.urlparse(url)
+    qs = urllib.parse.parse_qs(url.query)
+    allowed = {"from", "until", "set", "metadataPrefix", "verb"}
+    if set(qs) - allowed:
+        raise ValueError(
+            "Got invalid query parameter(s): {}".format(
+                ", ".join(["'{}'".format(param) for param in set(qs) - allowed])
+            )
+        )
+    base_url = urllib.parse.urlunparse(url._replace(query=""))
+    params = {k: v[0] for k, v in list(qs.items()) if len(v) == 1}
+    return base_url, params
+
+
+def check_harvested_oai_url(cnx, service_code, oai_url):
+    if not oai_url:
+        return cnx._(
+            "No URL found for OAI PMH repository in uploaded data. "
+            "Your data may be corrupted: please harvest your data again."
+        )
+    oai_urls = cnx.execute(
+        "Any U WHERE X is OAIRepository, X url U, X service S, S code %(e)s",
+        {"e": service_code},
+    )
+    file_base_url, file_params = parse_oai_url(oai_url.strip())
+    prefix = file_params["metadataPrefix"]
+    for (_url,) in oai_urls:
+        base_url, params = parse_oai_url(_url.strip())
+        if base_url == file_base_url and params.get("metadataPrefix") == prefix:
+            return
+    else:
+        return cnx._('"{}" service does not have any {} PMH repository with "{}" URL').format(
+            service_code, prefix.upper(), oai_url
+        )
 
 
 class PniaOAIResponse(OAIResponse):
@@ -82,6 +188,157 @@ class OAIXMLError(Exception):
     """XML errors from OAI response"""
 
     pass
+
+
+class OAIHandler:
+    """OAI-PMH record handler."""
+
+    def __init__(self, cnx, service_infos, oaitask_eid, log):
+        """Initialize OAI-PMH handler.
+
+        :param Connection cnx: CubicWeb database connection
+        :param dict service_code: service code
+        :param str oaitask_eid: eid of the related OAIImportTask
+        :param Logger log: logger
+        """
+        self.cnx = cnx
+        self.log = log
+        self.service_code = service_infos["code"]
+        self.oai_url = service_infos["oai_url"]
+        self.storage = S3BfssStorageMixIn(log=self.log)
+        self.max_zip_size = 2 * (1024 * 1024 * 1024)  # 2BG
+        self.saved_files = 0
+        self.oaitask_eid = oaitask_eid
+        self.init_zip_buffer()
+
+    def compute_oai_id(self, record):
+        return compute_oai_id(self.oai_url, record.header.identifier)
+
+    def init_zip_buffer(self):
+        """Init variables for a new zip file"""
+        self.zip_buffer_size = 0
+        self.zip_buffer = BytesIO()
+        self.zip_writer = zipfile.ZipFile(
+            self.zip_buffer, mode="a", compression=zipfile.ZIP_DEFLATED
+        )
+
+    def close_and_dump_zip_buffer(self):
+        """Close the current buffer and save it into a CWFile"""
+        date = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        filename = f"{self.service_code}_{self.saved_files}_{date}.zip"
+        try:
+            self.zip_writer.close()
+        except Exception as err:
+            self.log.error("Current Zip buffer: %s", err)
+        if self.zip_buffer_size or len(self.metadata):
+            self.create_zip_file(filename)
+
+    def create_zip_file(self, filename):
+        """Create a CWFile with harvested record
+        :param str filepath: stored filepath
+        :param str oaitask_eid: eid of the related OAIImportTask
+        add a multithreading
+        """
+        self.storage.storage_write_file(filename, self.zip_buffer.getvalue())
+        ufilepath = self.storage.storage_ufilepath(filename)
+        self.cnx.transaction_data["fs_importing"] = True
+        cwfile = self.cnx.create_entity(
+            "File",
+            title=filename,
+            data=Binary(ufilepath.encode("utf-8")),
+            data_format="application/zip ",  # mimetypes.guess_type(filepath)[0]),
+            data_name=filename,
+            uuid=str(uuid4().hex),
+            reverse_fatask_oaiharvest_file=self.oaitask_eid,
+        )
+        self.log.debug(f"Created File {filename} (eid: {cwfile.eid})")
+
+    def get_file_contents(self, record):
+        """Get file contents.
+
+        :param _Element metadata: LXML record
+        """
+        return etree.tostring(record.ead, encoding="utf-8", xml_declaration=True)
+
+    def get_file_name(self, eadid):
+        return f"{normalize_for_filepath(eadid)}.xml"
+
+    def write_all_in_zips(self):
+        """Write all harvested data"""
+        raise NotImplementedError
+
+    def save_record(self, idx, record=None):
+        """Add record to list of records.
+        :param int idx: record index
+        :param _Element record: record
+        """
+        raise NotImplementedError
+
+
+class OAIHarvester:
+    """OAIEAD schema haverster.
+
+    :ivar Connection cnx: connection
+    :ivar dict service_infos: service information
+    """
+
+    def __init__(self, cnx, service_infos, log=None):
+        """Initialize OAI Nomina schema reader.
+
+        :param Connection cnx: CubicWeb database connection
+        :param dict service_infos: service information
+        :param Logger log: logger
+        """
+        self.cnx = cnx
+        self.service_infos = service_infos
+        if log is None:
+            log = logging.getLogger("rq.task")
+        self.log = log
+        self.oai_url = None
+
+    def add_record(self, idx, record):
+        return idx, record
+
+    def harvest_records(self, oaitask_eid, headers, records_limit=None, dry_run=False, **params):
+        """Harvest data and check them containing the needed information
+
+        :param str oaitask_eid: eid of the related OAIImportTask
+        :param dict headers: headers for harvest
+        :param int records_limit: only import limit documents number
+        :param boolean dry_run: import or not harvested documents
+        :param dict params: harvest parameters
+        """
+        raise NotImplementedError
+
+    def process_results(self, results, oaitask_eid, records_limit):
+        """Write results in log
+
+        :param dict records: results
+        :param str oaitask_eid: eid of the related OAIImportTask
+        :param int records_limit: only import limit documents number
+        """
+        complete_list_size = results["complete_list_size"]
+        if complete_list_size is None:
+            self.log.warning(
+                """No information about records list size (completeListSize) could be found.""",
+            )
+            expected = records_limit or "?"
+        else:
+            expected = (
+                records_limit
+                if records_limit and records_limit < complete_list_size
+                else complete_list_size
+            )
+        cw_files = self.cnx.execute(
+            f"Any COUNT(F) WHERE X eid {oaitask_eid}, X fatask_oaiharvest_file F"
+        )[0][0]
+        self.log.info(
+            f"<p>Processed {results['processed']} record(s).</p>"
+            f"<p>Downloaded {results['downloaded']} out of {expected} record(s).</p>"
+            f"<p>Skipped record(s):  {results['skipped']}.</p>"
+            f"<p>Record(s) to delete: {results['records_to_delete']}.</p>"
+            f"<p>Saved {results['saved_files']} record(s) in {cw_files} ZIP file(s)</p>"
+        )
 
 
 class OAIPMHWriter:
@@ -171,6 +428,9 @@ class PniaOAIItemIterator(OAIItemIterator):
 
     def _next_response(self):
         self._next_harvested_url()
+        # initialize the previous resumption token in case self.oai_response.xml <request>
+        # dont contain the resumptionToken which normally must not happen
+        previous_resumption_token = self.resumption_token and self.resumption_token.token or None
         try:
             super(PniaOAIItemIterator, self)._next_response()
         except Exception as exception:
@@ -187,6 +447,22 @@ class PniaOAIItemIterator(OAIItemIterator):
                         )
                     )
             raise exception
+        if self.resumption_token:
+            request = self.oai_response.xml.find(".//" + self.sickle.oai_namespace + "request")
+            if request:
+                previous_resumption_token = request.attrib.get(
+                    "resumptionToken", previous_resumption_token
+                )
+            if (
+                previous_resumption_token
+                and self.resumption_token.token == previous_resumption_token
+            ):
+                raise OAIXMLError(
+                    """Stop harvesting. The next resumptionToken value <div>{}<div>
+                    found in {} is the same as for the previous one""".format(
+                        self.resumption_token.token, self._harvested_url
+                    )
+                )
 
     def stop_iteration_log(self):
         if (
@@ -243,6 +519,62 @@ class PniaOAIItemIterator(OAIItemIterator):
             else:
                 self.stop_iteration_log()
                 raise StopIteration
+
+
+class OAIEADRecord(Record):
+    def __init__(self, record_element, strip_ns=True):
+        self.error = None
+        try:
+            super(OAIEADRecord, self).__init__(record_element, strip_ns=strip_ns)
+        except Exception as e:
+            self.error = e
+            return
+        self.ead = self.xml.find(".//" + self._oai_namespace + "metadata/")
+        self.harvested_url = ""
+        self.preprocess_ead()
+
+    @cachedproperty
+    def eadid(self):
+        eadid = self.metadata.get("eadid")
+        if eadid and eadid[0]:
+            return eadid[0].strip()
+
+    def preprocess_ead(self):
+        """Preprocesses the EAD xml file to remove ns and internal content
+           (adapted from dataimport.eadreader.preprocess_ead)
+
+        :param XMLElement record: the lxml etree object (metadata)
+
+        :returns the lxml etree object (ead), cleaned from internal content or
+        None if the lxml etree is empty
+
+        """
+        if self.ead is not None:
+            cleanup_ns(self.ead)
+            for elt in self.ead.findall('.//*[@audience="internal"]'):
+                elt.getparent().remove(elt)
+
+
+class OAIDCRecord(Record):
+    def __init__(self, record_element, strip_ns=True):
+        self.error = None
+        try:
+            super(OAIDCRecord, self).__init__(record_element, strip_ns=strip_ns)
+        except Exception as e:
+            self.error = e
+            return
+        self.harvested_url = ""
+
+    @cachedproperty
+    def eadid(self):
+        eadids = self.header.setSpecs
+        return eadids[0].strip() if eadids else None
+
+    def build_dc_header(self, sets):
+        return build_header(self.header, sets, self.eadid)
+
+    def build_dc_metadata(self):
+        return build_metadata(self.metadata)
 
 
 def compute_oai_id(base_url, identifier):

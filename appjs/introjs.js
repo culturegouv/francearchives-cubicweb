@@ -30,7 +30,7 @@
 
 /* global $, introJs*/
 
-const tourElementBtn = document.querySelector('#start-tour')
+const tourElementBtn = document.querySelector('#fa-start-tour')
 
 if (tourElementBtn) {
     $.getJSON(tourElementBtn.dataset.jsondata, function (data) {

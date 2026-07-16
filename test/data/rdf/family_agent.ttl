@@ -1,30 +1,30 @@
 @prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 
-<http://testing.fr/cubicweb/agent/{{person_eid}}> rico:isOrWasMemberOf <http://testing.fr/cubicweb/agent/{{agent_eid}}> ;
-    rico:personIsTargetOfMembershipRelation <http://testing.fr/cubicweb/authorityrecord/A123#family_to_F123> .
+<https://testing.cubicweb/agent/{{person_eid}}> rico:isOrWasMemberOf <https://testing.cubicweb/agent/{{agent_eid}}> ;
+    rico:personIsTargetOfMembershipRelation <https://testing.cubicweb/authorityrecord/A123#family_to_F123> .
 
-<http://testing.fr/cubicweb/authorityrecord/A123#family_to_F123> a rico:MembershipRelation ;
-    rico:membershipRelationHasSource <http://testing.fr/cubicweb/agent/{{agent_eid}}> ;
-    rico:membershipRelationHasTarget <http://testing.fr/cubicweb/agent/{{person_eid}}> .
+<https://testing.cubicweb/authorityrecord/A123#family_to_F123> a rico:MembershipRelation ;
+    rico:membershipRelationHasSource <https://testing.cubicweb/agent/{{agent_eid}}> ;
+    rico:membershipRelationHasTarget <https://testing.cubicweb/agent/{{person_eid}}> .
 
-<http://testing.fr/cubicweb/authorityrecord/F123#family_to_F234> a rico:AgentToAgentRelation ;
-    rico:agentRelationConnects <http://testing.fr/cubicweb/agent/{{agent_eid}}>,
-        <http://testing.fr/cubicweb/authorityrecord/F234#agent> .
+<https://testing.cubicweb/authorityrecord/F123#family_to_F234> a rico:AgentToAgentRelation ;
+    rico:agentRelationConnects <https://testing.cubicweb/agent/{{agent_eid}}>,
+        <https://testing.cubicweb/authorityrecord/F234#agent> .
 
-<http://testing.fr/cubicweb/authorityrecord/F234#agent> rico:agentIsConnectedToAgentRelation <http://testing.fr/cubicweb/authorityrecord/F123#family_to_F234> ;
-    rico:isAgentAssociatedWithAgent <http://testing.fr/cubicweb/agent/{{agent_eid}}> .
+<https://testing.cubicweb/authorityrecord/F234#agent> rico:agentIsConnectedToAgentRelation <https://testing.cubicweb/authorityrecord/F123#family_to_F234> ;
+    rico:isAgentAssociatedWithAgent <https://testing.cubicweb/agent/{{agent_eid}}> .
 
-<http://testing.fr/cubicweb/agent/{{agent_eid}}> a rico:Agent,
+<https://testing.cubicweb/agent/{{agent_eid}}> a rico:Agent,
         rico:Family ;
-    rico:agentIsConnectedToAgentRelation <http://testing.fr/cubicweb/authorityrecord/F123#family_to_F234> ;
-    rico:groupIsSourceOfMembershipRelation <http://testing.fr/cubicweb/authorityrecord/A123#family_to_F123> ;
+    rico:agentIsConnectedToAgentRelation <https://testing.cubicweb/authorityrecord/F123#family_to_F234> ;
+    rico:groupIsSourceOfMembershipRelation <https://testing.cubicweb/authorityrecord/A123#family_to_F123> ;
     rico:hasOrHadAgentName [ a rico:AgentName ;
-            rico:isOrWasAgentNameOf <http://testing.fr/cubicweb/agent/{{agent_eid}}> ;
+            rico:isOrWasAgentNameOf <https://testing.cubicweb/agent/{{agent_eid}}> ;
             rico:textualValue "Famille Pigeon" ;
             rico:type "authorized" ] ;
-    rico:hasOrHadMember <http://testing.fr/cubicweb/agent/{{person_eid}}> ;
-    rico:isAgentAssociatedWithAgent <http://testing.fr/cubicweb/authorityrecord/F234#agent> ;
-    rico:isOrWasDescribedBy <http://testing.fr/cubicweb/authorityrecord/F123> ;
+    rico:hasOrHadMember <https://testing.cubicweb/agent/{{person_eid}}> ;
+    rico:isAgentAssociatedWithAgent <https://testing.cubicweb/authorityrecord/F234#agent> ;
+    rico:isOrWasDescribedBy <https://testing.cubicweb/authorityrecord/F123> ;
     rico:name "Famille Pigeon";
     rdfs:label "Famille Pigeon".

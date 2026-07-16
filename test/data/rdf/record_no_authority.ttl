@@ -1,21 +1,21 @@
 @prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
 @prefix ricoform: <https://www.ica.org/standards/RiC/vocabularies/documentaryFormTypes#> .
 
-<http://testing.fr/cubicweb/authorityrecord/F234#inst> a rico:Instantiation ;
+<https://testing.cubicweb/authorityrecord/F234#inst> a rico:Instantiation ;
     rico:identifier "F234" ;
-    rico:isInstantiationOf <http://testing.fr/cubicweb/authorityrecord/F234> .
+    rico:isInstantiationOf <https://testing.cubicweb/authorityrecord/F234> .
 
-<http://testing.fr/cubicweb/authorityrecord/F234> a rico:Record ;
-    rico:describesOrDescribed <http://testing.fr/cubicweb/authorityrecord/F234#agent> ;
+<https://testing.cubicweb/authorityrecord/F234> a rico:Record ;
+    rico:describesOrDescribed <https://testing.cubicweb/authorityrecord/F234#agent> ;
     rico:hasDocumentaryForm ricoform:AuthorityRecord ;
-    rico:hasInstantiation <http://testing.fr/cubicweb/authorityrecord/F234#inst> .
+    rico:hasInstantiation <https://testing.cubicweb/authorityrecord/F234#inst> .
 
-<http://testing.fr/cubicweb/authorityrecord/F234#agent> a rico:Agent,
+<https://testing.cubicweb/authorityrecord/F234#agent> a rico:Agent,
         rico:Family ;
     rico:hasOrHadAgentName [ a rico:AgentName ;
-            rico:isOrWasAgentNameOf <http://testing.fr/cubicweb/authorityrecord/F234#agent> ;
+            rico:isOrWasAgentNameOf <https://testing.cubicweb/authorityrecord/F234#agent> ;
             rico:textualValue "Famille Poulet" ;
             rico:type "authorized" ] ;
-    rico:isOrWasDescribedBy <http://testing.fr/cubicweb/authorityrecord/F234> ;
+    rico:isOrWasDescribedBy <https://testing.cubicweb/authorityrecord/F234> ;
     rico:name "Famille Poulet" .
 

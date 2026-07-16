@@ -1,60 +1,73 @@
-<div class="document row">
-    <div class="informations-header row">
-      <div class="document-title col-sm-9">{{ entity.alink }}</div>
-
-      {% block subtitle %} {% endblock %}
-      {% if logo %}
-      <div class="informations-content-logo col-sm-3 picto">
-          <img class="img-fluid"
-            src="{{ logo.src | escape }}"
-            data-defaultsrc="{{ logo.srcs }}"
-            alt="{{ _("Service")}}: {{ logo.alt | escape }}"
-          />
-      </div>
-      {% endif %}
-    </div>
-    <div class="informations-content row">
-      {% if illustration %}
-      <div class="informations-content-image col-md-3 col-sm-8">
-        <a href="{{ entity.url }}"
-          class="picto" tabindex="-1"
-          aria-hidden="true">
-          <img class="img-fluid"
-            src="{{ illustration.src | escape }}"
-            data-defaultsrc="{{ illustration.srcs }}"
-            alt="{{ illustration.alt | escape }}"
-          />
-        </a>
-        {%- if iiif_logo %}
-          <img src="{{ iiif_logo.src }}" alt="iiif_logo.alt" width="24" height="24">
-        {% endif -%}
-      </div>
-      {% endif %}
-      <div class="informations-content-text {% if not illustration %}offset-md-3 {% endif%}col-md-9 col-sm-12">
-
-        {% block itemprops_top %}
-        {% from "./mixins.jinja2" import itemprops %}
-          {{ itemprops(item_properties["top"], _) }}
-        {% endblock %}
-
-        {% if highlights %}
-        <div class="document-excerpt-container row">
-          <div class="document-excerpt col-sm-12 col-md-4">{{ highlights_label }}</div>
-          <blockquote class="document-excerpt__text col-sm-11 col-md-8">
-          {% for value in highlights %}
-            <p>…{{ value }}…</p>
-           {% endfor %}
-           </blockquote>
+<div class="fr-col-12 fr-mb-8v">
+  <div class="fr-card fr-card--sm fr-card--horizontal-tier fa-sr-card">
+    <div class="fr-card__body">
+      <div class="fr-card__content">
+        <div class="fa-sr-card__header">
+          <h3 class="fr-card__title">{{ entity.alink }}</h3>
+          {% block subtitle %} {% endblock %}
+          {%- if logo -%}
+          <div class="fa-sr-card__logo">
+            <img loading="lazy"
+                 src="{{ logo.src | escape }}"
+                 data-defaultsrc="{{ logo.srcs }}"
+                 alt=""
+            >
+          </div>
+         {%- endif -%}
         </div>
-        {% endif %}
-
-        {% block itemprops_bottom %}
-        {% from "./mixins.jinja2" import itemprops %}
-          {{ itemprops(item_properties["bottom"], _) }}
-        {% endblock %}
-        {%- block extra %}
-        {% endblock -%}
-
+        <div class="fr-card__desc fa-sr-card__desc">
+          {%- if illustration -%}
+          <div class="fa-sr-card__media">
+            <div class="fr-card__img">
+                <img loading="lazy" src="{{ illustration.src  | escape}}"
+                  alt=""
+                  class="fr-card__img-illustration"
+                  data-defaultsrc="{{ illustration.srcs }}"
+                >
+             {%- if iiif_logo %}
+             <img class="fr-card__img-iiif" src="{{ iiif_logo.src }}" alt="{{ iiif_logo.alt }}" width="24" height="24">
+             {% endif -%}
+            </div>
+          </div>
+          {%- endif -%}
+          <div class="fa-sr-card__props fr-text--sm">
+            {%- block itemprops_top -%}
+            {%- from "./mixins.jinja2" import search_itemprops -%}
+            {{ search_itemprops(item_properties["top"], _) }}
+            {%- endblock -%}
+            {%- block itemprops_bottom -%}
+            {%- from "./mixins.jinja2" import search_itemprops -%}
+            {{ search_itemprops(item_properties["bottom"], _) }}
+            {%- endblock -%}
+            {%- block extra -%}
+            {%- endblock -%}
+            {%- if highlights -%}
+            <div class="fr-grid-row fr-grid-row--gutters">
+              <p class="fr-col-sm-12 fr-col-md-4 fa-sr-card__props--label">{{ highlights["label"] }}</p>
+              <div class="fr-col-sm-12 fr-col-md-8 fa-sr-card__props--value">
+                {%- for value in highlights["values"] -%}
+                <p class="fr-text--sm fa-highlights">…{{ value }}…</p>
+                {%- endfor -%}
+              </div>
+            </div>
+            {%- endif -%}
+          </div>
+        </div>
+        {%- block etype_badge -%}
+        <div class="fr-card__start">
+          <ul class="fr-badge-group">
+            <li>
+              <p class="fr-badge">{{ _(entity.cw_etype) }}</p>
+            </li>
+          </ul>
+        </div>
+        {%-endblock -%}
+        {%- if entity.modificaiton_date -%}
+        <div class="fr-card__end">
+          <p class="fr-card__detail">{{ _("modification_date")}} {{ entity.modificaiton_date }}</p>
+        </div>
+        {%- endif -%}
       </div>
     </div>
- </div>
+  </div>
+</div>

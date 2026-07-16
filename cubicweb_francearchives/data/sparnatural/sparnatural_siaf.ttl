@@ -1,0 +1,1539 @@
+@prefix : <https://francearchives.gouv.fr/sparnatural#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <https://francearchives.gouv.fr/sparnatural> .
+
+<https://francearchives.gouv.fr/sparnatural> rdf:type owl:Ontology ;
+                                              owl:imports <http://data.sparna.fr/ontologies/sparnatural-config-core> ,
+                                                          <http://data.sparna.fr/ontologies/sparnatural-config-datasources> .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#beginDateProperty
+<http://data.sparna.fr/ontologies/sparnatural-config-core#beginDateProperty> rdf:type owl:AnnotationProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty
+<http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty> rdf:type owl:AnnotationProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation
+<http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> rdf:type owl:AnnotationProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional
+<http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> rdf:type owl:AnnotationProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#endDateProperty
+<http://data.sparna.fr/ontologies/sparnatural-config-core#endDateProperty> rdf:type owl:AnnotationProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#exactDateProperty
+<http://data.sparna.fr/ontologies/sparnatural-config-core#exactDateProperty> rdf:type owl:AnnotationProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon
+<http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> rdf:type owl:AnnotationProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#order
+<http://data.sparna.fr/ontologies/sparnatural-config-core#order> rdf:type owl:AnnotationProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString
+<http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> rdf:type owl:AnnotationProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip
+<http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> rdf:type owl:AnnotationProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate
+<http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#AutocompleteProperty
+<http://data.sparna.fr/ontologies/sparnatural-config-core#AutocompleteProperty> rdf:type owl:ObjectProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#ListProperty
+<http://data.sparna.fr/ontologies/sparnatural-config-core#ListProperty> rdf:type owl:ObjectProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty
+<http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> rdf:type owl:ObjectProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#SearchProperty
+<http://data.sparna.fr/ontologies/sparnatural-config-core#SearchProperty> rdf:type owl:ObjectProperty ;
+                                                                          rdfs:range :Label .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#StringEqualsProperty
+<http://data.sparna.fr/ontologies/sparnatural-config-core#StringEqualsProperty> rdf:type owl:ObjectProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#TimeProperty-Date
+<http://data.sparna.fr/ontologies/sparnatural-config-core#TimeProperty-Date> rdf:type owl:ObjectProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#TimeProperty-Year
+<http://data.sparna.fr/ontologies/sparnatural-config-core#TimeProperty-Year> rdf:type owl:ObjectProperty .
+
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#TreeProperty
+<http://data.sparna.fr/ontologies/sparnatural-config-core#TreeProperty> rdf:type owl:ObjectProperty .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aInstitutionParente
+:aInstitutionParente rdf:type owl:ObjectProperty ;
+                     rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+                     rdfs:domain :Organization ;
+                     rdfs:range :Organization ;
+                     <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                     <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                     <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#isOrWasSubordinateTo>+" ;
+                     rdfs:label "dépend de"@fr ,
+                                "has superior"@en ,
+                                "hängt von"@de ,
+                                "depende de"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aInstitutionSubordonnee
+:aInstitutionSubordonnee rdf:type owl:ObjectProperty ;
+                         rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+                         rdfs:domain :Organization ;
+                         rdfs:range :Organization ;
+                         <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                         <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                         <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasOrHadSubordinate>+" ;
+                         rdfs:label "a autorité sur"@fr ,
+                                    "has subordinate"@en ,
+                                    "hat Autorität über"@de ,
+                                    "tiene autoridad sobre"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourActivite
+:aPourActivite rdf:type owl:ObjectProperty ;
+               rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#ListProperty> ;
+               rdfs:domain [ rdf:type owl:Class ;
+                             owl:unionOf ( :Organization
+                                           :Personne
+                                         )
+                           ] ;
+               rdfs:range :Activite ;
+               <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+               <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+               <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#performsOrPerformed> / <https://www.ica.org/standards/RiC/ontology#hasActivityType>" ;
+               <http://data.sparna.fr/ontologies/sparnatural-config-datasources#datasource> :list_rdfslabel_no_domain_alpha ;
+               rdfs:label "a pour activité"@fr ,
+                          "has activity"@en ,
+                          "hat für Tätigkeit"@de ,
+                          "tiene como actividad"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourAdelphe
+:aPourAdelphe rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+              rdfs:domain :Personne ;
+              rdfs:range :Personne ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasSibling>" ;
+              rdfs:label "a pour frère/soeur"@fr ,
+                         "has sibling"@en ,
+                         "hat Bruder/Schwester/Gechwister"@de ,
+                         "tiene como hermano/hermana"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourContenu
+:aPourContenu rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#VirtuosoSearchProperty> ;
+              rdfs:domain [ rdf:type owl:Class ;
+                            owl:unionOf ( :Archives
+                                          :Inventaire
+                                        )
+                          ] ;
+              rdfs:range :Contenu ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#scopeAndContent>" ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> <http://data.sparna.fr/ontologies/sparnatural-config-datasources#query_search_label_bifcontains> ;
+              rdfs:label "a pour contenu"@fr ,
+                         "has content"@en ,
+                         "hat als Inhalt"@de ,
+                         "tiene como contenido"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourCote
+:aPourCote rdf:type owl:ObjectProperty ;
+           rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#StringEqualsProperty> ;
+           rdfs:domain [ rdf:type owl:Class ;
+                         owl:unionOf ( :Archives
+                                       :Inventaire
+                                     )
+                       ] ;
+           rdfs:range :Cote ;
+           <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+           <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+           <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#identifier>" ;
+           rdfs:label "a pour cote"@fr ,
+                      "has reference code"@en ,
+                      "hat als Signatur"@de ,
+                      "tiene la signatura"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourEnfant
+:aPourEnfant rdf:type owl:ObjectProperty ;
+             rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+             rdfs:domain :Personne ;
+             rdfs:range :Personne ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasChild>" ;
+             rdfs:label "a pour enfant"@fr ,
+                        "has child"@en ,
+                        "hat Kind"@de ,
+                        "tiene como hijo/hiha"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourEpouse
+:aPourEpouse rdf:type owl:ObjectProperty ;
+             rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+             rdfs:domain :Personne ;
+             rdfs:range :Personne ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasOrHadSpouse>" ;
+             rdfs:label "a pour époux/épouse"@fr ,
+                        "has spouse"@en ,
+                        "hat Ehemann/Ehefrau"@de ,
+                        "tiene como esposo/esposa"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourIntitule
+:aPourIntitule rdf:type owl:ObjectProperty ;
+               rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#VirtuosoSearchProperty> ;
+               rdfs:domain [ rdf:type owl:Class ;
+                             owl:unionOf ( :Archives
+                                           :Inventaire
+                                         )
+                           ] ;
+               rdfs:range :Intitule ;
+               <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+               <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+               <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#title>" ;
+               rdfs:label "a pour titre"@fr ,
+                          "has title"@en ,
+                          "hat Titel"@de ,
+                          "tiene el título"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourLieuDeConservation
+:aPourLieuDeConservation rdf:type owl:ObjectProperty ;
+                         rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#ListProperty> ;
+                         rdfs:domain [ rdf:type owl:Class ;
+                                       owl:unionOf ( :Archives
+                                                     :Inventaire
+                                                   )
+                                     ] ;
+                         rdfs:range :Organization ;
+                         <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                         <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasOrHadManager>" ;
+                         <http://data.sparna.fr/ontologies/sparnatural-config-datasources#datasource> :list_rdfslabel_no_domain_alpha ;
+                         rdfs:label "held at"@en ,
+                                    "est conservé à"@fr ,
+                                    "wird aufbewahrt bei"@de ,
+                                    "se conserva en"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourMembre
+:aPourMembre rdf:type owl:ObjectProperty ;
+             rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+             owl:inverseOf :estMembreDe ;
+             rdfs:domain :Organization ;
+             rdfs:range :Personne ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#isAgentAssociatedWithAgent>" ;
+             rdfs:label "a pour membre"@fr ,
+                        "has member"@en ,
+                        "hat als Mitglied"@de ,
+                        "tiene como miembro"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourMembreFamille
+:aPourMembreFamille rdf:type owl:ObjectProperty ;
+                    rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+                    rdfs:domain :Family ;
+                    rdfs:range :Personne ;
+                    <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                    <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                    <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasOrHadMember>" ;
+                    rdfs:label "a pour membre"@fr ,
+                               "has member"@en ,
+                               "hat als Mitglied"@de ,
+                               "tiene como miembro"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourOccupation
+:aPourOccupation rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#ListProperty> ;
+                 rdfs:range :Occupation ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasOrHadOccupationOfType>" ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Connects a person and the activity he occupies."@en ,
+                                                                                    "Relie une personne et l'activité qu'elle occupe."@fr ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-datasources#datasource> :list_rdfslabel_range_alpha ;
+                 rdfs:label "a pour activité"@fr ,
+                            "has occupation"@en ,
+                            "hat für Tätigkeit"@de ,
+                            "tiene como actividad"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourParent
+:aPourParent rdf:type owl:ObjectProperty ;
+             rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+             rdfs:domain :Personne ;
+             rdfs:range :Personne ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#order> "1"^^xsd:int ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#isChildOf>" ;
+             rdfs:label "a pour parent"@fr ,
+                        "has parent"@en ,
+                        "hat Eltern"@de ,
+                        "tiene como padre/madre"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourSujet
+:aPourSujet rdf:type owl:ObjectProperty ;
+            rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#AutocompleteProperty> ;
+            rdfs:domain [ rdf:type owl:Class ;
+                          owl:unionOf ( :Archives
+                                        :Inventaire
+                                      )
+                        ] ;
+            rdfs:range :Theme ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasOrHadSubject>" ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-datasources#datasource> :search_rdfs_label_contains_only_range ;
+            rdfs:label "a pour sujet"@fr ,
+                       "has subject"@en ,
+                       "hat als Thema"@de ,
+                       "tiene el tema"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourTypeDOrganisation
+:aPourTypeDOrganisation rdf:type owl:ObjectProperty ;
+                        rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#ListProperty> ;
+                        rdfs:domain :Organization ;
+                        rdfs:range :TypeDOrganisation ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasOrHadLegalStatus>" ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-datasources#datasource> :list_rdfslabel_with_range_alpha ;
+                        rdfs:label "a pour type d'institution"@fr ,
+                                   "has organization type"@en ,
+                                   "hat als Institutionstyp"@de ,
+                                   "tiene como tipo de institución"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aPourTypeDeLieu
+:aPourTypeDeLieu rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#ListProperty> ;
+                 rdfs:range :TypeDeLieu ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasOrHadPlaceType>" ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-datasources#datasource> :list_skospreflabel_alpha_with_count_langfr ;
+                 rdfs:label "a pour type de lieu"@fr ,
+                            "has place type"@en ,
+                            "hat als Ortstyp"@de ,
+                            "tiene como tipo de lugar"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aRelationFamilialeAvec
+:aRelationFamilialeAvec rdf:type owl:ObjectProperty ;
+                        rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+                        rdfs:domain :Personne ;
+                        rdfs:range :Personne ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasFamilyAssociationWith>" ;
+                        rdfs:label "a une relation familiale avec"@fr ,
+                                   "has family relation with"@en ,
+                                   "hat eine Familienbeziehung mit"@de ,
+                                   "tiene una relación familiar con"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#aRicoName
+:aRicoName rdf:type owl:ObjectProperty ;
+           rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#VirtuosoSearchProperty> ;
+           rdfs:domain [ rdf:type owl:Class ;
+                         owl:unionOf ( :Family
+                                       :Lieu
+                                       :Organization
+                                       :Personne
+                                       :Theme
+                                     )
+                       ] ;
+           rdfs:range :Nom ;
+           <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+           <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+           <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<http://www.w3.org/2000/01/rdf-schema#label>" ;
+           rdfs:label "a pour nom"@fr ,
+                      "has name"@en ,
+                      "hat Name"@de ,
+                      "tiene el nombre"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#a_une_reproduction
+:a_une_reproduction rdf:type owl:ObjectProperty ;
+                    rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+                    rdfs:domain [ rdf:type owl:Class ;
+                                  owl:unionOf ( :Archives
+                                                :Inventaire
+                                              )
+                                ] ;
+                    rdfs:range :ReproductionNumerique ;
+                    <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasInstantiation>/<http://purl.org/dc/terms/source>" ;
+                    rdfs:label "a pour copie numérique"@fr ,
+                               "has digital surrogate"@en ,
+                               "hat als digitale Kopie"@de ,
+                               "tiene como copia digital"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#concerne
+:concerne rdf:type owl:ObjectProperty ;
+          rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+          owl:inverseOf :estConcernePar ;
+          rdfs:domain [ rdf:type owl:Class ;
+                        owl:unionOf ( :Archives
+                                      :Inventaire
+                                    )
+                      ] ;
+          rdfs:range [ rdf:type owl:Class ;
+                       owl:unionOf ( :Family
+                                     :Lieu
+                                     :Organization
+                                     :Personne
+                                   )
+                     ] ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasOrHadSubject>"@fr ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Relie une ressource archivistique à un agent ou à un lieu qui est concerné par cette ressource."@fr ;
+          rdfs:label "a pour sujet"@fr ,
+                     "has subject"@en ,
+                     "hat als Thema"@de ,
+                     "tiene el tema"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#conserveArchive
+:conserveArchive rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+                 rdfs:domain :Organization ;
+                 rdfs:range [ rdf:type owl:Class ;
+                              owl:unionOf ( :Archives
+                                            :Inventaire
+                                          )
+                            ] ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "^<https://www.ica.org/standards/RiC/ontology#hasOrHadManager>" ;
+                 rdfs:label "conserve"@fr ,
+                            "is holding place of"@en ,
+                            "aufbewahrt"@de ,
+                            "conserva"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#contenuDansInventaire
+:contenuDansInventaire rdf:type owl:ObjectProperty ;
+                       rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+                       rdfs:domain :Archives ;
+                       rdfs:range :Inventaire ;
+                       <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                       <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                       <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#isRecordResourceAssociatedWithRecordResource>" ;
+                       rdfs:label "fait partie de"@fr ,
+                                  "is contained in"@en ,
+                                  "Teil ist"@de ,
+                                  "es parte de"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#contientDocument
+:contientDocument rdf:type owl:ObjectProperty ;
+                  rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+                  rdfs:domain :Inventaire ;
+                  rdfs:range :Archives ;
+                  <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                  <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                  <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "^<https://www.ica.org/standards/RiC/ontology#isRecordResourceAssociatedWithRecordResource>" ;
+                  rdfs:label "contains"@en ,
+                             "contient"@fr ,
+                             "enthält"@de ,
+                             "contiene"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#date
+:date rdf:type owl:ObjectProperty ;
+      rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#TimeProperty-Year> ;
+      rdfs:range :Date ;
+      <http://data.sparna.fr/ontologies/sparnatural-config-core#beginDateProperty> :dateDebutArchive ;
+      <http://data.sparna.fr/ontologies/sparnatural-config-core#endDateProperty> :dateFinArchives ;
+      rdfs:label "a pour date"@fr ,
+                 "has date"@en ,
+                 "hat als Datum"@de ,
+                 "tiene la fecha"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#dateDebutArchive
+:dateDebutArchive rdf:type owl:ObjectProperty ;
+                  rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#TimeProperty-Year> ;
+                  rdfs:domain [ rdf:type owl:Class ;
+                                owl:unionOf ( :Archives
+                                              :Inventaire
+                                            )
+                              ] ;
+                  rdfs:range :Date ;
+                  <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                  <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                  <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#beginningDate>" ;
+                  rdfs:label "a pour date de création"@fr ,
+                             "has creation date"@en ,
+                             "hat als Datum der Erstellung"@de ,
+                             "tiene la fecha de creación"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#dateDebutExistence
+:dateDebutExistence rdf:type owl:ObjectProperty ;
+                    rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#TimeProperty-Year> ;
+                    rdfs:domain :Organization ;
+                    rdfs:range :Date ;
+                    <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                    <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                    <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#beginningDate>" ;
+                    rdfs:label "a pour date de création"@fr ,
+                               "has creation date"@en ,
+                               "hat als Datum der Erstellung"@de ,
+                               "tiene la fecha de creación"@es .
+
+
+
+###  https://francearchives.gouv.fr/sparnatural#dateFinArchives
+:dateFinArchives rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#TimeProperty-Year> ;
+                 rdfs:domain [ rdf:type owl:Class ;
+                               owl:unionOf ( :Archives
+                                             :Inventaire
+                                           )
+                             ] ;
+                 rdfs:range :Date ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#endDate>" ;
+                 rdfs:label "a pour date de fin"@fr ,
+                            "has end date"@en ,
+                            "hat als Enddatum"@de ,
+                            "tiene la fecha de finalización"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#dateFinExistence
+:dateFinExistence rdf:type owl:ObjectProperty ;
+                  rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#TimeProperty-Year> ;
+                  rdfs:domain :Organization ;
+                  rdfs:range :Date ;
+                  <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                  <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                  <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#endDate>" ;
+                  rdfs:label "a pour date de fin"@fr ,
+                             "has end date"@en ,
+                             "hat als Enddatum"@de ,
+                             "tiene la fecha de finalización"@es .
+
+
+
+###  https://francearchives.gouv.fr/sparnatural#estConcernePar
+:estConcernePar rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+                rdfs:domain [ rdf:type owl:Class ;
+                              owl:unionOf ( :Family
+                                            :Lieu
+                                            :Organization
+                                            :Personne
+                                          )
+                            ] ;
+                rdfs:range [ rdf:type owl:Class ;
+                             owl:unionOf ( :Archives
+                                           :Inventaire
+                                         )
+                           ] ;
+                <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "^<https://www.ica.org/standards/RiC/ontology#hasOrHadSubject>" ;
+                <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Links an agent to an archival resource that concerns it."@en ,
+                                                                                   "Relie un agent à une ressource archivistique qui le concerne."@fr ;
+                rdfs:label "est le sujet de"@fr ,
+                           "is subject of"@en ,
+                           "ist das Thema von"@de ,
+                           "es el tema de"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#estMembreDe
+:estMembreDe rdf:type owl:ObjectProperty ;
+             rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+             rdfs:domain :Personne ;
+             rdfs:range :Organization ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#isAgentAssociatedWithAgent>" ;
+             <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Connects a person to an organization."@en ,
+                                                                                "Relie une personne à un organisme."@fr ;
+             rdfs:label "est membre de"@fr ,
+                        "is member of"@en ,
+                        "ist Mitglied von"@de ,
+                        "es miembro de"@es .
+
+###  https://francearchives.gouv.fr/sparnatural#estMembreDeFamille
+:estMembreDeFamille rdf:type owl:ObjectProperty ;
+                    rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+                    rdfs:domain :Personne ;
+                    rdfs:range :Family ;
+                    <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                    <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                    <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#isOrWasMemberOf>" ;
+                    rdfs:label "est membre de"@fr ,
+                               "is member of"@en ,
+                               "ist Mitglied von"@de ,
+                               "es miembro de"@es .
+
+
+
+###  https://francearchives.gouv.fr/sparnatural#estProvenanceDe
+:estProvenanceDe rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+                 rdfs:domain [ rdf:type owl:Class ;
+                               owl:unionOf ( :Family
+                                             :Organization
+                                             :Personne
+                                           )
+                             ] ;
+                 rdfs:range [ rdf:type owl:Class ;
+                              owl:unionOf ( :Archives
+                                            :Inventaire
+                                          )
+                            ] ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "^<https://www.ica.org/standards/RiC/ontology#hasProvenance>" ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Links an agent that produces, accumulates, or manages an archival resource to this resource."@en ,
+                                                                                    "Relie un agent qui produit, accumule ou gère une ressource archivistique à cette ressource."@fr ;
+                 rdfs:label "est le producteur de"@fr ,
+                            "is provenance of"@en ,
+                            "ist der Bestandbildner von"@de ,
+                            "es el productor de"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#estSujetDe
+:estSujetDe rdf:type owl:ObjectProperty ;
+            rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+            rdfs:domain :Theme ;
+            rdfs:range [ rdf:type owl:Class ;
+                         owl:unionOf ( :Archives
+                                       :Inventaire
+                                     )
+                       ] ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "^<https://www.ica.org/standards/RiC/ontology#hasOrHadSubject>" ;
+            rdfs:label "est le sujet de"@fr ,
+                       "is subject of"@en ,
+                       "ist das Thema von"@de ,
+                       "es el tema de"@es .
+
+
+
+###  https://francearchives.gouv.fr/sparnatural#lieuContenuDans
+:lieuContenuDans rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#AutocompleteProperty> ;
+                 rdfs:domain :Lieu ;
+                 rdfs:range :Lieu ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#isOrWasContainedBy>" ;
+                 <http://data.sparna.fr/ontologies/sparnatural-config-datasources#datasource> :search_rdfs_label_contains_only_range ;
+                 rdfs:label "fait partie de"@fr ,
+                            "is part of"@en ,
+                            "Teil ist"@de ,
+                            "es parte de"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#lieuContient
+:lieuContient rdf:type owl:ObjectProperty ;
+              rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#AutocompleteProperty> ;
+              rdfs:domain :Lieu ;
+              rdfs:range :Lieu ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#containsOrContained>" ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-datasources#datasource> :search_rdfs_label_contains_only_range ;
+              rdfs:label "contains"@en ,
+                         "contient"@fr ,
+                         "enthält"@de ,
+                         "contiene"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#personneDate1Naissance
+:personneDate1Naissance rdf:type owl:ObjectProperty ;
+                        rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#TimeProperty-Year> ;
+                        rdfs:domain :Personne ;
+                        rdfs:range :Date ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-core#order> 1 ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#birthDate>" ;
+                        rdfs:label "a pour date de naissance"@fr ,
+                                   "has birth date"@en ,
+                                   "hat als Geburtstag"@de ,
+                                   "tiene la fecha de nacimiento"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#personneDate2Mort
+:personneDate2Mort rdf:type owl:ObjectProperty ;
+                   rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#TimeProperty-Year> ;
+                   rdfs:domain :Personne ;
+                   rdfs:range :Date ;
+                   <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                   <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                   <http://data.sparna.fr/ontologies/sparnatural-config-core#order> 2 ;
+                   <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#deathDate>"@en ;
+                   rdfs:label "a pour date de décès"@fr ,
+                              "has death date"@en ,
+                              "hat als Todestag"@de ,
+                              "tiene la fecha de defunción"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#personneDate3DebutExercice
+:personneDate3DebutExercice rdf:type owl:ObjectProperty ;
+                            rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#TimeProperty-Year> ;
+                            rdfs:domain :Personne ;
+                            rdfs:range :Date ;
+                            <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                            <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                            <http://data.sparna.fr/ontologies/sparnatural-config-core#order> 3 ;
+                            <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#agentIsTargetOfPerformanceRelation>/<https://www.ica.org/standards/RiC/ontology#beginningDate>" ;
+                            rdfs:label "a pour date de début d'activité"@fr ,
+                                       "has beginning date of occupation"@en ,
+                                       "hat als Anfangdatum der Tätigkeit"@de ,
+                                       "tiene como fecha de inicio de la actividad"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#personneDate4FinExercice
+:personneDate4FinExercice rdf:type owl:ObjectProperty ;
+                          rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#TimeProperty-Year> ;
+                          rdfs:domain :Personne ;
+                          rdfs:range :Date ;
+                          <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+                          <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+                          <http://data.sparna.fr/ontologies/sparnatural-config-core#order> 4 ;
+                          <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#agentIsTargetOfPerformanceRelation>/<https://www.ica.org/standards/RiC/ontology#endDate>" ;
+                          rdfs:label "a pour date de fin d'activité"@fr ,
+                                     "has end date of occupation"@en ,
+                                     "hat als Enddatum der Tätigkeit"@de ,
+                                     "tiene como fecha de finalización de la actividad"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#provenance
+:provenance rdf:type owl:ObjectProperty ;
+            rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#NonSelectableProperty> ;
+            rdfs:domain [ rdf:type owl:Class ;
+                          owl:unionOf ( :Archives
+                                        :Inventaire
+                                      )
+                        ] ;
+            rdfs:range [ rdf:type owl:Class ;
+                         owl:unionOf ( :Family
+                                       :Organization
+                                       :Personne
+                                     )
+                       ] ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#enableOptional> "true"^^xsd:boolean ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#hasProvenance>" ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Links an archival resource to an agent that produces, accumulates, or manages that resource."@en ,
+                                                                               "Relie une ressource archivistique à un agent qui produit, accumule ou gère cette ressource."@fr ;
+            rdfs:label "a pour producteur"@fr ,
+                       "has provenance"@en ,
+                       "hat als Bestandbildner"@de ,
+                       "tiene como productor"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#rdfsLabel
+:rdfsLabel rdf:type owl:ObjectProperty ;
+           rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#VirtuosoSearchProperty> ;
+           rdfs:range :Label ;
+           <http://data.sparna.fr/ontologies/sparnatural-config-core#enableNegation> "true"^^xsd:boolean ;
+           <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<http://www.w3.org/2000/01/rdf-schema#label>" ;
+           rdfs:label "a pour label"@fr ,
+                      "has label"@en ,
+                      "hat das Label"@de ,
+                      "tiene la etiqueta"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#skosPrefLabel
+:skosPrefLabel rdf:type owl:ObjectProperty ;
+               rdfs:subPropertyOf <http://data.sparna.fr/ontologies/sparnatural-config-core#SearchProperty> ;
+               rdfs:range :Label ;
+               <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<http://www.w3.org/2004/02/skos/core#prefLabel>" ;
+               rdfs:label "skosPrefLabel"@fr ,
+                          "skosPrefLabel"@en ,
+                          "skosPrefLabel"@de ,
+                          "skosPrefLabel"@es .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass
+<http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass> rdf:type owl:Class .
+
+
+###  http://www.w3.org/2000/01/rdf-schema#Literal
+rdfs:Literal rdf:type owl:Class .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Activite
+:Activite rdf:type owl:Class ;
+          rdfs:subClassOf <http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass> ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty> :rdfsLabel ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-briefcase-line" ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#ActivityType>" ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Fonction exercée par une personne ou une institution."@fr ,
+                                                                             "Function performed by a person or an institution."@en ,
+                                                                             "Funktion, die von einer Person oder einer Institution ausgeübt wird."@de ,
+                                                                             "Función desempeñada por una persona o institución."@es ;
+          rdfs:label "Activity"@en ,
+                     "Activité"@fr ,
+                     "Tätigkeit"@de ,
+                     "Actividad"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Archives
+:Archives rdf:type owl:Class ;
+          rdfs:subClassOf <http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass> ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty> :aPourIntitule ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-article-line" ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#order> 1 ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> """<https://www.ica.org/standards/RiC/ontology#RecordResource>;
+<https://www.ica.org/standards/RiC/ontology#isOrWasIncludedIn> []""" ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Description des dossiers, registres et documents d'archives contenant des informations permettant de les identifier et de les consulter."@fr ,
+                                                                             "Description of files, registers and documents with information allowing their identification and access."@en,
+                                                                             "Beschreibung von Akten, Registern und Archivdokumente, die Informationen enthalten, die es ermöglichen, sie zu identifizieren und einzusehen."@de ,
+                                                                             "Descripción de los expedientes, registros y documentos de archivo que contengan información que permite identificarlos y consultarlos."@es ;
+          rdfs:label "Archival document"@en ,
+                     "Document d'archives"@fr ,
+                     "Archivdokument"@de ,
+                     "Documento de archivo"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Contenu
+:Contenu rdf:type owl:Class ;
+         rdfs:subClassOf rdfs:Literal ;
+         <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-file-search-line" ;
+         <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Description détaillée et informations complémentaires sur le document d’archives."@fr ,
+                                                                            "Detailed description or additionnal information on the archival documents."@en ,
+                                                                            "Ausführliche Beschreibung und weitere Informationen über das Archivdokument."@de ,
+                                                                            "Descripción detallada e información adicional sobre el documento de archivo."@es ;
+         rdfs:label "Contenu"@fr ,
+                    "Scopecontent"@en ,
+                    "Inhalt"@de ,
+                    "Contenido"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Cote
+:Cote rdf:type owl:Class ;
+      rdfs:subClassOf rdfs:Literal ;
+      <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-barcode-fill" ;
+      <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Alphanumeric code used to uniquely identify an archival document or file."@en ,
+                                                                         "Code alphanumérique servant à identifier de manière unique un document ou dossier d'archives."@fr ,
+                                                                         "Alphanumerischer Code, der zur eindeutigen Identifizierung eines Dokuments oder einer Archivmappe dient."@de ,
+                                                                         "Código alfanumérico utilizado para identificar de forma unívoca un documento o un expediente de archivo."@es ;
+      rdfs:label "Cote"@fr ,
+                 "Reference"@en ,
+                 "Signatur"@de ,
+                 "Signatura"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Date
+:Date rdf:type owl:Class ;
+      rdfs:subClassOf rdfs:Literal ;
+      <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-calendar-event-line" ;
+      <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Date linked to an event in a person’s life or an institution…, or date of the archival documents."@en ,
+                                                                         "Date liée à un évènement dans la vie d’une personne, d’une institution, etc. ou date du document d’archives."@fr ,
+                                                                         "Datum, das mit einem Ereignis im Leben einer Person oder einer Institution verbunden ist..., oder Datum der Archivdokumente."@de ,
+                                                                         "Fecha vinculada a un acontecimiento de la vida de una persona o una institución..., o fecha de los documentos de archivo."@es ;
+      rdfs:label "Date"@en ,
+                 "Date"@fr ,
+                 "Datum"@de ,
+                 "Fecha"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#DocumentaryFormType
+:DocumentaryFormType rdf:type owl:Class ;
+                     rdfs:subClassOf <http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass> ;
+                     <http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty> :skosPrefLabel ;
+                     <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "fa fa-file-contract" ;
+                     <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#DocumentaryFormType>" ;
+                     rdfs:label "Documentary form type"@en ,
+                                "Type de document"@fr ,
+                                "Arten von Ressourcen"@de ,
+                                "Tipo de documento"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Family
+:Family rdf:type owl:Class ;
+        rdfs:subClassOf <http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass> ;
+        <http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty> :rdfsLabel ;
+        <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-team-fill" ;
+        <http://data.sparna.fr/ontologies/sparnatural-config-core#order> 5 ;
+        <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#Family>" ;
+        <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Famille ayant créé, reçu ou conservé des archives. Elle peut également être le sujet de ces archives."@fr ,
+                                                                           "Family who created, received or maintained archives. It can also be the subject of the archives."@en ,
+                                                                           "Familie, die Archive erstellt, erhalten oder gepflegt hat. Er oder sie kann auch das Subjekt des Archivs sein."@de ,
+                                                                           "Familia que ha creado, recibido o conservado archivos. También puede ser el objeto de los archivos."@es ;
+        rdfs:label "Famille"@fr ,
+                   "Family"@en ,
+                   "Familie"@de,
+                   "Familia"@es.
+
+
+###  https://francearchives.gouv.fr/sparnatural#Intitule
+:Intitule rdf:type owl:Class ;
+          rdfs:subClassOf rdfs:Literal ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-text" ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Title of the document or short description of its content."@en ,
+                                                                             "Titre du document ou courte description de son contenu."@fr ,
+                                                                             "Titel des Dokuments oder kurze Beschreibung des Inhalts."@de ,
+                                                                             "Título del documento o breve descripción de su contenido."@es ;
+          rdfs:label "Title"@en ,
+                     "Titre"@fr ,
+                     "Titel"@de ,
+                     "Titulo"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Inventaire
+:Inventaire rdf:type owl:Class ;
+            rdfs:subClassOf <http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass> ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty> :aPourIntitule ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-archive-line" ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#order> 2 ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> """<https://www.ica.org/standards/RiC/ontology#RecordResource>;
+  <https://www.ica.org/standards/RiC/ontology#isOrWasDescribedBy> [
+   <https://www.ica.org/standards/RiC/ontology#hasDocumentaryFormType> <https://www.ica.org/standards/RiC/vocabularies/documentaryFormTypes#FindingAid> ]""" ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Description des fonds et groupes de documents d'archives contenant des informations permettant de les identifier et de les consulter."@fr ,
+                                                                               "Description of fonds and group of documents with information allowing their identification and access."@en ,
+                                                                               "Beschreibung von Beständen und Gruppen von Archivdokumente mit Informationen, die es ermöglichen, sie zu identifizieren und zu konsultieren."@de ,
+                                                                               "Descripción de fondos y de grupos de documentos que contienen información que permite identificarlos y consultarlos."@es ;
+            rdfs:label "Finding aid"@en ,
+                       "Inventaire d'archives"@fr ,
+                       "Bestandsverzeichnis"@de ,
+                       "Documento de archivo"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Label
+:Label rdf:type owl:Class ;
+       rdfs:subClassOf rdfs:Literal ;
+       rdfs:label "Label"@en ,
+                  "Libellé"@fr ,
+                  "Etikett"@de ,
+                  "Etiqueta"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Lieu
+:Lieu rdf:type owl:Class ;
+      rdfs:subClassOf <http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass> ;
+      <http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty> :rdfsLabel ;
+      <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-earth-line" ;
+      <http://data.sparna.fr/ontologies/sparnatural-config-core#order> 6 ;
+      <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#Place>" ;
+      <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Any geographical entity linked to archives : jurisdiction, subject…"@en ,
+                                                                         "Toute entité géographique liée à des documents d’archives : ressort territorial, sujet, etc."@fr ,
+                                                                         "Jede geografische Einheit, die mit Archiven verbunden ist: Gerichtsbarkeit, Thema..."@de ,
+                                                                         "Cualquier entidad geográfica vinculada a los archivos : jurisdicción territorial, tema..."@es ;
+      rdfs:label "Lieu"@fr ,
+                 "Place"@en ,
+                 "Orte"@de ,
+                 "Lugar"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Nom
+:Nom rdf:type owl:Class ;
+     rdfs:subClassOf rdfs:Literal ;
+     <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-user-search-fill" ;
+     <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Name allowing to identify a person, an institution, a family or a place, and distinguish it from another."@en ,
+                                                                        "Nom permettant d’identifier une personne, une famille, une institution ou un lieu et de le distinguer d’un autre."@fr ,
+                                                                        "Name, mit dem eine Person, eine Familie, eine Institution oder ein Ort identifiziert und von anderen unterschieden werden kann."@de ,
+                                                                        "Nombre utilizado para identificar a una persona, familia, institución o lugar y distinguirlo de otro."@es ;
+     rdfs:label "Name"@en ,
+                "Nom"@fr ,
+                "Name"@de ,
+                "Nombre"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Occupation
+:Occupation rdf:type owl:Class ;
+            rdfs:subClassOf <http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass> ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty> :rdfsLabel ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-briefcase-line" ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#OccupationType>" ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "La profession ou la fonction d'une personne physique. Peut être mentionnée dans un document."@fr ,
+                                                                               "The occupation or function of a person. Can be mentioned in a record."@en ;
+            rdfs:label "Activité"@fr ,
+                       "Occupation"@en,
+                       "Tätigkeit"@de ,
+                       "Actividad"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Organization
+:Organization rdf:type owl:Class ;
+              rdfs:subClassOf <http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass> ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty> :rdfsLabel ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-bank-line" ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#order> 4 ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#CorporateBody>" ;
+              <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Insitution who created, received or maintained archives. He or she can also be the subject of the archives."@en ,
+                                                                                 "Institution, publique ou privée, ayant créé, reçu ou conservé des archives. Elle peut également être le sujet de ces archives."@fr ,
+                                                                                 "Institution, die Archive erstellt, erhalten oder gepflegt hat. Er oder sie kann auch das Subjekt des Archivs sein."@de ,
+                                                                                 "Institución que ha creado, recibido o conservado archivos. También puede ser el objeto  de los archivos."@es ;
+              rdfs:label "Institution"@en ,
+                         "Institution"@fr ,
+                         "Institution"@de ,
+                         "Institución"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Personne
+:Personne rdf:type owl:Class ;
+          rdfs:subClassOf <http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass> ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty> :rdfsLabel ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-user-fill" ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#order> 3 ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#Person>"@fr ;
+          <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Person who created, received or maintained archives. He or she can also be the subject of the archives."@en ,
+                                                                             "Personne ayant créé, reçu ou conservé des archives. Elle peut également être le sujet de ces archives."@fr ,
+                                                                             "Person, die Archive erstellt, erhalten oder gepflegt hat. Er oder sie kann auch das Subjekt des Archivs sein."@de ,
+                                                                             "Persona que ha creado, recibido o conservado archivos. También puede ser el objeto de los archivos."@es ;
+          rdfs:label "Person"@en ,
+                     "Personne"@fr ,
+                     "Person"@de ,
+                     "Persona"@es .
+
+###  https://francearchives.gouv.fr/sparnatural#ReproductionNumerique
+:ReproductionNumerique rdf:type owl:Class ;
+                       rdfs:subClassOf rdfs:Literal ;
+                       <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-camera-line" ;
+                       <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Copie numérique exacte d’un (ou plusieurs) document(s) d’archives."@fr ,
+                                                                                          "Exact digital copy of one or several document(s)."@en ,
+                                                                                          "Exakte digitale Kopie eines (oder mehrerer) Archivdokumente."@de ,
+                                                                                          "Copia digital exacta de uno o varios documentos de archivo."@es ;
+                       rdfs:label "Digital object"@en ,
+                                  "Document numérisé"@fr ,
+                                  "Digitalisierte Dokument"@de ,
+                                  "Documento digitalizado"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#Theme
+:Theme rdf:type owl:Class ;
+       rdfs:subClassOf <http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass> ;
+       <http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty> :rdfsLabel ;
+       <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-pantone-line" ;
+       <http://data.sparna.fr/ontologies/sparnatural-config-core#order> 7 ;
+       <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#Concept>" ;
+       <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Subject or object of the archival documents."@en ,
+                                                                          "Sujet ou objet du document d’archives."@fr ,
+                                                                          "Thema oder Objekt des Archivdokumente."@de ,
+                                                                          "Tema u objeto de los documentos de archivo."@es ;
+       rdfs:comment "Toute chose qui n'est ni un agent ni un lieu, et qui peut être le sujet d'une ressource archivistique. Peut notamment être un objet matériel, un événement, un concept. Peut avoir un nom propre."@fr ;
+       rdfs:label "Thème"@fr ,
+                  "Topic"@en ,
+                  "Thema"@de ,
+                  "Tema"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#TypeDOrganisation
+:TypeDOrganisation rdf:type owl:Class ;
+                   rdfs:subClassOf <http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass> ;
+                   <http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty> :rdfsLabel ;
+                   <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-community-line" ;
+                   <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#LegalStatus>" ;
+                   <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Element allowing to characterize an institution."@en ,
+                                                                                      "Élément permettant de caractériser une institution."@fr ,
+                                                                                      "Element zur Charakterisierung einer Institution."@de ,
+                                                                                      "Elemento utilizado para caracterizar una institución."@es ;
+                   rdfs:label "Institution type"@en ,
+                              "Type d'institution"@fr ,
+                              "Institutiontyp"@de ,
+                              "Tipo de institución"@es .
+
+
+###  https://francearchives.gouv.fr/sparnatural#TypeDeLieu
+:TypeDeLieu rdf:type owl:Class ;
+            rdfs:subClassOf <http://data.sparna.fr/ontologies/sparnatural-config-core#SparnaturalClass> ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#defaultLabelProperty> :skosPrefLabel ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#faIcon> "ri-ancient-pavilion-fill" ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#sparqlString> "<https://www.ica.org/standards/RiC/ontology#PlaceType>"@fr ;
+            <http://data.sparna.fr/ontologies/sparnatural-config-core#tooltip> "Element allowing to characterize a place."@en ,
+                                                                               "Élément permettant de caractériser un lieu."@fr ;
+            rdfs:label "Place type"@en ,
+                       "Type de lieu"@fr ,
+                       "Ortstyp"@de ,
+                       "Tipo de lugar"@es .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  https://francearchives.gouv.fr/sparnatural#list_rdfslabel_count_langfr
+:list_rdfslabel_count_langfr rdf:type owl:NamedIndividual ,
+                                      <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlDatasource> ;
+                             <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> rdfs:label ;
+                             <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_list_label_count_langfr .
+
+
+###  https://francearchives.gouv.fr/sparnatural#list_rdfslabel_no_domain_alpha
+:list_rdfslabel_no_domain_alpha rdf:type owl:NamedIndividual ,
+                                         <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlDatasource> ;
+                                <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> rdfs:label ;
+                                <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_list_label_no_domain_alpha .
+
+
+###  https://francearchives.gouv.fr/sparnatural#list_rdfslabel_range_alpha
+:list_rdfslabel_range_alpha rdf:type owl:NamedIndividual ,
+                                     <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlDatasource> ;
+                            <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> rdfs:label ;
+                            <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_list_rdfslabel_range_alpha .
+
+
+###  https://francearchives.gouv.fr/sparnatural#list_rdfslabel_with_range_alpha
+:list_rdfslabel_with_range_alpha rdf:type owl:NamedIndividual ,
+                                          <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlDatasource> ;
+                                 <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> rdfs:label ;
+                                 <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> <http://data.sparna.fr/ontologies/sparnatural-config-datasources#query_list_label_with_range_alpha> .
+
+
+###  https://francearchives.gouv.fr/sparnatural#list_rdfslabel_with_range_alpha_langfr
+:list_rdfslabel_with_range_alpha_langfr rdf:type owl:NamedIndividual ,
+                                                 <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlDatasource> ;
+                                        <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> rdfs:label ;
+                                        <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_list_label_with_range_alpha_langfr .
+
+
+###  https://francearchives.gouv.fr/sparnatural#list_rdfslabel_with_range_count
+:list_rdfslabel_with_range_count rdf:type owl:NamedIndividual ,
+                                          <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlDatasource> ;
+                                 <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> rdfs:label ;
+                                 <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> <http://data.sparna.fr/ontologies/sparnatural-config-datasources#query_list_label_with_range_count> .
+
+
+###  https://francearchives.gouv.fr/sparnatural#list_rdfslabel_with_range_count_langfr
+:list_rdfslabel_with_range_count_langfr rdf:type owl:NamedIndividual ,
+                                                 <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlDatasource> ;
+                                        <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> rdfs:label ;
+                                        <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_list_label_with_range_count_langfr .
+
+
+###  https://francearchives.gouv.fr/sparnatural#list_riconame_count_langfr
+:list_riconame_count_langfr rdf:type owl:NamedIndividual ;
+                            <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> <https://www.ica.org/standards/RiC/ontology#name> ;
+                            <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_list_label_with_range_count_langfr .
+
+
+###  https://francearchives.gouv.fr/sparnatural#list_riconame_no_count
+:list_riconame_no_count rdf:type owl:NamedIndividual ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> rdfs:label ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> <http://data.sparna.fr/ontologies/sparnatural-config-datasources#query_list_label_with_range_alpha> .
+
+
+###  https://francearchives.gouv.fr/sparnatural#list_ricotitle_lang_fr
+:list_ricotitle_lang_fr rdf:type owl:NamedIndividual ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> <https://www.ica.org/standards/RiC/ontology#title> ;
+                        <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_list_label_with_range_alpha_langfr .
+
+
+###  https://francearchives.gouv.fr/sparnatural#list_skospreflabel_alpha_with_count_langfr
+:list_skospreflabel_alpha_with_count_langfr rdf:type owl:NamedIndividual ,
+                                                     <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlDatasource> ;
+                                            <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> <http://www.w3.org/2004/02/skos/core#prefLabel> ;
+                                            <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_list_skospreflabel_alpha_with_count_langfr .
+
+
+###  https://francearchives.gouv.fr/sparnatural#list_skospreflabel_with_range_alpha
+:list_skospreflabel_with_range_alpha rdf:type owl:NamedIndividual ,
+                                              <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlDatasource> ;
+                                     <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> <http://www.w3.org/2004/02/skos/core#prefLabel> ;
+                                     <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> <http://data.sparna.fr/ontologies/sparnatural-config-datasources#query_list_label_with_range_alpha> .
+
+
+###  https://francearchives.gouv.fr/sparnatural#list_skospreflabel_with_range_count
+:list_skospreflabel_with_range_count rdf:type owl:NamedIndividual ,
+                                              <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlDatasource> ;
+                                     <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> <http://www.w3.org/2004/02/skos/core#prefLabel> ;
+                                     <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> <http://data.sparna.fr/ontologies/sparnatural-config-datasources#query_list_label_with_range_count> .
+
+
+###  https://francearchives.gouv.fr/sparnatural#list_skospreflabel_with_range_count_langfr
+:list_skospreflabel_with_range_count_langfr rdf:type owl:NamedIndividual ,
+                                                     <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlDatasource> ;
+                                            <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> <http://www.w3.org/2004/02/skos/core#prefLabel> ;
+                                            <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_list_prefskoslabel_with_range_count_langfr .
+
+
+###  https://francearchives.gouv.fr/sparnatural#query_list_label_count_langfr
+:query_list_label_count_langfr rdf:type owl:NamedIndividual ,
+                                        <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SPARQLQuery> ;
+                               <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """SELECT ?uri ?count (CONCAT(STR(?theLabel), ' (', STR(?count), ')') AS ?label)
+WHERE {
+{
+  SELECT DISTINCT ?uri (COUNT(?domain) AS ?count)
+  WHERE {
+    ?domain a $domain .
+    ?domain $property ?uri .
+    FILTER(isIRI(?uri))
+    # Note how the range criteria is not used in this query
+  }
+  GROUP BY ?uri
+}
+?uri $labelPath ?theLabel .
+FILTER(lang(?theLabel) = \"\" || lang(?theLabel) = $lang || lang(?theLabel) = \"fr\")
+}
+ORDER BY DESC(?count) UCASE(?label)
+LIMIT 500""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#query_list_label_no_domain_alpha
+:query_list_label_no_domain_alpha rdf:type owl:NamedIndividual ,
+                                           <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SPARQLQuery> ;
+                                  <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """SELECT DISTINCT ?uri ?label
+WHERE {
+    ?domain $property ?uri .
+    # range criteria
+    ?uri $labelPath ?label .
+}
+ORDER BY UCASE(?label)
+LIMIT 500""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#query_list_label_with_range_alpha_langfr
+:query_list_label_with_range_alpha_langfr rdf:type owl:NamedIndividual ,
+                                                   <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SPARQLQuery> ;
+                                          <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """SELECT DISTINCT ?uri ?label
+WHERE {
+    ?domain a $domain .
+    ?domain $property ?uri .
+    # range criteria
+    ?uri a $range .
+    ?uri $labelPath ?label .
+    FILTER(isIRI(?uri))
+    FILTER(lang(?label) = \"\" || lang(?label) = $lang || lang(?label) = 'fr')
+}
+ORDER BY UCASE(?label)
+LIMIT 500""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#query_list_label_with_range_count_langfr
+:query_list_label_with_range_count_langfr rdf:type owl:NamedIndividual ,
+                                                   <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SPARQLQuery> ;
+                                          <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """SELECT ?uri ?count (CONCAT(STR(?theLabel), ' (', STR(?count), ')') AS ?label)
+WHERE {
+{
+  SELECT DISTINCT ?uri (COUNT(?domain) AS ?count)
+  WHERE {
+    ?domain a $domain .
+    ?domain $property ?uri .
+    FILTER(isIRI(?uri))
+    # range criteria
+    ?uri a $range .
+  }
+  GROUP BY ?uri
+}
+?uri $labelPath ?theLabel .
+FILTER(lang(?theLabel) = \"\" || lang(?theLabel) = $lang || lang(?theLabel) = \"fr\")
+}
+ORDER BY DESC(?count) UCASE(?label)
+LIMIT 5000""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#query_list_prefskoslabel_with_range_count_langfr
+:query_list_prefskoslabel_with_range_count_langfr rdf:type owl:NamedIndividual ,
+                                                           <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SPARQLQuery> ;
+                                                  <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """SELECT ?uri ?count (CONCAT(STR(?theLabel), ' (', STR(?count), ')') AS ?label)
+WHERE {
+{
+  SELECT DISTINCT ?uri (COUNT(?domain) AS ?count)
+  WHERE {
+    ?domain a $domain .
+    ?domain $property ?uri .
+    FILTER(isIRI(?uri))
+    # range criteria
+    ?uri a $range .
+  }
+  GROUP BY ?uri
+}
+?uri $labelPath ?theLabel .
+FILTER(lang(?theLabel) = \"\" || lang(?theLabel) = $lang || lang(?theLabel) = 'fr')
+}
+ORDER BY DESC(?count) UCASE(?label)
+LIMIT 500""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#query_list_rdfslabel_range_alpha
+:query_list_rdfslabel_range_alpha rdf:type owl:NamedIndividual ,
+                                           <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SPARQLQuery> ;
+                                  <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """SELECT DISTINCT ?uri ?label
+WHERE {
+    # range criteria
+    ?uri $type $range .
+    ?uri $labelPath ?label .
+}
+ORDER BY UCASE(?label)
+LIMIT 500""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#query_list_skospreflabel_alpha_with_count_langfr
+:query_list_skospreflabel_alpha_with_count_langfr rdf:type owl:NamedIndividual ,
+                                                           <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SPARQLQuery> ;
+                                                  <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """SELECT ?uri ?count (CONCAT(STR(?theLabel), ' (', STR(?count), ')') AS ?label)
+WHERE {
+{
+  SELECT DISTINCT ?uri (COUNT(?domain) AS ?count)
+  WHERE {
+    ?domain a $domain .
+    ?domain $property ?uri .
+    FILTER(isIRI(?uri))
+    # Note how the range criteria is not used in this query
+  }
+  GROUP BY ?uri
+}
+?uri $labelPath ?theLabel .
+FILTER(lang(?theLabel) = \"\" || lang(?theLabel) = $lang || lang(?theLabel) = \"fr\")
+}
+ORDER BY UCASE(?label)
+LIMIT 500""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#query_search_bifcontains
+:query_search_bifcontains rdf:type owl:NamedIndividual ,
+                                   <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SPARQLQuery> ;
+                          <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """SELECT DISTINCT ?uri ?label
+ WHERE {
+  ?domain a $domain .
+  ?domain $property ?uri .
+  ?uri a $range .
+  ?uri $labelPath ?label .
+  ?label <http://www.openlinksw.com/schemas/bif#contains> \"'$key'\" . 
+} 
+ORDER BY UCASE(?label)
+LIMIT 50""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#query_search_label_contains_langfr
+:query_search_label_contains_langfr rdf:type owl:NamedIndividual ,
+                                             <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SPARQLQuery> ;
+                                    <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """SELECT DISTINCT ?uri ?label
+WHERE {
+  ?domain a $domain .
+  ?domain $property ?uri .
+  ?uri a $range .
+  ?uri $labelPath ?label .
+  FILTER(CONTAINS(LCASE(STR(?label)), LCASE(\"$key\"))) 
+} 
+ORDER BY UCASE(?label)
+LIMIT 50""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#query_search_label_contains_only_range
+:query_search_label_contains_only_range rdf:type owl:NamedIndividual ,
+                                                 <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SPARQLQuery> ;
+                                        <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """SELECT DISTINCT ?uri ?label
+WHERE {
+  ?uri $type $range .
+  ?uri $labelPath ?label .
+  FILTER(CONTAINS(LCASE(STR(?label)), LCASE(\"$key\"))) 
+} 
+ORDER BY STRLEN(?label)
+LIMIT 100""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#query_tree_children_langfr
+:query_tree_children_langfr rdf:type owl:NamedIndividual ;
+                            <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """# Selects the children of a node
+SELECT DISTINCT ?uri ?label ?hasChildren
+WHERE {
+  $node $childrenPath ?uri .
+  ?uri $labelPath ?label .
+  FILTER(isIRI(?uri))
+  FILTER(lang(?label) = '' || lang(?label) = $lang || lang(?label) = 'fr')
+  OPTIONAL {
+  	?uri $childrenPath ?children .
+  }
+  BIND(IF(bound(?children),true,false) AS ?hasChildren)
+}
+ORDER BY UCASE(?label)""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#query_tree_children_with_count_langfr
+:query_tree_children_with_count_langfr rdf:type owl:NamedIndividual ;
+                                       <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """SELECT ?uri (CONCAT(STR(?theLabel), ' (', STR(?count), ')') AS ?label) ?hasChildren (COUNT(?x) AS ?count)
+WHERE {
+  {
+    SELECT DISTINCT ?uri ?theLabel ?hasChildren
+    WHERE {
+      $node $childrenPath ?uri .
+      ?uri $labelPath ?theLabel .
+      FILTER(isIRI(?uri))
+      FILTER(lang(?theLabel) = '' || lang(?theLabel) = $lang || lang(?theLabel) = 'fr')
+      OPTIONAL {
+        ?uri $childrenPath ?children .
+      }
+      BIND(IF(bound(?children),true,false) AS ?hasChildren)
+    }
+  }
+
+  OPTIONAL {
+    ?x a $domain .
+    ?x $property ?uri .
+    # no range criteria
+    # ?uri a $range .
+  }
+}
+GROUP BY ?uri ?theLabel ?hasChildren
+ORDER BY UCASE(?label)""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#search_rdfs_label_contains_only_range
+:search_rdfs_label_contains_only_range rdf:type owl:NamedIndividual ,
+                                                <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlSearchDatasource> ;
+                                       <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> rdfs:label ;
+                                       <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_search_label_contains_only_range .
+
+
+###  https://francearchives.gouv.fr/sparnatural#search_rdfslabel_contains_langfr
+:search_rdfslabel_contains_langfr rdf:type owl:NamedIndividual ,
+                                           <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlDatasource> ;
+                                  <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> rdfs:label ;
+                                  <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_search_label_contains_langfr .
+
+
+###  https://francearchives.gouv.fr/sparnatural#search_ricotitle_contains
+:search_ricotitle_contains rdf:type owl:NamedIndividual ;
+                           <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelProperty> <https://www.ica.org/standards/RiC/ontology#title> ;
+                           <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_search_label_contains_langfr .
+
+
+###  https://francearchives.gouv.fr/sparnatural#tree_children_skosnarrower_langfr
+:tree_children_skosnarrower_langfr rdf:type owl:NamedIndividual ,
+                                            <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlTreeChildrenDatasource> ;
+                                   <http://data.sparna.fr/ontologies/sparnatural-config-datasources#childrenPath> "<http://www.w3.org/2004/02/skos/core#narrower>|^<http://www.w3.org/2004/02/skos/core#broader>" ;
+                                   <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelPath> "<http://www.w3.org/2004/02/skos/core#prefLabel>" ;
+                                   <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_tree_children_langfr .
+
+
+###  https://francearchives.gouv.fr/sparnatural#tree_children_skosnarrower_with_count_langfr
+:tree_children_skosnarrower_with_count_langfr rdf:type owl:NamedIndividual ,
+                                                       <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlTreeChildrenDatasource> ;
+                                              <http://data.sparna.fr/ontologies/sparnatural-config-datasources#childrenPath> "<http://www.w3.org/2004/02/skos/core#narrower>|^<http://www.w3.org/2004/02/skos/core#broader>" ;
+                                              <http://data.sparna.fr/ontologies/sparnatural-config-datasources#labelPath> "<http://www.w3.org/2004/02/skos/core#prefLabel>" ;
+                                              <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryTemplate> :query_tree_children_with_count_langfr .
+
+
+###  https://francearchives.gouv.fr/sparnatural#tree_root_documentaryFormType_with_count_langfr
+:tree_root_documentaryFormType_with_count_langfr rdf:type owl:NamedIndividual ;
+                                                 <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?uri (CONCAT(STR(?theLabel), ' (', STR(?count), ')') AS ?label) ?hasChildren (COUNT(?x) AS ?count)
+WHERE {
+  {
+    SELECT DISTINCT ?uri ?theLabel ?hasChildren
+    WHERE { <http://data.archives-nationales.culture.gouv.fr/documentaryFormTypes> skos:hasTopConcept|^skos:topConceptOf ?uri .
+      ?uri skos:prefLabel ?theLabel .
+      FILTER(isIRI(?uri))
+      FILTER(lang(?theLabel) = '' || lang(?theLabel) = $lang || lang(?theLabel) = 'fr')
+      OPTIONAL {
+        ?uri skos:narrower|^skos:broader ?children .
+      }
+      BIND(IF(bound(?children),true,false) AS ?hasChildren)
+    }
+  }
+
+  OPTIONAL {
+    ?x a $domain .
+    ?x $property ?uri .
+    # no range criteria
+    # ?uri a $range .
+  }
+}
+GROUP BY ?uri ?theLabel ?hasChildren
+ORDER BY UCASE(?label)""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#tree_root_skostopconcept_langfr
+:tree_root_skostopconcept_langfr rdf:type owl:NamedIndividual ,
+                                          <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlTreeRootDatasource> ;
+                                 <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT DISTINCT ?uri ?label ?hasChildren
+WHERE {
+  $range skos:hasTopConcept|^skos:topConceptOf ?uri .
+  ?uri skos:prefLabel ?label .
+  FILTER(isIRI(?uri))
+  FILTER(lang(?label) = '' || lang(?label) = $lang  || lang(?label) = 'fr')
+  OPTIONAL {
+    ?uri skos:narrower|^skos:broader ?children .
+  }
+  BIND(IF(bound(?children),true,false) AS ?hasChildren)
+}
+ORDER BY UCASE(?label)""" .
+
+
+###  https://francearchives.gouv.fr/sparnatural#tree_root_skostopconcept_with_count_langfr
+:tree_root_skostopconcept_with_count_langfr rdf:type owl:NamedIndividual ,
+                                                     <http://data.sparna.fr/ontologies/sparnatural-config-datasources#SparqlTreeRootDatasource> ;
+                                            <http://data.sparna.fr/ontologies/sparnatural-config-datasources#queryString> """PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT ?uri (CONCAT(STR(?theLabel), ' (', STR(?count), ')') AS ?label) ?hasChildren (COUNT(?x) AS ?count)
+WHERE {
+  {
+    SELECT DISTINCT ?uri ?theLabel ?hasChildren
+    WHERE {
+      $range skos:hasTopConcept|^skos:topConceptOf ?uri .
+      ?uri skos:prefLabel ?theLabel .
+      FILTER(isIRI(?uri))
+      FILTER(lang(?theLabel) = '' || lang(?theLabel) = $lang || lang(?theLabel) = 'fr')
+      OPTIONAL {
+        ?uri skos:narrower|^skos:broader ?children .
+      }
+      BIND(IF(bound(?children),true,false) AS ?hasChildren)
+    }
+  }
+
+  OPTIONAL {
+    ?x a $domain .
+    ?x $property ?uri .
+    # no range criteria
+    # ?uri a $range .
+  }
+}
+GROUP BY ?uri ?theLabel ?hasChildren
+ORDER BY UCASE(?label)""" .
+
+
+###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi

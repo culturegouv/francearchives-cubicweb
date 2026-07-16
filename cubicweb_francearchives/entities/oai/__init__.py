@@ -28,17 +28,21 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-C license and that you accept its terms.
 #
+import logging
+import time
+from datetime import datetime
 from lxml import etree
 import urllib.parse
 
+from psycopg2 import OperationalError
 from pyramid.response import Response
 
 from logilab.common.decorators import cachedproperty
 
 from cubicweb.predicates import is_instance, one_line_rset
 from cubicweb.entities import AnyEntity
-from cubicweb.web import httpcache
-from cubicweb.web.views import idownloadable
+from cubicweb_web import httpcache
+from cubicweb_web.views import idownloadable
 
 from cubicweb_oaipmh.entities import (
     ETypeOAISetSpec,
@@ -50,6 +54,8 @@ from cubicweb_oaipmh import MetadataFormat
 from cubicweb_oaipmh.views import OAIView, OAIResponse
 
 from logilab.common.decorators import monkeypatch
+
+LOGGER = logging.getLogger("francearchives.oai")
 
 
 @monkeypatch(OAIView)
@@ -66,6 +72,16 @@ def __call__(self):
     the wrapper (OAI-PMH) lxml remove it from <ead>. We try to keep it by injecting
     the xml record string into wrapper.
     """  # noqa
+    start_time = datetime.now()
+    LOGGER.info(
+        f"OAI-PMH request started: verb={self.oai_request.verb}, "
+        f"set={self.oai_request.setspec}, "
+        f"from={self.oai_request.from_date}, "
+        f"until={self.oai_request.until_date}, "
+        f"metadataPrefix={self.oai_request.metadata_prefix}, "
+        f"url={self.request.url}"
+    )
+
     encoding = self._cw.encoding
     assert encoding == "UTF-8", "unexpected encoding {0}".format(encoding)
     content = b'<?xml version="1.0" encoding="%s"?>\n' % encoding.encode("utf-8")
@@ -73,14 +89,67 @@ def __call__(self):
     # combine errors coming from view selection with those of request
     # processing.
     errors = self.errors() or {}
-    verb_content = self.verb_content() if not errors else None
+
+    # Retry logic for PostgreSQL connection errors
+    max_retries = 2
+    retry_delay = 1.0  # seconds
+    verb_content = None
+    attempt = 0
+
+    while attempt <= max_retries:
+        try:
+            verb_content = self.verb_content() if not errors else None
+            break  # Success, exit retry loop
+        except OperationalError as e:
+            attempt += 1
+            error_msg = str(e)
+
+            if "server closed the connection" in error_msg:
+                LOGGER.warning(
+                    f"PostgreSQL connection error (attempt {attempt}/{max_retries + 1}): {e}. "
+                    f"Reconnecting and retrying..."
+                )
+
+                if attempt <= max_retries:
+                    # Force reconnection
+                    try:
+                        self._cw.commit_and_restart()
+                        LOGGER.info("Connection restarted successfully")
+                    except Exception as restart_error:
+                        LOGGER.error(f"Failed to restart connection: {restart_error}")
+                        raise
+
+                    # Wait before retry (exponential backoff)
+                    time.sleep(retry_delay * attempt)
+                    continue
+                else:
+                    LOGGER.error(
+                        f"PostgreSQL connection error after {max_retries + 1} attempts. "
+                        f"Total elapsed time: {datetime.now() - start_time}"
+                    )
+                    raise
+            else:
+                # Not a connection error, re-raise immediately
+                raise
+
     errors.update(self.oai_request.errors)
     response_elem = oai_response.to_xml(verb_content, errors=errors)
     for ead in response_elem.xpath("..//s:ead", namespaces={"s": "urn:isbn:1-931666-22-9"}):
         ead.attrib["S"] = "#"
+    for ead in response_elem.xpath("..//s:ead", namespaces={"s": response_elem.nsmap[None]}):
+        ead.attrib["S"] = "#"
     content += etree.tostring(response_elem, encoding="utf-8")
     # realy ugly stuff
     content = content.replace(b'S="#"', b'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+
+    elapsed_time = datetime.now() - start_time
+    LOGGER.info(
+        f"OAI-PMH request completed: status={'error' if errors else 'success'}, "
+        f"elapsed_time={elapsed_time}, "
+        f"content_size={len(content)} bytes, "
+        f"errors={list(errors.keys()) if errors else 'none'}"
+    )
+
     return Response(content, content_type="text/xml")
 
 
@@ -146,7 +215,13 @@ class FindingAidSetSpec(ETypeOAISetSpec):
         return "X is FindingAid", {}
 
     def all_services(self, cnx):
-        return list(
+        start_time = datetime.now()
+        LOGGER.debug(
+            "FindingAidSetSpec.all_services started: "
+            "computing services with published FindingAids"
+        )
+
+        services = list(
             cnx.execute(
                 """Any S,SC,SN,SSN,SN2 WHERE S is Service, S code SC,
                 S name SN, S short_name SSN, S name2 SN2,
@@ -156,6 +231,13 @@ class FindingAidSetSpec(ETypeOAISetSpec):
                 {"st": "wfs_cmsobject_published"},
             ).entities()
         )
+
+        elapsed = datetime.now() - start_time
+        LOGGER.debug(
+            f"FindingAidSetSpec.all_services completed: "
+            f"found {len(services)} services in {elapsed}"
+        )
+        return services
 
     def setspecs(self, cnx):
         yield "findingaid", cnx._("FindingAid")  # main set

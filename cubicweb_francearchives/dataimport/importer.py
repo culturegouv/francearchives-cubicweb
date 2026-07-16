@@ -52,8 +52,8 @@ from cubicweb_francearchives.dataimport import (
     service_infos_from_filepath,
     sqlutil,
 )
-from cubicweb_francearchives.dataimport.ead import Reader
 from cubicweb_francearchives.dataimport.oai_dc import import_oai_dc_filepath
+from cubicweb_francearchives.dataimport.ead import Reader
 from cubicweb_francearchives.dataimport.stores import create_massive_store
 
 
@@ -67,6 +67,7 @@ def findingaid_importer(appid, filepath_queue, config):
 
 
 def _findingaid_importer(cnx, filepath_queue, config):
+    """import from files"""
     services_map = load_services_map(cnx)
     # bfss should be initialized to enable `FSPATH` in rql
     init_bfss(cnx.repo)
@@ -105,7 +106,7 @@ def _findingaid_importer(cnx, filepath_queue, config):
             store.flush()
             store.commit()
         if es_docs and not config["noes"]:
-            es_bulk_index(es, es_docs)
+            es_bulk_index(es, es_docs, logger=LOGGER)
     if not config["esonly"]:
         cnx.commit()
 

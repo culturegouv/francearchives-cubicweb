@@ -30,23 +30,28 @@
 #
 from logilab.common.decorators import cachedproperty
 
-from cubicweb.view import StartupView
-from cubicweb.web.views.error import FourOhFour
+from cubicweb_web.view import StartupView
+from cubicweb_web.views.error import FourOhFour
 
-from cubicweb_francearchives.views import JinjaViewMixin, top_sections_desc, get_template
+from cubicweb_francearchives.views import JinjaViewMixin, get_top_sections_infos, get_template
+from cubicweb_francearchives.utils import find_card
 
 
 class NotFoundView(JinjaViewMixin, StartupView):
     __regid__ = "404"
     template = get_template("notfound.jinja2")
+    eulerian_tag = True
+    eulerian_pagegroup = "error"
 
     @cachedproperty
-    def xiti_chapters(self):
-        return ["404", self._cw.relative_path(False)]
+    def eulerian_path_chunks(self):
+        return ["404", self._cw.relative_path(False).rstrip("/")]
 
     def call(self):
         section_descs = []
-        for title, label, name, cssclass, desc, subsections in top_sections_desc(self._cw):
+        for eid, title, label, name, cssclass, desc, subsections in get_top_sections_infos(
+            self._cw
+        ):
             section_descs.append(
                 {
                     "url": self._cw.build_url(name),
@@ -56,9 +61,11 @@ class NotFoundView(JinjaViewMixin, StartupView):
                 }
             )
         self.call_template(
+            _=self._cw._,
             section_descs=section_descs,
             notfound_msg=self._cw._("notfound-msg"),
             notfound_picture=self._cw.data_url("images/notfound.png"),
+            card=find_card(self._cw, "error_notfound"),
         )
 
 

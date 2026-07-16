@@ -1,0 +1,16 @@
+.fa-circular-table {
+    width: 100%;
+}
+
+.fa-circular-table.fr-table td,
+.fa-circular-table.fr-table th {
+    font-size: 1rem;
+}
+
+.circular-status-wrap {
+    white-space: nowrap;
+}
+
+.fa-input--white {
+    background: white;
+}

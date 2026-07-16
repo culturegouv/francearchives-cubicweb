@@ -1,0 +1,41 @@
+@mixin vendor-prefix($property, $value) {
+  -webkit-#{$property}: #{$value};
+     -moz-#{$property}: #{$value};
+       -o-#{$property}: #{$value};
+          #{$property}: #{$value};
+}
+
+@mixin transition($value) {
+  @include vendor-prefix('transition', $value);
+}
+
+@mixin filter($value) {
+  @include vendor-prefix('filter', $value);
+}
+
+@mixin if-wider-than($breakpoint) {
+  @media (min-width: #{map-get($screen-widths, $breakpoint)}) {
+    @content;
+  }
+}
+
+@mixin if-narrower-than($breakpoint) {
+  @media (max-width: #{map-get($screen-widths, $breakpoint)}) {
+    @content;
+  }
+}
+
+@mixin outline-links-focus {
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -3px;
+}
+
+@mixin outline-button-focus {
+  outline: thin dotted;
+  outline-offset: -2px;
+}
+
+@mixin outline-checkbox-focus {
+  outline: thin dotted;
+  outline-offset: 2px;
+}

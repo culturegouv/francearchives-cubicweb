@@ -86,7 +86,9 @@ thumbnail_urls = [
         "code": "FRAD095",
     },
     {
-        "url": "http://recherche-archives.vendee.fr/data/files/ad85.diffusion/vignettes_archives/{url}",
+        "url": (
+            "http://recherche-archives.vendee.fr/data/files/ad85.diffusion/vignettes_archives/{url}"
+        ),
         "code": "FRAD085",
     },
     {

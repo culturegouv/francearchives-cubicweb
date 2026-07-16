@@ -1,0 +1,28 @@
+#nomnia-search-bar {
+  background: #fff;
+}
+
+.fa-nomina-utils {
+  > div {
+    flex: 1 1 0;
+  }
+
+  @include if-narrower-than(lg){
+    padding: 2rem;
+    display: flex;
+    gap: 5rem;
+    box-shadow: inset 0 2px 0 0 var(--border-plain-grey);
+  }
+
+  @include if-narrower-than(md){
+    display: block;
+  }
+
+  &__address{
+    margin-bottom: 2.5rem;
+
+    @include if-narrower-than(lg){
+      margin-bottom: 0;
+    }
+  }
+}

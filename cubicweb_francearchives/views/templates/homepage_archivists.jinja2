@@ -1,51 +1,109 @@
-{% from "./mixins.jinja2" import subtree %}
+{% from "./mixins.jinja2" import menu_subtree, subsections_tiles, on_front_page %}
 
 <script type="text/javascript">
  var setSearchBarOnlySiteResources = true;
 </script>
 
-<div class="quick-access-links d-print-none">
-  <section class="quick-access-links-container">
-    <p>{{ _('Quick access') }}{{_(':')}}</p>
-    <ul class="quick-access-links-links">
-      {% for link, title, is_ext in quick_links %}
-      <li><a href="{{link}}"
-             {%- if is_ext is sameas true %}
-             target="_blank"
-             rel="nofollow noopener noreferrer"
-             title="{{ title }} {{ _("- New window") }}"
-             class=""
-             {% endif -%}
+<section class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters">
+      <h1>{{ _("Manage archives") }}</h1>
+      <section class="fr-col-12 fr-mb-8v fr-p-8v fr-background-alt--blue-cumulus">
+       <h2 class="r-mb-8v">{{ _("Quick acces") }}</h2>
+       <div class="fr-grid-row fr-grid-row--gutters">
+          {%- for url, title, picto, is_ext in quick_links %}
+          <div class="fr-col-12 fr-col-md-3">
+            <div class="fr-tile fr-tile--sm fa-tile-no-arrow fr-tile--horizontal fr-enlarge-link">
+              <div class="fr-tile__body">
+                <div class="fr-tile__content">
+                  <h3 class="fr-tile__title">
+                    <a href="{{ url }}"
+                       {%- if is_ext is sameas true %}
+                       target="_blank"
+                       rel="nofollow noopener noreferrer external"
+                       title="{{ title }} {{ _("- New window") }}"
+                       {% endif -%}
+                       >
+                      {{ title }}
+                    </a>
+                  </h3>
+                </div>
+              </div>
+              <div class="fr-tile__header">
+                <div class="fr-tile__pictogram"><svg class="fr-artwork" aria-hidden="true" viewBox="0 0 80 80" width="80px" height="80px">
+                  <use class="fr-artwork-decorative" xlink:href="{{ picto }}#artwork-decorative"></use>
+                  <use class="fr-artwork-minor" xlink:href="{{ picto }}#artwork-minor"></use>
+                  <use class="fr-artwork-major" xlink:href="{{ picto }}#artwork-major"></use>
+                </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor -%}
+        </div>
+      </section>
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-md-4">
+      <nav class="fr-sidemenu fr-sidemenu--sticky" role="navigation"
+           aria-labelledby="fr-sidemenu-title">
+        <div class="fr-sidemenu__inner">
+          <button
+              id="fr-sidemenu-title"
+              class="fr-sidemenu__btn"
+              aria-controls="fr-sidemenu-wrapper"
+              aria-expanded="false"
           >
-        {{ title }}
-        {%- if is_ext is sameas true %}
-        <i class="fa fa-external-link" aria-hidden="true"></i>
-        {% endif -%}
-      </a></li>
-      {% endfor %}
-    </ul>
-  </section>
-</div>
-<div class="container pro">
-  <section class="homepage-pro-container row">
-    <div class="col-lg-6 col-xl-8">
-      <h1 id="section-gerer-title" class="section-tree-title">{{ _('Manage archives') }}</h1>
-      <button id="fold-all-tree" class="d-print-none"
-         data-label-collapse="{{_('Fold all') }}"
-         data-label-expand="{{_('Unfold all') }}"
-         aria-expanded="false" aria-controls="tsd-1">
-         {{_('Unfold all') }}
-      </button>
-      <div class="clearfix"></div>
-      <nav id="section-tree" aria-labelledby="section-gerer-title">
-        {{ subtree(sections, 1, 1) }}
+            {{ _("Section's documents:") }}
+          </button>
+          <div class="fr-collapse" id="fr-sidemenu-wrapper">
+            {%- if parent -%}
+            {# <p class="fr-sidemenu__title" id="fr-sidemenu-title">
+            <a href="{{ parent.absolute_url() }}">{{ parent.title | escape }}</a>
+            </p> #}
+            {%- endif -%}
+            {{ menu_subtree(sections, 1, 1, "") }}
+          </div>
+        </div> 
       </nav>
     </div>
-    <div class="col-md-8 col-lg-6 col-xl-4 aside-column-cards">
-      <h1>{{ _('On the front page') }}</h1>
-      {% from "./mixins.jinja2" import on_front_page %}
-      {{ on_front_page(entities, _) }}
+    <div class="fr-col-12 fr-col-md-8">
+       {# <section class="fr-mb-8v fr-p-8v fr-background-alt--grey">
+        <div class="fr-grid-row fr-grid-row--gutters">
+          <nav class="fr-sidemenu" role="navigation" aria-labelledby="fr-sidemenu-title">
+            <div class="fr-sidemenu__inner">
+              <button
+                  class="fr-sidemenu__btn"
+                  aria-controls="fr-sidemenu-wrapper"
+                  aria-expanded="false"
+              >
+                {{ _("Section's documents:") }}
+              </button>
+              <div class="fr-collapse" id="fr-sidemenu-wrapper">
+                <div class="fr-sidemenu__title" id="fr-sidemenu-title">
+                  <h2>{{ _("Manage archives") }}</h2>
+                </div>
+                {{ menu_subtree(sections, 1, 1) }}
+              </div>
+            </div>
+          </nav>
+        </div>
+      </section> #}
+      <section class="fr-mb-8v">
+        <div class="fr-grid-row fr-grid-row--gutters fr-mt-8v fr-mb-12v">
+        {{ subsections_tiles(subsections, _) }}
+        </div>
+     </section>
+    </div>
+  </div>
+  <section class="fr-mb-8v">
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-6">
+        <h2>{{ _('On the front page') }}</h2>
+      </div>
+    </div>
+    <div class="fr-grid-row fr-grid-row--gutters">
+      {{ on_front_page(related_entities, _) }}
     </div>
   </section>
-</div>
-{% include "bottom-links.jinja2" %}
+  {% include "key-figures.jinja2" %}
+</section>

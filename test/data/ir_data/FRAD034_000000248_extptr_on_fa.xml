@@ -31,7 +31,7 @@
     <archdesc level="subseries" id="a0114881923854MB0L9">
         <runner>Mérifons - Dossiers d'administration communale</runner>
         <did>
-            <unitid>test extptr findingaid<extptr href="https://francearchives.fr/file/38f8190f0295966915d3c867581eaa91a08f1fe5/integration_FA_documentation_technique.pdf"/></unitid>
+            <unitid>test extptr findingaid<extptr href="https://francearchives.gouv.fr/file/38f8190f0295966915d3c867581eaa91a08f1fe5/integration_FA_documentation_technique.pdf"/></unitid>
             <unittitle>Mérifons - Dossiers d'administration communale (1842-1940)</unittitle>
             <unitdate normal="1842-01-01/1940-12-31" type="inclusive">1842-1940</unitdate>
             <physdesc>0,30 ml</physdesc>
@@ -54,7 +54,7 @@
             <c id="a011488192385Cm54CL">
                 <did>
                     <unittitle type="titre">Administration générale de la commune</unittitle>
-                    <unitid>test lien facomponent <extptr href="https://francearchives.fr/file/38f8190f0295966915d3c867581eaa91a08f1fe5/integration_FA_documentation_technique.pdf"/></unitid>
+                    <unitid>test lien facomponent <extptr href="https://francearchives.gouv.fr/file/38f8190f0295966915d3c867581eaa91a08f1fe5/integration_FA_documentation_technique.pdf"/></unitid>
                 </did>
                 <scopecontent audience="external">
                     <p>Arrêtés municipaux, délibération du conseil municipal, polices d'assurances,

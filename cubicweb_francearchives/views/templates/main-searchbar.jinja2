@@ -1,45 +1,73 @@
-        <form id="search-bar-form" action="{{ base_url }}/search" role="search" class="row">
-          <!-- 2 extra divs for typeahead -->
-          <div class="search-bar col-lg-8 offset-lg-2">
-            <div class="typeahead__container">
+{% from "./mixins.jinja2" import modalbox_faq %}
+<div id="header-search" class="fr-container">
+  <div id="header-search-bar" class="fr-px-3w fr-pb-0">
+    <div class="fr-grid-row fr-grid-row--gutters">
+      <div class="fr-col-12">
+        <form id="header-search-bar-form" action="{{ base_url }}/search" role="search">
+          <div class="fr-search-bar fr-search-bar--lg fa-search-bar" role="search">
+            <!-- 2 extra divs for typeahead -->
+            <div class="typeahead__container fr-text--sm">
               <div class="typeahead__field">
-                <label for="norql" class="visually-hidden">{{ _('###ToSearch###') }}</label>
-                <input id="norql" class="search-query" type="text"
+                <label for="norql" class="fr-label">{{ _('main_search_placeholder') }}</label>
+                <input id="norql" class="fr-input" type="search"
                        autocomplete="off" name="q"
                        value="{{ query |e }}"
-                       title="{{ _('###ToSearch###') }}"
-                       placeholder="{{ _('###ToSearch###') }}" />
+                       placeholder="{{ _('main_search_placeholder') }}" >
               </div>
-              <button type="submit" class="search-submit-button" value="" title="{{ _('###ToSearch###') }}">
-                <span class="visually-hidden">{{  _('###ToSearch###') }}</span>
-              </button>
-            </div>
-            <div class="search-info fa fa-question">
-              <a href="{{ search_info_url }}" target="_blank" title="{{ _('How to search on FranceArchives?') }}"></a>
+              <button id="header-search-bar-form__submit" type="submit" class="fr-btn" value="" title="{{ _('###ToSearch###') }}">{{ _('###ToSearch###') }}</button>
+               <a class="fr-link fr-icon-arrow-right-line fr-link--icon-right fr-ml-2v" id="button-search-help"
+                  target="_blank"
+                  rel="noopener external"
+                  href="{{ search_info_url }}"
+                  title="FAQ - {{ _("See in FAQ:") }} {{ _('How to search on FranceArchives?') }} {{ _("- New window") }}">FAQ</a>
             </div>
           </div>
-          <span id="rbl1" class="visually-hidden">{{ _('Choose search perimeter') }}</span>
-          <div id="site-search-options" class="search-options col-lg-8 offset-lg-2" role="group" aria-labelledby="rbl1">
-            <div class="checkbox search-options__item">
-              <label for="rb1">
+          <fieldset id="header-search-bar-form__options" class="fr-fieldset" role="group" aria-labelledby="search-options-legend">
+            <legend class="fr-fieldset__legend--regular fr-fieldset__legend fr-sr-only" id="search-options-legend">
+              {{ _('Choose search perimeter') }}
+            </legend>
+            <div class="fr-fieldset__element fr-fieldset__element--inline">
+              <div class="fr-checkbox-group fa-flex">
+               {% set archives_label = archives_choice["label"] %}
+
                 <input id="rb1" type="checkbox" name="es_escategory" value="archives"
-                       aria-labelledby="rblv1"/>
-                <span id="rblv1">{{ archives_label }}</span>
-                <span  id="rbm1" class="checkmark"></span>
-              </label>
+                       aria-labelledby="rblv1">
+                <label for="rb1" id="rblv1" class="fr-label">
+                  {{ archives_choice["label"] }}
+                </label>
+                <button class="fr-btn--tooltip fr-btn"
+                        type="button"
+                        aria-describedby="tooltip-archives">   {{ archives_choice["label"] }}
+                 </button>
+                 <span class="fr-tooltip fr-placement" role="tooltip"
+                       id="tooltip-archives">{{ archives_choice["info"]}}</span>
+              </div>
             </div>
-            <div class="checkbox search-options__item">
-              <label for="rb2">
+            <div class="fr-fieldset__element fr-fieldset__element--inline">
+              <div class="fr-checkbox-group fa-flex">
                 <input id="rb2" type="checkbox" name="es_escategory" value="siteres"
-                       aria-labelledby="rblv2"/>
-                <span id="rblv2">{{ siteres_label }}</span>
-                <span id="rbm2" class="checkmark"></span>
-              </label>
+                       aria-labelledby="rblv2" class="fr-input">
+                <label for="rb2" id="rblv2" class="fr-label">
+                   {{ siteres_choice["label"] }}
+                </label>
+                <button class="fr-btn--tooltip fr-btn"
+                        type="button"
+                        aria-describedby="tooltip-siteres">   {{ siteres_choice["label"] }}
+                </button>
+                <span class="fr-tooltip fr-placement" role="tooltip"
+                       id="tooltip-siteres">{{ siteres_choice["info"]}}</span>
+              </div>
             </div>
             {% if display_advanced_search %}
-            <div class="advanced-search search-options__item">
-                <a href="{{ advanced_search_url }}">{{ _("Advanced search") }}</a>
+            <div class="fr-fieldset__element fr-fieldset__element--inline fa-fieldset__element--right">
+            <p>
+                <a href="{{ advanced_search_url }}" class="fr-link fr-icon-arrow-right-line fr-link--icon-right">{{ _("Advanced search") }}</a>
+            </p>
             </div>
             {% endif %}
-          </div>
+          </fieldset>
         </form>
+      </div>
+    </div>
+  </div>
+</div>

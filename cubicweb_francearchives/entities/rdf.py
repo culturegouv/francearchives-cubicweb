@@ -31,6 +31,7 @@
 """francearchives rdf adpaters"""
 import logging
 
+from cubicweb_web.bwcompat import CubicWebPyramidRequest
 from lxml import etree
 import os
 from rdflib.term import BNode, Literal, URIRef
@@ -38,7 +39,6 @@ from rdflib.term import BNode, Literal, URIRef
 from logilab.common.decorators import cachedproperty
 
 from cubicweb.predicates import is_instance
-from cubicweb.pyramid.core import CubicWebPyramidRequest
 from cubicweb.entities.adapters import EntityRDFAdapter as CWEntityRDFAdapter
 from cubicweb_eac.entities.rdf import AuthorityRecordRDFAdapter, AuthorityRecordRICORDFAdapter
 
@@ -81,7 +81,7 @@ def check_dataproperty_value(subject, predicate, data):
 class EntityRDFAdapter(CWEntityRDFAdapter):
     __abstract__ = True
 
-    @cachedproperty
+    @property
     def uri(self):
         req = self._cw
         return build_uri(req, self.entity.rest_path())
@@ -191,6 +191,11 @@ class ServiceRDFAdapter(EntityRDFAdapter):
     __regid__ = "rdf"
     __select__ = is_instance("Service")
 
+    @property
+    def uri(self):
+        req = self._cw
+        return build_uri(req, f"service/{self.entity.eid}")
+
     @cachedproperty
     def address_uri(self):
         return URIRef(f"{self.uri}#address")
@@ -237,11 +242,13 @@ class ServiceRDFAdapter(EntityRDFAdapter):
 
     def triples(self):
         RDF = self._use_namespace("rdf")
+        RDFS = self._use_namespace("rdfs")
         RICO = self._use_namespace("rico", base_url="https://www.ica.org/standards/RiC/ontology#")
         GEO = self._use_namespace("geo", base_url="http://www.w3.org/2003/01/geo/wgs84_pos#")
         self.entity.complete()
         yield (self.uri, RDF.type, RICO.Agent)
         yield (self.uri, RDF.type, RICO.CorporateBody)
+        yield (self.uri, RDFS.label, Literal(self.entity.dc_title()))
         yield from check_dataproperty_value(self.uri, RICO.identifier, Literal(self.entity.code))
         yield from check_dataproperty_value(self.uri, RICO.name, Literal(self.entity.name))
         yield from check_dataproperty_value(self.uri, RICO.name, Literal(self.entity.name2))
@@ -250,14 +257,13 @@ class ServiceRDFAdapter(EntityRDFAdapter):
         yield from check_dataproperty_value(self.uri, RICO.type, Literal(self.entity.level))
 
         yield from self.contact_triples()
-
         if self.entity.annex_of:
-            parent_uri = self.entity.annex_of[0].cw_adapt_to("rdf").uri
+            parent_uri = build_uri(self._cw, f"service/{self.entity.annex_of[0].eid}")
             relation_uri = URIRef(f"{parent_uri}#hierarchical_to_{self.entity.eid}")
             yield from self.hierarchical_triples(relation_uri, parent_uri, self.uri)
 
         for child in self.entity.reverse_annex_of:
-            child_uri = child.cw_adapt_to("rdf").uri
+            child_uri = build_uri(self._cw, f"service/{child.eid}")
             relation_uri = URIRef(f"{self.uri}#hierarchical_to_{child.eid}")
             yield from self.hierarchical_triples(relation_uri, self.uri, child_uri)
 
@@ -304,15 +310,17 @@ class AuthorityRICOAdapter(EntityRDFAdapter):
 
     def triples(self):
         OWL = self._use_namespace("owl")
+        RDFS = self._use_namespace("rdfs")
         RICO = self._use_namespace("rico", base_url="https://www.ica.org/standards/RiC/ontology#")
         yield (self.uri, RICO.name, Literal(self.entity.label))
+        yield (self.uri, RDFS.label, Literal(self.entity.label))
         for ref in self.entity.same_as:
             if ref.cw_etype == "ExternalUri":
                 yield (self.uri, OWL.sameAs, URIRef(ref.uri))
             elif ref.cw_etype == "Concept":
                 yield (self.uri, OWL.sameAs, URIRef(ref.cwuri))
             elif ref.cw_etype != "AuthorityRecord":
-                yield (self.uri, OWL.sameAs, ref.cw_adapt_to("rdf").uri)
+                yield (self.uri, OWL.sameAs, build_uri(self._cw, ref.rest_path()))
 
 
 class AgentAuthority(EntityRDFAdapter):
@@ -369,6 +377,51 @@ class AgentAuthorityRDFAdapter(AuthorityRICOAdapter):
                             Literal(dateinfo["timestamp"], datatype=XSD.date),
                         )
 
+    def relation_uri(self, relation_type, agent_a):
+        records = sorted([agent_a, self.entity], key=lambda x: x.eid)
+        return URIRef(
+            f"{build_uri(self._cw, records[0].rest_path())}#{relation_type}_to_{records[1].eid}"
+        )
+
+    def family_relation_triples(self, relation_uri, fam_agent_uri):
+        RICO = self._use_namespace("rico", base_url="https://www.ica.org/standards/RiC/ontology#")
+        RDF = self._use_namespace("rdf")
+        yield (self.uri, RDF.type, RICO.Person)
+        yield from self.relation_triples(
+            RICO.FamilyRelation,
+            relation_uri,
+            self.uri,
+            fam_agent_uri,
+            RICO.familyRelationConnects,
+            RICO.personHasFamilyRelation,
+            RICO.familyRelationConnects,
+            RICO.personHasFamilyRelation,
+            RICO.hasFamilyAssociationWith,
+            RICO.hasFamilyAssociationWith,
+        )
+
+    def relation_triples(
+        self,
+        class_uri,
+        relation_uri,
+        source_uri,
+        target_uri,
+        prop_source,
+        prop_source_inverse,
+        prop_target,
+        prop_target_inverse,
+        reduced_prop,
+        reduced_prop_inverse,
+    ):
+        RDF = self._use_namespace("rdf")
+        yield (relation_uri, RDF.type, class_uri)
+        yield (relation_uri, prop_source, source_uri)
+        yield (relation_uri, prop_target, target_uri)
+        yield (source_uri, prop_source_inverse, relation_uri)
+        yield (target_uri, prop_target_inverse, relation_uri)
+        yield (source_uri, reduced_prop, target_uri)
+        yield (target_uri, reduced_prop_inverse, source_uri)
+
     def triples(self):
         if not self.entity.quality:
             return []
@@ -377,10 +430,11 @@ class AgentAuthorityRDFAdapter(AuthorityRICOAdapter):
         RDF = self._use_namespace("rdf")
 
         yield (self.uri, RDF.type, RICO.Agent)
-        RDFS = self._use_namespace("rdfs")
-        yield (self.uri, RDFS.label, Literal(self.entity.dc_title()))
         types = self.entity.index_types
 
+        if types:
+            if ["name"] in types:
+                types.remove(["name"])
         if types:
             if len(types) > 1:  # if the authority is of more than one type
                 yield (self.uri, RDF.type, RICO.Agent)
@@ -404,6 +458,125 @@ class AgentAuthorityRDFAdapter(AuthorityRICOAdapter):
         if authority_record_rset:
             for record in authority_record_rset.entities():
                 yield from record.cw_adapt_to("rdf").agent_triples()
+
+        # Family relations from Wikidata
+
+        # children
+        for child in self.entity.reverse_wikidata_child_of:
+            if not child.quality:
+                continue
+            child_uri = build_uri(self._cw, child.rest_path())
+            rel_uri = self.relation_uri("child", child)
+            yield from self.family_relation_triples(rel_uri, child_uri)
+
+            yield from self.relation_triples(
+                RICO.ChildRelation,
+                rel_uri,
+                self.uri,
+                child_uri,
+                RICO.childRelationHasSource,
+                RICO.personIsSourceOfChildRelation,
+                RICO.childRelationHasTarget,
+                RICO.personIsTargetOfChildRelation,
+                RICO.hasChild,
+                RICO.isChildOf,
+            )
+
+        # parents
+        for parent in self.entity.wikidata_child_of:
+            if not parent.quality:
+                continue
+            parent_uri = build_uri(self._cw, parent.rest_path())
+            rel_uri = self.relation_uri("child", parent)
+            yield from self.family_relation_triples(rel_uri, parent_uri)
+
+            yield from self.relation_triples(
+                RICO.ChildRelation,
+                rel_uri,
+                parent_uri,
+                self.uri,
+                RICO.childRelationHasSource,
+                RICO.personIsSourceOfChildRelation,
+                RICO.childRelationHasTarget,
+                RICO.personIsTargetOfChildRelation,
+                RICO.hasChild,
+                RICO.isChildOf,
+            )
+
+        # siblings
+        for sibling in self.entity.wikidata_sibling_of + self.entity.reverse_wikidata_sibling_of:
+            if not sibling.quality:
+                continue
+            sibling_uri = build_uri(self._cw, sibling.rest_path())
+            rel_uri = self.relation_uri("sibling", sibling)
+            yield from self.family_relation_triples(rel_uri, sibling_uri)
+
+            yield from self.relation_triples(
+                RICO.SiblingRelation,
+                rel_uri,
+                sibling_uri,
+                self.uri,
+                RICO.siblingRelationConnects,
+                RICO.personHasSiblingRelation,
+                RICO.siblingRelationConnects,
+                RICO.personHasSiblingRelation,
+                RICO.hasSibling,
+                RICO.hasSibling,
+            )
+
+        # spouse
+        for spouse in self.entity.wikidata_spouse_of + self.entity.reverse_wikidata_spouse_of:
+            if not spouse.quality:
+                continue
+            spouse_uri = build_uri(self._cw, spouse.rest_path())
+            rel_uri = self.relation_uri("spouse", spouse)
+            yield from self.family_relation_triples(rel_uri, spouse_uri)
+
+            yield from self.relation_triples(
+                RICO.SpouseRelation,
+                rel_uri,
+                spouse_uri,
+                self.uri,
+                RICO.spouseRelationConnects,
+                RICO.personHasSpouseRelation,
+                RICO.spouseRelationConnects,
+                RICO.personHasSpouseRelation,
+                RICO.hasOrHadSpouse,
+                RICO.hasOrHadSpouse,
+            )
+
+        # organisation
+        for organisation in self.entity.wikidata_member_of:
+            if not organisation.quality:
+                continue
+            org_uri = build_uri(self._cw, organisation.rest_path())
+            rel_uri = self.relation_uri("member", organisation)
+            yield (self.uri, RDF.type, RICO.Person)
+            yield (org_uri, RDF.type, RICO.CorporateBody)
+            yield from self.relation_triples(
+                RICO.MembershipRelation,
+                rel_uri,
+                org_uri,
+                self.uri,
+                RICO.membershipRelationHasSource,
+                RICO.groupIsSourceOfMembershipRelation,
+                RICO.membershipRelationHasTarget,
+                RICO.personIsTargetOfMembershipRelation,
+                RICO.hasOrHadMember,
+                RICO.isOrWasMemberOf,
+            )
+            yield from self.relation_triples(
+                RICO.AgentToAgentRelation,
+                rel_uri,
+                self.uri,
+                org_uri,
+                RICO.agentRelationConnects,
+                RICO.agentIsConnectedToAgentRelation,
+                RICO.agentRelationConnects,
+                RICO.agentIsConnectedToAgentRelation,
+                RICO.isAgentAssociatedWithAgent,
+                RICO.isAgentAssociatedWithAgent,
+            )
 
 
 class LocationAuthority(EntityRDFAdapter):
@@ -453,7 +626,7 @@ class LocationAuthorityRDFAdapter(AuthorityRICOAdapter):
             cnx = self._cw
 
             # CubicWebPyramidRequest does not have system_sql
-            if type(cnx) == CubicWebPyramidRequest:
+            if isinstance(cnx, CubicWebPyramidRequest):
                 cnx = self._cw.cnx
 
             res = cnx.system_sql(
@@ -514,10 +687,10 @@ class SubjectAuthorityRDFAdapter(AuthorityRICOAdapter):
         RDF = self._use_namespace("rdf")
         yield (self.uri, RDF.type, RICO.Concept)
         TYPE_TO_RICO = {
-            "genreform": RICO.DocumentaryFormType,
-            "subject": RICO.Concept,
-            "function": RICO.ActivityType,
-            "occupation": RICO.OccupationType,
+            "genreform": [RICO.DocumentaryFormType],
+            "subject": [RICO.Concept],
+            "function": [RICO.ActivityType],
+            "occupation": [RICO.OccupationType, RICO.ActivityType],
         }
 
         rset = self._cw.execute(
@@ -528,7 +701,8 @@ class SubjectAuthorityRDFAdapter(AuthorityRICOAdapter):
         )  # no better way to find what kind of subject this is supposed to be
         if rset:
             if len(rset[0]) == 1 and rset[0][0] in TYPE_TO_RICO:
-                yield (self.uri, RDF.type, TYPE_TO_RICO[rset[0][0]])
+                for subject_type in TYPE_TO_RICO[rset[0][0]]:
+                    yield (self.uri, RDF.type, subject_type)
 
 
 class AuthorityRecord2SchemaOrg(EntityRDFAdapter, AuthorityRecordRDFAdapter):
@@ -538,11 +712,11 @@ class AuthorityRecord2SchemaOrg(EntityRDFAdapter, AuthorityRecordRDFAdapter):
 class AuthorityRecordRDFAdapter(EntityRDFAdapter, AuthorityRecordRICORDFAdapter):
     __regid__ = "rdf"
 
-    @cachedproperty
+    @property
     def agent_uri(self):
         agent = self.entity.qualified_authority
         if agent:
-            return agent[0].cw_adapt_to("rdf").uri
+            return build_uri(self._cw, agent[0].rest_path())
         return super().agent_uri
 
     def triples(self):
@@ -554,7 +728,7 @@ class AuthorityRecordRDFAdapter(EntityRDFAdapter, AuthorityRecordRICORDFAdapter)
             yield from self.agent_triples()
 
         if self.entity.maintainer:
-            service_uri = URIRef(self.entity.maintainer[0].cw_adapt_to("rdf").uri)
+            service_uri = URIRef(build_uri(self._cw, f"service/{self.entity.maintainer[0].eid}"))
             yield (self.uri, RICO.hasCreator, service_uri)
             yield (self.inst_uri, RICO.hasOrHadHolder, service_uri)
 
@@ -756,7 +930,7 @@ class ArchiveComponentRDFAdapter(EntityRDFAdapter):
             yield (
                 inst_uri,
                 RICO.hasOrHadHolder,
-                entity_service.cw_adapt_to("rdf").uri,
+                build_uri(self._cw, f"service/{entity_service.eid}"),
             )
         for originator in self.entity.qualified_originators:
             adapted_authority = originator.cw_adapt_to("rdf")
@@ -797,6 +971,10 @@ class ArchiveComponentRDFAdapter(EntityRDFAdapter):
 
     def record_resource_triples(self):
         RICO = self._use_namespace("rico", base_url="https://www.ica.org/standards/RiC/ontology#")
+        RICO_FORMTYPES = self._use_namespace(
+            "ricoformtypes",
+            base_url="https://www.ica.org/standards/RiC/vocabularies/documentaryFormTypes#",
+        )
         RDF = self._use_namespace("rdf")
         DCTERMS = self._use_namespace("dcterms")
         DCMITYPE = self._use_namespace("dcmitype", base_url="http://purl.org/dc/dcmitype/")
@@ -821,7 +999,7 @@ class ArchiveComponentRDFAdapter(EntityRDFAdapter):
         )
         # Link to authority
         for authority_eid, authority_type in entity.qualified_index_authorities:
-            authority_uri = self._cw.entity_from_eid(authority_eid).cw_adapt_to("rdf").uri
+            authority_uri = build_uri(self._cw, self._cw.entity_from_eid(authority_eid).rest_path())
             if authority_type == "genreform":
                 yield (self.uri, RICO.hasOrHadSubject, authority_uri)
                 yield (authority_uri, RDF.type, RICO.DocumentaryFormType)
@@ -832,16 +1010,17 @@ class ArchiveComponentRDFAdapter(EntityRDFAdapter):
             elif authority_type == "occupation":
                 yield (self.uri, RICO.hasOrHadSubject, authority_uri)
                 yield (authority_uri, RDF.type, RICO.OccupationType)
+                yield (authority_uri, RDF.type, RICO.ActivityType)
             else:
                 yield (self.uri, RICO.hasOrHadSubject, authority_uri)
         for originator in entity.qualified_originators:
-            authority_uri = originator.cw_adapt_to("rdf").uri
+            authority_uri = build_uri(self._cw, originator.rest_path())
             yield (self.uri, RICO.hasProvenance, authority_uri)
 
         # Define digitized_versions instance
         inst_number = 1
         if entity.related_service:
-            service_uri = entity.related_service.cw_adapt_to("rdf").uri
+            service_uri = build_uri(self._cw, f"service/{entity.related_service.eid}")
         else:
             service_uri = None
         digitized_urls = [
@@ -849,7 +1028,6 @@ class ArchiveComponentRDFAdapter(EntityRDFAdapter):
         ]
         if entity.illustration_url:
             digitized_urls.append((entity.illustration_url, "Image"))
-
         for digitized_url, digitized_type in digitized_urls:
             digitized_version_uri = URIRef(f"{self.uri}#record_resource_inst{inst_number}")
             yield (digitized_version_uri, RDF.type, RICO.Instantiation)
@@ -857,6 +1035,20 @@ class ArchiveComponentRDFAdapter(EntityRDFAdapter):
             yield (self.uri, RICO.hasInstantiation, digitized_version_uri)
             yield (digitized_version_uri, DCTERMS["type"], DCMITYPE[digitized_type])
             yield (digitized_version_uri, DCTERMS["source"], Literal(digitized_url))
+        if entity.iiif_manifest:
+            iiif_manifest_uri = URIRef(f"{self.uri}#iiif_manifest")
+            yield (iiif_manifest_uri, RDF.type, RICO.Record)
+            yield (iiif_manifest_uri, RICO.hasDocumentaryFormType, RICO_FORMTYPES.IIIFManifest)
+            yield (iiif_manifest_uri, RICO.describesOrDescribed, self.uri)
+            yield (self.uri, RICO.isOrWasDescribedBy, iiif_manifest_uri)
+            # add JSON file Instantiation
+            iiif_instance_uri = URIRef(f"{entity.iiif_manifest}#iiif_manifest_inst")
+            yield (iiif_instance_uri, RDF.type, RICO.Instantiation)
+            yield (iiif_instance_uri, RICO.isInstantiationOf, iiif_manifest_uri)
+            yield (iiif_manifest_uri, RICO.hasInstantiation, iiif_instance_uri)
+            yield (iiif_instance_uri, DCTERMS["format"], Literal("application/json"))
+            yield (iiif_instance_uri, DCTERMS["source"], Literal(iiif_manifest_uri))
+
             if service_uri:
                 yield (
                     digitized_version_uri,
@@ -902,8 +1094,8 @@ class FindingAidRDFAdapter(ArchiveComponentRDFAdapter):
         yield (instance_uri, RDFS.seeAlso, build_uri(self._cw, "%s.csv" % entity.rest_path()))
 
         # Include top FAComponent
-        for _, fc_stable_id, fc_label in entity.top_components_stable_ids_and_labels():
-            facomponent_uri = build_uri(self._cw, f"facomponent/{fc_stable_id}")
+        for top_component in entity.top_components:
+            facomponent_uri = build_uri(self._cw, f"facomponent/{top_component.stable_id}")
             yield (self.uri, RICO.includesOrIncluded, facomponent_uri)
 
         if entity.fa_header[0].lang_code:
@@ -920,20 +1112,20 @@ class FAComponentRDFAdapter(ArchiveComponentRDFAdapter):
         RICO = self._use_namespace("rico", base_url="https://www.ica.org/standards/RiC/ontology#")
         entity = self.entity
         yield from self.record_resource_triples()
+        finding_aid = entity.finding_aid[0]
+        findingaid_uri = build_uri(self._cw, f"findingaid/{finding_aid.stable_id}")
+        yield (self.uri, RICO.isRecordResourceAssociatedWithRecordResource, findingaid_uri)
         if not entity.parent_component:
-            finding_aid = entity.finding_aid[0]
-            findingaid_uri = build_uri(self._cw, f"findingaid/{finding_aid.stable_id}")
             yield (self.uri, RICO.isOrWasIncludedIn, findingaid_uri)
         else:
             parent_component = entity.parent_component[0]
             facomponent_uri = build_uri(self._cw, f"facomponent/{parent_component.stable_id}")
 
             yield (self.uri, RICO.isOrWasIncludedIn, facomponent_uri)
-        children_components = entity.children_components_stable_ids_and_labels()
-        if children_components:
-            for _, fc_stable_id, fc_label in children_components:
-                facomponent_uri = build_uri(self._cw, f"facomponent/{fc_stable_id}")
-                yield (self.uri, RICO.includesOrIncluded, facomponent_uri)
+
+        for child_component in entity.reverse_parent_component:
+            facomponent_uri = build_uri(self._cw, f"facomponent/{child_component.stable_id}")
+            yield (self.uri, RICO.includesOrIncluded, facomponent_uri)
         else:
             # if FAComponent is a leaf component, create the main
             # Instantiation

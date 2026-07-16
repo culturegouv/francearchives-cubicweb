@@ -31,7 +31,7 @@
 
 from logilab.common.decorators import cachedproperty
 
-from cubicweb.view import StartupView
+from cubicweb_web.view import StartupView
 
 from cubicweb_francearchives import display_advanced_search_predicate
 from cubicweb_francearchives.views import JinjaViewMixin, get_template, add_js_translations
@@ -43,10 +43,16 @@ class AdvancedSearchFormView(FaqMixin, JinjaViewMixin, StartupView):
     __regid__ = "advanced-search"
     template = get_template("advanced-search.jinja2")
     faq_category = "02_faq_search"
+    eulerian_tag = True
+    eulerian_pagegroup = "advanced_search"
+    eulerian_path = "/advanced_search"
+    noreact = False
+
+    def page_title(self):
+        return f'{self._cw._("Advanced search")} ({self._cw.property_value("ui.site-title")})'
 
     def add_js(self):
         self._cw.add_js("bundle-advanced-search.js")
-        self._cw.add_js("bundle-pnia-faq.js")
 
     @cachedproperty
     def breadcrumbs(self):
@@ -65,7 +71,3 @@ class AdvancedSearchFormView(FaqMixin, JinjaViewMixin, StartupView):
             "display_search_bar": True,
             "faqs": self.faqs_attrs(),
         }
-
-    @cachedproperty
-    def xiti_chapters(self):
-        return ["advanced_search"]

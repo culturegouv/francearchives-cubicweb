@@ -1,0 +1,14 @@
+<div class="fr-skiplinks">
+  <nav role="navigation" aria-label="{{ _('Quick acces') }}" class="fr-container">
+    <ul class="fr-skiplinks__list">
+      <li>
+        <a id="skiplink__contenu" href="#content" class="fr-link">{{ _("Content") }}</a></li>
+      <li>
+        <a id="skiplink__menu" href="#header-navigation" class="fr-link">{{ _("Menu") }}</a></li>
+      <li>
+        <a id="skiplink__search" href="#{%- if nomina -%}es_names{%- else -%}norql{%-endif-%}" class="fr-link">{{ _("Search") }}</a></li>
+      <li>
+        <a id="skiplink__pied-de-page" href="#footer" class="fr-link">{{ _("Footer") }}</a></li>
+    </ul>
+  </nav>
+</div>

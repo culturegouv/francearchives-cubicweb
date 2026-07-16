@@ -56,7 +56,6 @@ from cubicweb import repoapi
 from cubicweb.server.serverctl import CreateInstanceDBCommand
 from cubicweb.server.serverctl import (
     check_options_consistency,
-    ServerConfiguration,
     get_db_helper,
     ASK,
     underline_title,
@@ -80,6 +79,7 @@ psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 
 GLOSSARY_CACHE = []
+
 SECTIONS = {"gerer": None}
 
 STATIC_CSS_DIRECTORY = "css"
@@ -87,10 +87,17 @@ STATIC_CSS_DIRECTORY = "css"
 S3_ACTIVE = bool(os.getenv("AWS_S3_BUCKET_NAME"))
 
 POSTGRESQL_SUPERUSER = bool(int(os.getenv("CW_POSTGRESQL_SUPERUSER", 0)))
+SITE_TYPE = os.getenv("CW_SITE_TYPE", "development")
 
-FEATURE_IIIF = bool(int(os.getenv("FEATURE_IIIF", 0)))
 FEATURE_ADVANCED_SEARCH = bool(int(os.getenv("FEATURE_ADVANCED_SEARCH", 0)))
 FEATURE_SPARQL = bool(int(os.getenv("FEATURE_SPARQL", 0)))
+FEATURE_SPARQL_ACCESSIBLE = bool(int(os.getenv("FEATURE_SPARQL_ACCESSIBLE", 0)))
+
+FEATURE_CHATBOT_SECTIONS = os.getenv("FEATURE_CHATBOT_SECTIONS", "").split(",")
+
+IIIF_MANIFEST_ROLE = "iiif_manifest"
+SIAF_CODE = "FRSIAF"
+SIAF_AGENTS_REF_CODE = "RIPA"
 
 
 @objectify_predicate
@@ -133,6 +140,7 @@ es.INDEXABLE_TYPES = [
 ]
 
 NOMINA_INDEXABLE_ETYPES = ("NominaRecord",)
+AGENTS_REFERENCE_INDEXABLE_ETYPES = ("AgentRecord",)
 
 
 SUPPORTED_LANGS = ("fr", "en", "de", "es")
@@ -273,7 +281,7 @@ class FranceArchivesS3Storage(S3Storage):
 
     def ensure_key(self, s3key):
         """
-        Ensure s3key only contains authorized characters and does not starts with "/"
+        Ensure s3key only contains authorized characters and does not start with "/"
         """
         # TODO
         s3key = s3key.lstrip("/")
@@ -457,7 +465,7 @@ def run(self, args):
     automatic = self.get("automatic")
     drop_db = self.get("drop")
     appid = args.pop()
-    config = ServerConfiguration.config_for(appid)
+    config = CubicWebConfiguration.config_for(appid)
     source = config.system_source_config
     dbname = source["db-name"]
     driver = source["db-driver"]

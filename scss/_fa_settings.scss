@@ -1,0 +1,21 @@
+$screen-widths: (
+  xs: 320px,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1440px,
+);
+
+$bootstrap-padding: 15px;
+
+$blue-france-sun-113-625: var(--text-action-high-blue-france);
+$almost-black: #0e1316;
+
+@media (min-width: 48em) {
+  h1, .fr-h1  {
+    font-size: 2.3rem;
+
+    line-height: 2.8rem;
+
+  }
+}

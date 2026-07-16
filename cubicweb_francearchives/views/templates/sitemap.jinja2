@@ -1,26 +1,26 @@
-<section class="document-view">
-{% macro sitetree(items, level) %}
-  <ul>
-    {% for item in items %}
-      <li class="{{"sitemap-section" if item.etype == 'Section' else "sitemap-document"}}">
-      {% if item.etype == 'Section' %}
-          <i class="caret-sitemap pointer fa fold fa-caret-right {{ "rotate-90" if item.children else "rotate-0" }}"></i>
-
-      {% endif %}
-        <h{{ level }} class="no-style no-style__inline no-style__nobold">
-        <a href="{{ item.url }}">{{item.title}}</a>
-        </h{{ level }}>
-        {% if item.children %}
-          {{ sitetree(item.children, level+1) }}
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+  <section class="fr-col-12 fr-col-lg-8 fr-col-md-10">
+    {% macro sitetree(items, level) %}
+    <ul class="sitemap">
+      {% for item in items %}
+        <li class="{{"sitemap__section" if item.etype in ('Section', 'Link') else "sitemap__document"}}">
+        {% if item.etype  in ('Section', 'Link') %}
         {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
-{% endmacro %}
-
-
-<h1>{{ title }}</h1>
-<div id="tree-container">
-  {{ sitetree(sections, 1) }}
+          <h{{ level }} class="fr-h{{ level + 2}}">
+          <a href="{{ item.url | e }}" class="fr-link fr-fi-arrow-right-line fr-link--icon-right fr-link--lg">{{ item.title | e }}</a>
+          </h{{ level }}>
+          {% if item.children %}
+            {{ sitetree(item.children, level+1) }}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+    {% endmacro %}
+  <h1>{{ title }}</h1>
+  <div id="tree-container">
+    {{ sitetree(sections, 2) }}
+  </div>
+  </section>
+  </div>
 </div>
-</section>

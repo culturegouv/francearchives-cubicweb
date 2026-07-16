@@ -34,15 +34,18 @@ from itertools import count
 import json
 import logging
 import os.path
+import time
 
+from psycopg2 import OperationalError
 from sickle.models import Record
 
 from cubicweb.dataimport.importer import ExtEntity
 
 
-from cubicweb_francearchives.dataimport import ExtentityWithIndexImporter, sqlutil, usha1
+from cubicweb_francearchives.dataimport import usha1
+
+
 from cubicweb_francearchives.dataimport.oai_utils import OAIPMHWriter, PniaSickle
-from cubicweb_francearchives.dataimport.ead import readerconfig
 from cubicweb_francearchives.dataimport.oai_utils import PniaOAIItemIterator
 
 
@@ -153,7 +156,7 @@ class OAINominaHarvester:
     def __init__(self, cnx, log=None):
         """Initialize OAI Nomina schema reader.
 
-        :param Connection cnx: CubicWeb database connectio
+        :param Connection cnx: CubicWeb database connection
         :param Logger log: logger
         """
         self.cnx = cnx
@@ -164,7 +167,12 @@ class OAINominaHarvester:
         self.filepaths = []
 
     def harvest_records(
-        self, service_infos, headers, records_limit=None, csv_rows_limit=100000, **params
+        self,
+        service_infos,
+        headers,
+        records_limit=None,
+        csv_rows_limit=100000,
+        **params,
     ):
         """Harvest data and check they contain the needed information
         :param Connection cnx: connection
@@ -187,58 +195,97 @@ class OAINominaHarvester:
             iterator=PniaOAIItemIterator,
             class_mapping=oai_mapping,
             headers=headers,
+            max_retries=3,
             retry_status_codes=(500, 502, 503),
         )
         self.client.logger = self.log
         self.log.setLevel(logging.INFO)
-        records = self.client.ListRecords(**params)
+
+        max_retries = 2
+        retry_delay = 1.0
+        attempt = 0
+        idx, complete_list_size = None, None
         nomina_dir = self.cnx.vreg.config["nomina-services-dir"]
         nomina_writer = OAINominaWriter(nomina_dir, service_infos, self.log)
         nomina_writer.init_csv()
-        idx, complete_list_size = None, None
-        try:
-            for idx, record in enumerate(records):
-                if complete_list_size is None:
-                    try:
-                        complete_list_size = record.complete_list_size
-                        self.log.info(
-                            "Repository contains %s documents (completeListSize).",
-                            record.complete_list_size,
+
+        while attempt <= max_retries:
+            try:
+                records = self.client.ListRecords(**params)
+                for idx, record in enumerate(records):
+                    if complete_list_size is None:
+                        try:
+                            complete_list_size = record.complete_list_size
+                            self.log.info(
+                                "Repository contains %s documents (completeListSize).",
+                                record.complete_list_size,
+                            )
+                        except Exception:
+                            pass
+                    if record is None:
+                        # PniaOAIItemIterator raise an error before creating a record
+                        continue
+                    identifier = record.header.identifier
+                    url = record.harvested_url
+                    if idx and idx % 1000 == 0:
+                        self.log.info("Processed %s documents", idx + 1)
+                    if not hasattr(record, "metadata") and not record.deleted:
+                        self.log.warning(
+                            "%s. The record with identifier %r has no metadata.",
+                            url,
+                            identifier,
                         )
-                    except Exception:
-                        pass
-                if record is None:
-                    # PniaOAIItemIterator raise an error before creating a record
-                    continue
-                identifier = record.header.identifier
-                url = record.harvested_url
-                if idx and idx % 1000 == 0:
-                    self.log.info("Processed %s documents", idx + 1)
-                if not hasattr(record, "metadata") and not record.deleted:
+                        continue
+                    if idx and idx % csv_rows_limit == 0.0:
+                        nomina_writer.dump_csv()
+                        nomina_writer.init_csv()
+                    if record.deleted:
+                        self.log.info(
+                            "%s. The record with identifier %r is set to be deleted.",
+                            url,
+                            identifier,
+                        )
+                        nomina_writer.add_record(record, nomina=None)
+                        continue
+                    for nomina in self.reader(
+                        record.nomina, record.header, service_infos, self.log
+                    ):
+                        if nomina:
+                            nomina_writer.add_record(record, nomina)
+                    if records_limit and idx == (records_limit - 1):
+                        break
+                break
+            except OperationalError as e:
+                attempt += 1
+                error_msg = str(e)
+                if (
+                    "server closed the connection" in error_msg
+                    or "connection already closed" in error_msg
+                ):
                     self.log.warning(
-                        "%s. The record with identifier %r has no metadata.",
-                        url,
-                        identifier,
+                        f"PostgreSQL connection error (attempt {attempt}/{max_retries + 1}): {e}. "
+                        f"Reconnecting and retrying..."
                     )
-                    continue
-                if idx and idx % csv_rows_limit == 0.0:
-                    nomina_writer.dump_csv()
-                    nomina_writer.init_csv()
-                if record.deleted:
-                    self.log.info(
-                        "%s. The record with identifier %r is set to be deleted.",
-                        url,
-                        identifier,
-                    )
-                    nomina_writer.add_record(record, nomina=None)
-                    continue
-                for nomina in self.reader(record.nomina, record.header, service_infos, self.log):
-                    if nomina:
-                        nomina_writer.add_record(record, nomina)
-                if records_limit and idx == (records_limit - 1):
-                    break
-        except Exception as err:
-            self.log.error("Harvest aborted: %s", err)
+                    if attempt <= max_retries:
+                        try:
+                            self.cnx.commit_and_restart()
+                            self.log.info("Connection restarted successfully")
+                        except Exception as restart_error:
+                            self.log.error(f"Failed to restart connection: {restart_error}")
+                            raise
+                        time.sleep(retry_delay * attempt)
+                        continue
+                    else:
+                        self.log.error(
+                            f"PostgreSQL connection error after {max_retries + 1} attempts."
+                        )
+                        raise
+                else:
+                    raise
+            except Exception as err:
+                self.log.error("Harvest aborted: %s", err)
+                raise
+
         if complete_list_size is None:
             self.log.info(
                 """No information about records list size (completeListSize) could be found."""
@@ -248,123 +295,6 @@ class OAINominaHarvester:
         self.log.info("Processed %s records.", idx + 1 if idx is not None else 0)
         nomina_writer.dump_csv()
         return nomina_writer.filepaths or []
-
-
-class OAINominaImporter(object):
-    """OAI Nomina schema importer.
-
-    :ivar dict config: server-side configuration
-    :ivar OAINominaReader reader: OAI Nomina schema reader
-    :ivar Connection cnx: connection
-    :ivar es: Elasticsearch connection
-    """
-
-    def __init__(self, store, config=None, log=None):
-        """Initialize OAI Nomina schema reader.
-
-        :param RQLObject store: store
-        :param dict config: server-side configuration
-        :param Logger log: logger
-        """
-        cwconfig = store._cnx.vreg.config
-        if log is None:
-            log = logging.getLogger("rq.task")
-        self.log = log
-        self.store = store
-        if config is None:
-            config = readerconfig(
-                cwconfig,
-                cwconfig.appid,
-                log=self.log,
-                esonly=False,
-                nodrop=True,
-                reimport=True,
-                force_delete=True,
-            )
-        self.config = config
-        self.reader = OAINominaReader()
-
-    def import_records(self, service_infos, headers, records_limit=None, dry_run=False, **params):
-        """Import NominaRecords from the CSV path
-        :param dict service_infos: service information
-        :param String headers: http headers
-        :param int records_limit: only import limit documents number
-        :param int csv_rows_limit: rows limit in the resulting csv file
-        :param boolean dry_run: flag to import data in Postgres
-        :param dict params: harvest parameters
-        """
-        extentities = self.harvest_records(
-            service_infos, headers, records_limit=records_limit, **params
-        )
-        if dry_run:
-            return
-        cnx = self.store._cnx
-        notrigger_tables = sqlutil.nomina_foreign_key_tables(cnx.vreg.schema)
-        index_policy = {"autodedupe_authorities": "service/normalize"}
-        extid2eid = {}
-        service_eid = service_infos["eid"]
-        extid2eid["service-{}".format(service_eid)] = service_eid
-        importer = ExtentityWithIndexImporter(
-            cnx.vreg.schema, self.store, extid2eid, index_policy=index_policy, log=self.log
-        )
-        self.log.info("Start importing IR in Postgres")
-        with sqlutil.no_trigger(cnx, notrigger_tables, interactive=False):
-            importer.import_entities(extentities)
-            self.store.flush()
-            self.store.finish()
-        self.log.info("End importing IRs in Postgres")
-
-    def harvest_records(self, service_infos, headers, records_limit=None, **params):
-        """Harvest data and check they contain the needed information
-
-        :param dict service_infos: service information
-        :param String headers: http headers
-        :param int records_limit: only import limit documents number
-        :param int csv_rows_limit: rows limit in the resulting csv file
-        :param boolean dry_run: flag to import data in Postgres
-        :param dict params: harvest parameters
-        """
-        base_url = service_infos["oai_url"]
-        oai_mapping = {
-            "ListRecords": OAIENominaRecord,
-            "GetRecord": OAIENominaRecord,
-        }
-        self.client = PniaSickle(
-            base_url,
-            iterator=PniaOAIItemIterator,
-            class_mapping=oai_mapping,
-            headers=headers,
-            retry_status_codes=(500, 502, 503),
-        )
-        self.client.logger = self.log
-        self.log.setLevel(logging.INFO)
-        records = self.client.ListRecords(**params)
-        for i, record in enumerate(records):
-            if record is None:
-                # PniaOAIItemIterator raised an error before creating a record
-                continue
-            identifier = record.header.identifier
-            url = record.harvested_url
-            if record.deleted:
-                self.log.info(
-                    "%s. The record with identifier %r is set to be deleted. Nothing is done.",
-                    url,
-                    identifier,
-                )
-                continue
-            if not (hasattr(record, "metadata") and hasattr(record, "nomina")):
-                self.log.warning(
-                    "%s. The record with identifier %r has no metadata.",
-                    url,
-                    identifier,
-                )
-                continue
-            self.log.info("%s. Oai identifier: %s", url, identifier)
-            # directly import data whitout storing it on the filesystem
-            for nomina in self.reader(record.nomina, record.header, service_infos, self.log):
-                yield nomina
-            if records_limit and i == (records_limit - 1):
-                break
 
 
 class OAINominaReader(object):
@@ -518,18 +448,10 @@ def build_complement(record):
             ("e", "niveau"),
             ("n", "nro"),
             ("m", "mention"),
-            ("a", "autre"),  # more info,
         ):
             node = complement.find(qname(tag))
             if node is not None and node.text and node.text.strip:
                 info[key] = node.text.strip()
-        for key, tag in (
-            ("d", "numerise"),  # boolean
-            ("p", "payant"),  # boolean
-        ):
-            node = complement.find(qname(tag))
-            if node is not None and node.text and node.text.strip:
-                info[key] = str2bool(node.text.strip())
         professions = []
         for profession in complement.findall(qname("profession")):
             if profession.text:

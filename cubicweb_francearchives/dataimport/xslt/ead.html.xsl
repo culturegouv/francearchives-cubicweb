@@ -1,6 +1,6 @@
 <!-- Copyright 2012 UC Regents all Rights Reserved -->
 <!-- BSD License at botton of file -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:str="http://exslt.org/strings" exclude-result-prefixes="str" version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:str="http://exslt.org/strings" exclude-result-prefixes="str xlink" version="1.0" xmlns:xlink="http://www.w3.org/1999/xlink">
 
     <xsl:include href="./langcodes.xsl" />
     <xsl:include href="./geocodes.xsl" />
@@ -473,21 +473,21 @@ phystech | prefercite | processinfo | relatedmaterial | scopecontent | separated
     <xsl:template match="bibref | extref | archref" mode="ead">
         <xsl:variable name="hoops">
             <xsl:choose>
-                <xsl:when test="@href and not (@show='embed')">
-                    <a href="{str:replace(@href,'http://ark.cdlib.org/ark:/','http://content.cdlib.org/ark:/')}" rel="nofollow noopener noreferrer" target="_blank">
+                <xsl:when test="@href|@xlink:href and not (@show='embed' or @xlink:show='embed')">
+                    <a href="{str:replace(@href|@xlink:href,'http://ark.cdlib.org/ark:/','http://content.cdlib.org/ark:/')}" rel="nofollow noopener noreferrer" target="_blank">
                         <xsl:choose>
                             <xsl:when test=".//text()">
                                 <!-- xsl:apply-templates mode="ref"/ -->
                                 <xsl:apply-templates mode="ead" />
                             </xsl:when>
-                            <xsl:otherwise><xsl:value-of select="str:replace(@href,'http://ark.cdlib.org/ark:/','http://content.cdlib.org/ark:/')"/></xsl:otherwise>
+                            <xsl:otherwise><xsl:value-of select="str:replace(@href|@xlink:href,'http://ark.cdlib.org/ark:/','http://content.cdlib.org/ark:/')"/></xsl:otherwise>
                         </xsl:choose>
 
                     </a>
                     <xsl:text disable-output-escaping='yes'>&#160;</xsl:text>
                 </xsl:when>
-                <xsl:when test="@href and (@show='embed')">
-                    <div><img src="{@href}" /></div>
+                <xsl:when test="@href|@xlink:href and (@show='embed' or @xlink:show='embed')">
+                    <div><img src="{@href|@xlink:href}" /></div>
                 </xsl:when>
                 <xsl:otherwise>
                     <!-- xsl:apply-templates mode="ref"/ -->
@@ -619,7 +619,7 @@ phystech | prefercite | processinfo | relatedmaterial | scopecontent | separated
 
 
     <xsl:template match="head" mode="ead">
-        <xsl:if test="not(name(..)='dsc') and ../*[not(name()='head')][text()]">
+        <xsl:if test="not(name(..)='dsc') and (../*[not(name()='head')][text()] or ../*[name()='extref'])">
             <span class="ead-title"><xsl:apply-templates mode="ead"/></span>
         </xsl:if>
     </xsl:template>

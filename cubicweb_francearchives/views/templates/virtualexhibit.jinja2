@@ -1,30 +1,61 @@
-{% from "./mixins.jinja2" import imagelist, content_metadata, index_values, sharelinks, translations, modalfaq, related_docs -%}
-<div class="row article-page-container">
-    <div class="{% if entities -%}col-xl-6 {% else -%} col-xl-9 {% endif -%}article-content">
-        <article id="article" class="{{ entity.cw_etype|lower }}-view">
-            <h1><span class="visually-hidden">{{ _(entity.__regid__) }} : </span>{{ entity.title | e }}</h1>
-            {{  sharelinks(sharelinks_data, _) }}
-            {{ content_metadata(metadata, _) }}
-            <div class="article__content">
-                {{ imagelist(images, default_picto_src) }}
-                {{ entity.printable_value('content') }}
-            </div>
-            {% if website_url -%}
-            <div class="article-buttons-wrapper">
-                <a class="blue-button" href="{{ website_url }}"
-                    target="_blank" rel="nofollow noopener noreferrer"
-                    title="{{ _("Consult the virtual exhibits") }} {{ _("- New window") }}">
-                     {{ _("Consult the virtual exhibits") }}
-                     <i class="fa fa-external-link" aria-hidden="true"></i>
-                 </a>
-            </div>
-           {% endif -%}
-         </article>
-         {% if main_props |e -%}
-           {{ index_values(main_props) }}
-         {% endif-%}
+{% from "./mixins.jinja2" import imageitem, content_metadata, sharelinks, related_docs, related_indexes, display_errors -%}
+{%- set lang_attr='lang="{}"'.format(entity.lang) if entity.lang != lang else "" -%}
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+    <div class="fr-col-12 fr-col-lg-8">
+      <article id="virtualexpo-{{ entity.eid }}">
+        {{ display_errors(errors, _) }}
+        <div class="fr-col-12 fr-mb-8v" {{ lang_attr }}>
+          <h1>{{ entity.title | e }}</h1>
+        </div>
+        <div class="fr-col-12 fr-mb-8v">
+          {{ content_metadata(metadata, _) }}
+        </div>
+        <div class=" {%- if image -%}fa-expo-card{%- endif %} fr-mb-8v" {{ lang_attr }}>
+          {%- if image -%}
+          <div class="fa-expo-card__image">
+            <img class="fr-responsive-img"
+             src="{{ image.image_file[0].download_url() }}"
+             alt=""
+             data-defaultsrc="{{ default_picto_src }}"
+           >
+          </div>
+          {%- endif -%}
+          <div class="fa-expo-card__body">
+           {%- if entity.url -%}
+            <p><a class="fr-btn eulerian-button" href="{{  entity.url }}"
+                  data-eulerian-actionname="external_link_{{ heading_hierarchy }}"
+                  data-eulerian-actionlabel="external_link,virtualexhibit,link,consulter_l_exposition_virtuelle,{{ service_code | e }}"
+                  data-eulerian-headinghierarchy="{{ heading_hierarchy }}"
+                  data-eulerian-componenthierarchy="main_>_link"
+                  data-eulerian-componentlabel="consulter_l_exposition_virtuelle"
+                  data-eulerian-componentvalue="{{ entity.url }}"
+                  target="_blank" rel="nofollow noopener noreferrer external"
+                  title="{{ _("Consult the virtual exhibits") }} {{ _("- New window") }}">
+              {{ _("Consult the virtual exhibits") }}
+            </a></p>
+            {%- endif -%}
+          </div>
+        </div>
+        <div class="fr-col-12 fr-mb-12v" {{ lang_attr }}>
+         {{ entity.printable_content }}
+         {%- if entity.service -%}
+         <p class="fa-expo--service-link"><span class="fr-text--bold">{{ _('Virtual exhibition proposed by:') }}</span> {{ entity.services[0].view("incontext")}}</p>
+         {%- endif -%}
+         </div>
+      </article>
+      <div class="fr-col-12 fr-mb-12v">
+        {%- set fa_lang_attr='lang="fr"' if lang != "fr" else "" -%}
+        {{ related_indexes(indexes, fa_lang_attr, _) }}
+      </div>
+      <div class="fr-col-12">
+        {{ sharelinks(sharelinks_data, eulerian.document_title, "main_>_section_>_links", _) }}
+      </div>
     </div>
-    {% if entities -%}
-       {{ related_docs(entities, all_links, recent_label, _) }}
-    {% endif -%}
+  </div>
 </div>
+{%- if related_entities -%}
+<section class="fr-mt-md-16v fr-mt-3w fr-pt-lg-16v fr-pt-md-14v fr-pb-ld-18v fr-pb-md-16v fr-py-3w fr-background-alt--grey d-print-none">
+{{ related_docs(related_entities, all_links, recent_label, _) }}
+</section>
+{%- endif -%}

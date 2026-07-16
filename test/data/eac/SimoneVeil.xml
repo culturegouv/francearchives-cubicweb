@@ -1,0 +1,142 @@
+<?xml version='1.0' encoding='utf-8'?>
+<eac xmlns="https://archivists.org/ns/eac/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" audience="external" xsi:schemaLocation="https://archivists.org/ns/eac/v2  https://eac.staatsbibliothek-berlin.de/schema/v2/eac.xsd">
+  <control audience="external" maintenanceStatus="derived" publicationStatus="inProcess" languageOfElement="fr" languageEncoding="iso639-1" scriptEncoding="iso15924" scriptOfElement="Latn" id="control" dateEncoding="iso8601">
+    <recordId>FRSIAFRIPA__00000001</recordId>
+    <maintenanceAgency>
+      <agencyCode>FRSIAF</agencyCode>
+      <agencyName>Service interministériel des Archives de France</agencyName>
+    </maintenanceAgency>
+    <maintenanceHistory>
+      <maintenanceEvent maintenanceEventType="created">
+        <agent agentType="human">Jean Valjean</agent>
+        <eventDateTime standardDateTime="2025-01-09T14:35:52">09/01/2025 14:35</eventDateTime>
+      </maintenanceEvent>
+      <maintenanceEvent maintenanceEventType="revised">
+        <agent agentType="human">Jean Valjean</agent>
+        <eventDateTime standardDateTime="2025-07-09T14:35:52">09/07/2025 14:35</eventDateTime>
+      </maintenanceEvent>
+    </maintenanceHistory>
+    <sources>
+      <source>
+        <reference href="https://data.bnf.fr/ark:/12148/cb11927825h">notice in DataBnF</reference>
+      </source>
+      <source>
+        <reference href="https://francearchives.gouv.fr/fr/authorityrecord/FRAN_NP_009871">Cabinet de Simone Veil, ministre des Affaires sociales, de la Santé et de la Ville notice_edited_by Service</reference>
+      </source>
+      <source>
+        <reference href="https://francearchives.gouv.fr/authorityrecord/FRAN_NP_009941">Veil, Simone (1927-2017) notice_edited_by Service</reference>
+      </source>
+      <source>
+        <reference href="https://www.info.gouv.fr/actualite/1927-2017-cetait-simone-veil">1927-2017 : c’était Simone Veil</reference>
+      </source>
+    </sources>
+    <conventionDeclaration>
+      <reference href="https://eac.staatsbibliothek-berlin.de/schema/v2/eac.xsd"/>
+      <descriptiveNote languageOfElement="fre" scriptOfElement="Ltn">
+        <p>Notice établie conformément à la norme ICA-ISAAR (CPF) 2004, aux normes ISO 8601 pour le système de normalisation des dates utilisé.</p>
+      </descriptiveNote>
+    </conventionDeclaration>
+    <conventionDeclaration>
+      <reference href="https://code.rdafr.fr/">Code RDA-FR/Agent</reference>
+    </conventionDeclaration>
+    <languageDeclaration languageCode="fre" scriptCode="Latn"/>
+    <representation href="https://testing.cubicweb/agentrecord/FRSIAFRIPA__00000001">Simone Veil</representation>
+    <rightsDeclaration>
+      <reference href="https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf">Licence etalab-2.0</reference>
+    </rightsDeclaration>
+  </control>
+  <cpfDescription>
+    <identity>
+      <entityType value="person"/>
+      <nameEntrySet>
+        <nameEntry languageOfElement="fre" scriptOfElement="Latn" preferredForm="true" status="authorized">
+          <part>Simone Veil</part>
+        </nameEntry>
+        <nameEntry languageOfElement="fr" preferredForm="false" status="alternative">
+          <part>Simone Annie Liline Jacob</part>
+          <useDates>
+            <dateRange>
+              <fromDate standardDate="1927-01-01" certainty="certain">1927</fromDate>
+              <toDate standardDate="2017-01-01" certainty="certain">2017</toDate>
+            </dateRange>
+          </useDates>
+        </nameEntry>
+        <nameEntry languageOfElement="fr" preferredForm="false" status="alternative">
+          <part>Simone Jacob</part>
+        </nameEntry>
+      </nameEntrySet>
+      <identityId vocabularySource="Wikidata" valueURI="https://www.wikidata.org/wiki/Q298180">Q298180</identityId>
+      <identityId vocabularySource="IDREF">283626992</identityId>
+    </identity>
+    <description>
+      <demographicDescriptions>
+        <demographicDescription localType="sexe">
+          <term>female</term>
+        </demographicDescription>
+      </demographicDescriptions>
+      <occupations>
+        <occupation>
+          <term>ministre de la Santé</term>
+          <dateRange>
+            <fromDate standardDate="1974-01-01" certainty="certain">1974</fromDate>
+            <toDate standardDate="1979-01-01" certainty="certain">1979</toDate>
+          </dateRange>
+          <placeName vocabularySourceURI="https://francearchives.gouv.fr/location/4497">Paris (Paris, France)</placeName>
+        </occupation>
+        <occupation>
+          <term>elu</term>
+          <dateRange>
+            <fromDate standardDate="1993-01-01" certainty="certain">1993</fromDate>
+            <toDate standardDate="1995-01-01" certainty="certain">1995</toDate>
+          </dateRange>
+        </occupation>
+        <occupation>
+          <term>magistrat</term>
+        </occupation>
+      </occupations>
+      <places>
+        <place>
+          <placeName vocabularySourceURI="https://francearchives.gouv.fr/location/4498">Nice (Alpes-Maritimes, France)</placeName>
+          <placeRole>Lieu de naissance</placeRole>
+          <geographicCoordinates coordinateSystem="WGS84">43.70313, 7.26608</geographicCoordinates>
+        </place>
+        <place>
+          <placeName vocabularySourceURI="https://francearchives.gouv.fr/location/4497">Paris (Paris, France)</placeName>
+          <placeRole>Lieu de sépulture</placeRole>
+          <geographicCoordinates coordinateSystem="WGS84">48.86, 2.34444</geographicCoordinates>
+        </place>
+      </places>
+      <existDates>
+        <dateRange>
+          <fromDate standardDate="1927-01-01" certainty="certain">1927</fromDate>
+          <toDate standardDate="2017-01-01" certainty="certain">2017</toDate>
+        </dateRange>
+      </existDates>
+      <biogHist><abstract>Née à Nice en 1927, Simone Veil est une figure incontournable de la vie politique française et européenne à partir du milieu des années 1970.</abstract>
+<p>Pionnière, elle occupe au sein de l'administration des postes réservés jusqu'alors aux hommes.</p>
+<p>Elle occupe par la suite les fonctions suivantes :</p>
+<list>
+<item>ministre de la Santé</item>
+<item>présidete du Parlement de Strasbourg</item>
+<item>présidente du Haut conseil à l’intégration (1997-1998)</item>
+</list>
+<p>Simone Jacob est née le 13 juillet 1927 à Nice.</p></biogHist>
+    </description>
+    <relations>
+      <relation>
+        <targetEntity targetType="person" vocabularySourceURI="https://francearchives.gouv.fr/agentrecord/identifier">
+          <part>Antoine Veil</part>
+        </targetEntity>
+        <dateRange>
+          <fromDate standardDate="1946-01-01" certainty="certain">1946</fromDate>
+          <toDate standardDate="2013-01-01" certainty="certain">2013</toDate>
+        </dateRange>
+        <place>
+          <placeName vocabularySourceURI="https://francearchives.gouv.fr/location/4497">Paris (Paris, France)</placeName>
+        </place>
+        <relationType>family</relationType>
+        <targetRole>parent</targetRole>
+      </relation>
+    </relations>
+  </cpfDescription>
+</eac>

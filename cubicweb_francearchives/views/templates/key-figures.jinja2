@@ -1,0 +1,54 @@
+<section>
+  <div class="fr-background-alt--beige-gris-galet">
+    <div class="fr-container fr-py-14v fr-py-md-12v">
+      <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+        <div class="fr-col-12 fr-col-md-8 fr-mb-8v fa-text--center">
+          {%- if card -%}
+          {%- set lang_attr='lang="{}"'.format(card.lang) if card.lang != req.lang else "" -%}
+          {%- if lang_attr -%}<div {{ lang_attr }}>{%- endif -%}
+            <h2>{{ card.title }}</h2>
+              {%- if card.content -%}{{ card.printable_value('content') }}{%- endif -%}
+            {%- else -%}
+              {{ _("Key figures") }}
+              {%- if editable -%}
+              <div class="fr-alert fr-alert--error">La fiche "key_figures" n'existe pas.</div>
+              {%- endif-%}
+            {%- endif -%}
+          {%- if lang_attr -%}</div>{%- endif -%}
+        </div>
+        {%-if editable and card -%}
+        <div class="fr-col-12">
+          <p>{{ req._("Edit the card") }}{{ _(":")}}<a href="{{ card_link }}" class="fr-link fr-icon-arrow-right-line fr-link--icon-right">{{ card.title }}</a></p>
+        </div>
+        {%- endif -%}
+        <div class="fr-grid-row fr-grid-row--gutters fr-col-12">
+          {%- for figure in figures -%}
+          {%- if figure.count -%}
+          <div class="fr-col-12 fr-col-md-4 fr-mb-2w">
+            <div class="fr-tile fr-tile--sm fr-enlarge-link" >
+              <div class="fr-tile__body">
+                <div class="fr-tile__content">
+                  <h3 class="fr-tile__desc fr-text--bold">{{ figure.label }}</h3>
+                  <p class="fr-tile__title">
+                    <a href="{{ figure.url }}" title="{{figure.count }} {{ figure.label }} ({{ figure.badge }})">{{ figure.count }}</a>
+                  </p>
+                  {%- if figure.badge -%}
+                  <div class="fr-tile__detail">
+                    <ul class="fr-badges-group">
+                      <li>
+                        <p class="fr-badge">{{ figure.badge }}</p>
+                      </li>
+                    </ul>
+                  </div>
+                {%- endif -%}
+                </div>
+              </div>
+            </div>
+          </div>
+          {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -35,7 +35,6 @@ from collections import defaultdict
 
 import hashlib
 
-import math
 from logilab.common.decorators import cachedproperty
 
 from cubicweb import _
@@ -47,7 +46,16 @@ from cubicweb_file.entities import File as BaseFile
 from cubicweb_skos.entities import Concept as BaseConcept
 from rdflib.graph import ConjunctiveGraph
 
-from cubicweb_francearchives.views import format_date
+from cubicweb.entity import _marker
+from cubicweb.entities import fetch_config
+
+from cubicweb_francearchives import SUPPORTED_LANGS
+from cubicweb_francearchives.utils import format_date, formatted_size, is_external_link
+from cubicweb_francearchives.xmlutils import (
+    process_html_as_xml,
+    add_title_on_external_link,
+    add_title_on_internal_link,
+)
 from cubicweb_francearchives.xy import add_statements_to_graph
 
 
@@ -72,6 +80,42 @@ for etype, category in list(ETYPE_CATEGORIES.items()):
     DOC_CATEGORY_ETYPES[category].append(etype)
 
 
+@process_html_as_xml
+def enhance_rgaa(root, cnx, labels=None):
+    """take html as first argument `root`. This argument is then transformed
+    in etree root by process_html_as_xml
+    """
+    for node in root.xpath("//*[@href]"):
+        if is_external_link(node.attrib["href"], cnx.base_url()):
+            add_title_on_external_link(cnx, node)
+        else:
+            add_title_on_internal_link(cnx, node)
+
+
+class HTMLMixIn(object):
+    @cachedproperty
+    def richstring_attrs(self):
+        attrs = []
+        subjrels = self._cw.vreg.schema.entity_schema_for(self.cw_etype).subject_relations
+        for rel in subjrels:
+            if rel.type.endswith("_format"):
+                attr = rel.type.split("_format")[0]
+                if attr in subjrels:
+                    attrs.append(attr)
+        return attrs
+
+    def printable_value(
+        self, attr, value=_marker, attrtype=None, format="text/html", displaytime=True
+    ):
+        """return a displayable value (i.e. unicode string) which may contains
+        html tags. ̀enhance_rgaa`  may retrun None
+        """
+        value = super(HTMLMixIn, self).printable_value(attr, value, attrtype, format, displaytime)
+        if value and attr in self.richstring_attrs:
+            return enhance_rgaa(value, self._cw) or ""
+        return value
+
+
 class Concept(BaseConcept):
     uuid_attr = "cwuri"
 
@@ -79,8 +123,23 @@ class Concept(BaseConcept):
     def uuid_value(self):
         return self.cwuri
 
+    @property
+    def lang(self):
+        return "fr"
 
-class Card(BaseCard):
+    @property
+    def schema_label(self):
+        rset = self._cw.execute(
+            "Any ST, LL, URI WHERE X eid %(eid)s, X in_scheme S, S title ST, "
+            "X cwuri URI, X preferred_label L, L label LL, L language_code LC",
+            {"eid": self.eid},
+        )
+        if rset:
+            return rset[0][0]
+        return self.scheme.dc_title()
+
+
+class Card(HTMLMixIn, BaseCard):
     uuid_attr = "wikiid"
 
     def rest_path(self):
@@ -103,6 +162,17 @@ class Card(BaseCard):
     @property
     def fmt_modification_date(self):
         return format_date(self.modification_date, self._cw, fmt="d MMMM y")
+
+    @property
+    def lang(self):
+        """try to retrive the card's language from its wikiid"""
+        try:
+            lang = self.wikiid.split("-")[-1]
+        except ValueError:
+            return "fr"
+        if lang in SUPPORTED_LANGS:
+            return lang
+        return "fr"
 
 
 def system_source_absolute_url(self, *args, **kwargs):
@@ -131,7 +201,11 @@ def compute_file_data_hash(value):
 
 
 class FAFile(BaseFile):
+    fetch_attrs, cw_fetch_order = fetch_config(["data_name", "title", "data_hash"])
     rest_attr = "data_hash"
+
+    def dc_title(self):
+        return self.title or self.data_name
 
     def bfss_storage_relpath(self, attr):
         content_hash = self.cw_attr_metadata(attr, "hash")
@@ -189,20 +263,12 @@ class FAFile(BaseFile):
         """
         Convert file size in a human read
         """
-        data_size = self.size()
-        if data_size == 0:
-            return "0"
-        _ = self._cw._
-        labels = (
-            "",
-            _("KB"),
-            _("MB"),
-            _("GB"),
-            _("TB"),
-        )
-        i = int(math.floor(math.log(data_size, 1024)))
-        size = round(data_size / math.pow(1024, i), 2)
-        return "{} {}".format(size, labels[i])
+        try:
+            data_size = self.size()
+        except Exception as err:
+            self.error("Could not retrieve the file %s: %s", self, err)
+            return ""
+        return formatted_size(self._cw, data_size)
 
     def get_filepath(self, attr):
         """
@@ -213,6 +279,10 @@ class FAFile(BaseFile):
         if isinstance(key, bytes):
             key = key.decode("utf-8")
         return key
+
+    @property
+    def lang(self):
+        return "fr"
 
 
 def entity2schemaorg(entity):

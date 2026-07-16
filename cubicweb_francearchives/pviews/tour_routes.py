@@ -57,30 +57,30 @@ def search_tour_data(request):
             "intro": _("tour_search_intro"),
         },
         {
-            "element": "#search-bar-form",
+            "element": "#header-search-bar-form",
             "intro": _("tour_search_query"),
         },
         {
-            "element": ".search-results__title",
+            "element": ".fa-search-results--title",
             "intro": _("tour_search_results_number"),
             "position": "right",
         },
         {
-            "element": ".search-results__sort-options",
+            "element": ".fa-search-options--sort",
             "intro": _("tour_search_results_sort_options"),
             "position": "right",
         },
         {
-            "element": ".search-results__items-per-page",
+            "element": ".fa-search-options--items",
             "intro": _("tour_search_number_items"),
             "position": "left",
         },
         {
-            "element": "#search-results .document div",
+            "element": ".fr-card",
             "intro": _("tour_search_result"),
         },
         {
-            "element": ".search-summary",
+            "element": ".fa-search--filters",
             "intro": _("tour_search_summary"),
         },
         {
@@ -88,11 +88,11 @@ def search_tour_data(request):
             "intro": _("tour_search_facet_fulltext"),
         },
         {
-            "element": ".facets",
+            "element": ".fa-facets",
             "intro": _("tour_search_facets"),
         },
         {
-            "element": ".pagination",
+            "element": ".fr-pagination",
             "intro": _("tour_search_results_pagination"),
         },
     ]
@@ -111,23 +111,23 @@ def findingaid_tour_data(request):
     _ = cnx._
     intro_data["steps"] = [
         {
-            "element": ".page-main-content h1",
+            "element": ".fa-inventory-content__title h1",
             "intro": _("fi_tour_title"),
         },
         {
-            "element": "#breadcrumbs",
+            "element": "#breadcrumb-line",
             "intro": _("fi_tour_breadcrumbs"),
         },
         {
-            "element": ".pdf-download-button",
+            "element": ".fa-inventory-content__pdf",
             "intro": _("fi_tour_pdf"),
         },
         {
-            "element": ".document-digit-versions",
+            "element": ".fa_tour_dv",
             "intro": _("fi_tour_digit_versions"),
         },
         {
-            "element": ".content-metadata-item .fi-context",
+            "element": ".fa-inventory-content__context",
             "intro": _("fi_tour_context"),
         },
         {
@@ -135,19 +135,19 @@ def findingaid_tour_data(request):
             "intro": _("fi_tour_fatree"),
         },
         {
-            "element": ".main-properties.ir-indexes",
+            "element": ".fa-inventory-content__index",
             "intro": _("fi_tour_indexes"),
         },
         {
-            "element": ".service-site-button",
+            "element": ".fa-inventory-content__service-site",
             "intro": _("fi_tour_goto_service"),
         },
         {
-            "element": ".service-url-button",
+            "element": ".fa-inventory-content__service-info",
             "intro": _("fi_tour_service_url"),
         },
         {
-            "element": ".csv-download-button",
+            "element": ".fa-inventory-content__csv",
             "intro": _("fi_tour_download-cvs"),
         },
     ]
@@ -166,19 +166,19 @@ def facomponent_tour_data(request):
     _ = cnx._
     intro_data["steps"] = [
         {
-            "element": ".page-main-content h1",
+            "element": ".fa-inventory-content__title h1",
             "intro": _("fa_tour_title"),
         },
         {
-            "element": "#breadcrumbs",
+            "element": "#breadcrumb-line",
             "intro": _("fi_tour_breadcrumbs"),
         },
         {
-            "element": ".document-digit-versions",
+            "element": ".fa_tour_dv",
             "intro": _("fi_tour_digit_versions"),
         },
         {
-            "element": ".content-metadata-item .fi-context",
+            "element": ".fa-inventory-content__context",
             "intro": _("fa_tour_context"),
         },
         {
@@ -186,19 +186,19 @@ def facomponent_tour_data(request):
             "intro": _("fi_tour_fatree"),
         },
         {
-            "element": ".main-properties.ir-indexes",
+            "element": ".fa-inventory-content__index",
             "intro": _("fi_tour_indexes"),
         },
         {
-            "element": ".service-site-button",
+            "element": ".fa-inventory-content__service-site",
             "intro": _("fi_tour_goto_service"),
         },
         {
-            "element": ".service-url-button",
+            "element": ".fa-inventory-content__service-info",
             "intro": _("fi_tour_service_url"),
         },
         {
-            "element": ".csv-download-button",
+            "element": ".fa-inventory-content__csv",
             "intro": _("fi_tour_download-cvs"),
         },
     ]

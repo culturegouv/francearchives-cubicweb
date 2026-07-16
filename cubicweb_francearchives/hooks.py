@@ -36,7 +36,6 @@ from uuid import uuid4
 from rql import BadRQLQuery
 
 from cubicweb.server import hook
-
 from cubicweb.hooks.integrity import IntegrityHook, TidyHtmlFields
 from cubicweb.predicates import score_entity, is_instance, relation_possible, adaptable
 
@@ -54,7 +53,12 @@ from cubicweb_francearchives.cssimages import HERO_SIZES
 from cubicweb_francearchives.cssimages import generate_thumbnails
 from cubicweb_francearchives.htmlutils import soup2xhtml
 from cubicweb_francearchives.utils import populate_terms_cache
-from cubicweb_francearchives.xmlutils import enhance_accessibility, handle_subtitles
+from cubicweb_francearchives.xmlutils import (
+    enhance_accessibility,
+    handle_subtitles,
+    handle_tables,
+    clean_xss,
+)
 
 from cubicweb_varnish.hooks import PurgeUrlsOnUpdate, InvalidateVarnishCacheOp
 
@@ -233,7 +237,7 @@ class UpdateVarnishOnRelationChanges(hook.Hook):
     events = ("after_add_relation", "after_delete_relation")
 
     def __call__(self):
-        rschema = self._cw.vreg.schema.rschema(self.rtype)
+        rschema = self._cw.vreg.schema.relation_schema_for(self.rtype)
         if rschema.meta:
             return
         ivarnish_from = self._cw.entity_from_eid(self.eidfrom).cw_adapt_to("IVarnish")
@@ -263,6 +267,35 @@ class DeleteSameAsAuthAgent(hook.Hook):
         self._cw.execute("DELETE X same_as Y WHERE Y eid %(eid)s", {"eid": self.entity.eid})
 
 
+class FARemoveOAIImportTaskFiles(hook.Hook):
+    """Delete OAIImportTask fatask_oaiharvest_file files
+    This should ne handled by composite attribute on  fatask_oaiharvest_file relation, but
+    there is a problem with jsonschema"""
+
+    __regid__ = "francearchives.fatask_oaiharvest_file"
+    __select__ = hook.Hook.__select__ & hook.match_rtype("fatask_oaiharvest_file")
+    events = ("after_delete_relation",)
+
+    def __call__(self):
+        FAPniaOAIImportFilesOperation.get_instance(self._cw).add_data(self.eidto)
+
+
+class FAPniaOAIImportFilesOperation(hook.DataOperationMixIn, hook.Operation):
+    """delete OAIImportTask files"""
+
+    def precommit_event(self):
+        cnx = self.cnx
+        eids = []
+        for eid in self.get_data():
+            if cnx.deleted_in_transaction(eid):
+                continue
+            eids.append(eid)
+        query = "DELETE File F WHERE F eid IN ({eids})".format(
+            eids=",".join([str(e) for e in eids])
+        )
+        cnx.execute(query)
+
+
 class PniaTidyHtmlFields(IntegrityHook):
     """tidy HTML in rich text strings; applies Rgaa Rules"""
 
@@ -270,26 +303,40 @@ class PniaTidyHtmlFields(IntegrityHook):
     events = ("before_add_entity", "before_update_entity")
     category = "tidyhtml"
 
+    def get_edited(self, entity):
+        """jsonschema forms return all entities fields as edited fields. Filter them"""
+        edited = {}
+        for key, value in entity.cw_edited.items():
+            old_value, new_value = entity.cw_edited.oldnewvalue(key)
+            if old_value != new_value:
+                edited[key] = value
+        return edited
+
     def __call__(self):
         entity = self.entity
         cnx = self._cw
-        attrs = []
-        edited = entity.cw_edited
-        subjrels = cnx.vreg.schema.eschema(self.entity.cw_etype).subjrels
-        for rel in subjrels:
-            if rel.type.endswith("_format"):
-                attr = rel.type.split("_format")[0]
-                if attr in subjrels and attr in edited:
-                    attrs.append(
-                        (rel.type, attr),
-                    )
-        for metaattr, attr in attrs:
+        edited = self.get_edited(entity)
+        metaattrs = [
+            rel.type.rpartition("_format")[0]
+            for rel in cnx.vreg.schema.entity_schema_for(self.entity.cw_etype).subject_relations
+            if rel.type.endswith("_format")
+        ]
+        for attr in edited:
             value = edited[attr]
-            if isinstance(value, str):  # filter out None and Binary
+            if isinstance(value, str) and value:  # filter out None and Binary
+                if attr not in metaattrs:
+                    # the field is not a richstring : remove all <script> tags to
+                    # avoid XSS vunerability
+                    entity.cw_edited[attr] = clean_xss(value, cnx)
+                    continue
+                # the field is a RichString
+                metaattr = f"{attr}_format"
                 text_format = None
                 if self.event == "before_add_entity":
                     try:
-                        rel = self._cw.vreg.schema[metaattr].rdef(entity.cw_etype, "String")
+                        rel = self._cw.vreg.schema[metaattr].relation_definition(
+                            entity.cw_etype, "String"
+                        )
                         if rel:
                             text_format = rel.default
                     except KeyError:
@@ -297,6 +344,9 @@ class PniaTidyHtmlFields(IntegrityHook):
                 else:
                     text_format = getattr(entity, str(metaattr))
                 if text_format == "text/html":
+                    if attr == "summary":
+                        # summary is generated
+                        continue
                     # tidy up the value
                     value = soup2xhtml(value, self._cw.encoding)
                     # applied rgaa rules
@@ -305,7 +355,11 @@ class PniaTidyHtmlFields(IntegrityHook):
                         # look for subtitles
                         lang = getattr(self.entity, "language", None)
                         value = handle_subtitles(value, cnx, lang=lang)
-                    edited[attr] = value
+                        try:
+                            value = handle_tables(value, cnx, lang=lang)
+                        except Exception:
+                            pass
+                    entity.cw_edited[attr] = value
 
 
 class GlossaryStartupHook(hook.Hook):

@@ -1,13 +1,16 @@
 <form id="dpt-geo-form" action="{{ base_url + 'annuaire/departements' }}">
   <div class="input-group">
-    <select id="selector-geo-dpt" name="dpt" class="form-select" aria-label="{{ _("Select department or all services") }}">
-      <option disabled="disabled" {%if not selected_dpt %} selected="selected" {% endif %}>{{ _('Select department') }}</option>
-      <option value="00" data-lat="46.45" data-long="2.4" {% if selected_dpt is none %} selected="selected" {% endif %}>{{ _('All services') }}</option>
+    <label class="fr-label" for="selector-geo-dpt" id="selector-geo-dpt-label">{{ _("Select a department or all services") }}</label>
+    <select id="selector-geo-dpt" name="dpt" class="fr-select">
+      <option disabled="" hidden>{{ _('Select department') }}</option>
+      <option value="00" data-lat="46.45" data-long="2.4" {% if not selected_dpt %}selected="selected"{% endif -%}>{{ _('All services') }}</option>
       {% for s in services %}
+       {%- if s.dpt_code -%}
         <option value="{{ s.dpt_code.lower() }}" {% if selected_dpt and selected_dpt.lower() == s.dpt_code.lower() %} selected="selected" {% endif %}
         data-dptcode="{{ s.dpt_code.lower()}}" data-lat="{{ s.latitude }}" data-long="{{ s.longitude}}">{{ s.name }}</option>
+        {%- endif -%}
       {% endfor %}
     </select>
-    <span class="d-none input-group-btn"><input type="submit" value="ok" class="btn btn-primary" /></span>
+    <span class="fr-sr-only fr-btns--group"><input type="submit" value="{{ _('select') }}" class="fr-btn fr-btn--primary" ></span>
   </div>
 </form>

@@ -17,8 +17,10 @@
             procedures for public text owner identifiers.</eadid>
         <filedesc>
             <titlestmt>
-                <titleproper>titleproper: The name of the finding aid or finding aid
-                    series.</titleproper>
+                <titleproper>titleproper= The name of the <emph>findingaid</emph> or <emph>findingaid series</emph>. </titleproper>
+                <titleproper>titleproper= The name of the
+                    <emph>FindingAid</emph> or <emph>FindingAid series</emph>
+                    .</titleproper>
                 <subtitle>subtitle= sous-titre</subtitle>
                 <!-- non affiché dans IHM -->
                 <author>author : SIAF</author>
@@ -38,7 +40,11 @@
                     <item>This electronic finding aid was updated to current markup
                         standards by Sarah Taylor using a perl script. Updates included: eadheader,
                         eadid, arrangement of did elements and their labels.</item>
-                </change> 
+                </change>
+                <change>
+                    <date normal="20070505">May 5, 2007</date>
+                    <item>New changes.</item>
+                </change>
             </revisiondesc>
             <publicationstmt>
                 <date>2018</date>
@@ -105,20 +111,25 @@
             <unitdate normal="1867-01-01/1909-12-31" type="inclusive">1867-1909</unitdate>
             <origination>origination: Information about the individual or organization responsible
                 for the creation, accumulation, or assembly of the described materials before their
-                incorporation into an archival repository. </origination>
+                incorporation into an archival repository.
+                <persname>Wigglethorpe, Franklin</persname>
+                <famname>Wigglethorpe</famname>
+            </origination>
             <repository>repository = The institution or agency responsible for providing
                 intellectual access to the materials being described</repository>
+            <repository> <corpname><part>FRAD51</part></corpname></repository>
             <physdesc>physdesc = A wrapper element for bundling information about the appearance or
                 construction of the described materials, such as their dimensions, a count of their
                 quantity or statement about the space they occupy, and terms describing their genre,
                 form, or function, as well as any other aspects of their appearance, such as color,
                 substance, style, and technique or method of creation. <dimensions label="label dimmensions">dimensions
-                    30x50</dimensions><!-- afficher label ou bien "dimmensions : " -->
+                    30x50</dimensions><dimensions label="label dimmensions">dimensions 60x100</dimensions><!-- afficher label ou bien "dimmensions : " -->
                 <physfacet label="label physfacet">physfacet = Paper</physfacet><!-- afficher le label ou le type -->
                 <physfacet type="ruling">Ruled in red ink</physfacet>
                 <physfacet type="watermarks">Briquet 1234</physfacet>
                 <physfacet type="binding">Bound in 19th century red leather</physfacet>
-                <extent label="label extent">extent</extent>
+                <extent label="label extent">extent 1</extent>
+                <extent label="label extent">extent 2</extent>
             </physdesc>
             <physloc> physloc = Information identifying the place where the described materials are
                 stored, such as the name or number of the building, room, stack, shelf, or other
@@ -142,12 +153,16 @@
                 <daoloc/>
 
             </daogrp>
+            <langmaterial label="langue">
+              <language langcode="fre">français</language>
+              <language langcode="ang">anglais</language>
+            </langmaterial>
         </did>
         <note><!-- non affiché dans IHM -->
             <p>For information about Prints and Photographs Division collections and services, see
                 the Prints and Photographs Division's Reading Room Home Page: <extptr
                     actuate="onrequest"
-                    href="https://francearchives.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29"
+                    href="https://francearchives.gouv.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29"
                 />
             </p>
         </note>
@@ -176,7 +191,8 @@
                 A prose statement summarizing
                 the range and topical coverage of the described materials, often mentioning the form
                 and arrangement of the materials and naming significant organizations, individuals,
-                events, places, and subjects represented. </p>
+                events, places, and subjects represented.
+            <genreform>genreform = carton</genreform></p>
         </scopecontent>
         <arrangement>
             <head>arrangement (head)</head>
@@ -200,8 +216,7 @@
             <p>A prose statement summarizing the range and topical coverage of the described
                 materials, often mentioning the form and arrangement of the materials and naming
                 significant organizations, individuals, events, places, and subjects
-                represented.</p>
-
+                represented.<genreform>genreform = papier</genreform></p>
         </scopecontent>
         <accruals>
             <p>accruals: Information about anticipated additions to the materials being described.
@@ -292,8 +307,11 @@
             <p><bibref><title render="italic">Affiches americaines</title>. San Domingo: Imprimerie
                     royale du Cap, 1782. Nos. 30, 35.</bibref></p>
             <bibref>Ardouin, Charles Nicholas Celigny. <title render="italic">Essais sur l'histoire
-                    d'Haiti</title>. Port-au-Prince, 1865.</bibref>
-            <bibref>Bastien, Remy. <title render="italic">Anthologie du folklore haitien</title>,
+                    d'Haiti</title>. Port-au-Prince, 1865. Bibliography 1</bibref>
+        </bibliography>
+        <bibliography encodinganalog="3.5.4">
+            <head>bibliography (head)</head>
+            <bibref>Bastien, Remy. <title render="italic">Anthologie du folklore haitien. Bibliography 2</title>,
                     <title render="doublequote">Proverbes</title>. Mexico, 1946. pp.83-91.</bibref>
 
         </bibliography>
@@ -305,6 +323,13 @@
                 <item>Department of Economic Affairs: Industrial Division and Industrial Policy
                     Division: Registered Files (IA Series) <ref actuate="onrequest" show="new">EW
                         27</ref>
+                </item>
+            </list>
+        </odd>
+        <odd><!-- non affiché dans IHM -->
+            <list type="simple">
+                <item>odd. item. Department of Economic Affairs: Industrial Policy Group: Registered
+                    Files (3-IG and 4-IG Series) <ref actuate="onrequest" show="new">EW 26</ref>
                 </item>
             </list>
         </odd>
@@ -363,7 +388,7 @@
                         livres de comptabilité ou répertoire de clients sont bien des archives
                         privées appartenant à l'étude notariale.</p>
                     <extref
-                        href="https://francearchives.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29"
+                        href="https://francearchives.gouv.fr/fr/search?es_publisher=Service%20interminist%C3%A9riel%20des%20archives%20de%20France%20%28SIAF%29"
                         >lien extref</extref>
 
                 </relatedmaterial>
@@ -423,13 +448,52 @@
                 <did>
                     <unitid>1 R 110</unitid>
                     <unittitle>Classe<unitdate normal="1868"> 1868 </unitdate></unittitle>
+                    <physdesc>physdesc = A wrapper element for bundling information about the appearance or
+                construction of the described materials, such as their dimensions, a count of their
+                quantity or statement about the space they occupy, and terms describing their genre,
+                form, or function, as well as any other aspects of their appearance, such as color,
+                substance, style, and technique or method of creation. <dimensions label="label dimmensions">dimensions
+                    30x50</dimensions><dimensions label="label dimmensions">dimensions
+                    60x100</dimensions><!-- afficher label ou bien "dimmensions : " -->
+                <physfacet label="label physfacet">physfacet = Paper</physfacet><!-- afficher le label ou le type -->
+                <physfacet type="ruling">Ruled in red ink</physfacet>
+                <physfacet type="watermarks">Briquet 1234</physfacet>
+                <physfacet type="binding">Bound in 19th century red leather</physfacet>
+                <extent label="label extent">extent 1</extent>
+                <extent label="label extent">extent 2</extent>
+                </physdesc>
+                <origination>
+                  <persname>Wigglethorpe, Franklin</persname>
+                  <famname>Wigglethorpe</famname>
+                </origination>
+                <langmaterial label="langue">
+                   <language langcode="fre">français</language>
+                   <language langcode="ang">anglais</language>
+                </langmaterial>
+                <repository>repository = The institution or agency responsible for providing
+                intellectual access to the materials being described</repository>
+                <repository> <corpname><part>FRAD51</part></corpname></repository>
                 </did>
                 <scopecontent>
-                    <p>Nos 265-671 (contingent) ; 366-1346 (mobile) (Doubs).<genreform>genreform =
-                            papier</genreform></p>
+                    <p>Nos 265-671 (contingent) ; 366-1346 (mobile) (Doubs).<genreform>genreform = papier</genreform></p>
                     <p>Nos 520-846 (Haute-Saône).</p>
                     <p>Nos 1-558 (contingent et mobile) ; 559-1014 (Haut-Rhin).</p>
                 </scopecontent>
+               <scopecontent>
+                    <p>Nos 265-671 (contingent) ; 366-1346 (mobile) (Doubs).<genreform>genreform = carton</genreform></p>
+                    <p>Nos 520-846 (Haute-Saône).</p>
+                    <p>Nos 1-558 (contingent et mobile) ; 559-1014 (Haut-Rhin).</p>
+                </scopecontent>
+                <bibliography encodinganalog="3.5.4">
+                  <head>bibliography (head)</head>
+                  <bibref>Ardouin, Charles Nicholas Celigny. <title render="italic">Essais sur l'histoire
+                    d'Haiti</title>. Port-au-Prince, 1865. Bibliography 1</bibref>
+                </bibliography>
+                <bibliography encodinganalog="3.5.4">
+                  <head>bibliography (head)</head>
+                  <bibref>Bastien, Remy. <title render="italic">Anthologie du folklore haitien. Bibliography 2</title>,
+                  <title render="doublequote">Proverbes</title>. Mexico, 1946. pp.83-91.</bibref>
+              </bibliography>
                 <daogrp>
 
                     <daoloc href="medias/r/001_r/1r110_classe-1868/ad09003_anu1101r0110-00001_y.jpg"
@@ -440,6 +504,18 @@
                 <note type="mnesysinternal">
                     <p/>
                 </note>
+                <odd>
+                  <list type="simple">
+                    <item>odd. item. Department of Economic Affairs: Industrial Policy Group: Registered Files (1-IG and 2-IG Series) <ref actuate="onrequest" show="new">EW 26</ref>
+                    </item>
+                  </list>
+                </odd>
+                <odd>
+                  <list type="simple">
+                    <item>odd. item. Department of Economic Affairs: Industrial Policy Group: Registered Files (3-IG and 4-IG Series) <ref actuate="onrequest" show="new">EW 26</ref>
+                    </item>
+                  </list>
+                </odd>
             </c>
             <c level="item" id="a011341578589DfPjvp">
                 <did>

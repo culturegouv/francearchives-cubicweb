@@ -1,0 +1,18 @@
+{%- if header -%}
+{% from "./mixins.jinja2" import content_metadata -%}
+<section class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters fr-mb-8v">
+    <div class="fr-col-12 fr-col-md-10">
+      <h1>{{ header.title }}
+        {%- if header.subtitle -%}
+        <p class="fr-h2">{{ header.subtitle }}</p>
+        {%- endif -%}</h1>
+    </div>
+    {%- if header.metadata -%}
+    <div class="fr-col-12">
+      {{ content_metadata(header.metadata, _) }}
+    </div>
+    {%- endif -%}
+  </div>
+</section>
+{%- endif -%}

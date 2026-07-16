@@ -2,7 +2,7 @@
 # pylint: disable=W0142,W0403,W0404,W0613,W0622,W0622,W0704,R0904,C0103,E0611
 #
 # -*- coding: utf-8 -*-
-# copyright 2016 LOGILAB S.A. (Paris, FRANCE), all rights reserved.
+# copyright 2016-2023 LOGILAB S.A. (Paris, FRANCE), all rights reserved.
 # contact http://www.logilab.fr -- mailto:contact@logilab.fr
 #
 # This software is governed by the CeCILL license under French law and

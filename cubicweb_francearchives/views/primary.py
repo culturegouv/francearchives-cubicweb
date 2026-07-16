@@ -30,11 +30,16 @@
 #
 
 from collections import defaultdict, OrderedDict
+from os import path as osp
+from sys import getsizeof
+
 from cubicweb_elasticsearch.es import get_connection
 
 from cwtags import tag as T
 from elasticsearch_dsl.query import Q, Bool
 from elasticsearch_dsl.search import Search
+
+from urllib.parse import urlsplit
 
 from logilab.mtconverter import xml_escape
 from logilab.common.decorators import cachedproperty
@@ -44,39 +49,92 @@ from cubicweb import _
 from cubicweb.predicates import is_instance, score_entity, relation_possible
 
 from cubicweb.schema import display_name
-from cubicweb.web.views.primary import PrimaryView, URLAttributeView
-from cubicweb.view import View, EntityView, StartupView
-from cubicweb.web.views.baseviews import InContextView
-from cubicweb.web.views.idownloadable import DownloadView, BINARY_ENCODINGS
+
+from cubicweb_web import NotFound
+from cubicweb_web.views.primary import PrimaryView, URLAttributeView
+from cubicweb_web.view import View, EntityView, StartupView
+from cubicweb_web.views.baseviews import InContextView
+from cubicweb_web.views.idownloadable import DownloadView, BINARY_ENCODINGS
 from cubicweb.uilib import cut, remove_html_tags
 
+
+from cubicweb_francearchives import SUPPORTED_LANGS, FEATURE_CHATBOT_SECTIONS
 from cubicweb_card.views import CardPrimaryView
+from cubicweb_francearchives.entities.nomina import initialize_nominarecord_entity
 from cubicweb_francearchives.entities.rdf import RDF_FORMAT_EXTENSIONS
 from cubicweb_francearchives.views import (
     JinjaViewMixin,
+    add_js_translations,
     get_template,
-    format_date,
     exturl_link,
     blank_link_title,
 )
 
-from cubicweb_francearchives import SUPPORTED_LANGS
 from cubicweb_francearchives.views.service import DeptMapForm, all_services
 from cubicweb_francearchives.entities.cms import section
-from cubicweb_francearchives.views import FaqMixin, SiteTourMixin, format_number
-from cubicweb_francearchives.utils import find_card
-from cubicweb_francearchives.utils import is_external_link, number_of_archives
-from cubicweb_francearchives.utils import get_hp_articles
+from cubicweb_francearchives.views import FaqMixin
+from cubicweb_francearchives.utils import (
+    find_card,
+    format_date,
+    format_number,
+    formatted_size,
+    is_external_link,
+    number_of_archives,
+    get_hp_articles,
+    get_key_figures,
+    get_key_figures_card,
+    title_for_link,
+)
+from cubicweb_francearchives.xmlutils import get_broken_editorial_links
+
+
+class UtilsMixin:
+    @property
+    def editable(self):
+        return not self._cw.session.anonymous_session
+
+    def check_content(self, entity):
+        data = None
+        if self.editable:
+            uri = self._cw.url()
+            schema, netloc, path, query, fragment = urlsplit(uri)
+            if not query.startswith("check_links"):
+                return data
+            data = {self._cw._("Broken links"): self.check_broken_links(entity)}
+        return data
+
+    def check_broken_links(self, entity):
+        data = []
+        subjrels = self._cw.vreg.schema.entity_schema_for(entity.cw_etype).subject_relations
+        for rel in subjrels:
+            if "_format" not in rel.type:
+                continue
+            attr = rel.type.split("_format")[0]
+            text_format = getattr(entity, str(rel.type))
+            if text_format == "text/html":
+                get_broken_editorial_links(getattr(entity, attr), self._cw, data=data)
+        if data:
+            msg = self._cw._("Some links bellow seem to be broken. Please check them.")
+        else:
+            msg = self._cw._("No broken links where detected.")
+        return {"msg": msg, "errors": data}
+
+
+class WebChatShareLinksMixin:
+    def display_chatbot(self, entity):
+        return str(entity.eid) in (FEATURE_CHATBOT_SECTIONS)
+
+    def add_webchat_js(self, entity):
+        if self.display_chatbot(entity):
+            self._cw.add_js("bundle-pnia-webchat.js")
+            self._cw.add_js("https://webchat.wikit.ai/webchat-embed.js", localfile=False)
 
 
 class ShareLinksMixin:
-    def sharelinks(self, entity):
-        url = entity.absolute_url()
+    def sharelinks(self, url):
         return {
-            "facebook": f"https://www.facebook.com/sharer/sharer.php?u={url}",
-            "twitter": f"http://www.twitter.com/share?url={url}",
             "mail": f"mailto:?subject=&body={url}",
-            "title": _("Share"),
+            "title": _("Share the page"),
             "copyurl": url,
             "_": self._cw._,
         }
@@ -86,10 +144,16 @@ class SitemapView(View, JinjaViewMixin):
     __regid__ = "sitemap"
     title = _("Plan du site")
     template = get_template("sitemap.jinja2")
+    eulerian_tag = True
+    eulerian_pagegroup = "sitemap"
+    display_documents = False
 
-    @cachedproperty
-    def xiti_chapters(self):
-        return ["sitemap"]
+    @property
+    def breadcrumbs(self):
+        return [
+            (self._cw.build_url(""), self._cw._("Home")),
+            (self._cw.build_url("glossary"), self._cw._(self.title)),
+        ]
 
     def get_roots_rset(self):
         cnx = self._cw
@@ -97,68 +161,116 @@ class SitemapView(View, JinjaViewMixin):
             "Any S, T ORDERBY O WHERE S is Section, NOT EXISTS(X children S), S title T, S order O"
         )
 
+    def global_links(self):
+        req = self._cw
+        sections = []
+        for label, url in (
+            (_("All the referenced archives"), "inventaires"),
+            (_("All site contents"), "search?q=&es_escategory=siteres"),
+            (_("Names database"), "basedenoms"),
+            (_("Quality locations"), "locations"),
+            (_("Quality persons/organizations"), "agents"),
+            (_("Quality themes"), "subjects"),
+            (_("Service Directory"), "services"),
+            (_("Circulars"), "circulaires"),
+            (_("Record creators"), "authorityrecord"),
+        ):
+            sections.append(
+                {
+                    "title": req._(label),
+                    "etype": "Link",
+                    "url": req.build_url(url),
+                    "children": None,
+                }
+            )
+        return sections
+
     def call(self, **kw):
         req = self._cw
+        # add direct links
+        _ = req._
+        sections = self.global_links()
         roots = self.get_roots_rset()
-        sections = []
-        req.add_css("css/font-awesome.css")
         for idx, sect in enumerate(roots.entities()):
             sections.append(
                 dict(
-                    url=sect.absolute_url(),
+                    url=xml_escape(sect.absolute_url()),
                     etype="Section",
                     title=sect.title,
-                    children=section.get_children(req, sect.eid),
+                    children=section.get_children(
+                        req, sect.eid, only_sections=not self.display_documents
+                    ),
+                    lang=self._cw.lang,
                 )
             )
-        self.call_template(title=req._(self.title), sections=sections)
+        self.call_template(title=req._(self.title), sections=sections, _=_)
 
 
-class SectionTreeView(EntityView, JinjaViewMixin):
+class SectionMixin:
+
+    def get_section_info(self, entity):
+        images = entity.section_image
+        return {
+            "entity": entity.cw_adapt_to("ITemplatable").entity_param(),
+            "image": images[0] if images else None,
+            "errors": self.check_content(entity),
+            "_": self._cw._,
+        }
+
+
+def get_subsections(data):
+    return [
+        {
+            "eid": s["eid"],
+            "url": s["url"],
+            "title": s["title"],
+            "description": s["short_description"],
+        }
+        for s in data
+        if s["etype"] == "Section"
+    ]
+
+
+class SectionTreeView(EntityView, UtilsMixin, SectionMixin, WebChatShareLinksMixin, JinjaViewMixin):
     __regid__ = "section-tree"
     template = get_template("section-tree.jinja2")
 
     def get_content_for_tree(self, entity):
-        data = []
         tree = entity.cw_adapt_to("ISectionTree")
         if tree:
-            data = tree.retrieve_subsections(section_mode="mode_tree")
-        return data
-
-    def call_template(self, w, **ctx):
-        w(self.template.render(**ctx))
+            return tree.retrieve_subsections(section_mode="mode_tree")
+        return []
 
     def cell_call(self, row, col):
-        self._cw.add_js("cubes.pnia_section_tree.js")
-        self._cw.add_js("bundle-pnia-sectiontree.js")
-        self._cw.add_css("css/font-awesome.css")
+
         entity = self.cw_rset.get_entity(row, col)
+        self.add_webchat_js(entity)
         data = self.get_content_for_tree(entity) if entity.display_tree else None
-        return self.call_template(
-            self.w,
-            has_sections=any([s["children"] for s in data]),
-            data=data,
-            _=self._cw._,
+        ctx = self.get_section_info(entity)
+        ctx.update(
+            {
+                "sections": data,
+                "subsections": get_subsections(data),
+                "lang": self._cw.lang,
+            }
         )
+        return self.call_template(**ctx)
 
 
-class SectionThemesView(EntityView, JinjaViewMixin):
+class SectionThemesView(EntityView, WebChatShareLinksMixin, JinjaViewMixin):
     __regid__ = "section-themes"
     template = get_template("section-themes.jinja2")
 
-    def call_template(self, w, **ctx):
-        w(self.template.render(**ctx))
-
     def cell_call(self, row, col, themes):
-        self._cw.add_css("css/font-awesome.css")
+        entity = self.cw_rset.get_entity(row, col)
+        self.add_webchat_js(entity)
         return self.call_template(
-            self.w,
             entities=themes,
             _=self._cw._,
         )
 
 
-class SectionInfoView(EntityView, JinjaViewMixin):
+class SectionInfoView(UtilsMixin, WebChatShareLinksMixin, EntityView, JinjaViewMixin):
     __regid__ = "section-info"
     template = get_template("section-info.jinja2")
     __select__ = EntityView.__select__ & is_instance("Section")
@@ -168,11 +280,14 @@ class SectionInfoView(EntityView, JinjaViewMixin):
 
     def cell_call(self, row, col):
         entity = self.cw_rset.get_entity(row, col)
+        self.add_webchat_js(entity)
+        errors = self.check_content(entity)
         return self.call_template(
             self.w,
             entity=entity.cw_adapt_to("ITemplatable").entity_param(),
             img_src=entity.illustration_url,
             img_alt=entity.illustration_alt,
+            errors=errors,
             _=self._cw._,
         )
 
@@ -181,9 +296,10 @@ class SectionPrimaryView(PrimaryView):
     __select__ = PrimaryView.__select__ & is_instance("Section")
 
     def entity_call(self, entity, **kw):
-        self.w(entity.view("section-info"))
         display_mode = entity.display_mode
+        self.w(entity.view("section-tranlsations"))
         if display_mode != "mode_tree":
+            self.w(entity.view("section-info"))
             # display results results for default and themes mode
             self._cw.form["ancestors"] = str(entity.eid)
             self._cw.form.pop("rql", None)  # remove rql form param which comes from url_rewriter
@@ -204,14 +320,29 @@ class SectionPrimaryView(PrimaryView):
             self.w(entity.view("section-tree"))
 
 
-class MiradorEmbedPageView(StartupView, JinjaViewMixin):
-    __regid__ = "mirador"
-    template = get_template("mirador.jinja2")
+class SectionTranslationToolView(EntityView, JinjaViewMixin):
+    __regid__ = "section-tranlsations"
+    template = get_template("section-translations.jinja2")
+    __select__ = EntityView.__select__ & is_instance("Section")
 
-    def page_title(self):
-        return self._cw._("Mirador Viewer")
+    def call_template(self, w, **ctx):
+        w(self.template.render(**ctx))
+
+    def cell_call(self, row, col):
+        entity = self.cw_rset.get_entity(row, col)
+        return self.call_template(
+            self.w,
+            i18n_links=entity.i18n_links(),
+            _=self._cw._,
+        )
+
+
+class IIIFViewersMixin(StartupView, JinjaViewMixin):
+    bundle_js = None
 
     def call(self, **kwargs):
+        if self.bundle_js:
+            self._cw.add_js(self.bundle_js)
         return self.call_template(**self.template_context())
 
     def template_context(self):
@@ -219,9 +350,22 @@ class MiradorEmbedPageView(StartupView, JinjaViewMixin):
             "_": self._cw._,
             "data_url": self._cw.datadir_url,
             "lang": self._cw.lang,
-            "pagetitle": self.page_title(),
+            "pagetitle": self._cw._(self.title),
             "iiif_manifest": self._cw.form.get("manifest", ""),
         }
+
+
+class MiradorEmbedPageView(IIIFViewersMixin):
+    __regid__ = "mirador"
+    template = get_template("mirador.jinja2")
+    title = _("Mirador Viewer")
+
+
+class UniversalViewerEmbedPageView(IIIFViewersMixin):
+    __regid__ = "universalviewer"
+    template = get_template("universalviewer.jinja2")
+    bundle_js = "bundle-pnia-universalviewer.js"
+    title = _("Universal Viewer")
 
 
 @objectify_predicate
@@ -239,6 +383,12 @@ class GererPrimaryView(SectionPrimaryView, JinjaViewMixin):
         return f'{entity.title} ({self._cw.property_value("ui.site-title")})'
 
     def retrieve_quick_access(self):
+        """TODO add Picto in link definition"""
+        pictos = {
+            "circulaires": "SIGN_DOC_PICTO",
+            "services": "CITY_PICTO",
+            "authorityrecord": "DOC_PICTO",
+        }
         links = []
         for link, title in self._cw.execute(
             """ Any L, T ORDERBY O WHERE
@@ -249,16 +399,15 @@ class GererPrimaryView(SectionPrimaryView, JinjaViewMixin):
             )
         ):
             url = link if link.startswith("http") else self._cw.build_url(link)
-            links.append((url, title, is_external_link(url, self._cw.base_url())))
+            picto = self._cw.uiprops[pictos.get(link, "SEARCH_PICTO")]
+            links.append((url, title, picto, is_external_link(url, self._cw.base_url())))
         return links
 
     def template_context(self):
         return {"display_professional_access": False}
 
     def entity_call(self, entity, **kw):
-        self._cw.add_js("cubes.pnia_section_tree.js")
-        self._cw.add_js("bundle-pnia-sectiontree.js")
-        self._cw.add_css("css/font-awesome.css")
+        self._cw.add_js("bundle-pnia-archivists.js")
         self._cw.form["ancestors"] = str(entity.eid)
         self._cw.form.pop("rql", None)  # remove rql form param which comes from url_rewriter
         _ = self._cw._
@@ -267,24 +416,28 @@ class GererPrimaryView(SectionPrimaryView, JinjaViewMixin):
         )
         archives = format_number(number_of_archives(self._cw), self._cw)
         tree = entity.cw_adapt_to("ISectionTree")
+        sections = tree.retrieve_subsections()
         attrs = {
             "_": _,
             "req": self._cw,
-            "sections": tree.retrieve_subsections(),
+            "sections": sections,
+            "subsections": get_subsections(sections),
             "quick_links": self.retrieve_quick_access(),
             "news_url": news_url,
             "archives_url": self._cw.build_url("inventaires"),
-            "archives_label": _("See {} archives").format(archives),
-            "entities": get_hp_articles(self._cw, "onhp_arch"),
+            "archives_number_label": _("See {} archives").format(archives),
+            "related_entities": get_hp_articles(self._cw, "onhp_arch"),
+            "data_url": self._cw.datadir_url,
+            "figures": get_key_figures(self._cw),
         }
-
+        attrs.update(get_key_figures_card(self._cw))
         self.call_template(**attrs)
 
 
-class ContentPrimaryView(PrimaryView, JinjaViewMixin):
+class ContentPrimaryView(UtilsMixin, PrimaryView, JinjaViewMixin):
     __abstract__ = True
     template = None
-    needs_css = ("css/font-awesome.css",)
+    needs_css = ()
     needs_js = ("bundle-glossary.js",)
 
     def add_css(self):
@@ -296,7 +449,13 @@ class ContentPrimaryView(PrimaryView, JinjaViewMixin):
             self._cw.add_js(js)
 
     def template_attrs(self, entity):
-        return {"entity": entity.cw_adapt_to("ITemplatable").entity_param()}
+        errors = self.check_content(entity)
+        return {
+            "entity": entity.cw_adapt_to("ITemplatable").entity_param(),
+            "errors": errors,
+            "lang": self._cw.lang,
+            "_": self._cw._,
+        }
 
     def entity_call(self, entity, **kw):
         self.add_css()
@@ -309,59 +468,66 @@ class ContentPrimaryView(PrimaryView, JinjaViewMixin):
 
 class RecentDataPrimaryView(ShareLinksMixin, ContentPrimaryView):
     __abstract__ = True
-    needs_js = ("cubes.pnia_sharelinks.js",)
+    needs_js = ("bundle-glossary.js",)
     template = get_template("article.jinja2")
     recent_label = _("Similar documents")
+
+    def indexes_props(self, entity):
+        return []
 
     def template_attrs(self, entity):
         attrs = super(RecentDataPrimaryView, self).template_attrs(entity)
         attrs["data_url"] = self._cw.data_url("/").rstrip("/")
         main_attrs = self.main_attrs(entity)
         recents = []
-        from cubicweb_francearchives.utils import remove_html_tags, title_for_link
-
         for related in self.related_content(entity):
             related = related.cw_adapt_to("ITemplatable").entity_param()
             title = related.title
             recents.append(
                 {
                     "url": related.absolute_url(),
-                    "title": title,
-                    "plain_title": remove_html_tags(title),
                     "header": related.abstract,
-                    "link_title": title_for_link(self._cw, title),
+                    "link_title": title_for_link(title),
                     "etype": self._cw._(getattr(related, "etype", related.cw_etype)),
                     "dates": self.entity_date(related),
                     "image": related.image,
                     "default_picto_srcs": self._cw.uiprops["DOCUMENT_IMG"],
+                    "lang_attr": f'lang="{related.lang}"' if related.lang != self._cw.lang else "",
                 }
             )
         if recents:
-            attrs["entities"] = recents
+            attrs["related_entities"] = recents
         attrs.update(main_attrs)
-        attrs["sharelinks_data"] = self.sharelinks(entity)
-        attrs["metadata"] = self.metadata(entity)
+        attrs.update(
+            {
+                "sharelinks_data": self.sharelinks(entity.absolute_url()),
+                "metadata": self.metadata(entity),
+                "indexes": self.indexes_props(entity),
+            }
+        )
         return attrs
 
+    def entity_date(self, entity):
+        return format_date(entity.modification_date, self._cw, fmt="d MMMM y")
+
     def metadata(self, entity):
-        metadata = (("Date", self.entity_date(entity)),)
+        metadata = ((_("Last update on"), self.entity_date(entity)),)
         return [entry for entry in metadata if entry[-1]]
 
     def main_attrs(self, entity):
         _ = self._cw._
+        images = self.entity_images(entity)
         return {
             "_": _,
             "default_picto_src": self._cw.uiprops["DOCUMENT_IMG"],
-            "images": self.entity_images(entity),
+            "image": images[0] if images else None,
             "recent_label": _(self.recent_label),
             "all_links": {
                 "url": self._cw.build_url(self.all_link_url),
                 "label": _(self.all_link_label),
             },
+            "eulerian": entity.cw_adapt_to("IEulerian").actions,
         }
-
-    def entity_date(self, entity):
-        return entity.dates
 
     def related_content(self, entity):
         # if entity has an explicit relation towards related_content_suggestion
@@ -459,8 +625,25 @@ class RelatedAutorityIndexablePrimaryMixIn:
         )
         return [entry for entry in main_props if entry[-1]]
 
+    def indexes_props(self, entity):
+        _ = self._cw._
+        indexes_props = []
+        # indexes
+        for label, itype, rset in (
+            (_("Persons/organizations"), "agent", entity.main_indexes(None)),
+            (_("Themes"), "subject", entity.subject_indexes()),
+            (_("Locations"), "location", entity.geo_indexes()),
+        ):
+            if rset:
+                indexes_props.append(
+                    (label, [(self._cw.build_url(f"{itype}/{row[0]}"), row[1]) for row in rset])
+                )
+        return indexes_props
 
-class BaseContentPrimaryView(FaqMixin, RelatedAutorityIndexablePrimaryMixIn, RecentDataPrimaryView):
+
+class BaseContentPrimaryView(
+    FaqMixin, RelatedAutorityIndexablePrimaryMixIn, WebChatShareLinksMixin, RecentDataPrimaryView
+):
     __select__ = RecentDataPrimaryView.__select__ & is_instance("BaseContent")
     all_link_url = "articles"
     all_link_label = _("See all articles")
@@ -474,8 +657,13 @@ class BaseContentPrimaryView(FaqMixin, RelatedAutorityIndexablePrimaryMixIn, Rec
             )
         return main_props
 
+    def display_chatbot(self, entity):
+        parents = set([str(e.eid) for e in entity.reverse_children])
+        return parents.intersection(FEATURE_CHATBOT_SECTIONS)
+
     def entity_call(self, entity):
-        self._cw.add_js("bundle-pnia-toc.js")
+        self._cw.add_js("bundle-pnia-articles.js")
+        self.add_webchat_js(entity)
         super(BaseContentPrimaryView, self).entity_call(entity)
 
     @cachedproperty
@@ -494,6 +682,11 @@ class BaseContentPrimaryView(FaqMixin, RelatedAutorityIndexablePrimaryMixIn, Rec
                 "i18n_links": entity.i18n_links(),
             }
         )
+        services = entity.basecontent_service
+        if services:
+            _ = self._cw._
+            label = _("Service_plural") if len(services) > 1 else _("Service")
+            attrs["services"] = [label, [(e.absolute_url(), e.dc_title()) for e in services]]
         return attrs
 
     def entity_images(self, entity):
@@ -517,9 +710,6 @@ class NewsContentPrimaryView(RecentDataPrimaryView):
     def entity_images(self, entity):
         return entity.news_image
 
-    def entity_date(self, entity):
-        return entity.dates or format_date(entity.modification_date, self._cw, fmt="d MMMM y")
-
 
 class CommemorationItemPrimaryView(RelatedAutorityIndexablePrimaryMixIn, RecentDataPrimaryView):
     __select__ = ContentPrimaryView.__select__ & is_instance("CommemorationItem")
@@ -530,16 +720,13 @@ class CommemorationItemPrimaryView(RelatedAutorityIndexablePrimaryMixIn, RecentD
         main_props = self.authority_props(entity)
         return main_props
 
-    def entity_call(self, entity):
-        self._cw.add_js("bundle-pnia-toc.js")
-        super(CommemorationItemPrimaryView, self).entity_call(entity)
-
     def template_attrs(self, entity):
         attrs = super(CommemorationItemPrimaryView, self).template_attrs(entity)
         attrs.update(
             {
                 "main_props": self.main_props(entity),
                 "default_picto_src": self._cw.uiprops["DOCUMENT_IMG"],
+                "i18n_links": entity.i18n_links(),
             }
         )
         return attrs
@@ -557,7 +744,7 @@ class CommemorationItemPrimaryView(RelatedAutorityIndexablePrimaryMixIn, RecentD
         if authors:
             title = _("Text author") if len(authors) == 1 else _("Text authors")
             data = _("###list_separator###").join(authors)
-            return (title, data)
+            return (f"{title}{_(':')}", data)
 
     def entity_images(self, entity):
         return entity.commemoration_image
@@ -565,94 +752,131 @@ class CommemorationItemPrimaryView(RelatedAutorityIndexablePrimaryMixIn, RecentD
 
 class AuthorityRecordPrimaryView(FaqMixin, ShareLinksMixin, ContentPrimaryView):
     __select__ = ContentPrimaryView.__select__ & is_instance("AuthorityRecord")
-    need_css = ("css/font-awsome.css",)
-    needs_js = ("cubes.pnia_sharelinks.js",)
     template = get_template("authorityrecord.jinja2")
     faq_category = "06_faq_eac"
-
-    def metadata(self, entity):
-        if entity.main_date:
-            return (("Date", entity.main_date),)
-        return ()
 
     def template_attrs(self, entity):
         """Build the dictionary for the jinja template by
         merging all required data from the AuthorithyRecord entity"""
         attrs = super(AuthorityRecordPrimaryView, self).template_attrs(entity)
+        adapter = entity.cw_adapt_to("entity.main_props")
+        export_props = adapter.properties(export=True, vid="text", text_format="text/plain")
+        csv_props = adapter.csv_export_props()
+        csv_size = getsizeof("\t".join(e + i for i, e in export_props))
+        csv_props["size"] = formatted_size(self._cw, csv_size)
         attrs.update(
             {
                 "_": self._cw._,
+                "lang": self._cw.lang,
                 "faqs": self.faqs_attrs(),
-                "main_props": [],
-                "metadata": self.metadata(entity),
+                "main_props": adapter.properties(),
+                "metadata": adapter.metadata(),
                 "rdf_formats": [
-                    (f"{entity.absolute_url()}/rdf.{extension}", name)
+                    (f"{entity.absolute_url()}/rdf.{extension}", extension, name)
                     for extension, name in RDF_FORMAT_EXTENSIONS.items()
                 ],
+                "eulerian": entity.cw_adapt_to("IEulerian").actions,
+                "csv_props": csv_props,
+                "sharelinks_data": self.sharelinks(entity.absolute_url()),
             }
         )
-        adapter = entity.cw_adapt_to("entity.main_props")
-        attrs["main_props"] = adapter.properties()
         if entity.related_service:
-            attrs.update({"publisher": entity.cw_adapt_to("IPublisherInfo").serialize()})
-        attrs["csv_props"] = adapter.csv_export_props()
-        attrs["sharelinks_data"] = self.sharelinks(entity)
+            publisher = entity.cw_adapt_to("IPublisherInfo").serialize()
+            attrs.update({"publisher": publisher})
         return attrs
 
 
-class FindingAidPrimaryView(FaqMixin, ShareLinksMixin, SiteTourMixin, ContentPrimaryView):
+class FindingAidPrimaryView(FaqMixin, ShareLinksMixin, ContentPrimaryView):
     __select__ = ContentPrimaryView.__select__ & is_instance("FindingAid", "FAComponent")
-    needs_css = ("css/font-awesome.css",)
-    needs_js = ("cubes.pnia_sharelinks.js",)
-
     template = get_template("findingaid.jinja2")
     faq_category = "03_faq_ir"
+    noreact = False
+
+    @cachedproperty
+    def iiif_manifest(self):
+        return self.entity.iiif_manifest
+
+    def entity_call(self, entity):
+        self.entity = entity
+        if self.iiif_manifest:
+            self._cw.html_headers.define_var("DATA_URL", self._cw.datadir_url)
+            add_js_translations(self._cw)
+            self._cw.add_js("bundle-pnia-iiif-viewers.js")
+        super().entity_call(entity)
+
+    @cachedproperty
+    def eulerian(self):
+        return self.entity.cw_adapt_to("IEulerian").actions
 
     def render_content(self, entity):
-        self.call_template(**self.template_attrs(entity))
-        self.content_navigation_components("related-top-main-content")
-        attrs = {"sharelinks": self.sharelinks(entity), "css_class": "fi", "_": self._cw._}
+        context = self.template_attrs(entity)
+        self.call_template(**context)
+        if context["display_context"]:
+            self.content_navigation_components("fa-inventory-context")
+        attrs = {
+            "sharelinks": self.sharelinks(entity.absolute_url()),
+            "css_class": "fi",
+            "_": self._cw._,
+            "heading_hierarchy": self.eulerian["document_title"],
+            "component_hierarchy": "main_>_links",
+        }
+        self.w('<section class="fr-container fr-mt-16v">')
         self.w(get_template("sharelinks.jinja2").render(attrs))
+        self.w("</section>")
 
     def template_attrs(self, entity):
         attrs = super(FindingAidPrimaryView, self).template_attrs(entity)
         adapter = entity.cw_adapt_to("entity.main_props")
         service = entity.related_service
         default_picto_src = [self._cw.uiprops["DIGITIZED_IMG"]]
-        if service and service.illustration_url:
-            default_picto_src.append(service.illustration_url)
+        if service:
+            illustration_url = service.illustration_url
+            if illustration_url:
+                default_picto_src.append(illustration_url)
         digitized_urls = adapter.digitized_urls()
         illustation_src = entity.illustration_url
         if not illustation_src and digitized_urls:
             illustation_src = self._cw.uiprops["DIGITIZED_IMG"]
+        iiif_viewer = self._cw.form.get("viewer", "m")
+        main_props = adapter.properties()
+        export_props = adapter.properties(export=True, vid="text", text_format="text/plain")
+        csv_size = getsizeof("\t".join(e + " " + i for i, e in export_props))
+        csv_props = adapter.csv_export_props()
+        csv_props["size"] = formatted_size(self._cw, csv_size)
         attrs.update(
             {
+                "_": self._cw._,
                 "publisher": entity.cw_adapt_to("IPublisherInfo").serialize(),
-                "date": adapter.formatted_dates,
                 "title": adapter.shortened_title(),
-                "main_props": adapter.properties(),
+                "main_props": main_props,
                 "indexes_props": adapter.indexes(),
                 "illustation_src": illustation_src,
                 "default_picto_src": ";".join(default_picto_src),
                 "faqs": self.faqs_attrs(),
                 "cms": self._cw.vreg.config.get("instance-type") == "cms",
-                "_": self._cw._,
-                "csv_props": adapter.csv_export_props(),
+                "csv_props": csv_props,
                 "site_tour_url": self._cw.build_url(f"{entity.cw_etype.lower()}-tour.json"),
-                "iiif_manifest": entity.iiif_manifest,
+                "iiif_manifest": self.iiif_manifest,
+                "iiif_viewer": iiif_viewer,
+                "display_context": adapter.display_fa_context,
                 "data_url": self._cw.datadir_url,
                 "lang": self._cw.lang,
+                "eulerian": self.eulerian,
+                "a11y_alert": self._cw._("a11y_alert_iiif"),
                 "rdf_formats": [
-                    (f"{entity.absolute_url()}/rdf.{extension}", name)
+                    (f"{entity.absolute_url()}/rdf.{extension}", extension, name)
                     for extension, name in RDF_FORMAT_EXTENSIONS.items()
                 ],
             }
         )
         inventory_source = adapter.inventory_source()
         if inventory_source:
+            url = inventory_source.get("url")
+            if url:
+                inventory_source["url"] = xml_escape(url)
             attrs["inventory_source"] = inventory_source
         if digitized_urls:
-            attrs["digitized_urls"] = digitized_urls
+            attrs["digitized_urls"] = [xml_escape(url) for url in digitized_urls]
         return attrs
 
 
@@ -721,7 +945,6 @@ class FilePrimaryView(PniaDownloadView):
 
 class CircularPrimaryView(FaqMixin, ContentPrimaryView):
     __select__ = ContentPrimaryView.__select__ & is_instance("Circular")
-    needs_css = ("css/font-awesome.css",)
     template = get_template("circular.jinja2")
     faq_category = "04_faq_circular"
 
@@ -730,7 +953,7 @@ class CircularPrimaryView(FaqMixin, ContentPrimaryView):
             rset = self._cw.execute("Any X WHERE X is Circular, X circ_id %(c)s", {"c": circ_id})
             if rset:
                 return rset.one().view("incontext")
-        return circ_id
+        return xml_escape(circ_id) if circ_id else ""
 
     def metadata(self, entity):
         if entity.signing_date:
@@ -744,39 +967,39 @@ class CircularPrimaryView(FaqMixin, ContentPrimaryView):
         main_props = []
         circular_link = exturl_link(self._cw, entity.link) if entity.link else None
         for attr, value in (
-            (_("circular_kind_label"), entity.kind),
-            (_("circular_code_label"), entity.code),
-            (_("circular_nor_label"), entity.nor),
-            (_("circular_status_label"), _(entity.status)),
+            (_("circular_kind_label"), entity.printable_value("kind")),
+            (_("circular_code_label"), entity.printable_value("code")),
+            (_("circular_nor_label"), entity.printable_value("nor")),
+            (_("circular_status_label"), _(entity.printable_value("status"))),
             (_("circular_link_label"), circular_link),
             (
                 _("circular_additional_link_label"),
-                ", ".join(e.view("urlattr", rtype="url") for e in entity.additional_link),
+                [e.view("urlattr", rtype="url") for e in entity.additional_link],
             ),
             (
                 _("circular_attachment_label"),
-                ", ".join(e.view("incontext") for e in entity.attachment),
+                [e.view("fa.circular.pdf", circular=entity) for e in entity.attachment],
             ),
             (
                 _("circular_additional_attachment_label"),
-                ", ".join(e.view("incontext") for e in entity.additional_attachment),
+                [e.view("fa.circular.pdf", circular=entity) for e in entity.additional_attachment],
             ),
             (_("circular_signing_date_label"), format_date(entity.signing_date, self._cw)),
-            (_("circular_siaf_daf_kind_label"), entity.siaf_daf_kind),
-            (_("circular_siaf_daf_code_label"), entity.siaf_daf_code),
+            (_("circular_siaf_daf_kind_label"), entity.printable_value("siaf_daf_kind")),
+            (_("circular_siaf_daf_code_label"), entity.printable_value("siaf_daf_code")),
             (
                 _("circular_siaf_daf_signing_date_label"),
                 format_date(entity.siaf_daf_signing_date, self._cw),
             ),
-            (_("circular_producer_label"), entity.producer),
-            (_("circular_producer_acronym_label"), entity.producer_acronym),
+            (_("circular_producer_label"), entity.printable_value("producer")),
+            (_("circular_producer_acronym_label"), entity.printable_value("producer_acronym")),
             (
                 _("circular_modification_date_label"),
                 format_date(entity.circular_modification_date, self._cw),
             ),
             (_("circular_abrogation_date_label"), format_date(entity.abrogation_date, self._cw)),
             (_("circular_abrogation_text_label"), self.get_related_cirular(entity.abrogation_text)),
-            (_("circular_archival_field_label"), entity.archival_field),
+            (_("circular_archival_field_label"), entity.printable_value("archival_field")),
             (
                 _("circular_historical_context_label"),
                 ", ".join(e.view("incontext") for e in entity.historical_context),
@@ -810,6 +1033,37 @@ class CircularPrimaryView(FaqMixin, ContentPrimaryView):
         return attrs
 
 
+class CircularPDFtInContext(InContextView):
+    __regid__ = "fa.circular.pdf"
+
+    def cell_call(self, row, col, circular):
+        entity = self.cw_rset.get_entity(row, col)
+        heading_hierarchy = circular.cw_adapt_to("IEulerian").actions["document_title"]
+        desc = xml_escape(cut(entity.dc_description(), 50))
+        title = xml_escape(entity.dc_title())
+        detail = []
+        if entity.data_name:
+            filename, extension = osp.splitext(entity.data_name)
+            detail.append(extension[1:].upper())
+        size = entity.formatted_size()
+        if size:
+            detail.append(size)
+        if detail:
+            size = f'<span class="fa-link__detail">{" - ".join(detail)}</span>'
+        self.w(
+            f"""<a class="fr-link fr-link--download"
+                   href="{xml_escape(entity.absolute_url())}" title="{desc}"
+                   data-eulerian-actionname="download_pdf_{heading_hierarchy}"
+                   data-eulerian-actionlabel="download_pdf,editorial,Circular,{title},"
+                   data-eulerian-headinghierarchy="{heading_hierarchy}"
+                   data-eulerian-componenthierarchy="main_>_section_>_h2"
+                   data-eulerian-componentlabel="{title}"
+                >{title}</a>{size}
+            """,
+            escape=False,
+        )
+
+
 class OfficialTextInContext(InContextView):
     __select__ = InContextView.__select__ & is_instance("OfficialText")
 
@@ -820,18 +1074,17 @@ class OfficialTextInContext(InContextView):
         title = entity.dc_title()
         circular = entity.circular[0] if entity.circular else None
         if not circular:
-            self.w(title)
+            self.w(xml_escape(title))
             return
         date = circular.sortdate()
         if date:
             title = "{cid} {date}".format(
                 date=self._cw._("on %s ") % format_date(date, self._cw), cid=title
             )
-        kwargs = {"href": xml_escape(circular.absolute_url())}
+        kwargs = {"href": xml_escape(circular.absolute_url()), "klass": "fr-link"}
         desc = cut(entity.dc_description(), 50)
         if desc:
-            desc = "{} - {}".format(title, desc)
-            kwargs["title"] = xml_escape(desc)
+            kwargs["title"] = xml_escape(f"{title} - {desc}")
         self.w(T.a(xml_escape(title), **kwargs))
 
 
@@ -843,7 +1096,7 @@ class UrLBasedAttributeView(URLAttributeView):
     def entity_call(self, entity, rtype="subject", **kwargs):
         url = entity.printable_value(rtype)
         if url:
-            self.w(exturl_link(self._cw, url))
+            self.w(exturl_link(self._cw, url, klass="fr-link"))
 
 
 class IndexURLAttributeView(URLAttributeView):
@@ -859,11 +1112,12 @@ class IndexURLAttributeView(URLAttributeView):
             title = blank_link_title(self._cw, url)
             self.w(
                 T.a(
-                    entity.dc_title(),
+                    xml_escape(entity.dc_title()),
                     href=xml_escape(url),
-                    title=title,
+                    title=xml_escape(title),
+                    klass="fr-link",
                     target="_blank",
-                    rel="nofollow noopener noreferrer",
+                    rel="nofollow noopener noreferrer external",
                 )
             )
 
@@ -891,8 +1145,19 @@ class ExternRefPrimaryMixIn(RelatedAutorityIndexablePrimaryMixIn):
             main_props.append((_("service_label"), ", ".join(e.view("incontext") for e in service)))
         return main_props
 
+    def template_attrs(self, entity):
+        """Build the dictionary for the jinja template by
+        merging all required data from the BaseContent entity"""
+        attrs = super().template_attrs(entity)
+        services = entity.exref_service
+        if services:
+            _ = self._cw._
+            label = _("Service_plural") if len(services) > 1 else _("Service")
+            attrs["services"] = [(label, [(e.absolute_url(), e.dc_title()) for e in services])]
+        return attrs
 
-class ExternRefPrimaryView(ExternRefPrimaryMixIn, ContentPrimaryView):
+
+class ExternRefPrimaryView(ShareLinksMixin, ExternRefPrimaryMixIn, ContentPrimaryView):
     __select__ = (
         PrimaryView.__select__
         & is_instance("ExternRef")
@@ -903,8 +1168,17 @@ class ExternRefPrimaryView(ExternRefPrimaryMixIn, ContentPrimaryView):
     def template_attrs(self, entity):
         attrs = super(ExternRefPrimaryView, self).template_attrs(entity)
         attrs["years"] = entity.dates
-        attrs["main_props"] = self.main_props(entity)
+        attrs.update(
+            {
+                "main_props": self.main_props(entity),
+                "eulerian": entity.cw_adapt_to("IEulerian").actions,
+                "sharelinks_data": self.sharelinks(entity.absolute_url()),
+            }
+        )
         return attrs
+
+    def entity_images(self, entity):
+        return entity.externref_image
 
 
 class VirtualExhibitExternRefPrimaryView(ExternRefPrimaryMixIn, RecentDataPrimaryView):
@@ -919,18 +1193,61 @@ class VirtualExhibitExternRefPrimaryView(ExternRefPrimaryMixIn, RecentDataPrimar
 
     def template_attrs(self, entity):
         attrs = super(VirtualExhibitExternRefPrimaryView, self).template_attrs(entity)
-        attrs["main_props"] = self.main_props(entity)
-        attrs["website_url"] = entity.url
+        attrs.update(
+            {
+                "main_props": self.main_props(entity),
+                "eulerian": entity.cw_adapt_to("IEulerian").actions,
+            }
+        )
+        # for eulerian tracking
+        service = entity.services[0] if entity.services else None
+        if service and service.code:
+            attrs["service_code"] = service.code.lower()
+        else:
+            attrs["service_code"] = ""
         return attrs
 
     def entity_images(self, entity):
         return entity.externref_image
 
 
-class NominaRecordPrimaryView(ContentPrimaryView):
-    __regid__ = "primary"
-    __select__ = ContentPrimaryView.__select__ & is_instance("NominaRecord")
+class NominaPrimaryView(FaqMixin, StartupView, UtilsMixin, ShareLinksMixin, JinjaViewMixin):
+    __regid__ = "nomina-primary"
     template = get_template("nominarecord.jinja2")
+    needs_css = ()
+    needs_js = ("bundle-glossary.js",)
+    faq_category = "07_faq_nomina"
+    is_nomina = True
+
+    def __init__(self, req=None, rset=None, **kwargs):
+        super().__init__(req, rset=rset, **kwargs)
+        self.entity = None
+        self.entity = kwargs["entity"]
+        self.init_entity(kwargs["stable_id"])
+
+    def add_css(self):
+        for css in self.needs_css:
+            self._cw.add_css(css)
+
+    def add_js(self):
+        for js in self.needs_js:
+            self._cw.add_js(js)
+
+    def call(self, **kwargs):
+        self.add_js()
+        return self.call_template(**self.template_attrs())
+
+    def init_entity(self, stable_id):
+        if self.entity is None:
+            try:
+                self.entity = initialize_nominarecord_entity(self._cw, stable_id)
+            except Exception as ex:
+                self.errror(f"NominaRecord with stable_id {stable_id} not found: {ex}")
+                raise NotFound
+        return self.entity
+
+    def page_title(self):
+        return f'{self.entity.dc_title()} ({self._cw.property_value("ui.site-title")})'
 
     def template_context(self):
         return {
@@ -938,19 +1255,46 @@ class NominaRecordPrimaryView(ContentPrimaryView):
             "display_nomina_search": False,
         }
 
-    def template_attrs(self, entity):
-        attrs = super(NominaRecordPrimaryView, self).template_attrs(entity)
-        adapter = entity.cw_adapt_to("entity.main_props")
-        attrs.update(
-            {
-                "_": self._cw._,
-                "main_props": adapter.properties(),
+    def template_attrs(self):
+        json_data = self.entity.json_data
+        service = self.entity.related_service
+        if service:
+            json_data["entity"]["publisher_title"] = service.dc_title()
+        csv_props = None
+        if "csv_export" in json_data:
+            export_props = json_data["csv_export"]
+            csv_size = getsizeof("\t".join(e + i for i, e in export_props))
+            title = self._cw._("Download shelfmark")
+            csv_props = {
+                "url": self._cw.build_url(f"{self.entity.rest_path()}.csv"),
+                "filename": f"{self.entity.rest_path()}.csv".replace("/", "_"),
+                "title": title,
+                "link": title,
+                "size": formatted_size(self._cw, csv_size),
             }
-        )
-        attrs.update({"publisher": entity.cw_adapt_to("IPublisherInfo").serialize()})
-        source_url = adapter.source_url()
-        if source_url:
-            attrs["source_url"] = source_url
+        attrs = {
+            "_": self._cw._,
+            "lang": self._cw.lang,
+            "faqs": self.faqs_attrs(),
+            "main_props": [(k, v) for k, v in json_data["main_props"].items() if v],
+            "entity": json_data["entity"],
+            "publisher": self.entity.cw_adapt_to("IPublisherInfo").serialize(),
+            "source_url": json_data["entity"].get("source_url"),
+            "warning": json_data.get("warning"),
+            "csv_props": csv_props,
+            "eulerian": self.entity.cw_adapt_to("IEulerian").actions,
+            "sharelinks_data": self.sharelinks(json_data["entity"]["absolute_url"]),
+        }
+        agents = self.entity.related_agents()
+        if agents:
+            attrs["see_others"] = (self._cw._("Link with the qualified agent"), agents)
+        household_link = json_data.get("household_link")
+        if household_link:
+            attrs["household_link"] = (
+                self._cw._("See all members of the household"),
+                household_link,
+            )
+
         return attrs
 
 
@@ -959,13 +1303,16 @@ class PniaCardPrimaryView(ContentPrimaryView):
     template = get_template("card.jinja2")
 
     def render_content(self, entity):
-        self.call_template(**self.template_attrs(entity))
+        attrs = self.template_attrs(entity)
+        attrs.update(
+            {"metadata": ((_("Last update on"), entity.fmt_modification_date),), "_": self._cw._}
+        )
+        self.call_template(**attrs)
 
 
 class PniaTranslationsPrimaryView(ContentPrimaryView):
     __select__ = ContentPrimaryView.__select__ & relation_possible("translation_of", role="subject")
     template = get_template("translation.jinja2")
-    editable = False
 
     def get_translation(self, original, entity):
         trads = []
@@ -984,14 +1331,16 @@ class PniaTranslationsPrimaryView(ContentPrimaryView):
                         trad = trad.view("incontext")
                     else:
                         trad = trad.dc_title()
-                    trad = "{} ({})".format(trad, state)
                 else:
+                    state = ""
                     trad = self._cw._("no translation yet exists")
-                trads.append((self._cw._(lang), trad))
+                trads.append((self._cw._(lang), trad, state))
         return trads
 
     def metadata(self, entity):
-        return [(_("Language"), self._cw._(entity.language))]
+        return [
+            (self._cw._("Language"), self._cw._(entity.language)),
+        ]
 
     def main_props(self, entity):
         _ = self._cw._
@@ -1009,6 +1358,7 @@ class PniaTranslationsPrimaryView(ContentPrimaryView):
                 "_": self._cw._,
                 "editable": self.editable,
                 "original": original.view("incontext"),
+                "original_title": xml_escape(original.dc_title()),
                 "metadata": self.metadata(entity),
             }
         )
@@ -1017,29 +1367,44 @@ class PniaTranslationsPrimaryView(ContentPrimaryView):
         return attrs
 
 
-class GlossaryTermPrimaryView(ContentPrimaryView):
-    __select__ = ContentPrimaryView.__select__ & is_instance("GlossaryTerm")
-    template = get_template("glossaryterm.jinja2")
+class AbstractEditablePrivaryView(ContentPrimaryView):
+    template = get_template("editable_entities.jinja2")
 
     def content_meta_props(self, entity):
-        link = """<a href="{url}">{title}</a>""".format(
-            url=self._cw.build_url(
-                "glossaire",
-            ),
-            title=self._cw._("Glossary"),
-        )
-        return [
-            (link, "book"),
-        ]
+        return []
 
     def main_props(self, entity):
         return []
 
+    def info_links(self, entity):
+        return []
+
     def template_attrs(self, entity):
-        attrs = super(GlossaryTermPrimaryView, self).template_attrs(entity)
-        attrs["content_meta"] = self.content_meta_props(entity)
-        attrs["main_props"] = self.main_props(entity)
+        attrs = super().template_attrs(entity)
+        attrs.update(
+            {
+                "metadata": self.content_meta_props(entity),
+                "main_props": self.main_props(entity),
+                "info_links": self.info_links(entity),
+                "description": "",
+                "_": self._cw._,
+            }
+        )
         return attrs
+
+
+class GlossaryTermPrimaryView(AbstractEditablePrivaryView):
+    __select__ = ContentPrimaryView.__select__ & is_instance("GlossaryTerm")
+
+    def info_links(self, entity):
+        return [
+            (
+                self._cw._("Go to the glossary"),
+                self._cw.build_url(
+                    "glossaire",
+                ),
+            ),
+        ]
 
 
 class GlossaryView(View, JinjaViewMixin):
@@ -1047,6 +1412,8 @@ class GlossaryView(View, JinjaViewMixin):
     template = get_template("glossary.jinja2")
     title = _("Glossary")
     editable = False
+    eulerian_tag = True
+    eulerian_pagegroup = "faq"
 
     @property
     def breadcrumbs(self):
@@ -1056,7 +1423,7 @@ class GlossaryView(View, JinjaViewMixin):
         return breadcrumbs
 
     def card(self):
-        card = find_card(self._cw, "glossary-card")
+        card = find_card(self._cw, "glossary-card", display_empty=True)
         if card is not None:
             return card
 
@@ -1067,11 +1434,11 @@ class GlossaryView(View, JinjaViewMixin):
         )
         glossary = defaultdict(list)
         for eid, letter, term, description, sort_term in rset:
-            glossary[letter].append((eid, term, description, sort_term))
+            glossary[letter].append((eid, term, title_for_link(term), description, sort_term))
         return glossary
 
     def add_js(self):
-        self._cw.add_js("cubes.pnia_glossary.js")
+        self._cw.add_js("bundle-pnia-glossary.js")
 
     def call(self, **kw):
         self.add_js()
@@ -1091,6 +1458,7 @@ class GlossaryView(View, JinjaViewMixin):
             "editable": self.editable,
             "base_url": self._cw.build_url("").rstrip("/"),
             "glossary_url": self._cw.build_url("glossaire"),
+            "lang": self._cw.lang,
             "_": req._,
         }
         self.call_template(**attrs)
@@ -1101,6 +1469,8 @@ class FaqStartView(View, JinjaViewMixin):
     template = get_template("faq.jinja2")
     title = _("FAQ")
     editable = False
+    eulerian_tag = True
+    eulerian_pagegroup = "faq"
 
     @property
     def breadcrumbs(self):
@@ -1110,68 +1480,194 @@ class FaqStartView(View, JinjaViewMixin):
         return breadcrumbs
 
     def call(self, **kw):
-        self._cw.add_js("bundle-pnia-faq.js")
         req = self._cw
-        rset = req.execute(
-            """Any X, Q, A, C, O ORDERBY C, O WHERE X is FaqItem,
-               X question Q, X answer A, X category C, X order O"""
-        )
+        sql_query = """
+        SELECT faq.cw_eid eid,
+               TRANSLATE_ENTITY('FaqItem', faq.cw_eid, 'question', %(lang)s) AS question,
+               TRANSLATE_ENTITY('FaqItem', faq.cw_eid, 'answer', %(lang)s) AS answer,
+               faq.cw_category as category,
+               faq.cw_order as order,
+               faq.cw_question as fr_question,
+               faq.cw_answer as fr_answer
+        FROM cw_FaqItem AS faq ORDER BY 4"""
+        # TODO rewrite the TRANSLATE_ENTITY to return the actual entity language
+        # and avoid comparing values
+        rset = req.cnx.system_sql(sql_query, {"lang": req.lang}).fetchall()
         faqs = defaultdict(list)
-        for eid, question, answer, category, order in rset:
+        fr_lang = self._cw.lang == "fr"
+        for eid, question, answer, category, order, fr_question, fr_answer in rset:
+            qlang_attr = 'lang="fr"' if not fr_lang and question == fr_question else ""
+            alang_attr = 'lang="fr"' if not fr_lang and answer == fr_answer else ""
             faq_url = self._cw.build_url("faqitem/{}".format(eid))
-            faqs[category].append((eid, faq_url, remove_html_tags(question), answer))
+            faqs[category].append(
+                (eid, faq_url, remove_html_tags(question), answer, qlang_attr, alang_attr)
+            )
         faqs = sorted(faqs.items(), key=lambda e: e[0])
         attrs = {
             "editable": self.editable,
-            "_": req._,
             "faqs": faqs,
             "title": req._(self.title),
+            "lang": self._cw.lang,
+            "_": req._,
         }
         self.call_template(**attrs)
 
 
-class FaqItemPrimaryView(ContentPrimaryView):
+class FaqItemPrimaryView(AbstractEditablePrivaryView):
     __select__ = ContentPrimaryView.__select__ & is_instance("FaqItem")
-    template = get_template("faqitem.jinja2")
 
-    def content_meta_props(self, entity):
-        link = """<a href="{url}">{title}</a>""".format(
-            url=self._cw.build_url(
-                "faq",
-            ),
-            title=self._cw._("Faq"),
-        )
+    def info_links(self, entity):
         return [
-            (link, "question"),
+            (
+                self._cw._("Go to the Faq"),
+                self._cw.build_url(
+                    "faq",
+                ),
+            ),
         ]
 
-    def main_props(self, entity):
-        return []
 
-    def template_attrs(self, entity):
-        attrs = super(FaqItemPrimaryView, self).template_attrs(entity)
-        attrs["_"] = self._cw._
-        attrs["content_meta"] = self.content_meta_props(entity)
-        attrs["main_props"] = self.main_props(entity)
-        return attrs
-
-
-class SiteLinkPrimaryView(ContentPrimaryView):
+class SiteLinkPrimaryView(AbstractEditablePrivaryView):
     __select__ = ContentPrimaryView.__select__ & is_instance("SiteLink")
-    template = get_template("sitelink.jinja2")
+
+
+class AgentRecordVocabularyPrimaryView(AbstractEditablePrivaryView):
+    __select__ = ContentPrimaryView.__select__ & is_instance(
+        "AgentRecordFunction", "AgentRecordOccupation", "AgentRecordLegalStatus"
+    )
+
+    template = get_template("agentrecord_vocabulary.jinja2")
+
+    def entity_call(self, entity, **kw):
+        self.call_template(**self.template_attrs(entity))
 
     def content_meta_props(self, entity):
-        return None
-
-    def main_props(self, entity):
         return []
 
     def template_attrs(self, entity):
-        attrs = super(SiteLinkPrimaryView, self).template_attrs(entity)
-        attrs["_"] = self._cw._
-        attrs["content_meta"] = self.content_meta_props(entity)
-        attrs["main_props"] = self.main_props(entity)
+        adapter = entity.cw_adapt_to("ITemplatable")
+        return {
+            "metadata": self.content_meta_props(entity),
+            "entity": adapter.entity_param(),
+            "main_props": adapter.main_props(),
+            "lang": self._cw.lang,
+            "_": self._cw._,
+        }
+
+
+class ServicePrimaryView(ShareLinksMixin, ContentPrimaryView):
+    __select__ = ContentPrimaryView.__select__ & is_instance("Service")
+    template = get_template("service.jinja2")
+
+    def template_attrs(self, entity):
+        attrs = super().template_attrs(entity)
+        attrs.update(
+            {
+                "lang_attr": f'lang="{entity.lang}"' if entity.lang != self._cw.lang else "",
+                "sharelinks_data": self.sharelinks(entity.absolute_url()),
+            }
+        )
         return attrs
+
+    def call(self, **kwargs):
+        for css in ("leaflet.css", "LeafletStyleSheet.css"):
+            self._cw.add_css(css)
+        for js in ("leaflet.js", "PruneCluster.js", "bundle-pnia-entity-map.js"):
+            self._cw.add_js(js)
+        super().call(**kwargs)
+
+
+class ServiceDptContent(EntityView, JinjaViewMixin):
+    __regid__ = "service-dpt-content"
+    __select__ = EntityView.__select__ & is_instance("Service")
+    template = get_template("services-maininfo.jinja2")
+
+    def entity_call(self, entity):
+        rset = self._cw.execute(
+            """Any X, N, N2, L WHERE X dpt_code C, Y dpt_code C,
+               X name N, X name N2, Y eid %(e)s, X level L""",
+            {"e": entity.eid},
+        )
+        if rset:
+            entities = sorted(rset.entities(), key=lambda x: x.level != "level-D")
+            self.w(
+                self.template.render(
+                    {
+                        "services": [
+                            e.cw_adapt_to("ITemplatable").entity_param() for e in entities
+                        ],
+                        "lang_attr": 'lang="fr"' if self._cw.lang != "fr" else "",
+                        "_": self._cw._,
+                    }
+                )
+            )
+
+
+class AuthorityIndexPrimaryView(PrimaryView, JinjaViewMixin):
+    __select__ = PrimaryView.__select__ & is_instance("AgentName", "Geogname", "Subject")
+    template = get_template("index.jinja2")
+
+    def entity_call(self, entity, **kw):
+        self.call_template(**self.template_attrs(entity))
+
+    def content_meta_props(self, entity):
+        return []
+
+    def template_attrs(self, entity):
+        adapter = entity.cw_adapt_to("ITemplatable")
+        return {
+            "metadata": self.content_meta_props(entity),
+            "entity": adapter.entity_param(),
+            "main_props": adapter.main_props(),
+            "indexes": adapter.documents(),
+            "lang": self._cw.lang,
+            "_": self._cw._,
+        }
+
+
+class AgentRecordPrimaryView(ShareLinksMixin, ContentPrimaryView):
+    __select__ = PrimaryView.__select__ & is_instance("AgentRecord")
+    template = get_template("agentrecord.jinja2")
+
+    def csv_props(self, entity):
+        title = self._cw._("Download shelfmark")
+        return {
+            "url": self._cw.build_url(f"{entity.rest_path()}.csv"),
+            "link": title,
+            "filename": f"{entity.record_id}.csv",
+            "size": "",
+        }
+
+    def eaccpf_props(self, entity):
+        title = self._cw._("Download the record in EAC-CPF (v2)")
+        return {
+            "url": self._cw.build_url(f"{entity.rest_path()}.xml"),
+            "link": title,
+            "filename": f"{entity.record_id}.xml",
+            "size": "",
+        }
+
+    def template_attrs(self, entity):
+        props = super(AgentRecordPrimaryView, self).template_attrs(entity)
+        adapter = entity.cw_adapt_to("entity.main_props")
+        csv_props = self.csv_props(entity)
+        eaccpf_props = self.eaccpf_props(entity)
+        publisher = {"title": "SIAF"}
+        props.update(
+            {
+                "_": self._cw._,
+                "main_props": [(k, v) for k, v in adapter.main_props().items() if v],
+                "metadata": adapter.metadata(),
+                "csv_props": csv_props,
+                "eaccpf_props": eaccpf_props,
+                "publisher": publisher,
+                "eulerian": entity.cw_adapt_to("IEulerian").actions,
+                "sharelinks_data": self.sharelinks(entity),
+                "editable": self.editable,
+                "notice_metadata": adapter.notice_metadata(),
+            }
+        )
+        return props
 
 
 def registration_callback(vreg):

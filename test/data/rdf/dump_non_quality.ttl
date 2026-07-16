@@ -1,0 +1,104 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rico: <https://www.ica.org/standards/RiC/ontology#> .
+@prefix ricoform: <https://www.ica.org/standards/RiC/vocabularies/documentaryFormTypes#> .
+@prefix schema1: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+
+# FA-unqualified
+
+<https://testing.cubicweb/findingaid/FA-unqualified#record_inst1> a rico:Instantiation ;
+    dcterms:format "text/csv" ;
+    rdfs:seeAlso <https://testing.cubicweb/findingaid/FA-unqualified.csv> ;
+    rico:isInstantiationOf <https://testing.cubicweb/findingaid/FA-unqualified#record> .
+
+<https://testing.cubicweb/findingaid/FA-unqualified#record_resource_inst> a rico:Instantiation ;
+    rico:hasOrHadHolder <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:isInstantiationOf <https://testing.cubicweb/findingaid/FA-unqualified> ;
+    rico:physicalCharacteristics "un beau rouleau" .
+
+<https://testing.cubicweb/findingaid/FA-unqualified> a rico:RecordResource ;
+    rdfs:label "maindid-title" ;
+    rico:hasInstantiation <https://testing.cubicweb/findingaid/FA-unqualified#record_resource_inst> ;
+    rico:hasOrHadManager <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:identifier "maindid" ;
+    rico:isOrWasDescribedBy <https://testing.cubicweb/findingaid/FA-unqualified#record> ;
+    rico:title "maindid-title" .
+
+<https://testing.cubicweb/findingaid/FA-unqualified#record> a rico:Record ;
+    rico:describesOrDescribed <https://testing.cubicweb/findingaid/FA-unqualified> ;
+    rico:hasDocumentaryFormType ricoform:FindingAid ;
+    rico:hasInstantiation <https://testing.cubicweb/findingaid/FA-unqualified#record_inst1> ;
+    rico:identifier "FRAD084_xxx" .
+
+# parent-facomponent
+
+<https://testing.cubicweb/facomponent/parent-facomponent#record_resource_inst> a rico:Instantiation ;
+    rico:hasOrHadHolder <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:isInstantiationOf <https://testing.cubicweb/facomponent/parent-facomponent> .
+
+<https://testing.cubicweb/facomponent/unqualified-facomponent#record_resource_inst> a rico:Instantiation ;
+    rico:hasOrHadHolder <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:isInstantiationOf <https://testing.cubicweb/facomponent/unqualified-facomponent> .
+
+<https://testing.cubicweb/facomponent/parent-facomponent> a rico:RecordResource ;
+    rdfs:label "fcdid-title" ;
+    rico:beginningDate "1234"^^xsd:gYear ;
+    rico:endDate "1245"^^xsd:gYear ;
+    rico:hasInstantiation <https://testing.cubicweb/facomponent/parent-facomponent#record_resource_inst> ;
+    rico:hasOrHadManager <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:history "fc-origination" ;
+    rico:identifier "fcdid" ;
+    rico:includesOrIncluded <https://testing.cubicweb/facomponent/qualified-facomponent> ;
+    rico:isOrWasIncludedIn <https://testing.cubicweb/findingaid/FA-child-qualified> ;
+    rico:isRecordResourceAssociatedWithRecordResource <https://testing.cubicweb/findingaid/FA-child-qualified> ;
+    rico:scopeAndContent "fc-scoppecontent" ;
+    rico:title "fcdid-title" .
+
+# unqualified-facomponent
+
+<https://testing.cubicweb/facomponent/unqualified-facomponent> a rico:RecordResource ;
+    rdfs:label "fcdid-title" ;
+    rico:beginningDate "1234"^^xsd:gYear ;
+    rico:endDate "1245"^^xsd:gYear ;
+    rico:hasInstantiation <https://testing.cubicweb/facomponent/unqualified-facomponent#record_resource_inst> ;
+    rico:hasOrHadManager <https://testing.cubicweb/service/{{service_eid}}> ;
+    rico:history "fc-origination" ;
+    rico:identifier "fcdid" ;
+    rico:isOrWasIncludedIn <https://testing.cubicweb/findingaid/FA-child-qualified> ;
+    rico:isRecordResourceAssociatedWithRecordResource <https://testing.cubicweb/findingaid/FA-child-qualified> ;
+    rico:scopeAndContent "fc-scoppecontent" ;
+    rico:title "fcdid-title" .
+
+# UNQUALIFIED_AR
+
+<https://testing.cubicweb/authorityrecord/UNQUALIFIED_AR#inst> a rico:Instantiation ;
+    rico:identifier "UNQUALIFIED_AR" ;
+    rico:isInstantiationOf <https://testing.cubicweb/authorityrecord/UNQUALIFIED_AR> .
+
+<https://testing.cubicweb/authorityrecord/UNQUALIFIED_AR> a rico:Record ;
+    rico:describesOrDescribed <https://testing.cubicweb/authorityrecord/UNQUALIFIED_AR#agent> ;
+    rico:hasDocumentaryForm ricoform:AuthorityRecord ;
+    rico:hasInstantiation <https://testing.cubicweb/authorityrecord/UNQUALIFIED_AR#inst> .
+
+<https://testing.cubicweb/authorityrecord/UNQUALIFIED_AR#agent> a rico:Agent,
+        rico:Person ;
+    rico:hasOrHadAgentName [ a rico:AgentName ;
+            rico:isOrWasAgentNameOf <https://testing.cubicweb/authorityrecord/UNQUALIFIED_AR#agent> ;
+            rico:textualValue "Titi" ;
+            rico:type "authorized" ] ;
+    rico:isOrWasDescribedBy <https://testing.cubicweb/authorityrecord/UNQUALIFIED_AR> ;
+    rico:name "Titi" .
+
+# FRAD082
+
+<https://testing.cubicweb/service/{{service_nul_eid}}> a rico:Agent,
+        rico:CorporateBody ;
+    rdfs:label "Archives nulles" ;
+    schema1:address <https://testing.cubicweb/service/{{service_nul_eid}}#address> ;
+    rico:identifier "FRAD082" ;
+    rico:name "Archives nulles" .
+
+<https://testing.cubicweb/service/{{service_nul_eid}}#address> a schema1:PostalAddress ;
+    schema1:addressCountry "fr" .

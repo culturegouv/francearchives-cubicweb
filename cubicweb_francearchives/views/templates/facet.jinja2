@@ -1,26 +1,22 @@
-<div class="facet d-print-none" id="facet-{{ facetid }}">
-    <h3 class="no-style facet__title">
-      <a href="#" class="cwjs-facet-title{% if facet_unfolded %} unfolded{% endif %}"
-         aria-expanded="{% if facet_unfolded %}true{% else %}false{% endif %}"
-         aria-controls="facet-{{ facetid }}-content" role="button"
-       >
-        <span class="arrow">{{ facet_label }}</span>
-     </a>
-    </h3>
-    <div id="facet-{{ facetid }}-content" class="facet__body" {%if facet_unfolded %} style="display: block;"{% endif %}>
-        <ul class="facet__values">
-        {% for item in facet_items %}
-        {{ item }}
-        {% endfor %}
-        {% if more_facet_items %}
-          {% for item in more_facet_items %}
-            {{ item }}
-          {% endfor %}
-          <li class="facet__more_options">
-            <a href="#" class="hide_options facet__focusable-item" style="display: none">{{ less_items_label }}</a>
-            <a href="#" class="show_options facet__focusable-item" >{{ more_items_label }}</a>
-          </li>
-        {% endif %}
-        </ul>
-     </div>
+<div id="fa-facet-{{ facetid }}" class="fr-accordions-group d-print-none">
+<section class="fr-accordion">
+  <h3 class="fr-accordion__title">
+    <button class="fr-accordion__btn"
+            aria-expanded="{% if facet_unfolded %}true{% else %}false{% endif %}"
+            aria-controls="facet-{{ facetid }}">{{ facet_label }}</button>
+  </h3>
+  {# XXX the extense must be triggered by javascript #}
+  <div class="fr-collapse{% if facet_unfolded %} fr-collapse--expanded{% endif %}" id="facet-{{ facetid }}">
+    <ul class="fr-links-group" id="facet-{{ facetid }}--list" {% if more_facet_items %}aria-expanded="false"{% endif -%}>
+      {%- for item in facet_items -%}
+      {{ item }}
+      {%- endfor -%}
+      {%- if more_facet_items -%}
+      {%- for item in more_facet_items -%}
+      {{ item }}
+      {%- endfor -%}
+      {%- endif -%}
+    </ul>
+  </div>
+</section>
 </div>

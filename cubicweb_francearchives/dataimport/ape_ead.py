@@ -30,7 +30,8 @@
 #
 from itertools import chain
 
-from glamconv.ead.utils import NS, split_qname, log_element
+from glamconv.utils import NS, split_qname
+from glamconv.ead.utils import log_element
 from glamconv.transformer.actions import TransformAction
 from glamconv.ead.formats import EAD_2002
 from glamconv.transformer.parameters import SingleParameter

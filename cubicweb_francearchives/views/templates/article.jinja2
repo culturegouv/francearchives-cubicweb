@@ -1,38 +1,56 @@
-{% from "./mixins.jinja2" import toc, imagelist, content_metadata, index_values, sharelinks, translations, modalfaq, related_docs -%}
-<div class="row article-page-container">
-
-{% if entity.summary  -%}
-  <div
-     class="d-print-none d-sm-none d-md-block col-md-9 col-lg-6 col-xl-3 toc-col {% if not entities %}article-content{% endif %}">
-   {{  toc(entity.summary, _) }}
-  </div>
-{% endif -%}
-    <div class="{% if entities or entity.summary -%}col-xl-6 {% else -%} col-xl-9 {% endif -%}article-content">
-        <article id="article" class="{{ entity.cw_etype|lower }}-view">
-            <h1><span class="visually-hidden">{{ _(entity.__regid__) }} : </span>{{ entity.title | e }}
-                {% if entity.subtitle -%}
-                    <span class="entity-subtitle">{{ entity.subtitle }}</span>
-                {% endif %}
-            </h1>
-            <div class="article__actions">
-                {{  translations(i18n_links, _) }}
-                {{  sharelinks(sharelinks_data, _) }}
-            </div>
-            {{ content_metadata(metadata, _) }}
-            <div class="article__content">
-                {{ imagelist(images, default_picto_src) }}
-                {{ entity.printable_content }}
-            </div>
-           {% if faqs -%}
-             {{  modalfaq(faqs, _) }}
-           {% endif -%}
-         </article>
-         {% if main_props -%}
-           {{ index_values(main_props) }}
-         {% endif-%}
-
+{% from "./mixins.jinja2" import toc, imageitem, content_metadata, sharelinks, translation_tool, related_services, related_indexes, related_docs, display_errors -%}
+{% set side_col = 4 if entity.summary else 0 -%}
+{%- set lang_attr='lang="{}"'.format(entity.lang) if entity.lang != lang else "" -%}
+{%- set fa_lang_attr='lang="fr"' if lang != "fr" else "" -%}
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+    {% if entity.summary -%}
+    <div class="d-print-none fr-col-12 fr-col-md-{{ side_col }}">
+      {{  toc(entity.summary, lang_attr, _) }}
     </div>
-    {% if entities -%}
-       {{ related_docs(entities, all_links, recent_label, _) }}
     {% endif -%}
+    <div class="fr-col-12 fr-col-md-8">
+      <article id="article-{{ entity.eid }}">
+        <div class="fr-col-12 fr-mb-4v" {{ lang_attr }}>
+          <h1>{{ entity.title | e }}</h1>
+          {% if entity.subtitle -%}
+          <span class="fr-text--lead">{{ entity.subtitle | e }}</span>
+          {% endif %}
+          {{ display_errors(errors, _) }}
+        </div>
+        <div class="fr-grid-row fr-grid-row--gutters {% if image -%}fr-mb-n4w{%- else -%}fr-mb-4v{%- endif-%}">
+          <div class="fr-col-12 {%- if i18n_links|length > 0 %} fr-col-md-10{%- endif -%}">
+          {{ content_metadata(metadata, _) }}
+          </div>
+          {%- if i18n_links|length > 0 -%}
+          <div class="fr-col-md-2">
+          {{ translation_tool(i18n_links,  _) }}
+          </div>
+          {%- endif -%}
+        </div>
+        {%- if image -%}
+        <div class="fr-col-12 fr-mb-8v" {{ lang_attr }}>
+          {{ imageitem(image, default_picto_src) }}
+        </div>
+        {%- endif -%}
+        <div class="fr-col-12 fr-mb-16v" {{ lang_attr }}>
+          {{ entity.printable_content }}
+        </div>
+      </article>
+      {%- if indexes or services -%}
+      <div class="fr-col-12 fr-mb-16v">
+        {{ related_indexes(indexes, fa_lang_attr, _) }}
+        {{ related_services(services, fa_lang_attr, _) }}
+      </div>
+      {%- endif -%}
+      <div class="fr-col-12">
+        {{ sharelinks(sharelinks_data, eulerian.document_title, "main_>_section_>_links", _) }}
+      </div>
+    </div>
+  </div>
 </div>
+{%- if related_entities -%}
+<section class="fr-mt-md-16v fr-mt-3w fr-pt-lg-16v fr-pt-md-14v fr-pb-ld-18v fr-pb-md-16v fr-py-3w fr-background-alt--grey d-print-none">
+{{ related_docs(related_entities, all_links, recent_label, _) }}
+</section>
+{%- endif -%}

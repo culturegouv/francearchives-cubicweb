@@ -1,0 +1,30 @@
+{% extends "./searchlist.jinja2" %}
+{%- block context_abstract -%}
+<section class="fr-mb-8v fr-p-4v fr-background-alt--beige-gris-galet fr-mb-8w fr-mt-n2w  d-print-none">
+  <div class="fr-container">
+    <div class="fr-col-12 col-lg-10">
+      <h1>{{ header.title }}
+        {%- if header.subtitle -%}
+        <p class="fr-h2">{{ header.subtitle }}</p>
+        {%- endif -%}</h1>
+    </div>
+    <div class="fr-col-12  fr-md-10 fr-col-lg-8">
+      {%- if text_lead -%}
+      <p class="fr-text--lead" {% if req.lang != "fr" %}lang="fr"{% endif %}>{{ text_lead }}</p>
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+<div class="fr-grid-row fr-grid-row--gutters fr-mb-8v">
+  <div class="fr-container">
+    {%- if letters -%}
+    <div class="fr-col-12">
+      {% include "letters.jinja2" %}
+    </div>
+    {%- endif -%}
+    <div class="fr-col-12 fr-my-8v fr-sr-only" {{ lang_attr }}>
+     <h1>{{ _("Search results") }}</h1>
+    </div>
+  </div>
+</div>
+{%- endblock -%}

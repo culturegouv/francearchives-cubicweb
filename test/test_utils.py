@@ -32,12 +32,17 @@
 
 # flake8: noqa
 
+import datetime
+import hashlib
+from jinja2 import Environment, PackageLoader
 
 import unittest
-from mock import Mock, MagicMock
+
+from cubicweb.devtools import BASE_URL
+from cubicweb_web.devtools.testlib import WebCWTC
+from mock import Mock
 import string
 
-from cubicweb.devtools.testlib import CubicWebTC
 from cubicweb.uilib import remove_html_tags
 
 from cubicweb_francearchives import GLOSSARY_CACHE
@@ -48,7 +53,8 @@ from cubicweb_francearchives.dataimport import (
     normalize_entry,
     clean,
 )
-from cubicweb_francearchives.xmlutils import process_html, fix_fa_external_links as fa_fix_links
+from cubicweb_francearchives.entities import enhance_rgaa
+from cubicweb_francearchives.htmlutils import soup2xhtml
 
 from cubicweb_francearchives.testutils import S3BfssStorageTestMixin
 from cubicweb_francearchives.views.forms import EMAIL_REGEX
@@ -59,24 +65,32 @@ from cubicweb_francearchives.utils import (
     find_card,
     id_for_anchor,
     merge_dicts,
+    format_date,
 )
 from cubicweb_francearchives.xmlutils import (
     enhance_accessibility,
     process_html_for_csv,
     handle_subtitles,
+    handle_tables,
+    clean_xss,
+    process_html,
+    fix_fa_external_links as fa_fix_links,
+    fix_ead_divs,
 )
 
+env = Environment(loader=PackageLoader("cubicweb_francearchives.views"))
 
-class UtilsTest(S3BfssStorageTestMixin, CubicWebTC):
+
+class UtilsTest(S3BfssStorageTestMixin, WebCWTC):
     def test_fa_fix_links_1(self):
         html = '<div class="ead-p"> <a href="www.archives.valdoise.fr">Archives <b>départementales</b> du Val</a></div>'
-        expected = '<div class="ead-p"> <a href="www.archives.valdoise.fr" rel="nofollow noopener noreferrer" target="_blank" title="Archives départementales du Val - New window">Archives <b>départementales</b> du Val</a></div>'
+        expected = '<div class="ead-p"> <a href="www.archives.valdoise.fr" rel="nofollow noopener noreferrer external" target="_blank" title="Archives départementales du Val - new window">Archives <b>départementales</b> du Val</a></div>'
         with self.admin_access.cnx() as cnx:
             self.assertEqual(fa_fix_links(html, cnx), expected)
 
     def test_fa_fix_links_2(self):
         html = """<div class="ead-p"><a href="www.archives.valdoise.fr" title="site">Archives départementales du Val-d'Oise</a></div>"""
-        expected = """<div class="ead-p"><a href="www.archives.valdoise.fr" title="site - New window" rel="nofollow noopener noreferrer" target="_blank">Archives départementales du Val-d'Oise</a></div>"""
+        expected = """<div class="ead-p"><a href="www.archives.valdoise.fr" title="Archives départementales du Val-d'Oise - site - new window" rel="nofollow noopener noreferrer external" target="_blank">Archives départementales du Val-d'Oise</a></div>"""
         with self.admin_access.cnx() as cnx:
             self.assertEqual(fa_fix_links(html, cnx), expected)
 
@@ -89,6 +103,61 @@ class UtilsTest(S3BfssStorageTestMixin, CubicWebTC):
         with self.admin_access.cnx() as cnx:
             self.assertEqual(fa_fix_links(html, cnx), expected)
 
+    def test_fa_fix_ead_divs_1(self):
+        html = """<div class="fr-mb-10v"><h2 class="fr-h4 fr-mb-4v">Publication:</h2><div class="ead-section ead-publisher"><div class="ead-wrapper">Archives nationales</div></div>
+<div class="ead-section ead-date"><div class="ead-wrapper">18 juin 2013</div></div>
+<div class="ead-section ead-address"><div class="ead-wrapper"><div>
+<div>Paris</div></div></div></div></div>"""
+        expected = """<div class="fr-mb-10v"><h2 class="fr-h4 fr-mb-4v">Publication:</h2><div class="ead-section ead-publisher"><p class="ead-wrapper">Archives nationales</p></div>
+<div class="ead-section ead-date"><p class="ead-wrapper">18 juin 2013</p></div>
+<div class="ead-section ead-address"><div class="ead-wrapper"><div>
+<p>Paris</p></div></div></div></div>"""
+        with self.admin_access.cnx() as cnx:
+            self.assertEqual(fix_ead_divs(html, cnx), expected)
+
+    def test_fa_fix_ead_divs_2(self):
+        html = """<div class="ead-wrapper"><div class="ead-p"><div>Etude VI</div>
+<div>Boucot, Claude</div></div></div>"""
+        expected = """<div class="ead-wrapper"><div class="ead-p"><p>Etude VI</p>
+<p>Boucot, Claude</p></div></div>"""
+        with self.admin_access.cnx() as cnx:
+            self.assertEqual(fix_ead_divs(html, cnx), expected)
+
+    def test_fa_fix_ead_divs_3(self):
+        html = """<div class="ead-wrapper"><div class="ead-p"><span class="ead-bold">Minutes et répertoires :</span>la loi 2008-696 du 15 juillet 2008 relative</div><div class="ead-p"><span class="ead-bold">Autres documents</span>s'agissant</div><div class="ead-p">Certains documents ne sont pas accessibles en raison de leur mauvais état de conservation.</div></div>"""
+        expected = """<div class="ead-wrapper"><p class="ead-p"><span class="ead-bold">Minutes et répertoires :</span>la loi 2008-696 du 15 juillet 2008 relative</p><p class="ead-p"><span class="ead-bold">Autres documents</span>s'agissant</p><p class="ead-p">Certains documents ne sont pas accessibles en raison de leur mauvais état de conservation.</p></div>"""
+        with self.admin_access.cnx() as cnx:
+            self.assertEqual(fix_ead_divs(html, cnx), expected)
+
+    def test_fa_fix_ead_divs_4(self):
+        html = """<div class="ead-wrapper"><div class="ead-p"><p class="ead-i">Aulus-les-Bains : portrait de cinq femmes (les soeurs Mauran et leurs amies)</p></div></div>"""
+        expected = """<div class="ead-wrapper"><div class="ead-p"><p class="ead-i">Aulus-les-Bains : portrait de cinq femmes (les soeurs Mauran et leurs amies)</p></div></div>"""
+        with self.admin_access.cnx() as cnx:
+            self.assertEqual(fix_ead_divs(html, cnx), expected)
+
+    def test_fa_fix_ead_divs_5(self):
+        html = """<div class="ead-section ead-physdesc"><div class="ead-wrapper"><div class="ead-p"><b class="ead-autolabel">Description physique:</b> Document iconographique<br></div></div>
+</div>"""
+        expected = """<div class="ead-section ead-physdesc"><div class="ead-wrapper"><p class="ead-p"><b class="ead-autolabel">Description physique:</b> Document iconographique<br aria-hidden="true"></p></div>
+</div>"""
+
+        with self.admin_access.cnx() as cnx:
+            self.assertEqual(fix_ead_divs(html, cnx), expected)
+
+    def test_fa_fix_ead_divs_6(self):
+        html = """<div class="ead-wrapper"><span class="ead-title">Notes ISBD</span><div class="ead-p">Corr;, adr., timbre (1911).</div></div>"""
+        expected = """<div class="ead-wrapper"><p class="ead-title">Notes ISBD</p><p class="ead-p">Corr;, adr., timbre (1911).</p></div>"""
+        with self.admin_access.cnx() as cnx:
+            self.assertEqual(fix_ead_divs(html, cnx), expected)
+
+    def test_fa_fix_ead_divs_7(self):
+        html = (
+            """<div class="ead-wrapper"><li>Converted_apeEAD_version_2015-06-SNAPSHOT</li></div>"""
+        )
+        expected = """<ul class="fr-list"><li>Converted_apeEAD_version_2015-06-SNAPSHOT</li></ul>"""
+        with self.admin_access.cnx() as cnx:
+            self.assertEqual(fix_ead_divs(html, cnx), expected)
+
     def test_insert_biblio_labels(self):
         html = """<div class="ead-section ead-bibliography"><div class="ead-label">bibliography_label</div><div class="ead-wrapper"><div>
 <div class="ead-p">text-bibliography</div>
@@ -98,19 +167,18 @@ class UtilsTest(S3BfssStorageTestMixin, CubicWebTC):
 </div></div>"""
 
         expected = """<div class="ead-section ead-bibliography"><div class="ead-label">bibliography_label</div><div class="ead-wrapper"><div>
-<div class="ead-p">text-bibliography</div>
+<p class="ead-p">text-bibliography</p>
 </div></div></div>
-<div class="ead-section ead-bioghist"><div class="ead-label">bioghist_label</div><div class="ead-wrapper">
-<div class="ead-p">text-bioghist</div>
+<div class="ead-section ead-bioghist"><p class="ead-label">bioghist_label</p><div class="ead-wrapper">
+<p class="ead-p">text-bioghist</p>
 </div></div>"""
-
         labels = ["bibliography", "bibref", "bioghist"]
         with self.admin_access.cnx() as cnx:
             got = process_html(cnx, html, labels=labels)
             self.assertEqual(got, expected)
 
     def test_skip_empty_biblio_labels(self):
-        html = """<div class="ead-section ead-bibliography"><div class="ead-wrapper"></div></div><div class="ead-section ead-arrangement"><div class="ead-wrapper"><div class="ead-p">Classement chronologique</div></div></div>"""
+        html = """<div class="ead-section ead-bibliography"><p class="ead-wrapper"></p></div><div class="ead-section ead-arrangement"><div class="ead-wrapper"><p class="ead-p">Classement chronologique</p></div></div>"""
         labels = ["bibliography", "bibref", "bioghist"]
         with self.admin_access.cnx() as cnx:
             got = process_html(cnx, html, labels=labels)
@@ -121,9 +189,9 @@ class UtilsTest(S3BfssStorageTestMixin, CubicWebTC):
 <div class="ead-section ead-appraisal"><div class="ead-wrapper"><div class="ead-p">Aucun</div></div></div>
 <div class="ead-section ead-arrangement"><div class="ead-wrapper"><div class="ead-p">Classement chronologique</div></div></div>"""
 
-        expected = """<div class="ead-section ead-accruals"><div class="ead-label">accruals_label</div><div class="ead-wrapper"><div class="ead-p">Fonds ouvert susceptible d'accroissement</div></div></div>
-<div class="ead-section ead-appraisal"><div class="ead-label">appraisal_label</div><div class="ead-wrapper"><div class="ead-p">Aucun</div></div></div>
-<div class="ead-section ead-arrangement"><div class="ead-label">arrangement_label</div><div class="ead-wrapper"><div class="ead-p">Classement chronologique</div></div></div>"""
+        expected = """<div class="ead-section ead-accruals"><p class="ead-label">accruals_label</p><div class="ead-wrapper"><p class="ead-p">Fonds ouvert susceptible d'accroissement</p></div></div>
+<div class="ead-section ead-appraisal"><p class="ead-label">appraisal_label</p><div class="ead-wrapper"><p class="ead-p">Aucun</p></div></div>
+<div class="ead-section ead-arrangement"><p class="ead-label">arrangement_label</p><div class="ead-wrapper"><p class="ead-p">Classement chronologique</p></div></div>"""
 
         labels = ["accruals", "appraisal", "arrangement"]
         with self.admin_access.cnx() as cnx:
@@ -132,10 +200,18 @@ class UtilsTest(S3BfssStorageTestMixin, CubicWebTC):
 
     def test_additional_resources(self):
         html = '<div class="ead-section ead-otherfindaid"><div class="ead-wrapper"><div class="ead-p"><a href="../file/dd5464631894040fed175ea8db7bd843d3fc2f48/FRMAEE_MN_179CPCOM_Maroc.pdf" rel="nofollow noopener noreferrer" target="_blank">Voir l\'instrument de\n    recherche</a>&#160;</div></div></div>\n<div class="ead-section ead-otherfindaid"><div class="ead-wrapper"><div class="ead-p"><a href="../file/dd5464631894040fed175ea8db7bd843d3fc2f48/FRMAEE_MN_179CPCOM_Maroc.pdf" rel="nofollow noopener noreferrer" target="_blank">Voir l\'instrument de\n    recherche</a>&#160;</div></div></div>\n<div class="ead-section ead-relatedmaterial"><div class="ead-wrapper"><div class="ead-p"><a href="../file/06419493742584d8873722d6b1b3732cfc7d8532/FRMAEE_MN_179CPCOM_Maroc.pdf" rel="nofollow noopener noreferrer" target="_blank">Voir l\'instrument de\n    recherche</a>&#160;</div></div></div>\n<div class="ead-section ead-separatedmaterial"><div class="ead-wrapper"><div class="ead-p"><a href="../file/dd5464631894040fed175ea8db7bd843d3fc2f48/FRMAEE_MN_179CPCOM_Maroc.pdf" rel="nofollow noopener noreferrer" target="_blank">Voir l\'instrument de\n    recherche</a>&#160;</div></div></div>'
-        expected = '<div class="ead-section ead-otherfindaid"><div class="ead-wrapper"><div class="ead-p"><a href="../file/dd5464631894040fed175ea8db7bd843d3fc2f48/FRMAEE_MN_179CPCOM_Maroc.pdf">Voir l\'instrument de\n    recherche</a>\xa0</div></div></div>\n<div class="ead-section ead-otherfindaid"><div class="ead-wrapper"><div class="ead-p"><a href="../file/dd5464631894040fed175ea8db7bd843d3fc2f48/FRMAEE_MN_179CPCOM_Maroc.pdf">Voir l\'instrument de\n    recherche</a>\xa0</div></div></div>\n<div class="ead-section ead-relatedmaterial"><div class="ead-wrapper"><div class="ead-p"><a href="../file/06419493742584d8873722d6b1b3732cfc7d8532/FRMAEE_MN_179CPCOM_Maroc.pdf">Voir l\'instrument de\n    recherche</a>\xa0</div></div></div>\n<div class="ead-section ead-separatedmaterial"><div class="ead-wrapper"><div class="ead-p"><a href="../file/dd5464631894040fed175ea8db7bd843d3fc2f48/FRMAEE_MN_179CPCOM_Maroc.pdf">Voir l\'instrument de\n    recherche</a>\xa0</div></div></div>'
+        expected = """<div class="ead-section ead-otherfindaid"><div class="ead-wrapper"><p class="ead-p"><a href="../file/dd5464631894040fed175ea8db7bd843d3fc2f48/FRMAEE_MN_179CPCOM_Maroc.pdf">Voir l'instrument de
+    recherche</a> </p></div></div>
+<div class="ead-section ead-otherfindaid"><div class="ead-wrapper"><p class="ead-p"><a href="../file/dd5464631894040fed175ea8db7bd843d3fc2f48/FRMAEE_MN_179CPCOM_Maroc.pdf">Voir l'instrument de
+    recherche</a> </p></div></div>
+<div class="ead-section ead-relatedmaterial"><div class="ead-wrapper"><p class="ead-p"><a href="../file/06419493742584d8873722d6b1b3732cfc7d8532/FRMAEE_MN_179CPCOM_Maroc.pdf">Voir l'instrument de
+    recherche</a> </p></div></div>
+<div class="ead-section ead-separatedmaterial"><div class="ead-wrapper"><p class="ead-p"><a href="../file/dd5464631894040fed175ea8db7bd843d3fc2f48/FRMAEE_MN_179CPCOM_Maroc.pdf">Voir l'instrument de
+    recherche</a> </p></div></div>"""  # noqa
         labels = ["custodhist"]
         with self.admin_access.cnx() as cnx:
             got = process_html(cnx, html, labels=labels)
+            self.maxDiff = None
             self.assertEqual(got, expected)
 
     def test_process_links_for_csv_ok(self):
@@ -151,6 +227,17 @@ class UtilsTest(S3BfssStorageTestMixin, CubicWebTC):
         with self.admin_access.cnx() as cnx:
             got = process_html_for_csv(html, cnx)
             self.assertEqual(got, expected)
+
+    def test_table_dsfr(self):
+        """check that tables HTML is DSFR compliant"""
+        with open(self.datapath("html/table_no_dsfr.html"), "r") as f:
+            html = f.read()
+        with open(self.datapath("html/table_dsfr.html"), "r") as f:
+            expected = f.read()
+        with self.admin_access.cnx() as cnx:
+            self.maxDiff = None
+            generated = handle_tables(html, cnx)
+            self.assertEqual(generated, expected)
 
     def test_merge_dicts(self):
         def old_merge_dicts(dict1, *dicts):
@@ -232,6 +319,19 @@ class UtilsTest(S3BfssStorageTestMixin, CubicWebTC):
         self.assertEqual(norm("Debré, Jean-Louis"), "debre jean louis")
         self.assertEqual(norm("Tavel... (de)"), "tavel de")
         self.assertEqual(norm("Bonaparte, Élisa (1777-1820)"), "bonaparte elisa 1777 1820")
+        self.assertEqual(
+            norm("Bureau international du Travail (BIT) (1919-…)"),
+            "bureau international du travail bit 1919 .",
+        )
+        self.assertEqual(
+            norm("Bureau international du Travail (BIT) (1919-...)"),
+            "bureau international du travail bit 1919",
+        )
+        self.assertEqual(
+            norm("Bureau International du Travail (BIT) (1919-)"),
+            "bureau international du travail bit 1919",
+        )
+
         # labels whose normalization is not the same in Python and PostgreSQL
         norm = normalize_entry
         self.assertEqual(norm("Deboraüde ?"), "deboraude")
@@ -269,32 +369,70 @@ class UtilsTest(S3BfssStorageTestMixin, CubicWebTC):
         req.form = {"page": 1}
         pesv = PniaElasticSearchView(req=req)
         pagination = pesv.pagination(results_per_page)
-        self.assertEqual(len(pagination[0]), 0)
-        self.assertEqual(len(pagination[1]), 0)
+        self.assertFalse(pagination)
 
         #  Page 1 out of 2 > >> (only 1 item on the second page)
         req = Mock()
         req.form = {"page": 1}
         pesv = PniaElasticSearchView(req=req)
         pagination = pesv.pagination(results_per_page + 1)
-        self.assertEqual(len(pagination[0]), 0)
-        self.assertEqual(len(pagination[1]), 2)
-
+        self.assertEqual(
+            [1, 2], sorted([d["name"] for d in pagination if d["class"] == "fr-pagination__link"])
+        )
+        self.assertEqual(
+            sorted(
+                [
+                    "fr-pagination__link",
+                    "fr-pagination__link",
+                    "fr-pagination__link fr-pagination__link--next",
+                ]
+            ),
+            sorted([d["class"] for d in pagination]),
+        )
         # << < Page 2 out of 5 > >>
         req = Mock()
         req.form = {"page": 2}
         pesv = PniaElasticSearchView(req=req)
         pagination = pesv.pagination(results_per_page * 5)
-        self.assertEqual(len(pagination[0]), 2)
-        self.assertEqual(len(pagination[1]), 2)
-
+        self.assertEqual(
+            [1, 2, 3, 5],
+            sorted([d["name"] for d in pagination if d["class"] == "fr-pagination__link"]),
+        )
+        self.assertEqual(
+            sorted(
+                [
+                    "fr-pagination__item fr-ellipsis",
+                    "fr-pagination__link",
+                    "fr-pagination__link",
+                    "fr-pagination__link",
+                    "fr-pagination__link",
+                    "fr-pagination__link fr-pagination__link--next",
+                    "fr-pagination__link fr-pagination__link--prev",
+                ]
+            ),
+            sorted([d["class"] for d in pagination]),
+        )
         # << < Page [7] out of 7
         req = Mock()
         req.form = {"page": 7}
         pesv = PniaElasticSearchView(req=req)
         pagination = pesv.pagination(results_per_page * 7)
-        self.assertEqual(len(pagination[0]), 2)
-        self.assertEqual(len(pagination[1]), 0)
+        self.assertEqual(
+            [1, 6, 7],
+            sorted([d["name"] for d in pagination if d["class"] == "fr-pagination__link"]),
+        )
+        self.assertEqual(
+            sorted(
+                [
+                    "fr-pagination__item fr-ellipsis",
+                    "fr-pagination__link",
+                    "fr-pagination__link",
+                    "fr-pagination__link",
+                    "fr-pagination__link fr-pagination__link--prev",
+                ]
+            ),
+            sorted([d["class"] for d in pagination]),
+        )
 
     def test_clean_up_punctuation(self):
         """Test filename clean-up.
@@ -324,6 +462,16 @@ class UtilsTest(S3BfssStorageTestMixin, CubicWebTC):
         """
         filename = "ÀàÇçÉéÈè"
         cleaned_up = "AaCcEeEe"
+        self.assertEqual(cleaned_up, normalize_for_filepath(filename))
+
+    def test_clean_up_not_ascii(self):
+        """Test filename clean-up.
+
+        Trying: filename contains any of not ascii caracters
+        Expecting: "°" is replaced with "_"
+        """
+        filename = "FRAC N° insee_1E_Etat_civil"
+        cleaned_up = "FRAC_N__insee_1E_Etat_civil"
         self.assertEqual(cleaned_up, normalize_for_filepath(filename))
 
     def test_absolute_url(self):
@@ -361,16 +509,37 @@ class UtilsTest(S3BfssStorageTestMixin, CubicWebTC):
         actual = list(clean(*labels))
         self.assertCountEqual(actual, expected)
 
+    def test_format_dates_short(self):
+        with self.admin_access.repo_cnx() as cnx:
+            date = datetime.date(2021, 3, 11)
+            for lang, expected in (
+                ("fr", "11/03/2021"),
+                ("en", "2021/03/11"),
+                ("es", "11/03/2021"),
+                ("de", "11.03.2021"),
+            ):
+                cnx.set_language(lang)
+                formatted = format_date(date, fmt="short", req=cnx)
+                self.assertEqual(expected, formatted)
 
-class XMlUtilsTest(S3BfssStorageTestMixin, CubicWebTC):
+    def test_format_dates_from_str(self):
+        with self.admin_access.repo_cnx() as cnx:
+            for date, expected in (("2025-08-20T14:52:03.600247+00:00", "20/08/2025 14:52"),):
+                date = datetime.datetime.fromisoformat(date)
+                formatted = format_date(date, req=cnx, fmt="dd/MM/yyyy HH:mm")
+
+
+class XMlUtilsTest(S3BfssStorageTestMixin, WebCWTC):
+
     def test_link_remove_empty_title(self):
         html = """<div><a href="www.archives.valdoise.fr" title="">Archives départementales du Val-d'Oise</a></div>"""  # noqa
-        target = 'rel="nofollow noopener noreferrer" target="_blank"'
-        expected = """<div><a href="www.archives.valdoise.fr" {}>Archives départementales du Val-d'Oise</a></div>""".format(
-            target
-        )  # noqa
+        target = 'rel="nofollow noopener noreferrer external" target="_blank"'
         with self.admin_access.cnx() as cnx:
+            expected = f"""<div><a href="www.archives.valdoise.fr" {target}>Archives départementales du Val-d'Oise</a></div>"""  # noqa
             self.assertEqual(enhance_accessibility(html, cnx), expected)
+            title = '''title="Archives départementales du Val-d'Oise - new window"'''
+            expected = f"""<div><a href="www.archives.valdoise.fr" {title}>Archives départementales du Val-d'Oise</a></div>"""  # noqa
+            self.assertEqual(enhance_rgaa(html, cnx), expected)
 
     def test_link_invalid_html(self):
         html = """href="www.archives.valdoise.fr" title="{0}"> Archives départementales du Val-d'Oise</a></div>"""  # noqa
@@ -380,17 +549,17 @@ class XMlUtilsTest(S3BfssStorageTestMixin, CubicWebTC):
     def test_link_remove_identical_link_title(self):
         title = "Archives départementales du Val-d'Oise"
         label = "Archives départementales du <i>Val-d'Oise</i>"
-        html = '<div><a href="www.archives.valdoise.fr" title="{0}">{1}</a></div>'.format(
-            title, label
-        )
-        target = 'rel="nofollow noopener noreferrer" target="_blank"'
-        expected = '<div><a href="www.archives.valdoise.fr" {}>{}</a></div>'.format(target, label)
+        html = f'<div><a href="./article" title="{title}">{label}</a></div>'
         with self.admin_access.cnx() as cnx:
+            expected = f'<div><a href="./article">{label}</a></div>'
             self.assertEqual(enhance_accessibility(html, cnx), expected)
 
     def test_link_add_blank_target(self):
         html = '<div><a href="www.google">google</a></div>'
-        expected = '<div><a href="www.google" rel="nofollow noopener noreferrer" target="_blank">google</a></div>'  # noqa
+        expected = (
+            '<div><a href="www.google" rel="nofollow noopener noreferrer external" '
+            'target="_blank">google</a></div>'
+        )
         with self.admin_access.cnx() as cnx:
             self.assertEqual(enhance_accessibility(html, cnx), expected)
 
@@ -399,27 +568,66 @@ class XMlUtilsTest(S3BfssStorageTestMixin, CubicWebTC):
             html = '<div><a href="{}google.fr">google</a></div>'.format(cnx.base_url())
             self.assertEqual(enhance_accessibility(html, cnx), html)
 
-    def test_link_add_target_1(self):
+    def test_link_clean_external_link(self):
+        html = '<a href="www.archives.valdoise.fr">toto</a>'
+        with self.admin_access.cnx() as cnx:
+            expected = (
+                '<a href="www.archives.valdoise.fr" '
+                'rel="nofollow noopener noreferrer external" '
+                'target="_blank">toto</a>'
+            )
+            self.maxDiff = None
+            self.assertEqual(enhance_accessibility(html, cnx), expected)
+
+    def test_link_add_title_on_external_link(self):
+        html = '<a href="www.archives.valdoise.fr">toto</a>'
+        with self.admin_access.cnx() as cnx:
+            expected = '<a href="www.archives.valdoise.fr" title="toto - new window">toto</a>'
+            self.assertEqual(enhance_rgaa(html, cnx), expected)
+
+    def test_link_add_title_on_external_link_1(self):
         html = '<a href="www.archives.valdoise.fr" title="toto">toto</a>'
         with self.admin_access.cnx() as cnx:
-            expected = '<a href="www.archives.valdoise.fr" rel="nofollow noopener noreferrer" target="_blank">toto</a>'
-            self.assertEqual(enhance_accessibility(html, cnx), expected)
+            expected = '<a href="www.archives.valdoise.fr" title="toto - new window">toto</a>'
+            self.assertEqual(enhance_rgaa(html, cnx), expected)
 
-    def test_link_add_target_2(self):
-        html = '<a href="//www.archives.valdoise.fr" title="toto">toto</a>'
+    def test_link_add_title_on_external_link_2(self):
+        html = '<a href="//www.archives.valdoise.fr" title="titi">toto</a>'
         with self.admin_access.cnx() as cnx:
-            expected = '<a href="//www.archives.valdoise.fr" rel="nofollow noopener noreferrer" target="_blank">toto</a>'
+            expected = (
+                '<a href="//www.archives.valdoise.fr" ' 'title="toto - titi - new window">toto</a>'
+            )
+            self.assertEqual(enhance_rgaa(html, cnx), expected)
+
+    def test_link_add_title_on_external_link_3(self):
+        html = '<a href="www.archives.valdoise.fr" title="toto - titi - new window">toto</a>'
+        with self.admin_access.cnx() as cnx:
+            expected = (
+                '<a href="www.archives.valdoise.fr" ' 'title="toto - titi - new window">toto</a>'
+            )
+            self.assertEqual(enhance_rgaa(html, cnx), expected)
+
+    def test_link_clean_internal_link(self):
+        html = (
+            '<a href="/article" '
+            'rel="nofollow noopener noreferrer external" '
+            'target="_blank" '
+            ">toto</a>"
+        )
+        with self.admin_access.cnx() as cnx:
+            expected = '<a href="/article" target="_blank">toto</a>'
             self.assertEqual(enhance_accessibility(html, cnx), expected)
 
-    def test_link_do_not_add_target_1(self):
+    def test_link_add_title_on_internal_link_1(self):
         html = '<a href="./article" title="titi">toto</a>'
         with self.admin_access.cnx() as cnx:
-            self.assertEqual(enhance_accessibility(html, cnx), html)
+            expected = '<a href="./article" title="toto - titi">toto</a>'
+            self.assertEqual(enhance_rgaa(html, cnx), expected)
 
-    def test_link_do_not_add_target_2(self):
-        html = '<a href="/article" title="titi">toto</a>'
+    def test_link_add_title_on_internal_link_2(self):
+        html = '<a href="/article">toto</a>'
         with self.admin_access.cnx() as cnx:
-            self.assertEqual(enhance_accessibility(html, cnx), html)
+            self.assertEqual(enhance_rgaa(html, cnx), html)
 
     def test_link_keep_link_title(self):
         title = "Archives départementales du Val-d'Oise - Voir plus"
@@ -427,25 +635,32 @@ class XMlUtilsTest(S3BfssStorageTestMixin, CubicWebTC):
         html = '<div><a href="www.archives.valdoise.fr" title="{0}">{1}</a></div>'.format(
             title, label
         )
-        target = 'rel="nofollow noopener noreferrer" target="_blank"'
-        expected = '<div><a href="www.archives.valdoise.fr" title="{0}" {1}>{2}</a></div>'.format(
-            title, target, label
-        )
+        target = 'rel="nofollow noopener noreferrer external" target="_blank"'
+        title = "Archives départementales du Val-d'Oise - Voir plus"
         with self.admin_access.cnx() as cnx:
+            expected = (
+                f'<div><a href="www.archives.valdoise.fr" '
+                f'title="{title}" {target}>{label}</a></div>'
+            )
             self.assertEqual(enhance_accessibility(html, cnx), expected)
+            title = "Archives départementales du Val-d'Oise - Voir plus - new window"
+            expected = (
+                f'<div><a href="www.archives.valdoise.fr" ' f'title="{title}">{label}</a></div>'
+            )
+            self.assertEqual(enhance_rgaa(html, cnx), expected)
 
-    def test_remove_target(self):
+    def test_remove_rel(self):
         html = (
             '<a href="../location/18363459" target="_blank" rel="noopener">Saint-Laurent-Blangy</a>'
         )
-        expected = '<a href="../location/18363459">Saint-Laurent-Blangy</a>'
+        expected = '<a href="../location/18363459" target="_blank">Saint-Laurent-Blangy</a>'
         with self.admin_access.cnx() as cnx:
             self.assertEqual(enhance_accessibility(html, cnx), expected)
 
     def test_images_add_empty_alt(self):
         """images must have alt attribute"""
         html = '<div><img src="http://advaldoise.fr"/></div>'
-        expected = '<div><img src="http://advaldoise.fr" alt=""></div>'
+        expected = '<div><img src="http://advaldoise.fr" ' 'alt=""></div>'
         with self.admin_access.cnx() as cnx:
             self.assertEqual(enhance_accessibility(html, cnx), expected)
 
@@ -458,13 +673,13 @@ class XMlUtilsTest(S3BfssStorageTestMixin, CubicWebTC):
             '<img src="http://advaldoise.fr" '
             'alt="toto" />{}</a></div>'
         ).format(label)
-        target = 'rel="nofollow noopener noreferrer" target="_blank"'
+        target = 'rel="nofollow noopener noreferrer external" target="_blank"'
         expected = (
-            '<div><img src="http://google.fr" alt="">'
-            '<a href="www.archives.valdoise.fr" {target} class="image-link">'
-            '<img src="http://advaldoise.fr" alt="{alt}">'
-            "{label}</a></div>"
-        ).format(target=target, label=label, alt=remove_html_tags(label))
+            f'<div><img src="http://google.fr" alt="">'
+            f'<a href="www.archives.valdoise.fr" {target} class="image-link">'
+            f'<img src="http://advaldoise.fr" alt="{remove_html_tags(label)}"'
+            f">{label}</a></div>"
+        )
         with self.admin_access.cnx() as cnx:
             self.assertEqual(enhance_accessibility(html, cnx), expected)
 
@@ -494,6 +709,13 @@ class XMlUtilsTest(S3BfssStorageTestMixin, CubicWebTC):
         with self.admin_access.cnx() as cnx:
             self.assertEqual(enhance_accessibility(html, cnx), expected)
 
+    def test_images_figure_tiny(self):
+        """add role="figure" and aria-label= figcaption.text on the figure tag"""
+        html = """<figure class="image"><img src="http://advaldoise.fr"/><figcaption>legende</figcaption></figure>"""
+        expected = """<figure class="image" role="figure" aria-labelledby="caption_1"><img src="http://advaldoise.fr" alt=""><figcaption id="caption_1">legende</figcaption></figure>"""
+        with self.admin_access.cnx() as cnx:
+            self.assertEqual(enhance_accessibility(html, cnx), expected)
+
     def test_stripped_html_node(self):
         with self.admin_access.cnx() as cnx:
             html = "\xa0<p>tooo</p>"
@@ -517,7 +739,22 @@ class XMlUtilsTest(S3BfssStorageTestMixin, CubicWebTC):
             '<img src="../file/01c12288z2dsd/illustration_1.jpg" alt="alt" /></a>'
         )
         expected = (
+            '<a href="www.archives.valdoise.fr" rel="nofollow noopener noreferrer external" '
+            'target="_blank" class="toto image-link">'
+            '<img src="../file/01c12288z2dsd/illustration_1.jpg" alt=""></a>'
+        )
+        with self.admin_access.cnx() as cnx:
+            self.assertEqual(enhance_accessibility(html, cnx), expected)
+
+    def test_image_link_classes(self):
+        """add a specific css class on image-links"""
+        html = (
             '<a href="www.archives.valdoise.fr" rel="nofollow noopener noreferrer" '
+            'target="_blank" class="toto image-link">'
+            '<img src="../file/01c12288z2dsd/illustration_1.jpg" alt="alt" /></a>'
+        )
+        expected = (
+            '<a href="www.archives.valdoise.fr" rel="nofollow noopener noreferrer external" '
             'target="_blank" class="toto image-link">'
             '<img src="../file/01c12288z2dsd/illustration_1.jpg" alt=""></a>'
         )
@@ -542,13 +779,44 @@ class XMlUtilsTest(S3BfssStorageTestMixin, CubicWebTC):
                 self.assertEqual(enhance_accessibility(html, cnx), expected)
 
     def test_media_subtitles(self):
-        html = '<div class="media-subtitles-button"></div><div class="media-subtitles"><p>Impl&eacute;mentation des adapteurs RDF pour traduire les entit&eacute;s suivantes en RiC-O</p></div>'
-        expected = """<div class="media-subtitles-button"><a aria-expanded="false" data-label-expand="Display transcription" data-label-collapse="Hide transcription" aria-controls="transcript-5bb61c2d60ef581a9f574a0b807483c9bd27f425">Display transcription</a></div><div class="media-subtitles hidden" id="transcript-5bb61c2d60ef581a9f574a0b807483c9bd27f425"><p>Implémentation des adapteurs RDF pour traduire les entités suivantes en RiC-O</p></div>"""
+        transcript = '<div class="media-subtitles hidden"><h1>Title</h1><p>Implémentation des adapteurs RDF pour traduire les entités suivantes en RiC-O</p></div>'  # noqa
+        html = '<div class="media-subtitles-button"></div>' + transcript
         with self.admin_access.cnx() as cnx:
-            self.assertEqual(handle_subtitles(html, cnx), expected)
+            filepath = self.datapath("html/transcription.html")
+            with open(filepath, "r") as f:
+                expected = f.read()
+            generated = soup2xhtml(handle_subtitles(html, cnx), encoding=cnx.encoding)
+            self.assertEqual(generated, expected)
+
+    def test_clean_xss(self):
+        with self.admin_access.cnx() as cnx:
+            for title, expected in (
+                (
+                    'Fixer la frontière : Alpes-Maritimes <script>alert("toto")</script>',
+                    'Fixer la frontière : Alpes-Maritimes alert("toto")',
+                ),
+                (
+                    '<script>alert("titi")</script> Fixer la frontière : Alpes-Maritimes',
+                    'alert("titi") Fixer la frontière : Alpes-Maritimes',
+                ),
+                (
+                    'Fix<ScriPt>alert("tata")</scRipT> xer la frontière : Alpes-Maritimes',
+                    'Fixalert("tata") xer la frontière : Alpes-Maritimes',
+                ),
+                (
+                    'Fix<javascript>alert("tete") xer la frontière : Alpes-Maritimes',
+                    'Fixalert("tete") xer la frontière : Alpes-Maritimes',
+                ),
+                (
+                    "<xss onbeforescriptexecute=alert(1)><script>1</script>",
+                    "<xss onbeforescriptexecute=alert(1)>1",
+                ),
+            ):
+                clean_xss(title, cnx)
+                self.assertEqual(clean_xss(title, cnx), expected)
 
 
-class GlossaryUtilsTest(CubicWebTC):
+class GlossaryUtilsTest(WebCWTC):
     def setUp(self):
         GLOSSARY_CACHE[:] = []
         super(GlossaryUtilsTest, self).setUp()
@@ -574,13 +842,14 @@ class GlossaryUtilsTest(CubicWebTC):
             )
             term = cnx.find("GlossaryTerm", term="Inventaire d'archives").one()
             got = reveal_glossary(cnx, text).replace("&#39;", "'")
-            expected = f"""<p>Le portail rassemble les <a data-bs-content="Inventaire d'archives descritpion" data-bs-toggle="popover" class="glossary-term" data-bs-placement="auto" data-bs-trigger="hover focus" data-bs-html="true" href="http://testing.fr/cubicweb/glossaire#{term.eid}" target="_blank">inventaires d'archives
-<i class="fa fa-question"></i>
-</a> de toute la France</p>"""  # noqa
+            expected = f"""<p>Le portail rassemble les <a href="{BASE_URL}glossaire#{term.eid}" class="fr-link" rel="noopener external" target="_blank">Inventaires d'archives</a>
+        <button type="button" id="button-glossaire-{term.eid}" class="fr-btn--tooltip fr-btn" aria-describedby="tooltip-{term.eid}">
+        </button>
+        <span class="fr-tooltip fr-placement" id="tooltip-{term.eid}" role="tooltip" aria-hidden="true">Inventaire d'archives descritpion</span> de toute la France</p>"""
             self.assertEqual(got, expected)
 
 
-class ImportUtiles(S3BfssStorageTestMixin, CubicWebTC):
+class ImportUtiles(S3BfssStorageTestMixin, WebCWTC):
     def test_pdf_info(self):
         """
         Trying: create a pdf file and extract the text

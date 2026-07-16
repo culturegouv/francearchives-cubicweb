@@ -30,6 +30,11 @@
 
 /* global $, L, BASE_URL */
 
+import {GestureHandling} from 'leaflet-gesture-handling'
+
+import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css'
+L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling)
+
 const goldenIcon = L.divIcon({
     iconAnchor: [0, 24],
     labelAnchor: [-6, 0],
@@ -156,29 +161,22 @@ L.Control.AllServices = L.Control.extend({
             'div',
             'leaflet-control-layers leaflet-control-layers-expanded leaflet-control leaflet-all-services-control',
         ))
-        const div = L.DomUtil.create(
+        const overlays = L.DomUtil.create(
             'div',
-            '',
-            L.DomUtil.create(
-                'label',
-                '',
-                L.DomUtil.create(
-                    'div',
-                    'leaflet-control-layers-overlays',
-                    container,
-                ),
-            ),
+            'leaflet-control-layers-overlays',
+            container,
         )
         let input = (this._input = L.DomUtil.create(
             'input',
             'leaflet-control-layers-selector',
-            div,
+            overlays,
         ))
         input.type = 'checkbox'
         input.id = 'all-services'
         input.checked = true
-        L.DomUtil.create('span', '', div).innerHTML +=
-            ' ' + this._labels.allTitle
+        const span = L.DomUtil.create('label', '', overlays)
+        span.innerHTML += ' ' + this._labels.allTitle
+        span.setAttribute('for', input.id)
         L.DomEvent.disableClickPropagation(container)
         return container
     },
@@ -319,23 +317,15 @@ L.Control.Partners = L.Control.extend({
     },
 
     _addInput: function (container, id, label, value) {
-        const div = L.DomUtil.create(
+        const overlays = L.DomUtil.create(
             'div',
-            '',
-            L.DomUtil.create(
-                'label',
-                '',
-                L.DomUtil.create(
-                    'div',
-                    'leaflet-control-layers-overlays',
-                    container,
-                ),
-            ),
+            'leaflet-control-layers-overlays',
+            container,
         )
         const input = L.DomUtil.create(
             'input',
             'leaflet-control-layers-selector',
-            div,
+            overlays,
         )
         input.type = 'checkbox'
         input.id = id
@@ -343,7 +333,9 @@ L.Control.Partners = L.Control.extend({
         //input.checked = this._selectedServices[value].size > 0
         L.DomEvent.on(input, 'change', this.inputSelected, this)
         this._layerControlInputsMap[label] = input
-        L.DomUtil.create('span', '', div).innerHTML += ' ' + label
+        const span = L.DomUtil.create('label', '', overlays)
+        span.innerHTML += ' ' + label
+        span.setAttribute('for', input.id)
         if (!this._availableOptions.has(value)) {
             input.disabled = true
             L.DomUtil.setOpacity(input.nextSibling, 0.5)
@@ -374,13 +366,17 @@ L.Control.Sidebar.include({
     prepareServicesTabContent: function () {
         const $sidebar = $(this.getContainer())
         if (selectedService) {
-            $sidebar.find('.leaflet-sidebar-empty-data').addClass('d-none')
+            $sidebar.find('.leaflet-sidebar-empty-data').addClass('fr-hidden')
             $sidebar
                 .find('.leaflet-sidebar-pane-services')
-                .removeClass('d-none')
+                .removeClass('fr-hidden')
         } else {
-            $sidebar.find('.leaflet-sidebar-empty-data').removeClass('d-none')
-            $sidebar.find('.leaflet-sidebar-pane-services').addClass('d-none')
+            $sidebar
+                .find('.leaflet-sidebar-empty-data')
+                .removeClass('fr-hidden')
+            $sidebar
+                .find('.leaflet-sidebar-pane-services')
+                .addClass('fr-hidden')
         }
     },
 })
@@ -395,7 +391,7 @@ function buildMap() {
     if (mapElement === null) {
         return
     }
-
+    // build map
     serviceEid = mapElement.dataset.zoom
 
     const selectedDepartment = (function () {
@@ -472,6 +468,7 @@ function buildMap() {
             zoomOffset: -1,
             zoomControl: false,
             cluster: false,
+            gestureHandling: true,
         })
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -563,7 +560,7 @@ function buildMap() {
         const $sidebar = $(sidebarControl.getContainer())
         $sidebar.find('.service').html(feature.properties.name)
         if (feature.properties.contact_name === null) {
-            $sidebar.find('li.contact').addClass('d-none')
+            $sidebar.find('li.contact').addClass('fr-hidden')
         } else {
             $sidebar
                 .find('li.contact .contact-label')
@@ -571,38 +568,38 @@ function buildMap() {
             $sidebar
                 .find('li.contact span')
                 .html(feature.properties.contact_name)
-            $sidebar.find('li.contact').removeClass('d-none')
+            $sidebar.find('li.contact').removeClass('fr-hidden')
         }
         if (feature.properties.phone_number === null) {
-            $sidebar.find('li.phone').addClass('d-none')
+            $sidebar.find('li.phone').addClass('fr-hidden')
         } else {
             $sidebar.find('li.phone span').html(feature.properties.phone_number)
-            $sidebar.find('li.phone').removeClass('d-none')
+            $sidebar.find('li.phone').removeClass('fr-hidden')
         }
         if (feature.properties.opening_period === null) {
-            $sidebar.find('li.opening_period').addClass('d-none')
+            $sidebar.find('li.opening_period').addClass('fr-hidden')
         } else {
             $sidebar
                 .find('li.opening_period span')
                 .html(feature.properties.opening_period)
-            $sidebar.find('li.opening_period').removeClass('d-none')
+            $sidebar.find('li.opening_period').removeClass('fr-hidden')
         }
         if (feature.properties.address === null) {
-            $sidebar.find('li.address').addClass('d-none')
+            $sidebar.find('li.address').addClass('fr-hidden')
         } else {
             $sidebar.find('li.address span').html(feature.properties.address)
-            $sidebar.find('li.address').removeClass('d-none')
+            $sidebar.find('li.address').removeClass('fr-hidden')
         }
         if (feature.properties.mailing_address === null) {
-            $sidebar.find('li.mailing_address').addClass('d-none')
+            $sidebar.find('li.mailing_address').addClass('fr-hidden')
         } else {
             $sidebar
                 .find('li.mailing_address span')
                 .html(feature.properties.mailing_address)
-            $sidebar.find('li.mailing_address').removeClass('d-none')
+            $sidebar.find('li.mailing_address').removeClass('fr-hidden')
         }
         if (feature.properties.email === null) {
-            $sidebar.find('li.email').addClass('d-none')
+            $sidebar.find('li.email').addClass('fr-hidden')
         } else {
             $sidebar
                 .find('li.email span')
@@ -613,19 +610,19 @@ function buildMap() {
                         feature.properties.email +
                         '</a>',
                 )
-            $sidebar.find('li.email').removeClass('d-none')
+            $sidebar.find('li.email').removeClass('fr-hidden')
         }
         if (feature.properties.annual_closure === null) {
-            $sidebar.find('li.annual_closure').addClass('d-none')
+            $sidebar.find('li.annual_closure').addClass('fr-hidden')
         } else {
             $sidebar
                 .find('li.annual_closure span')
                 .html(feature.properties.annual_closure)
-            $sidebar.find('li.annual_closure').removeClass('d-none')
+            $sidebar.find('li.annual_closure').removeClass('fr-hidden')
         }
         const website = feature.properties.website
         if (website === null) {
-            $sidebar.find('li.website').addClass('d-none')
+            $sidebar.find('li.website').addClass('fr-hidden')
         } else {
             $sidebar
                 .find('li.website span')
@@ -636,15 +633,15 @@ function buildMap() {
                         website +
                         '</a><i class="fa fa-external-link"></i>',
                 )
-            $sidebar.find('li.website').removeClass('d-none')
+            $sidebar.find('li.website').removeClass('fr-hidden')
         }
         if (feature.properties.code_insee === null) {
-            $sidebar.find('li.code_insee').addClass('d-none')
+            $sidebar.find('li.code_insee').addClass('fr-hidden')
         } else {
             $sidebar
                 .find('li.code_insee span')
                 .html(feature.properties.code_insee)
-            $sidebar.find('li.code_insee').removeClass('d-none')
+            $sidebar.find('li.code_insee').removeClass('fr-hidden')
         }
         $sidebar
             .find('li.gps span')
@@ -666,9 +663,9 @@ function buildMap() {
                 )
             })
             $sidebar.find('li.social_network span').html(network.join(', '))
-            $sidebar.find('li.social_network').removeClass('d-none')
+            $sidebar.find('li.social_network').removeClass('fr-hidden')
         } else {
-            $sidebar.find('li.social_network').addClass('d-none')
+            $sidebar.find('li.social_network').addClass('fr-hidden')
         }
         if (feature.properties.ead === '1') {
             $sidebar
@@ -677,20 +674,20 @@ function buildMap() {
                     'href',
                     BASE_URL + 'inventaires/' + feature.properties.code,
                 )
-                .removeClass('d-none')
+                .removeClass('fr-hidden')
         } else {
-            $sidebar.find('.fi-link').addClass('d-none')
+            $sidebar.find('.fi-link').addClass('fr-hidden')
         }
         if (feature.properties.nomina === '1') {
             $sidebar
                 .find('.nomina-link a')
                 .prop(
                     'href',
-                    BASE_URL + 'basedenoms/' + feature.properties.code,
+                    BASE_URL + 'basedenoms/service/' + feature.properties.code,
                 )
-                .removeClass('d-none')
+                .removeClass('fr-hidden')
         } else {
-            $sidebar.find('.nomina-link').addClass('d-none')
+            $sidebar.find('.nomina-link').addClass('fr-hidden')
         }
         sidebarControl.open('services')
     }
@@ -833,7 +830,7 @@ function buildMap() {
             addPartnersControlToMap(data.i18n.partners)
             handleServicesOverlaysSelection()
             // display the sidebar
-            sidebarControl.getContainer().classList.remove('d-none')
+            sidebarControl.getContainer().classList.remove('fr-hidden')
         })
 
     function resetLocation() {
@@ -970,6 +967,14 @@ function buildMap() {
             }
             sidebarControl.close()
         })
+    }
+
+    const homeLink = document.querySelectorAll('.leaflet-control-zoomhome-home')
+    // set a dfsr icon on zoomhome button instead of awesome icon
+    if (homeLink !== undefined) {
+        homeLink[0].firstChild.classList.remove('fa')
+        homeLink[0].firstChild.classList.remove('fa-home')
+        homeLink[0].firstChild.classList.add('fr-icon-home-4-line')
     }
 }
 

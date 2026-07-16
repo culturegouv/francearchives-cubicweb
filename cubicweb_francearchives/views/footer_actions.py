@@ -33,7 +33,7 @@
 
 from logilab.mtconverter import xml_escape
 
-from cubicweb.web import action
+from cubicweb_web import action
 
 _ = str
 

@@ -28,14 +28,14 @@
  * knowledge of the CeCILL-C license and that you accept its terms.
  */
 
-/* global BASE_URL, $ */
+/* global BASE_URL */
 
 import {each} from 'lodash/collection'
 
 function revealGlossary() {
     const regex = new RegExp(/glossaire#(\d+)/)
     const links = Array.prototype.slice
-        .call(document.querySelectorAll('#page a'))
+        .call(document.querySelectorAll('main a'))
         .filter((e) => e.href.includes('/glossaire#'))
     if (links.length) {
         fetch(BASE_URL + '_glossaryterms', {credentials: 'same-origin'})
@@ -47,15 +47,23 @@ function revealGlossary() {
                     var match = link.href.match(regex)
                     if (match !== null) {
                         if (glossary[match[1]] !== undefined) {
-                            link.rel = 'popover'
+                            link.id = 'link-' + match[1]
                             link.target = '_blank'
-                            link.classList.add('glossary-term')
-                            link.dataset['placement'] = 'auto'
-                            link.dataset['content'] = glossary[match[1]]
-                            $(link).popover({html: true, trigger: 'hover'})
+                            link.classList.add('fr-link')
+                            link.setAttribute(
+                                'aria-describedby',
+                                'tooltip-' + match[1],
+                            )
+                            const span =
+                                '<span class="fr-tooltip fr-placement" id="tooltip-' +
+                                match[1] +
+                                '" role="tooltip" aria-hidden="true">' +
+                                glossary[match[1]] +
+                                '</span>'
+                            link.insertAdjacentHTML('afterend', span)
                         } else {
                             // dead link
-                            link.href = ''
+                            link.href = '#'
                             link.classList.add('dead-link')
                         }
                     }

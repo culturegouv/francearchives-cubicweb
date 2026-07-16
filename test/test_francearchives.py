@@ -52,14 +52,14 @@ uncomment code below if you want to activate automatic test for your cube:
             return ('some', 'startup', 'views')
 """
 
-from cubicweb.devtools.testlib import CubicWebTC
+from cubicweb_web.devtools.testlib import WebCWTC
 
 from cubicweb_francearchives.testutils import PostgresTextMixin
 
 from pgfixtures import setup_module, teardown_module  # noqa
 
 
-class FranceArchivesViewsTC(PostgresTextMixin, CubicWebTC):
+class FranceArchivesViewsTC(PostgresTextMixin, WebCWTC):
     vid_validators = {
         "index": lambda: None,
     }

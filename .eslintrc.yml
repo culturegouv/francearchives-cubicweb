@@ -1,9 +1,11 @@
 extends:
   - eslint:recommended
   - plugin:react/recommended
+  - plugin:prettier/recommended
+parser: '@typescript-eslint/parser'
 parserOptions:
   sourceType: "module"
-  ecmaVersion: 2017
+  ecmaVersion: 2018
   ecmaFeatures:
     jsx: true
     arrowFunctions: true
@@ -20,11 +22,14 @@ env:
   es6: true
   node: true
 rules:
+  prettier/prettier: ["error"]
   react/no-multi-comp: off
+  react/display-name: off
   react/jsx-indent-props: [2, 4]
+  react/no-unescaped-entities: 0
   object-curly-spacing: ["error", "never"]
   object-shorthand: off
-  no-unused-vars: ["error", {"argsIgnorePattern": "_$"}]
+  no-unused-vars: ["warn", {"argsIgnorePattern": "_$"}]
   indent: ["off", 4, {"VariableDeclarator": 1}]
   quotes: [0]
   key-spacing: [0]
@@ -37,4 +42,9 @@ rules:
   comma-dangle: ["error", "always-multiline"]
   space-before-function-paren: ["error", {"anonymous": "ignore", "named": "never"}]
 plugins:
+  - '@typescript-eslint'
   - react
+  - prettier
+settings:
+  react:
+    "version": "detect"

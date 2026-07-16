@@ -1,65 +1,59 @@
-<section class="glossary-view document-view">
-  {% block head %}
-    <h1>{{ title }}</h1>
-  {% endblock %}
-  {% if card %}
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-col-lg-8">
+      <h1>{{ title | e}}</h1>
+    </div>
+    {%- if card %}
     <div class="glossary-card">{{ card }}</div>
-    {% if card and editable %}
-      <a href="{{ base_url }}/glossary-card" class="edit-link">{{ _('Edit the card') }} <i class="fa fa-edit"></i></a>
-    {% endif %}
-  {% endif %}
-
-  <div class="row glossary-content">
-    <div class="glossary-alphabet-sticky d-none d-md-block col-md-3 col-lg-2 d-print-none">
-      <div class="glossary-alphabet">
-      {% for letter in letters%}
-        <a href="#{{ letter }}">{{ letter }} </a>
-        {% if not loop.last %}
-          <i class="rhombus"></i>
-        {% endif %}
-      {% endfor %}
+      {%- if card and editable %}
+       <a href="{{ base_url }}/glossary-card" class="edit-link">{{ _('Edit the card') }} <i class="fa fa-edit"></i></a>
+      {% endif -%}
+    {% endif -%}
+  </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="glossary-alphabet-sticky fr-hidden fr-hidden-xs fr-unhidden-md fr-col-sm-3 fr-col-offset-sm-1--right d-print-none">
+      <div class="fa-alphabet fa-glossary">
+        {%- for letter in letters -%}
+        <a href="#{{ letter }}" class="letter fr-btn fr-btn--tertiary fr-mb-2v fr-mr-2v">{{ letter | e }}</a>
+        {%- endfor -%}
       </div>
     </div>
-    <div class="d-md-none d-print-none">
-      <div class="glossary-alphabet">
-      {% for letter in letters%}
-         <a href="#{{ letter }}">{{ letter }} </a>
-         {% if not loop.last %}
-           <i class="rhombus"></i>
-         {% endif %}
-       {% endfor %}
-       </div>
-    </div>
-
-    <div class="col-md-9 col-lg-10 glossary-items">
-    {% for letter in letters %}
-      <h2 id="{{ letter }}" class="glossary-letter">{{ letter }}</h2>
-      {% for eid, term, description, anchor in glossary[letter] %}
-        {% set link= glossary_url+ "#" + anchor %}
-        <div class="glossary-item" id="{{ anchor }}">
-          <div class="glossary-item__term">{{ term }}
-            {% if editable %}
-            <a class="edit-link" href="{{ base_url }}/glossaryterm/{{eid}}">
-              <i class="fa fa-edit"></i>
-            </a>
-            {% endif %}
-          </div>
-          <div class="glossary-item__definition">{{ description }}</div>
-          {% if editable %}
-          <div class="glossary-item__edition well">
-            <p>
-              <span class="glossary-item__edition_label">{{_('Copy the glossary term link') }}</span>
-               <a href="{{link}}">{{link}}</a>
-            <p>
-            <p>
-              <span class="glossary-item__edition_label">{{_('Edit the glossary term') }}</span>
-              <a href="{{ base_url }}/glossaryterm/{{eid}}">{{ base_url }}/glossaryterm/{{eid}}</a>
-            </p>
-          </div>
-          {% endif %}
+    <div class="fr-col-12 fr-col-sm-8" {% if lang != "fr" -%}lang="fr"{% endif -%}>
+      <div class="fr-hidden-md">
+        <div class="fa-alphabet fa-glossary">
+          {% for letter in letters%}
+          <a href="#{{ letter }}" class="letter">{{ letter | e }}</a>
+          {% endfor %}
         </div>
-      {% endfor %}
-    {% endfor %}
+      </div>
+      {%- for letter in letters -%}
+      <p id="{{ letter }}" class="fr-h2 glossary-letter fr-text-title--blue-france">{{ letter }}</p>
+      {%- for eid, term, title, description, anchor in glossary[letter] -%}
+      {%- set link= glossary_url+ "#" + anchor -%}
+      <div>
+        <h2 id="{{ anchor }}" class="fr-h5">{{ term | e }}
+          <a class="anchor" title="{{ _('Link to:') }} {{ title }}"
+             href="#{{ anchor}}">
+             {%- if editable -%}
+             <span class="fr-icon-links-fill"></span></a>
+            {%- endif -%}
+        </h2>
+        <p>{{ description }}</p>
+        {%- if editable %}
+        <div class="glossary-item__edition fr-highlight">
+          <p>
+            <span>{{_('Copy the glossary term link') }}</span>
+            <a href="{{link}}">{{link}}</a>
+          </p>
+          <p>
+            <span>{{_('Edit the glossary term') }}</span>
+            <a href="{{ base_url }}/glossaryterm/{{eid}}">{{ base_url }}/glossaryterm/{{eid}}</a>
+          </p>
+        </div>
+        {% endif -%}
+      </div>
+      {%- endfor -%}
+      {%- endfor -%}
     </div>
   </div>
-</section>
+</div>

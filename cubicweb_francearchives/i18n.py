@@ -41,7 +41,7 @@ import re
 
 from cubicweb import cwctl
 from cubicweb.cwconfig import CubicWebConfiguration as cwcfg
-from cubicweb.devtools import devctl
+from cubicweb_web.i18n import WebI18nCubeMessageExtractor
 
 import cubicweb_francearchives as cwfa
 
@@ -58,7 +58,7 @@ def is_application_entry(entry, skip_msgctxt=True):
     (cf. https://www.cubicweb.org/ticket/1631210), we use the best possible
     pessimistic heuristic.
     """
-    if entry.msgctxt and skip_msgctxt:
+    if entry.msgctxt != "appjs" and skip_msgctxt:
         return False
     # XXX load schema and check for etype instead of this
     #     stupid 2-words heuristic
@@ -208,6 +208,8 @@ def update_i18n_catalogs(po_files, csv_filename, autosave=True, skip_msgctxt=Tru
             list(lang_translations.items()), key=lambda k: 0 if k[0] == "fr" else 1
         )
         for lang, label in sorteditems:
+            if not lang:
+                continue
             if msgid_key in po_dicts[lang]:
                 if not substitutions_consistent(msgid_key[1], label):
                     break
@@ -238,8 +240,8 @@ def add_context_to(context, path):
     return path
 
 
-class FranceArchivesMessageExtractor(devctl.I18nCubeMessageExtractor):
-    formats = devctl.I18nCubeMessageExtractor.formats + ["jinja2", "appjs"]
+class FranceArchivesMessageExtractor(WebI18nCubeMessageExtractor):
+    formats = WebI18nCubeMessageExtractor.formats + ["jinja2", "appjs"]
 
     def collect_jinja2(self):
         return self.find(".jinja2")
@@ -251,8 +253,6 @@ class FranceArchivesMessageExtractor(devctl.I18nCubeMessageExtractor):
         return self._xgettext(files, output="jinja.pot", extraopts="-L python --from-code=utf-8")
 
     def extract_appjs(self, paths):
-        print("*" * 100)
-        print(paths)
         potfile = self._run_babel_cmd(
             "appjs.pot", input_paths=paths, keywords={"t": None, "_": None, "translate": None}
         )

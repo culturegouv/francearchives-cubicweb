@@ -33,8 +33,8 @@ import re
 
 from cwtags import tag as T
 
-from cubicweb.view import StartupView
-from cubicweb.web.views.formrenderers import FormRenderer
+from cubicweb_web.view import StartupView
+from cubicweb_web.views.formrenderers import FormRenderer
 
 from cubicweb_francearchives.utils import find_card
 
@@ -50,19 +50,26 @@ class AbstractStaticFormView(StartupView):
         if card is not None:
             self.wview("primary", entity=card)
         form = self._cw.vreg["forms"].select(self.__regid__, self._cw)
-        form.render(w=self.w, display_progress_div=False, submitted=submitted_values)
+        with T.div(self.w, klass="fr-container"):
+            with T.div(self.w, klass="fr-grid-row fr-grid-row--gutters fr-grid-row--center"):
+                form.render(w=self.w, submitted=submitted_values)
 
 
 class AbstractPniaStaticFormRenderer(FormRenderer):
     __abstract__ = True
+    html_title = None
+    display_progress_div = False
+
+    def open_form(self, form, values, **attrs):
+        orig = super().open_form(form, values, **attrs)
+        return f"{orig[:-1]} novalidate>"
 
     def render_content(self, w, form, values):
         """pnia customization: rgaa remove useless fieldset without label"""
-        if self.display_progress_div:
-            w('<div id="progress">%s</div>' % self._cw._("validating..."))
-        with T.div(w, klass="document-view"):
-            self.render_fields(w, form, values)
-            self.render_buttons(w, form)
+        if self.html_title:
+            w(self.html_title)
+        self.render_fields(w, form, values)
+        self.render_buttons(w, form)
 
     def render_fields(self, w, form, values):
         form.ctl_errors = {}
@@ -72,8 +79,10 @@ class AbstractPniaStaticFormRenderer(FormRenderer):
             errors = submitted.get("errors", {})
             form.ctl_errors = errors
             if msg:
-                klass = "alert alert-danger" if errors else "alert alert-success"
-                w(T.div(msg, klass=klass))
+                level = submitted.get("level", "success")
+                klass = f"fr-alert fr-alert--{level} fr-mb-8v"
+                with T.div(w, klass="fr-col-12 fr-col-lg-8"):
+                    w(T.p(msg, klass=klass))
         super(AbstractPniaStaticFormRenderer, self).render_fields(w, form, values)
 
     def _render_fields(self, fields, w, form):
@@ -92,6 +101,5 @@ class AbstractPniaStaticFormRenderer(FormRenderer):
         processed = {}
         _ = self._cw._
         for key, value in form.ctl_errors.items():
-            if form.field_by_name(key).required:
-                processed["contact_%s_error" % key] = _(value)
+            processed["contact_%s_error" % key] = _(value)
         return processed

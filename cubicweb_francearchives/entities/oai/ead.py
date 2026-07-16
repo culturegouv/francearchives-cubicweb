@@ -38,8 +38,10 @@ from logilab.common.decorators import cachedproperty
 from cubicweb.predicates import is_instance
 from cubicweb_eac.entities import AbstractXmlAdapter
 
+from cubicweb_francearchives import IIIF_MANIFEST_ROLE
+
 from cubicweb_francearchives.entities.oai import AbstractOAIDownloadView
-from cubicweb_francearchives.dataimport.eadreader import cleanup_ns
+from cubicweb_francearchives.dataimport import cleanup_ns
 from cubicweb_francearchives.utils import is_absolute_url, remove_html_tags
 
 OAI_IDENTIFIER_SCHEMA_LOCATION = "urn:isbn:1-931666-22-9"
@@ -94,22 +96,27 @@ class FindingAidOAIEADXmlAdapter(AbstractXmlAdapter):
 
     @cachedproperty
     def digitized_versions(self):
+        """return all digitized versions urls and roles"""
         query = (
-            "Any FA, DAUL WHERE X stable_id %(st)s, "
+            "(Any FA, IL, VIEW, ROLE WHERE X stable_id %(st)s, "
             "FA finding_aid X, FA digitized_versions DA, "
-            "DA illustration_url DAUL, NOT DA illustration_url NULL"
+            "DA illustration_url IL, DA url VIEW, DA role ROLE)"
+            " UNION "
+            "(Any X, IL, VIEW, ROLE WHERE X stable_id %(st)s, "
+            "X digitized_versions DA, "
+            "DA illustration_url IL, DA url VIEW, DA role ROLE)"
         )
         rset = self._cw.execute(query, {"st": self.findingaid.stable_id})
         dao = defaultdict(list)
-        for fa, illustration_url in rset:
-            dao[fa].append(illustration_url)
+        for eid, illustration_url, viewer_url, role in rset:
+            dao[eid].append((illustration_url, viewer_url, role))
         return dao
 
     @cachedproperty
     def facomponents(self):
         query = (
             "Any FA, FH, D, DU, DUT, DUD, DPH, DRP, DLG, "
-            "DOR, DEX, FTP, FSP, FAR, FUR, FAD, XD, XDF "
+            "DOR, DEX, FTP, FSP, FAR, FUR, FAD, XD, XDF ORDERBY FA "
             "WHERE X stable_id %(st)s, FA finding_aid X, FA did D, "
             "D unittitle DUT, D unitid DU, D unitdate DUD, "
             "D physdesc DPH, D repository DRP, D lang_description DLG, "
@@ -171,7 +178,7 @@ class FindingAidOAIEADXmlAdapter(AbstractXmlAdapter):
         oai_identifier = "{0} {1}".format(
             OAI_IDENTIFIER_SCHEMA_LOCATION, OAI_IDENTIFIER_SCHEMA_LOCATION_XSD
         )
-        if root_element:
+        if root_element is not None:
             nsmap = root_element.nsmap
             nsmap["xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
             root_element.set("audience", "external")
@@ -197,6 +204,7 @@ class FindingAidOAIEADXmlAdapter(AbstractXmlAdapter):
         )
 
     def update_original_xml(self, tree):
+        # Some EAD files use the 'urn:isbn:1-931666-22-9' namesapce, some don't.
         for eadid in tree.xpath("..//s:eadid", namespaces={"s": "urn:isbn:1-931666-22-9"}):
             if eadid.attrib.get("url") is None:
                 eadid.attrib["url"] = self.prod_entity_url
@@ -263,11 +271,10 @@ class FindingAidOAIEADXmlAdapter(AbstractXmlAdapter):
         attrs = {"level": "fonds"}
         archdesc = self.element("archdesc", parent=parent_element, attributes=attrs)
         did = self.did
-        if did.extptr:
-            dao = (did.extptr,)
-        else:
-            dao = ()
-        self.did_element(archdesc, self.findingaid, did, dao)
+        self.did_element(archdesc, self.findingaid, did)
+        daos = [u for u in self.digitized_versions.get(self.findingaid.eid, []) if u]
+        if daos:
+            self.dao_elements(archdesc, self.findingaid, daos)
         self.scopecontent(archdesc, self.findingaid)
         self.controlaccess(archdesc, self.findingaid)
         self.relatedmaterial(archdesc, self.findingaid)
@@ -275,16 +282,16 @@ class FindingAidOAIEADXmlAdapter(AbstractXmlAdapter):
         self.userestrict(archdesc, self.findingaid)
         self.components(archdesc)
 
-    def did_element(self, parent_element, entity, did, dao):
+    def did_element(self, parent_element, entity, did):
         did_elt = self.element("did", parent=parent_element)
         # dao
         unitid = self.element("unitid", parent=did_elt)
-        extptr = None
-        for link in dao:
-            if is_absolute_url(link):
+        extptr = did.extptr
+        if extptr:
+            if is_absolute_url(extptr):
                 attribs = {
                     "{%s}type" % self.namespaces["xlink"]: "simple",
-                    "{%s}href" % self.namespaces["xlink"]: link,
+                    "{%s}href" % self.namespaces["xlink"]: extptr,
                 }
                 extptr = self.element("extptr", parent=unitid)
                 extptr.attrib.update(attribs)
@@ -308,6 +315,42 @@ class FindingAidOAIEADXmlAdapter(AbstractXmlAdapter):
         lang_description = self.clean_richstring_data(did, "lang_description")
         if lang_description:
             self.element("langmaterial", parent=did_elt, text=lang_description)
+
+    def dao_elements(self, parent_element, entity, daos):
+        """Create dao tags:
+        - The thumbnail URL : dc:relation preceded by "vignette :"
+          becomes <dao xlink:href="" xlink:type="simple" xlink:role="thumbnail"/>
+          with the role "thumbnail""
+        - The digitized link URL: using the dc:relation tag without the 'thumbnail' prefix becomes
+           <dao xlink:href="" xlink:type="simple" xlink:title=""/>
+        - Component identifier :
+          the dc:identifier element is reserved for the
+          link to the component and becomes
+          <unitid extptr xlink:type="simple" xlink:href=""/></unitid>
+        - IIIF MANIFEST: added as <dao xlink:role="MANIFEST"
+             xlink:href="XXX/manifest" xlink:title="manifest"/>
+        """
+        for illustration_url, viewer_url, role in daos:
+            if role == IIIF_MANIFEST_ROLE:
+                dao = self.element("dao", parent=parent_element)
+                dao.attrib.update(
+                    {
+                        "{%s}title" % self.namespaces["xlink"]: "manifest",
+                        "{%s}role" % self.namespaces["xlink"]: "MANIFEST",
+                        "{%s}href" % self.namespaces["xlink"]: viewer_url,
+                    }
+                )
+                continue
+            url = illustration_url or viewer_url
+            if url:
+                attribs = {
+                    "{%s}type" % self.namespaces["xlink"]: "simple",
+                    "{%s}href" % self.namespaces["xlink"]: url,
+                }
+                if role:
+                    attribs.update({"{%s}role" % self.namespaces["xlink"]: role})
+                dao = self.element("dao", parent=parent_element)
+                dao.attrib.update(attribs)
 
     def relatedmaterial(self, parent_element, entity):
         description = self.clean_richstring_data(entity, "additional_resources")
@@ -357,8 +400,10 @@ class FindingAidOAIEADXmlAdapter(AbstractXmlAdapter):
             for fa_component in fa_components:
                 did = fa_component.did[0]
                 c = self.element("c", parent=dsc)
-                dao = [u for u in doas.get(fa_component.eid, []) if u]
-                self.did_element(c, fa_component, did, dao)
+                daos = [u for u in doas.get(fa_component.eid, []) if u]
+                self.did_element(c, fa_component, did)
+                if daos:
+                    self.dao_elements(c, fa_component, daos)
                 self.scopecontent(c, fa_component)
                 self.controlaccess(c, fa_component)
                 self.accessrestrict(c, fa_component)

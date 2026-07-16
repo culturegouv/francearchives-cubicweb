@@ -32,26 +32,44 @@
 """small es utility functions"""
 import logging
 
-from cubicweb_francearchives.dataimport import es_bulk_index
+from elasticsearch_dsl import Search, query as dsl_query
 
 from cubicweb_elasticsearch.es import get_connection
 
+from cubicweb_francearchives.dataimport import es_bulk_index
 
-def get_es_connection(cnx, index_name, log):
-    es = get_connection(
-        {
-            "elasticsearch-locations": cnx.vreg.config["elasticsearch-locations"],
-            "index-name": index_name,
-            "elasticsearch-verify-certs": cnx.vreg.config["elasticsearch-verify-certs"],
-            "elasticsearch-ssl-show-warn": cnx.vreg.config["elasticsearch-ssl-show-warn"],
-        }
-    )
-    if es:
-        return es
-    if log:
-        log.error("-> no es connection.abort")
-    else:
-        print("-> no es connection.abort")
+logging.getLogger("elasticsearch").level = logging.ERROR
+
+
+def documents_number_for_service(req, service_eid, cw_etype, index_name=None):
+    es = get_connection(req.vreg.config)
+    if not es or not es.ping():
+        req.error("no elastisearch connection available")
+        return
+    if not index_name:
+        index_name = f"{req.vreg.config['index-name']}_all"
+    must = [{"term": {"service": service_eid}}, {"term": {"cw_etype": cw_etype}}]
+    search = Search(index=index_name)
+    search.query = dsl_query.Bool(must=must)
+    response = search.count()
+    if response and response.hits:
+        return response.hits.total.value
+    return 0
+
+
+def nominarecords_number_for_service(req, service_eid):
+    es = get_connection(req.vreg.config)
+    if not es or not es.ping():
+        req.error("no elastisearch connection available")
+        return
+    index_name = req.vreg.config["nomina-index-name"]
+    search = Search(index=index_name)
+    must = [{"term": {"service": service_eid}}]
+    search.query = dsl_query.Bool(must=must)
+    response = search.execute()
+    if response and response.hits:
+        return response.hits.total.value
+    return 0
 
 
 def delete_autority_from_es(cnx, eids, log=None):
@@ -66,7 +84,6 @@ def delete_autority_from_es(cnx, eids, log=None):
             yield {
                 "_op_type": "delete",
                 "_index": index_name,
-                "_type": "_doc",
                 "_id": eid,
             }
 
@@ -77,8 +94,9 @@ def delete_autority_from_es(cnx, eids, log=None):
     if config["enable-kibana-indexes"]:
         indexes.append(config["kibana-authorities-index-name"])
     for index_name in indexes:
-        es = get_es_connection(cnx, index_name, log)
-        if not es:
+        es = get_connection(config)
+        if not es or not es.ping:
+            log.error("-> no es connection found: abort autorities deletion")
             return
         es_docs = docs_to_delete(es, eids, index_name)
         es_bulk_index(es, es_docs, raise_on_error=False)
@@ -87,5 +105,8 @@ def delete_autority_from_es(cnx, eids, log=None):
 def update_index_mapping(cnx, index_name, mapping, log=None):
     if not log:
         log = logging.getLogger("update_index_mapping")
-    es = get_es_connection(cnx, index_name, log)
+    es = get_connection(cnx.vreg.config)
+    if not es or not es.ping:
+        log.error("-> no es connection found: abort.")
+        return
     es.indices.put_mapping(index=index_name, body=mapping, doc_type="_doc", include_type_name=True)

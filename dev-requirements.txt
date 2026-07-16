@@ -7,5 +7,6 @@ pifpaf
 pyramid_debugtoolbar
 pytest-xdist
 black
-moto
+moto < 5
+setuptools<80.9.0
 pip-tools

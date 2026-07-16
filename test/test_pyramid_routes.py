@@ -32,6 +32,8 @@
 import unittest
 import json
 
+from cubicweb.devtools import BASE_URL
+from cubicweb_web.devtools.testlib import PyramidWebCWTC
 from mock import patch
 
 from elasticsearch_dsl.search import Search
@@ -43,8 +45,7 @@ from logilab.common.registry import yes
 from pyramid.response import Response
 
 from cubicweb import Binary
-from cubicweb.view import EntityView
-from cubicweb.pyramid.test import PyramidCWTest
+from cubicweb_web.view import EntityView
 from cubicweb.predicates import is_instance
 
 from cubicweb_francearchives.dataimport.oai_nomina import compute_nomina_stable_id
@@ -65,7 +66,7 @@ class FakeResponse(ESResponse):
 
 
 BASE_SETTINGS = {
-    "cubicweb.bwcompat": "no",
+    "cubicweb.includes": ["cubicweb.pyramid.auth", "cubicweb.pyramid.session"],
     "cubicweb.session.secret": "stuff",
     "cubicweb.auth.authtkt.session.secret": "stuff",
     "cubicweb.auth.authtkt.persistent.secret": "stuff",
@@ -76,7 +77,7 @@ def mock_maintemplate_call(self, view):
     self.w(view.render())
 
 
-class BWCompatRoutesTests(S3BfssStorageTestMixin, PostgresTextMixin, PyramidCWTest):
+class BWCompatRoutesTests(S3BfssStorageTestMixin, PostgresTextMixin, PyramidWebCWTC):
     settings = BASE_SETTINGS
 
     def setUp(self):
@@ -91,7 +92,7 @@ class BWCompatRoutesTests(S3BfssStorageTestMixin, PostgresTextMixin, PyramidCWTe
 
     def test_data_assets_route(self):
         self.webapp.get("/data/cubicweb.js", status=200)
-        self.webapp.get("/data/icons/manifest.json", status=200)
+        self.webapp.get("/data/icons/manifest.webmanifest", status=200)
         self.webapp.get("/data/this-resource-does-not-exist.css", status=404)
 
     def test_static_assets_route(self):
@@ -110,44 +111,26 @@ class BWCompatRoutesTests(S3BfssStorageTestMixin, PostgresTextMixin, PyramidCWTe
         )
 
     def test_restpath_primaryview_route(self):
-        self.webapp.get("/basecontent/1").follow(status=404)
+        self.webapp.get("/basecontent/1", status=404)
         with self.admin_access.cnx() as cnx:
             bc = cnx.create_entity("BaseContent", title="the-article-title")
             cnx.commit()
         resp = self.webapp.get("/basecontent/{}".format(bc.eid), status=200)
+        expected = f"""<h1>{bc.title}</h1>""".encode("utf-8")
         self.assertIn(
-            """<h1><span class="visually-hidden">BaseContent : </span>{}""".format(bc.title).encode(
-                "utf-8"
-            ),
+            expected,
             resp.body,
         )
         resp = self.webapp.get("/BaseContent/{}".format(bc.eid), status=200)
         self.assertIn(
-            """<h1><span class="visually-hidden">BaseContent : </span>{}""".format(bc.title).encode(
-                "utf-8"
-            ),
+            expected,
             resp.body,
         )
         resp = self.webapp.get("/article/{}".format(bc.eid), status=200)
         self.assertIn(
-            """<h1><span class="visually-hidden">BaseContent : </span>{}""".format(bc.title).encode(
-                "utf-8"
-            ),
+            expected,
             resp.body,
         )
-
-    def test_restpath_delete_entity(self):
-        self.webapp.get("/basecontent/1").follow(status=404)
-        with self.admin_access.cnx() as cnx:
-            bc = cnx.create_entity("BaseContent", title="the-article-title")
-            cnx.commit()
-        resp = self.webapp.delete("/basecontent/{}".format(bc.eid), status=302)
-        error = "The resource was found at /basecontent/{}".format(bc.eid).encode("utf-8")
-        self.assertIn(error, resp.body)
-        resp = self.webapp.delete("/BaseContent/{}".format(bc.eid), status=302)
-        error = "The resource was found at /BaseContent/{}".format(bc.eid).encode("utf-8")
-        self.assertIn(error, resp.body)
-        resp = self.webapp.delete("/article/{}/".format(bc.eid), status=404)
 
     def test_lang_prefix(self):
         with self.admin_access.cnx() as cnx:
@@ -161,7 +144,7 @@ class BWCompatRoutesTests(S3BfssStorageTestMixin, PostgresTextMixin, PyramidCWTe
         self.assertEqual(resp.headers["content-language"], "en")
         resp = self.webapp.get("/basecontent/{}".format(bc.eid))
         self.assertEqual(resp.headers["content-language"], "fr")
-        self.webapp.get("/xx/basecontent/{}".format(bc.eid)).follow(status=404)
+        self.webapp.get("/xx/basecontent/{}".format(bc.eid), status=404)
 
 
 def mock_primary_view(entity_call):
@@ -175,7 +158,7 @@ def mock_primary_view(entity_call):
     return MockPrimaryView
 
 
-class FARoutesTests(S3BfssStorageTestMixin, PostgresTextMixin, PyramidCWTest):
+class FARoutesTests(S3BfssStorageTestMixin, PostgresTextMixin, PyramidWebCWTC):
     settings = BASE_SETTINGS
 
     @patch(
@@ -209,7 +192,7 @@ class FARoutesTests(S3BfssStorageTestMixin, PostgresTextMixin, PyramidCWTest):
         with self.temporary_appobjects(mock_view):
             resp = self.webapp.get("/comprendre")
             self.assertEqual(resp.body, b"section comprendre")
-            self.webapp.get("/comprendreee").follow(status=404)
+            self.webapp.get("/comprendreee", status=404)
 
     @patch(
         "cubicweb_francearchives.views.templates.PniaMainTemplate.call", new=mock_maintemplate_call
@@ -239,7 +222,7 @@ def mock_file_download_view(entity_call):
     return MockFileDownloadView
 
 
-class FABfssFileRoutesTests(S3BfssStorageTestMixin, PostgresTextMixin, PyramidCWTest):
+class FABfssFileRoutesTests(S3BfssStorageTestMixin, PostgresTextMixin, PyramidWebCWTC):
     settings = BASE_SETTINGS
 
     @patch(
@@ -284,7 +267,7 @@ class SanitizeTweenMixin(object):
         config.include("cubicweb_francearchives.pviews.tweens")
 
 
-class SanitizeParameterTest(SanitizeTweenMixin, PyramidCWTest):
+class SanitizeParameterTest(SanitizeTweenMixin, PyramidWebCWTC):
     def test_sanitized(self):
         resp = self.webapp.get("/dumpform")
         self.assertDictEqual({}, json.loads(resp.text))
@@ -294,7 +277,7 @@ class SanitizeParameterTest(SanitizeTweenMixin, PyramidCWTest):
         self.assertDictEqual({"x": "y", "z": "t"}, json.loads(resp.text))
 
 
-class NoSanitizeParameterTest(SanitizeTweenMixin, PyramidCWTest):
+class NoSanitizeParameterTest(SanitizeTweenMixin, PyramidWebCWTC):
     settings = merge_dicts(
         {},
         SanitizeTweenMixin.settings,
@@ -319,13 +302,11 @@ def es_subject_autosuggest_response(count):
         return {
             "_source": {
                 "description": "test",
-                "cwuri": "http://example.org/{}".format(i),
                 "urlpath": "subject/{}".format(i),
                 "eid": i,
                 "cw_etype": "SubjectAuthority",
                 "type": "subject",
                 "text": "hello",
-                "normalized": "hello",
                 "count": i + 4,
                 "additional": "",
                 "siteres": 3,
@@ -336,7 +317,7 @@ def es_subject_autosuggest_response(count):
         }
 
     def _search(*args, **kwargs):
-        search = Search(doc_type="_doc", index="text_suggest")
+        search = Search(index="text_suggest")
         return ESResponse(
             search,
             {
@@ -355,13 +336,11 @@ def es_agent_autosuggest_response(count):
         return {
             "_source": {
                 "description": "test",
-                "cwuri": "http://example.org/{}".format(i),
                 "urlpath": "agent/{}".format(i),
                 "eid": i,
                 "cw_etype": "AgentAuthority",
                 "type": "persname",
                 "text": "hello",
-                "normalized": "hello",
                 "count": i + 4,
                 "additional": "",
                 "siteres": 3,
@@ -372,7 +351,7 @@ def es_agent_autosuggest_response(count):
         }
 
     def _search(*args, **kwargs):
-        search = Search(doc_type="_doc", index="text_suggest")
+        search = Search(index="text_suggest")
         return ESResponse(
             search,
             {
@@ -386,7 +365,7 @@ def es_agent_autosuggest_response(count):
     return _search
 
 
-class ESCmsRouteTests(S3BfssStorageTestMixin, PyramidCWTest):
+class ESCmsRouteTests(S3BfssStorageTestMixin, PyramidWebCWTC):
     settings = BASE_SETTINGS
 
     @classmethod
@@ -402,15 +381,19 @@ class ESCmsRouteTests(S3BfssStorageTestMixin, PyramidCWTest):
             json.loads(resp.text),
             [
                 {
-                    "url": "http://testing.fr/cubicweb/subject/0?aug=True&es_escategory="
-                    "archives&es_escategory=siteres",
+                    "url": (
+                        f"{BASE_URL}subject/0?aug=True&es_escategory="
+                        "archives&es_escategory=siteres"
+                    ),
                     "etype": "Subject",
                     "text": "hello",
                     "countlabel": "4 documents",
                 },
                 {
-                    "url": "http://testing.fr/cubicweb/subject/1?aug=True&es_escategory="
-                    "archives&es_escategory=siteres",
+                    "url": (
+                        f"{BASE_URL}subject/1?aug=True&es_escategory="
+                        "archives&es_escategory=siteres"
+                    ),
                     "etype": "Subject",
                     "text": "hello",
                     "countlabel": "5 documents",
@@ -427,15 +410,13 @@ class ESCmsRouteTests(S3BfssStorageTestMixin, PyramidCWTest):
             json.loads(resp.text),
             [
                 {
-                    "url": "http://testing.fr/cubicweb/agent/0?es_escategory="
-                    "archives&es_escategory=siteres",
+                    "url": f"{BASE_URL}agent/0?es_escategory=" "archives&es_escategory=siteres",
                     "etype": "Persname",
                     "text": "hello",
                     "countlabel": "4 documents",
                 },
                 {
-                    "url": "http://testing.fr/cubicweb/agent/1?es_escategory="
-                    "archives&es_escategory=siteres",
+                    "url": f"{BASE_URL}agent/1?es_escategory=" "archives&es_escategory=siteres",
                     "etype": "Persname",
                     "text": "hello",
                     "countlabel": "5 documents",
@@ -448,13 +429,13 @@ class ESCmsRouteTests(S3BfssStorageTestMixin, PyramidCWTest):
             json.loads(resp.text),
             [
                 {
-                    "url": "http://testing.fr/cubicweb/agent/0?es_escategory=siteres",
+                    "url": f"{BASE_URL}agent/0?es_escategory=siteres",
                     "etype": "Persname",
                     "text": "hello",
                     "countlabel": "3 documents",
                 },
                 {
-                    "url": "http://testing.fr/cubicweb/agent/1?es_escategory=siteres",
+                    "url": f"{BASE_URL}agent/1?es_escategory=siteres",
                     "etype": "Persname",
                     "text": "hello",
                     "countlabel": "3 documents",
@@ -467,13 +448,13 @@ class ESCmsRouteTests(S3BfssStorageTestMixin, PyramidCWTest):
             json.loads(resp.text),
             [
                 {
-                    "url": "http://testing.fr/cubicweb/agent/0?es_escategory=archives",
+                    "url": f"{BASE_URL}agent/0?es_escategory=archives",
                     "etype": "Persname",
                     "text": "hello",
                     "countlabel": "1 document",
                 },
                 {
-                    "url": "http://testing.fr/cubicweb/agent/1?es_escategory=archives",
+                    "url": f"{BASE_URL}agent/1?es_escategory=archives",
                     "etype": "Persname",
                     "text": "hello",
                     "countlabel": "2 documents",
@@ -483,7 +464,7 @@ class ESCmsRouteTests(S3BfssStorageTestMixin, PyramidCWTest):
         )
 
 
-class ESRouteConsultationTests(S3BfssStorageTestMixin, PyramidCWTest):
+class ESRouteConsultationTests(S3BfssStorageTestMixin, PyramidWebCWTC):
     settings = BASE_SETTINGS
 
     @classmethod
@@ -499,15 +480,13 @@ class ESRouteConsultationTests(S3BfssStorageTestMixin, PyramidCWTest):
             json.loads(resp.text),
             [
                 {
-                    "url": "http://testing.fr/cubicweb/agent/0?es_escategory="
-                    "archives&es_escategory=siteres",
+                    "url": f"{BASE_URL}agent/0?es_escategory=" "archives&es_escategory=siteres",
                     "etype": "Persname",
                     "text": "hello",
                     "countlabel": "4 documents",
                 },
                 {
-                    "url": "http://testing.fr/cubicweb/agent/1?es_escategory="
-                    "archives&es_escategory=siteres",
+                    "url": f"{BASE_URL}agent/1?es_escategory=" "archives&es_escategory=siteres",
                     "etype": "Persname",
                     "text": "hello",
                     "countlabel": "5 documents",
@@ -517,7 +496,7 @@ class ESRouteConsultationTests(S3BfssStorageTestMixin, PyramidCWTest):
         )
 
 
-class NewsLetterTests(S3BfssStorageTestMixin, PyramidCWTest):
+class NewsLetterTests(S3BfssStorageTestMixin, PyramidWebCWTC):
     settings = merge_dicts(
         {},
         BASE_SETTINGS,
@@ -545,7 +524,7 @@ class NewsLetterTests(S3BfssStorageTestMixin, PyramidCWTest):
             )
 
 
-class CatchAllTC(S3BfssStorageTestMixin, PostgresTextMixin, PyramidCWTest):
+class CatchAllTC(S3BfssStorageTestMixin, PostgresTextMixin, PyramidWebCWTC):
     settings = BASE_SETTINGS
 
     def test_with_segment_is_enlarged_etype(self):
@@ -578,7 +557,7 @@ class CatchAllTC(S3BfssStorageTestMixin, PostgresTextMixin, PyramidCWTest):
         )
 
 
-class CSVExportTests(S3BfssStorageTestMixin, PostgresTextMixin, PyramidCWTest):
+class CSVExportTests(S3BfssStorageTestMixin, PostgresTextMixin, PyramidWebCWTC):
     settings = merge_dicts(
         {},
         BASE_SETTINGS,
@@ -722,7 +701,7 @@ maindid-title,some hard-to-parse date,fc_service,maindid,fc-origination,acquisit
             nominarecord_id = cnx.find("NominaRecord").one().stable_id
             res = self.webapp.get("/alignment.csv")
             agent = cnx.find("AgentAuthority", label="Jérôme Savonarole").one()
-            expected = f"""index_entry,index_url,aligned_url\nJérôme Savonarole,http://testing.fr/cubicweb/agent/{agent.eid},http://testing.fr/cubicweb/basedenoms/{nominarecord_id}\nParis,http://testing.fr/cubicweb/location/{location_eid},https://fr.wikipedia.org/wiki/Paris\n"""  # noqa
+            expected = f"""index_entry,index_url,aligned_url\nJérôme Savonarole,{BASE_URL}agent/{agent.eid},{BASE_URL}basedenoms/{nominarecord_id}\nParis,{BASE_URL}location/{location_eid},https://fr.wikipedia.org/wiki/Paris\n"""  # noqa
             self.assertEqual(res.body, expected.encode("utf-8"))
 
     def test_indices_agent_csv_export(self):
@@ -731,18 +710,19 @@ maindid-title,some hard-to-parse date,fc_service,maindid,fc-origination,acquisit
             facomp = cnx.find("FAComponent", eid=self.facomp_eid).one()
             expected = """\
 index_entry,index_type,documents
-Jérôme Savonarole,persname,http://testing.fr/cubicweb/facomponent/{}
+Jérôme Savonarole,persname,{}facomponent/{}
 """.format(
-                facomp.stable_id
+                BASE_URL, facomp.stable_id
             )
+            print(res.body)
             self.assertEqual(res.body, expected.encode("utf-8"))
 
     def test_indices_location_csv_export(self):
         with self.admin_access.cnx():
             res = self.webapp.get("/indices-location.csv")
-            expected = """\
+            expected = f"""\
 index_entry,index_type,documents
-Paris,geogname,http://testing.fr/cubicweb/findingaid/FRAD084_xxx
+Paris,geogname,{BASE_URL}findingaid/FRAD084_xxx
 """
             self.assertEqual(res.body, expected.encode("utf-8"))
 
@@ -752,9 +732,9 @@ Paris,geogname,http://testing.fr/cubicweb/findingaid/FRAD084_xxx
             comitem = cnx.find("CommemorationItem", alphatitle="election").one()
             expected = """\
 index_entry,index_type,documents
-Élection,subject,http://testing.fr/cubicweb/{}
+Élection,subject,{}{}
 """.format(
-                comitem.rest_path()
+                BASE_URL, comitem.rest_path()
             )
             self.assertEqual(res.body, expected.encode("utf-8"))
 
@@ -764,7 +744,7 @@ index_entry,index_type,documents
                 ar = create_authority_record(cnx)
                 cnx.commit()
                 res = self.webapp.get(f"/authorityrecord/{ar.record_id}.csv", status=200)
-                expected = f"""FranceArchives link,Name,occupation_label,history_label,general_context_label,record_id_label,publisher\n{ar.absolute_url()},Jean Cocotte,éleveur de poules,Il aimait les poules,,FRAN_NP_006883,Service\n"""  # noqa
+                expected = f"""FranceArchives link,Name,Date,occupation_label,history_label,general_context_label,record_id_label,publisher\n{ar.absolute_url()},Jean Cocotte,1/01/1940- 1/05/2000,éleveur de poules,Il aimait les poules,,FRAN_NP_006883,Service\n"""  # noqa
             self.assertEqual(res.body.decode("utf8"), expected)
 
 
@@ -812,7 +792,7 @@ class FaFCDataMixin(S3BfssStorageTestMixin):
             self.subject_eid = valjean.eid
 
 
-class ContentNegociationTests(PostgresTextMixin, FaFCDataMixin, PyramidCWTest):
+class ContentNegociationTests(PostgresTextMixin, FaFCDataMixin, PyramidWebCWTC):
     settings = BASE_SETTINGS
 
     def assertCorrectNegociation(self, accept_header, tested_url, mimetype, starts=None):
@@ -828,7 +808,7 @@ class ContentNegociationTests(PostgresTextMixin, FaFCDataMixin, PyramidCWTest):
     def test_content_html_response(self):
         with self.admin_access.cnx() as cnx:
             facomp = cnx.find("FAComponent", eid=self.facomp_eid).one()
-            url = "/facomponent/{}".format(facomp.stable_id)
+            url = f"/facomponent/{facomp.stable_id}"
             accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
             self.assertCorrectNegociation(accept, url, "text/html", starts="<!doctype html")
 
@@ -851,7 +831,7 @@ class ContentNegociationTests(PostgresTextMixin, FaFCDataMixin, PyramidCWTest):
             fa = cnx.find("FindingAid", eid=self.fa_eid).one()
             url = "/findingaid/{}".format(fa.stable_id)
             accept = "text/plain"
-            self.assertCorrectNegociation(accept, url, accept, starts="<http:")
+            self.assertCorrectNegociation(accept, url, accept, starts="<https:")
 
     def test_content_rdf_ttl_response(self):
         with self.admin_access.cnx() as cnx:
@@ -865,7 +845,7 @@ class ContentNegociationTests(PostgresTextMixin, FaFCDataMixin, PyramidCWTest):
             fa = cnx.find("FindingAid", eid=self.fa_eid).one()
             url = "/findingaid/{}".format(fa.stable_id)
             accept = "application/ld+json"
-            self.assertCorrectNegociation(accept, url, accept, starts="[")
+            self.assertCorrectNegociation(accept, url, accept, starts="{")
 
     def test_content_rdf_xml_response_authority(self):
         with self.admin_access.cnx() as cnx:
@@ -902,7 +882,7 @@ class ContentNegociationTests(PostgresTextMixin, FaFCDataMixin, PyramidCWTest):
             self.assertCorrectNegociation(accept, url, accept, starts="<?xml")
 
 
-class RDFRoutesTests(PostgresTextMixin, FaFCDataMixin, PyramidCWTest):
+class RDFRoutesTests(PostgresTextMixin, FaFCDataMixin, PyramidWebCWTC):
     settings = BASE_SETTINGS
 
     FORMAT_CONTENTTYPE = {

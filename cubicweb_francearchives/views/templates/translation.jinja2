@@ -1,37 +1,53 @@
-{% from "./mixins.jinja2" import content_metadata, index_values -%}
-<div class="row article-page-container">
-    <div class="{% if editable -%}col-xl-6 {% else -%} col-xl-9 {% endif -%}translation-content">
-        <article id="translation" class="{{ entity.cw_etype|lower }}-view">
-            <h1>
-                <span class="dark-grey">{{_("translation_of").capitalize() }}</span>
-                "{{ original }}"
-            </h1>
-             {{ content_metadata(metadata, _) }}
-             {% if editable -%}
-                 {% for label, value in main_props -%}
-                     <div class="row props-values">
-                         <div class="col-lg-4 props-values__label">{{ label }}{{ _(":") }}</div>
-                         <div class="col-lg-8">{{ value }}</div>
-                     </div>
-                {% endfor -%}
-            {% else %}
-                {{ index_values(main_props) }}
-            {% endif %}
-    </div>
+{% from "./mixins.jinja2" import content_metadata, mixed_values_horizontal, display_errors -%}
+{%- set lang_attr='lang="{}"'.format(entity.lang) if entity.lang != lang else "" -%}
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+    <article class="fr-col-12 fr-col-lg-8">
+      <div id="{{ entity.cw_etype.lower() }}-{{ entity.eid }}">
+        {{ display_errors(errors, _) }}
+        <div class="fr-col-12 fr-mb-8v"{{ lang_attr }}>
+          <h1>{{_("translation_of").capitalize() }} "{{ original_title }}"
+          </h1>
+        </div>
+        {%- if editable -%}
+        <div class="fr-col-12 fr-mb-8v">
+          {%- for label, value in metadata -%}
+          <span class="fr-badge fr-mr-2w">{{ _(label) }}{{ _(":")}} {{ value }}</span>
+          {%- endfor -%}
+        </div>
+        {%- endif -%}
+        <div class="fr-col-12 fr-mb-8v">
+          {{ mixed_values_horizontal(main_props, lang_attr, _) }}
+        </div>
+      </div>
+    </article>
     {% if editable %}
-    <aside class=" col-xl-3 siderelated d-print-none">
-        <div class="siderelated-container">
-            <h1 class="no-style siderelated__header">
-            <i class="fa fa-language" aria-hidden="true"></i>
-            <span>{{_("Other translations")}}
-            </h1>
-            {% for lang, trad in translations -%}
-            <div class="row props-values">
-                <div class="col-lg-4 props-values__label">{{ lang }}{{ _(":") }}</div>
-                <p class="col-lg-8 props-values__value">{{ trad }}</p>
+    <div class="fr-col-12 fr-col-lg-4">
+      <h2>{{_("Original version")}}</h2>
+      <div class="fr-col-12 fr-mb-8v">
+        <p>{{_("See the french version") }}{{ _(":")}}  {{ original }}</p>
+      </div>
+      <h2>{{_("Other translations")}}</h2>
+      <div class="fr-table fr-table--bordered fr-table--no-scroll">
+        <div class="fr-table__wrapper">
+          <div class="fr-table__container">
+            <div class="fr-table__content">
+              <table>
+                <thead><th scope="col">{{ _("Language") }}</th>
+                <th scope="col">{{ _("Translation") }}</th>
+                <th scope="col">{{ _("State") }}</th>
+                </thead>
+                <tbody>
+                {% for lang, trad, state in translations -%}
+                  <tr><td>{{ lang }}</td><td>{{ trad }}</td><td>{{ state }}</td></tr>
+                {% endfor -%}
+                </tbody>
+              </table>
             </div>
-            {% endfor -%}
-       </div>
-    </aside>
- {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
 </div>

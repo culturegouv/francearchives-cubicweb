@@ -1,19 +1,28 @@
-{%- if display_fulltext_facet %}
-<div class="facet d-print-none">
+{%- if display_fulltext_facet -%}
+<div class="facet d-print-none fr-mb-8v">
   <form id="fulltext-facet" action="{{ fulltext_form_action }}">
-    <div class="mb-3">
-      {% for name, values in fulltext_params.items() %}
-      {% for value in values %}
-      <input type="hidden" name="{{ name |e}}" value="{{ value | escape }}" />
-      {% endfor %}
-      {% endfor %}
-      <label for="fulltext-input" class="visually-hidden">{{ _('fulltext-facet-label') | escape }}</label>
+    {%- for name, values in fulltext_params.items() -%}
+    {%- for value in values %}
+    <input type="hidden" name="{{ name |e }}" value="{{ value | escape }}" >
+    {%- endfor -%}
+    {%- endfor -%}
+    <div
+      class="fr-search-bar fa-search-facet"
+      id="fulltext-search-bar"
+      role="search">
+      <label class="fr-label fr-hidden" for="fulltext-input">
+        {{ _('fulltext-facet-label') | escape }}
+      </label>
       <input id="fulltext-input" name="fulltext_facet" value="{{ fulltext_value | e}}"
-             class="form-control facet__focusable-item"
-             title="{{ _('fulltext-facet-label') | escape }}"
-             aria-label="{{ _('fulltext-facet-label') | escape }}"
-             placeholder="{{ _('fulltext-facet-label') | escape }}" />
-    </div>
+            class="fr-input"
+            type="search"
+            title="{{ _('fulltext-facet-label') | escape }}"
+            aria-label="{{ _('fulltext-facet-label') | escape }}"
+            placeholder="{{ _('fulltext-facet-label') | escape }}" >
+        <button class="fr-btn" title="{{ _('fulltext-facet-label')}}" type="submit">
+          {{ _('fulltext-facet-label')}}
+        </button>
+      </div>
   </form>
 </div>
-{% endif -%}
+{%- endif -%}

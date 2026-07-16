@@ -80,7 +80,7 @@ s       <c level="otherlevel" otherlevel="Sous-série_organique">
             <origination label="producteur">Seine-et-Oise. Direction de l'Enregistrement</origination>
           </did>
           <daogrp audience="" role="">
-            <daoloc href="foo.jpg" />
+            <daoloc href="//google.com/foo.jpg" />
           </daogrp>
         </c>
         <c level="otherlevel" otherlevel="Pièce" id="">
@@ -97,9 +97,9 @@ s       <c level="otherlevel" otherlevel="Sous-série_organique">
             <origination label="producteur">Seine-et-Oise. Direction de l'Enregistrement</origination>
           </did>
           <daogrp audience="" role="">
-            <daoloc href="bim.jpg" />
-            <daoloc href="bam.jpg" />
-            <daoloc href="boom.jpg" />
+            <daoloc href="http://exemple.com/bim.jpg" />
+            <daoloc href="www.exemple.com/bam.jpg" />
+            <daoloc href="www.exemple.com/bom.png" />
           </daogrp>
         </c>
         <c level="otherlevel" otherlevel="Pièce" id="">
@@ -114,7 +114,7 @@ s       <c level="otherlevel" otherlevel="Sous-série_organique">
               <dimensions/>
             </physdesc>
           </did>
-          <dao href="hello" />
+          <dao href="https://www.hello" />
         </c>
       </c>
     </dsc>

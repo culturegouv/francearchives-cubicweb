@@ -1,0 +1,497 @@
+<?xml version="1.0"?>
+<!DOCTYPE ead PUBLIC "+//ISBN 1-931666-00-8//DTD ead.dtd (Encoded Archival Description (EAD) Version 2002)//EN" "ead.dtd">
+<ead>
+<eadheader>
+<eadid>FRAD053_L-Z_EF</eadid>
+<filedesc>
+<titlestmt>
+<titleproper>État des fonds - Archives révolutionnaires et modernes</titleproper>
+<author>par Christine Mary ; sous la direction de Cyril Daydé, directeur des Archives départementales de la Mayenne</author>
+</titlestmt>
+<publicationstmt>
+<publisher>Archives départementales de la Mayenne</publisher>
+<address>
+<addressline>Laval</addressline>
+</address>
+<date>2019</date>
+</publicationstmt>
+</filedesc>
+<profiledesc>
+<creation>Instrument de recherche produit au moyen du logiciel Arkhéïa Aide au classement de la société Anaphore sarl, version 8-20.9 du <date calendar="gregorian" era="ce" normal="2021-12-02">jeudi 2 décembre 2021</date>. 
+Date de l'export : <date calendar="gregorian" era="ce" normal="2022-08-31">mercredi 31 août 2022</date> (12:09 h)</creation>
+<langusage>Instrument de recherche rédigé en <language langcode="fre" scriptcode="Latn">français</language>
+</langusage>
+</profiledesc>
+</eadheader>
+<archdesc level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">Archives modernes et révolutionnaires</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1675/1998">1675-1998</unitdate>
+<physdesc label="Description physique">
+<genreform source="liste-typedocAC">Document d'archives</genreform>
+<extent type="unités description" label="Nombre d'unités de niveau bas">31</extent>
+<lb/>
+</physdesc>
+<repository label="Organisme responsable de l'accès intellectuel">Archives départementales de la Mayenne</repository>
+</did>
+<prefercite>
+<head>Mention conseillée</head>
+<p>Archives départementales de la Mayenne</p>
+</prefercite>
+<accessrestrict>
+<head>Statut juridique</head>
+<legalstatus>Archives publiques</legalstatus>
+</accessrestrict>
+<accessrestrict>
+<head>Communicabilité</head>
+<p>Les modalités d'accès sont soumises aux règles de communicabilité des archives publiques.</p>
+</accessrestrict>
+<userestrict>
+<head>Conditions d'utilisation</head>
+<p>L'utilisation ou la reproduction des documents pour un usage autre que privé est soumise au règlement de réutilisation des informations publiques.</p>
+</userestrict>
+<controlaccess>
+<head>Descripteurs</head>
+<genreform type="typir">Recherche détaillée</genreform>
+</controlaccess>
+<dsc type="othertype">
+<c id="de-1" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">Série L - Administrations et tribunaux de la période révolutionnaire</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1731/1859">1731-1859</unitdate>
+<physdesc label="Description physique">
+<extent type="nombre elements" label="Nombre d'éléments">2612</extent>
+<lb/>
+<extent label="Métrage linéaire" unit="ml">96,00</extent>
+</physdesc>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<list>
+<item>
+<archref href="FRAD053_L_RM.pdf" title="voir l&apos;instrument de recherche"/>
+</item>
+<item>
+<archref href="FRAD053_2NUM124_RN.xml" title="Accès aux articles numérisés par cote"/>
+</item>
+<item>
+<archref href="FRAD053_L_CONCOR.pdf" title="voir la table de concordance entre anciennes et nouvelles cotes"/>
+</item>
+</list>
+</otherfindaid>
+</c>
+<c id="de-2" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">1 Q - Domaines nationaux</unittitle>
+</did>
+</c>
+<c id="de-3" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">Série K - Lois, ordonnances, arrêtés</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1789/1940">1789-1940</unitdate>
+<physdesc label="Description physique">
+<extent label="Métrage linéaire" unit="ml">154,00</extent>
+</physdesc>
+</did>
+</c>
+<c id="de-4" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">1 M - Administration générale du département (fonds du cabinet du préfet)</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1755/1940">1755-1940</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_1M.pdf" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-5" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">2 M - Personnel de la préfecture</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1799/1940">an VIII-1940</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_2M.pdf" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-6" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">3 M - Plébiscites, élections</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1800/1940">an IX-1940</unitdate>
+</did>
+</c>
+<c id="de-7" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">4 M - Police</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1799/1941">an VIII-1941</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_4M.pdf" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-8" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">5 M - Santé publique et hygiène</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1801/1958">an X-1958</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_5M.pdf" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-9" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">6 M - Population. Affaires économiques. Statistiques</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1799/1940">an VIII-1940</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_6M.pdf" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-10" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">7 M - Agriculture. Eaux et forêts</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1799/1940">an VIII-1940</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_7M.pdf" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-11" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">8 M - Commerce et tourisme</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1799/1940">an VIII-1940</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<list>
+<item>
+<archref href="FRAD053_8M.pdf" title="voir l&apos;instrument de recherche"/>
+</item>
+<item>
+<archref href="FRAD053_8M_supplement.pdf" title="voir aussi l&apos;inventaire supplémentaire"/>
+</item>
+</list>
+</otherfindaid>
+</c>
+<c id="de-12" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">9 M - Industrie</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1800/1940">an IX-1940</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_9M.pdf" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-13" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">10 M - Travail et main-d'œuvre</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1837/1940">1837-1940</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_10M.pdf" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-14" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">1 N - Conseil général du département et commission départementale</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1799/1940">an VIII-1940</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_1N.pdf" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-15" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">2 N - Conseils d'arrondissement</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1799/1940">an VIII-1940</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_2N.pdf" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-16" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">3 N - Comptabilité générale du département</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1801/1942">an X-1942</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_3N.pdf" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-17" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">4 N - Immeubles et bâtiments départementaux. Mobilier départemental. Service départemental d'architecture</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1798/1940">an VII-1940</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_4N.pdf" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-18" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">5 N - Caisse départementale des retraites</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1818/1940">1818-1940</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_5N.pdf" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-19" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">Série O - Administration et comptabilité communales</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1675/1958">1675-1958</unitdate>
+<physdesc label="Description physique">
+<extent label="Métrage linéaire" unit="ml">355,00</extent>
+</physdesc>
+</did>
+</c>
+<c id="de-20" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">Série P - Finances. Cadastre. Eaux et forêts. Poste</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1795/1975">an IV-1975</unitdate>
+<physdesc label="Description physique">
+<extent label="Métrage linéaire" unit="ml">176,00</extent>
+</physdesc>
+</did>
+</c>
+<c id="de-21" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">2 Q - Domaine (période postérieure à la Révolution française)</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1838/1965">1838-1965</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRADO53_2Q.pdf" title="voir l&apos;instrument de recherche des archives de la préfecture relatives à la Séparation de l&apos;Église catholique et de l&apos;État"/>
+</otherfindaid>
+</c>
+<c id="de-22" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">3 Q - Enregistrement</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1785/1971">1785-1971</unitdate>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<list>
+<item>
+<archref href="FRAD053_serie-q_ambrieres.pdf" title="bureau d&apos;Ambrières"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_argentre.pdf" title="bureau d&apos;Argentré"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_bais.pdf" title="bureau de Bais"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_bierne.pdf" title="bureau de Bierné"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_chailland.pdf" title="bureau de Chailland"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_chateau-gontier.pdf" title="bureau de Château-Gontier"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_cosse-le-vivien.pdf" title="bureau de Cossé-le-Vivien"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_couptrain.pdf" title="bureau de Couptrain"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_craon.pdf" title="bureau de Craon"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_ernee.pdf" title="bureau d&apos;Ernée"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_evron.pdf" title="bureau d&apos;Évron"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_gorron.pdf" title="bureau de Gorron"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_grez-en-bouere.pdf" title="bureau de Grez-en-Bouère"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_horps.pdf" title="bureau du Horps"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_landivy.pdf" title="bureau de Landivy"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_lassay.pdf" title="bureau de Lassay"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_laval.pdf" title="bureau de Laval"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_loiron.pdf" title="bureau de Loiron"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_Mayenne.pdf" title="bureau de Mayenne"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_meslay.pdf" title="bureau de Meslay"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_montsurs.pdf" title="bureau de Montsûrs"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_pre-en-pail.pdf" title="bureau de Pré-en-Pail"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_saint-aignan-sur-roe.pdf" title="bureau de Saint-Aignan-sur-Roë"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_saint-ouen-des-toits.pdf" title="bureau de Saint-Ouën_des_Toits"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_saint-pierre-des-nids.pdf" title="bureau de La Poôté (aujourd&apos;hui : Saint-Pierre-des-Nids)"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_sainte-suzanne.pdf" title="bureau de Sainte-Suzanne"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_soulge-le-bruant.pdf" title="bureau de Soulgé-le-Bruant (aujourd&apos;hui : Soulgé-sur-Ouette)"/>
+</item>
+<item>
+<archref href="FRAD053_serie-q_villaines.pdf" title="bureau de Villaines-la-Juhel"/>
+</item>
+</list>
+</otherfindaid>
+</c>
+<c id="de-23" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">4 Q - Hypothèques</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1798/1987">an VII-1987</unitdate>
+</did>
+</c>
+<c id="de-24" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">Série R - Affaires militaires, organismes de temps de guerre</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1793/1940">an II-1940</unitdate>
+<physdesc label="Description physique">
+<extent label="Métrage linéaire" unit="ml">174,00</extent>
+</physdesc>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<list>
+<item>
+<archref href="FRAD053_R.pdf" title="voir l&apos;instrument de recherche"/>
+</item>
+<item>
+<archref href="FRAD053_9R.pdf" title="voir l&apos;instrument de recherche de la sous-série 9 R : Prisonniers de guerre ennemis et internés. Camp de Pontmain"/>
+</item>
+<item>
+<archref href="FRAD053_10R_RN.xml"/>
+</item>
+</list>
+</otherfindaid>
+</c>
+<c id="de-25" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">Série S - Travaux publics et transports</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1763/1998">1763-1998</unitdate>
+<physdesc label="Description physique">
+<extent label="Métrage linéaire" unit="ml">429,00</extent>
+</physdesc>
+</did>
+</c>
+<c id="de-26" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">Série T - Enseignement, affaires culturelles, sports</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1799/1998">an VIII-1998</unitdate>
+<physdesc label="Description physique">
+<extent label="Métrage linéaire" unit="ml">93,00</extent>
+</physdesc>
+</did>
+</c>
+<c id="de-27" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">Série U - Justice</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1701/1995">1701-1995</unitdate>
+<physdesc label="Description physique">
+<extent label="Métrage linéaire" unit="ml">565,00</extent>
+</physdesc>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_8U_RN.xml" title="voir l&apos;instrument de recherche des répertoires des notaires et des commissaires-priseurs"/>
+</otherfindaid>
+</c>
+<c id="de-28" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">Série V - Cultes</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1742/1939">1742-1939</unitdate>
+<physdesc label="Description physique">
+<extent label="Métrage linéaire" unit="ml">35,00</extent>
+</physdesc>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<list>
+<item>
+<archref href="FRAD053_V_RN.xml" title="voir l&apos;instrument de recherche"/>
+</item>
+<item>
+<archref href="FRAD053_V_Glossaire.pdf" title="voir le glossaire de l&apos;instrument de recherche"/>
+</item>
+<item>
+<archref href="FRAD053_Eveques_LeMans_Laval.pdf" title="voir liste des évêques du Mans et de Laval"/>
+</item>
+<item>
+<archref href="FRAD053_Liste_Vicaires-generaux _Laval.pdf" title="voir liste des vicaires généraux du diocèse de Laval"/>
+</item>
+<item>
+<archref href="FRAD053_Liste_Vicaires-capitulaires_Laval.pdf" title="voir liste des vicaires capitulaires du diocèse de Laval"/>
+</item>
+</list>
+</otherfindaid>
+</c>
+<c id="de-29" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">Série X - Assistance et prévoyance</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1799/1976">an VIII-1976</unitdate>
+<physdesc label="Description physique">
+<extent label="Métrage linéaire" unit="ml">165,00</extent>
+</physdesc>
+</did>
+</c>
+<c id="de-30" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">Série Y - Etablissements pénitentiaires</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1793/1965">1793-1965</unitdate>
+<physdesc label="Description physique">
+<extent label="Métrage linéaire" unit="ml">24,00</extent>
+</physdesc>
+</did>
+<otherfindaid>
+<head>Liens</head>
+<archref href="FRAD053_Y_RN.xml .xml" title="voir l&apos;instrument de recherche"/>
+</otherfindaid>
+</c>
+<c id="de-31" level="otherlevel" otherlevel="groupe-de-fonds">
+<did>
+<unittitle label="Intitulé de l'unité documentaire">Série Z - Sous-préfectures</unittitle>
+<unitdate label="Date de l'unité documentaire" normal="1799/1952">an VIII-1952</unitdate>
+<physdesc label="Description physique">
+<extent label="Métrage linéaire" unit="ml">36,00</extent>
+</physdesc>
+</did>
+</c>
+<c id="de-32"><did><unitid><extptr xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://archives.lamayenne.fr/archives-en-ligne/ead.html?c=FRAD053_1516W_BV_de-7"/>1516 W 7</unitid><unittitle xmlns:pleade="http://pleade.org/ns/pleade/1.0" label="Intitulé de l'unité documentaire">André O. Angot G.</unittitle><unitdate xmlns:pleade="http://pleade.org/ns/pleade/1.0" label="Date de l'unité documentaire" normal="1939/1951" era="ce" calendar="gregorian">1939-1951</unitdate></did><dao xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://archives.lamayenne.fr/archives-en-ligne/ark:/37963/r693006zzv2rnk/f1?context=ead::FRAD053_1516W_BV_de-7" xlink:role="viewer" linktype="extended"/><dao xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://archives.lamayenne.fr/archives-en-ligne/ark:/37963/r693006zzv2rnk/f1.vignette" xlink:title="thumbnnail" xlink:role="thumbnail" linktype="extended"/></c>
+<c id="de-33"><did><unitid><extptr xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://archives.lamayenne.fr/archives-en-ligne/ead.html?c=FRAD053_1516W_BV_de-8"/>1516 W 8</unitid><unittitle xmlns:pleade="http://pleade.org/ns/pleade/1.0" label="Intitulé de l'unité documentaire">Angot H. Anis L.</unittitle><unitdate xmlns:pleade="http://pleade.org/ns/pleade/1.0" label="Date de l'unité documentaire" normal="1939/1951" era="ce" calendar="gregorian">1939-1951</unitdate></did><dao xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://archives.lamayenne.fr/archives-en-ligne/ark:/37963/r693007z63ks8k/f1?context=ead::FRAD053_1516W_BV_de-8" xlink:role="viewer" linktype="extended"/><dao xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="https://archives.lamayenne.fr/archives-en-ligne/ark:/37963/r693007z63ks8k/f1.vignette" xlink:title="thumbnnail" xlink:role="thumbnail" linktype="extended"/></c>
+</dsc>
+</archdesc>
+</ead>

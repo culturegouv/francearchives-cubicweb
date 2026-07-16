@@ -1,8 +1,27 @@
-
-{% include "./card.jinja2" %}
-
-<div id="bs-table-container" class="document-view"></div>
-
-<script type="text/javascript">
-  var data = {{ data }};
-</script>
+{%- set lang_attr='lang="{}"'.format(entity.lang) if entity.lang != req.lang else "" -%}
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+    <div class="fr-col-12 fr-col-lg-8">
+      <article class="fr-hidden fr-unhidden-md" aria-hidden="true" id="card-{{ entity.eid }}" {{ lang_attr }}>
+        <div class="fr-col-12 fr-mb-8v" {{ lang_attr }}>
+          <h1>{{ entity.title | e }}</h1>
+        </div>
+        <div class="fr-mb-6v fr-mb-lg-12v">
+          {{ entity.printable_value('content') }}
+        </div>
+      </article>
+      <div class="fr-sr-only-md">
+        <h1>{{ entity.title | e }}</h1>
+        <div class="fr-sr-only-md fr-alert fr-alert--info fr-alert--sm"">
+          <p>{{ req._('small-screens-circular-warning') }}</p>
+          <a class="fr-link" href="{{ req.build_url('circulaires') }}">
+            {{ req._('Go back to the list of circulars') }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="fr-container fr-my-8v fr-hidden fr-unhidden-md" aria-hidden="true">
+  <div id="circulars-tb-container" data-lang="{{req.lang}}-{{req.lang}}"></div>
+</div>

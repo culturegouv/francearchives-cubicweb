@@ -1,0 +1,23 @@
+<div class="fr-grid-row fr-grid-row--gutters fr-grid-row--center">
+<div class="fr-col-11 fr-col-xl-10">
+<p class="fr-sr-only">{{ a11y_alert }}</p>
+<h2>{{_("Search with Sparnatural")}}</h2>
+<div id="sparnatural-queries-dropdown"></div>
+<spar-natural
+  	src="{{config}}"
+    endpoint="{{endpoint}}"
+    lang="{{lang}}"
+    limit="1000"
+    debug="true"
+    background="13,78,150"
+ >
+ </spar-natural>
+<div style="font-style: italic; font-size:0.9em;">
+  <a href="#" id="sparql-toggle">
+    <i id="sparql-toggle-icon" class="fa fa-eye-slash fa-fw"></i>&nbsp;
+    <span>{{_("Display/hide SPARQL editor")}}</span>
+  </a>
+</div>
+<div id="yasqe" style="display:none;"></div>
+<div id="yasr"></div>
+</div></div>

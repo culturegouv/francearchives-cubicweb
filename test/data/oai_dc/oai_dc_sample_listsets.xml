@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2024-01-24T11:24:16Z</responseDate>
+  <request verb="ListSets">http://portail.cg51.mnesys.fr/oai_pmh.cgi</request>
+  <ListSets>
+    <set>
+      <setSpec>FRAD055_REC</setSpec>
+      <setName>FRAD055</setName>
+    </set>
+    <resumptionToken completeListSize="45" cursor="0"/>
+  </ListSets>
+</OAI-PMH>

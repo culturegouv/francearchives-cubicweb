@@ -6,6 +6,6 @@
         <option value="{{ s.dpt_code.lower() }}" {% if selected_dpt and selected_dpt.lower() == s.dpt_code.lower() %} selected="selected" {% endif %}>{{ s.name }}</option>
       {% endfor %}
     </select>
-    <span class="input-group-btn"><input type="submit" value="ok" class="btn btn-primary" /></span>
+    <span class="input-group-btn"><input type="submit" value="{{_('select')}}" class="btn btn-primary"></span>
   </div>
 </form>

@@ -1,0 +1,60 @@
+<meta charset="utf-8" >
+<meta name="viewport" content="initial-scale=1.0, width=device-width" >
+<meta name="language" content="{{ lang }}" >
+{% if noreact %}
+<script>window.dsfr = {production:{{ is_production }}};</script>
+{% endif %}
+{% if tracking %}
+{% include "eulerian.jinja2" %}
+{% endif %}
+{% set tac = tac_uuid and tac_domain %}
+{% if tac %}
+<script src="https://tarteaucitron.io/load.js?domain={{ tac_domain }}&uuid={{ tac_uuid }}"></script>
+<link rel="stylesheet" href="{{ data_url }}tarteaucitron/css/dsfr-theme-tac.min.css">
+{% endif %}
+<link rel="icon" href="{{ data_url }}icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ data_url }}icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="{{ data_url }}icons/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="{{ data_url }}icons/favicon-32x32.png" sizes="16x16">
+<link data-n-head="ssr" rel="icon" type="image/png" sizes="192x192" href="{{ data_url }}icons/android-chrome-192x192.png">
+<link data-n-head="ssr" rel="icon" type="image/png" sizes="512x512" href="{{ data_url }}icons/android-chrome-512x512.png">
+<link rel="manifest" href="{{ data_url }}icons/manifest.webmanifest" crossorigin="use-credentials">
+<link rel="mask-icon" href="{{ data_url }}icons/safari-pinned-tab.svg">
+<link rel="glossary" href="{{ date_url }}/glossaire">
+<!-- IE 11 -->
+<meta name="msapplication-config" content="{{ data_url }}icons/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+{% for attr, value in meta %}
+<meta name="{{ attr }}" content="{{ value|e }}" >
+{% endfor %}
+{% for attr, value in open_graph %}
+<meta property="og:{{ attr }}" content="{{ value|e }}" >
+{% endfor %}
+<title>{{ title }}</title>
+<script>
+{% for varname, value in js_vars %}
+var {{ varname }} = {{ value }};
+{% endfor %}
+</script>
+{% for css in cssfiles %}
+<link rel="stylesheet" href="{{ css }}" type="text/css" media="all" >
+{% endfor %}
+{% if jsonld_graph %}
+<script type="application/ld+json">
+{{ jsonld_graph | safe }}
+</script>
+{% endif %}
+<script>
+window.addEventListener('error', function(evt) {
+    if (evt.target.dataset !== undefined && evt.target.dataset.defaultsrc !== undefined) {
+        var defaultsrc = evt.target.dataset.defaultsrc.split(';');
+        if (defaultsrc.length > 1) {
+            evt.target.setAttribute('src', defaultsrc[0]);
+            evt.target.dataset.defaultsrc = defaultsrc.slice(1, defaultsrc.length).join(';');
+        } else if (defaultsrc.length == 1) {
+            evt.target.setAttribute('src', defaultsrc[0]);
+        }
+    }
+}, true);
+</script>

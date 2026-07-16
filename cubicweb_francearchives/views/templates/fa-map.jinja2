@@ -1,7 +1,11 @@
-<div class="document-view">
-<h1>{{ title }}</h1>
-{% if a11y_alert %}
-     <p class="visually-hidden d-print-none">{{ a11y_alert }}</p>
-{% endif %}
-<div id="fa-map" data-markerurl="{{ markerurl }}" data-icon-url="{{ iconurl }}"></div>
+<div class="fr-container fr-mb-2w">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-mb-4v">
+      <h1 class="fr-mb-8v">{{ title }}</h1>
+      {% if a11y_alert %}
+      <p class="fr-col-12 fr-col-lg-8">{{ a11y_alert }}</p>
+      {% endif %}
+    </div>
+    <div id="fa-map" data-markerurl="{{ markerurl }}" data-icon-url="{{ iconurl }}"  aria-hidden="true"></div>
+  </div>
 </div>

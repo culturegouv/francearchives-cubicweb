@@ -13,7 +13,7 @@
     <title>{{ pagetitle }}</title>
   </head>
   <body>
-    {% from "./mixins.jinja2" import mirador_viewer %}
-    {{  mirador_viewer(iiif_manifest, data_url, lang) }}
+    {%- from "./mixins.jinja2" import mirador_viewer %}
+    {{ mirador_viewer(iiif_manifest, data_url, lang) }}
   </body>
 </html>

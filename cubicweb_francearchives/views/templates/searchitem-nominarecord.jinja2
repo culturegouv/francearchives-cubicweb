@@ -1,21 +1,42 @@
-{% extends "searchitem.jinja2" %}
-{% block extra %}
-{% if entity["source_url"] %}
-<div class="document-properties row mt-3">
-  <div class="col-sm-12 col-md-7">
-  <a class="blue-button" href="{{ entity["source_url"] | e }}"
-     title="{{ _("Consult the digitized version of")  }} {{ entity["title"] }} {{ _('in a new window') }}"
-     {% if publisher.xiti %}
-     data-xiti-level="C"
-     data-xiti-type="{{ publisher.xiti.type }}"
-     data-xiti-name="{{ publisher.xiti.access_site}}"
-     data-xiti-n2="{{ publisher.xiti.n2}}"
-     {% endif %}
-     target="_blank" rel="noopener noreferrer nofollow" >
-           {{_("Consult the digitized version") }}
-     <i class="fa fa-external-link" aria-hidden="true"></i>
-  </a>
+
+<div class="fr-col-12 fr-mb-8v">
+  <div class="fr-card fr-card--sm fr-card--horizontal-tier fa-sr-card">
+    <div class="fr-card__body">
+      <div class="fr-card__content">
+        <div class="fa-sr-card__header">
+          <h3 class="fr-card__title">
+            <a href="{{ url }}">{{ title }}</a>
+          </h3>
+          {%- if logo -%}
+          <div class="fa-sr-card__logo">
+            <img loading="lazy"
+                 src="{{ logo.src | escape }}"
+                 data-defaultsrc="{{ logo.srcs }}"
+                 alt=""
+            >
+          </div>
+         {%- endif -%}
+        </div>
+        <div class="fr-card__desc fa-sr-card__desc">
+          <div class="fa-sr-card__props fr-text--sm">
+            {%- from "./mixins.jinja2" import search_itemprops -%}
+            {{ search_itemprops(item_properties, _) }}
+          </div>
+        </div>
+	<div class="fr-card__start">
+          <ul class="fr-badge-group">
+            <li>
+              <p class="fr-badge">{{ act_type }}</p>
+            </li>
+          </ul>
+        </div>
+   
+        {%- if modificaiton_date -%}
+        <div class="fr-card__end">
+          <p class="fr-card__detail">{{ labels["modification_date"] }} {{ modificaiton_date }}</p>
+        </div>
+        {%- endif -%}
+      </div>
+    </div>
   </div>
 </div>
-{% endif %}
-{% endblock %}

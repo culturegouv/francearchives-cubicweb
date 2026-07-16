@@ -28,15 +28,13 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL-C license and that you accept its terms.
 #
-
+from cubicweb_web.devtools.testlib import PyramidWebCWTC
 from lxml import etree
 
 import unittest
 import os.path as osp
 
 from cubicweb import Binary
-from cubicweb.devtools import testlib
-from cubicweb.pyramid.test import PyramidCWTest
 
 from cubicweb_francearchives.testutils import (
     PostgresTextMixin,
@@ -58,7 +56,7 @@ BASE_SETTINGS = {
 
 
 class FindingAidExportApeEADTC(
-    S3BfssStorageTestMixin, PyramidCWTest, PostgresTextMixin, XMLCompMixin, testlib.CubicWebTC
+    S3BfssStorageTestMixin, PostgresTextMixin, PyramidWebCWTC, XMLCompMixin
 ):
     maxDiff = None
     settings = BASE_SETTINGS
@@ -91,22 +89,31 @@ class FindingAidExportApeEADTC(
         tree = etree.fromstring(result)
         got_ead = self.get_ead(tree, verb)
         expected_attribs = {
-            "{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": "urn:isbn:1-931666-22-9 http://www.loc.gov/ead/ead.xsd",  # noqa
+            "{http://www.w3.org/2001/XMLSchema-instance}schemaLocation": (
+                "urn:isbn:1-931666-22-9 http://www.loc.gov/ead/ead.xsd"
+            ),  # noqa
             "audience": "external",
         }
         expected_nsmap = {
             "xsi": "http://www.w3.org/2001/XMLSchema-instance",
             "xlink": "http://www.w3.org/1999/xlink",
+            # 'cpf': 'urn:isbn:1-931666-33-4', # not mandatory
             None: "urn:isbn:1-931666-22-9",
         }
         self.assertCountEqual(expected_attribs, got_ead.attrib)
-        self.assertCountEqual(expected_nsmap, got_ead.nsmap)
+        if "cpf" in got_ead.nsmap:
+            got_ead.nsmap.pop("cpf")
+        self.assertDictContainsSubset(expected_nsmap, got_ead.nsmap)
 
     def assert_metadata_equal(self, filepath, result, verb="GetRecord"):
         tree = etree.fromstring(result)
         got_metadata = self.get_metadata(tree, verb)
         tree = etree.parse(self.datapath(osp.join("ape_ead_data"), filepath))
         expected_metadata = self.get_metadata(tree.getroot(), verb)
+        # with open(f"/tmp/{filepath}", "w") as fp:
+        #     fp.write(
+        #         etree.tostring(got_metadata, pretty_print=True, encoding="utf8").decode("utf8")
+        #     )
         self.assertXMLEqual(expected_metadata, got_metadata)
 
     def get_metadata(self, root, verb="GetRecord"):

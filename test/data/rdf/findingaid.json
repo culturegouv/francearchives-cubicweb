@@ -1,16 +1,16 @@
 {
   "@context": {
-    "schema": "http://schema.org/"
+    "schema": "https://schema.org/"
   },
 
-  "@id": "http://testing.fr/cubicweb/findingaid/FRAD084_xxx",
+  "@id": "https://testing.cubicweb/findingaid/FRAD084_xxx",
   "@type": "schema:ArchiveComponent",
   "schema:about": {
-    "@id": "http://testing.fr/cubicweb/subject/{{subjectEid}}",
+    "@id": "https://testing.cubicweb/subject/{{subjectEid}}",
     "schema:name": "Paris"
   },
   "schema:hasPart": {
-    "@id": "http://testing.fr/cubicweb/facomponent/fc-stable-id",
+    "@id": "https://testing.cubicweb/facomponent/fc-stable-id",
     "schema:name": "fcdid-title"
   },
   "schema:holdingArchive": "Archives dep",

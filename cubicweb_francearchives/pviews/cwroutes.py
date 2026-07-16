@@ -41,7 +41,6 @@ from pyramid.view import view_config
 from pyramid.response import Response, FileResponse
 from pyramid.httpexceptions import HTTPNotFound, HTTPFound
 
-from cubicweb_francearchives import FEATURE_IIIF
 from cubicweb_francearchives.pviews.helpers import update_headers
 
 
@@ -121,11 +120,14 @@ def cw_notemplate_view(vid, request, status_code=200):
     )
 
 
-if FEATURE_IIIF:
+@view_config(route_name="mirador", request_method=("GET", "HEAD"))
+def mirador_view(request):
+    return cw_notemplate_view("mirador", request)
 
-    @view_config(route_name="mirador", request_method=("GET", "HEAD"))
-    def mirador_view(request):
-        return cw_notemplate_view("mirador", request)
+
+@view_config(route_name="uv", request_method=("GET", "HEAD"))
+def universalviewer_view(request):
+    return cw_notemplate_view("universalviewer", request)
 
 
 @view_config(route_name="bfss", request_method=("GET", "HEAD"))
@@ -142,9 +144,11 @@ def download_s3_view(filepath):
     s3cnx = boto3.client("s3", endpoint_url=endpoint_url)
     try:
         result = s3cnx.get_object(Bucket=bucket_name, Key=filepath)
-        # TODO cache
-        # TODO add request to arguments ?
-        return Response(result["Body"].read(), content_type=result["ContentType"])
+        content_type = result["ContentType"]
+        if filepath.endswith(".pdf"):
+            # XXX should send the right content_type on upload
+            content_type = "application/pdf"
+        return Response(result["Body"].read(), content_type=content_type)
     except boto3.exceptions.Boto3Error:
         return HTTPNotFound()
     except botocore.exceptions.ClientError:
@@ -219,7 +223,6 @@ def includeme(config):
         config.add_route("static", "/legacy/static/{relpath:.*}")
         config.add_route("sitemap-s3", "/sitemap/{basename}")
         config.add_route("robots-s3", "/robots.txt")
-
     else:
         config.add_route("bfss", "/file/{hash}/{basename}")
         config.add_route("ape-bfss", "/file/{hash}/ape-ead/{servicecode}/{basename}")
@@ -228,6 +231,6 @@ def includeme(config):
         config.add_route("ape-s3", "/next/file/{hash}/ape-ead/{servicecode}/{basename}")
         config.add_route("static-s3", "/next/static/{relpath:.*}")
         config.add_route("seriousgame-s3", "/seriousgame{gamenum}/{relpath:.*}")
-    if FEATURE_IIIF:
-        config.add_route("mirador", "mirador")
+    config.add_route("mirador", "mirador")
+    config.add_route("uv", "uv")
     config.scan(__name__)

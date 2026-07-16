@@ -3,13 +3,3 @@ include:
     file: gitlab-ci/gitlab-ci.yml
   - project: francearchives/infra
     file: gitlab-ci/gitlab-ci-consultation.yml
-
-trigger-cms:
-  stage: livraisoncontinue
-  only:
-    - branch/integration
-  trigger:
-    project: francearchives/cubicweb-frarchives-edition
-    branch: branch/integration
-    strategy: depend
-  allow_failure: true

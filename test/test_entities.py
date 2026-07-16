@@ -35,9 +35,8 @@ import os.path as osp
 import unittest
 
 from cubicweb import Binary
-from cubicweb.devtools import testlib
-
-from cubicweb.devtools import PostgresApptestConfiguration
+from cubicweb.devtools import BASE_URL
+from cubicweb_web.devtools.testlib import WebCWTC, WebPostgresApptestConfiguration
 
 from cubicweb_francearchives import SECTIONS
 from cubicweb_francearchives.dataimport.pdf import pdf_infos
@@ -47,8 +46,8 @@ from cubicweb_francearchives.testutils import S3BfssStorageTestMixin
 from pgfixtures import setup_module, teardown_module  # noqa
 
 
-class EntitiesTC(S3BfssStorageTestMixin, testlib.CubicWebTC):
-    configcls = PostgresApptestConfiguration
+class EntitiesTC(S3BfssStorageTestMixin, WebCWTC):
+    configcls = WebPostgresApptestConfiguration
 
     def test_map(self):
         with self.admin_access.cnx() as cnx:
@@ -217,31 +216,33 @@ class EntitiesTC(S3BfssStorageTestMixin, testlib.CubicWebTC):
             self.assertEqual(section.illustration_url, image_url)
             self.assertEqual(section.illustration_alt, "alt")
 
-    def test_richstring_attrs(self):
+    def test_mixed_string_attrs(self):
         with self.admin_access.cnx() as cnx:
             ce = cnx.create_entity
             section = ce(
                 "Section",
-                title="sect-1",
-                name="sect-1",
-                content='<a href="www.toto.fr" title="toto">toto</a>',
+                title="""<p>sect</p>"<scriPt>alert('toto')</script>""",
+                name="""sect-1<scriPt>alert('toto')</scriPT>""",
+                content='<a href="www.toto.fr" title="toto">toto</a><script>alert("toto")</script>',
             )
             cnx.commit()
+            self.assertEqual(section.title, """<p>sect</p>"alert('toto')""")
+            self.assertEqual(section.name, """sect-1alert('toto')""")
             self.assertEqual(section.richstring_attrs, ["content"])
             self.assertEqual(
                 section.content,
                 '<a href="www.toto.fr" rel="nofollow noopener '
-                'noreferrer" target="_blank">toto</a>',
+                'noreferrer external" target="_blank">toto</a>',
             )
             self.assertEqual(
                 section.printable_value("content"),
                 '<a href="www.toto.fr" rel="nofollow noopener '
-                'noreferrer" target="_blank" title="toto - New window">toto</a>',
+                'noreferrer external" target="_blank" title="toto - new window">toto</a>',
             )
 
 
-class FileTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
-    configcls = PostgresApptestConfiguration
+class FileTests(S3BfssStorageTestMixin, WebCWTC):
+    configcls = WebPostgresApptestConfiguration
 
     def _create_similar_files(self, cnx):
         """create two cwFiles with the same filepath"""
@@ -373,8 +374,8 @@ class FileTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
             self.assertEqual(new_pdf_text, pdf_infos(new_fpath).get("text"))
 
 
-class NominaRecordTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
-    configcls = PostgresApptestConfiguration
+class NominaRecordTests(S3BfssStorageTestMixin, WebCWTC):
+    configcls = WebPostgresApptestConfiguration
 
     def setup_database(self):
         super(NominaRecordTests, self).setup_database()
@@ -393,7 +394,7 @@ class NominaRecordTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
 
         Trying: add a MPF1418 NominaRecord
 
-        Expecting: acte_year is d date
+        Expecting: act_year is d date
         """
 
         with self.admin_access.cnx() as cnx:
@@ -418,14 +419,14 @@ class NominaRecordTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
                 },
                 service=self.service,
             )
-            self.assertEqual(nomina_record.acte_year, "1914")
+            self.assertEqual(nomina_record.act_year, "1914")
 
     def test_nomina_dates(self):
         """Test NominaRecord other then MPF1418 dates
 
         Trying: add a NominaRecord
 
-        Expecting: acte_year is the date of doctype_code
+        Expecting: act_year is the date of doctype_code
         """
 
         with self.admin_access.cnx() as cnx:
@@ -464,11 +465,11 @@ class NominaRecordTests(S3BfssStorageTestMixin, testlib.CubicWebTC):
                 },
                 service=self.service,
             )
-            self.assertEqual(nomina_record.acte_year, "1887")
+            self.assertEqual(nomina_record.act_year, "1887")
 
 
-class BreadcrumbTests(testlib.CubicWebTC):
-    configcls = PostgresApptestConfiguration
+class BreadcrumbTests(WebCWTC):
+    configcls = WebPostgresApptestConfiguration
 
     def setup_database(self):
         with self.admin_access.cnx() as cnx:
@@ -490,9 +491,9 @@ class BreadcrumbTests(testlib.CubicWebTC):
             self.assertEqual(
                 ibc.breadcrumbs(),
                 [
-                    ("http://testing.fr/cubicweb/", "Home"),
-                    ("http://testing.fr/cubicweb/basedenoms", "Search in the name base"),
-                    ("http://testing.fr/cubicweb/basedenoms/FRAD051", "AD de la Marne"),
+                    (BASE_URL, "Home"),
+                    (f"{BASE_URL}basedenoms", "Search in the name base"),
+                    (f"{BASE_URL}basedenoms/service/FRAD051", "AD de la Marne"),
                     (None, "Durand, Jean"),
                 ],
             )
@@ -514,8 +515,8 @@ class BreadcrumbTests(testlib.CubicWebTC):
             self.assertEqual(
                 ibc.breadcrumbs(),
                 [
-                    ("http://testing.fr/cubicweb/", "Home"),
-                    ("http://testing.fr/cubicweb/inventaires/FRAD051", "AD de la Marne"),
+                    (BASE_URL, "Home"),
+                    (f"{BASE_URL}inventaires/FRAD051", "AD de la Marne"),
                     (None, "Inventory - maindid"),
                 ],
             )
@@ -535,7 +536,7 @@ class BreadcrumbTests(testlib.CubicWebTC):
             ibc = fa.cw_adapt_to("IBreadCrumbs")
             self.assertEqual(
                 ibc.breadcrumbs(),
-                [("http://testing.fr/cubicweb/", "Home"), (None, "Inventory - maindid")],
+                [(BASE_URL, "Home"), (None, "Inventory - maindid")],
             )
 
     def test_facomponent_breadcrumbs(self):
@@ -573,15 +574,15 @@ class BreadcrumbTests(testlib.CubicWebTC):
             self.assertEqual(
                 ibc.breadcrumbs(),
                 [
-                    ("http://testing.fr/cubicweb/", "Home"),
-                    ("http://testing.fr/cubicweb/inventaires/FRAD051", "AD de la Marne"),
-                    ("http://testing.fr/cubicweb/findingaid/FRAD051_xxx", "Inventory - maindid"),
+                    (BASE_URL, "Home"),
+                    (f"{BASE_URL}inventaires/FRAD051", "AD de la Marne"),
+                    (f"{BASE_URL}findingaid/FRAD051_xxx", "Inventory - maindid"),
                     "fcdid-title",
                 ],
             )
 
 
-class AdapterTests(testlib.CubicWebTC):
+class AdapterTests(WebCWTC):
     def test_service_vcard(self):
         """
         Trying: adapt a Service to Service2VcardAdapater
@@ -605,7 +606,8 @@ class AdapterTests(testlib.CubicWebTC):
             card = service.cw_adapt_to("vcard").vcard()
             got = card.serialize()
             for data in (
-                "UID:{uuid}".format(uuid=service.uuid),
+                f"UID:{service.eid}",
+                f"N:{service.dc_title()}",
                 "ADR:;;106 allée des Blachères;73000 Chambéry;;;FR",
                 "AGENT:Lise Paulus-Levet\r\nEMAIL:archives@grandchambery.fr",
                 (
@@ -631,8 +633,8 @@ class AdapterTests(testlib.CubicWebTC):
             self.assertEqual(adapter.serialize(), {})
 
 
-class BaseContentAideTC(S3BfssStorageTestMixin, testlib.CubicWebTC):
-    configcls = PostgresApptestConfiguration
+class BaseContentAideTC(S3BfssStorageTestMixin, WebCWTC):
+    configcls = WebPostgresApptestConfiguration
 
     def setup_database(self):
         with self.admin_access.cnx() as cnx:

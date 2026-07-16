@@ -95,7 +95,7 @@ class DeferredMassiveObjectStore(MassiveObjectStore):
         if rtype not in self._initialized:
             if not self.slave_mode:
                 self.master_init(commit=False)
-            assert not self._cnx.vreg.schema.rschema(rtype).inlined
+            assert not self._cnx.vreg.schema.relation_schema_for(rtype).inlined
             self._initialized[rtype] = None
             tablename = "%s_relation" % rtype.lower()
             tmp_tablename = "%s_%s" % (tablename, self.uuid)

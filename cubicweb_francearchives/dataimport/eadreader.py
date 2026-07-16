@@ -32,29 +32,36 @@
 
 import logging
 import os.path as osp
-import re
 from collections import defaultdict, Counter
 from itertools import chain
 
 from lxml import etree
 
 from logilab.common.decorators import cachedproperty
+import re
 from string import punctuation
+from urllib.parse import urlparse
 
 from cubicweb import _
-
-
+from cubicweb_francearchives import IIIF_MANIFEST_ROLE
 from cubicweb_francearchives.dataimport import (
     normalize_entry,
     remove_extension,
     strip_nones,
     InvalidFindingAid,
     clean,
+    unique_indices,
+    RELFILES_DIR,
+    INDEX_AUTHORITY_TYPE_MAP,
+    cleanup_ns,
+    parse_unitdate,
 )
-from cubicweb_francearchives.utils import remove_html_tags
+from cubicweb_francearchives.utils import remove_html_tags, is_absolute_url
+from cubicweb_francearchives.xmlutils import XMLParser
 
 XSLT_PATH = osp.join(osp.dirname(__file__), "xslt", "ead.html.xsl")
-XSLT = etree.XSLT(etree.parse(XSLT_PATH))
+
+XSLT = etree.XSLT(etree.parse(XSLT_PATH, parser=XMLParser))
 
 LOGGER = logging.getLogger()
 
@@ -118,86 +125,16 @@ def replace(source, target):
     source.getparent().replace(source, target)
 
 
-YEAR_RANGE_RGX = [
-    re.compile(
-        r"""
-        ^\s*(?P<start>\d{2,4})/\d{1,2}/\d{1,2}\s*-
-        \s*(?P<stop>\d{2,4})/\d{1,2}/\d{1,2}\s*$""",
-        re.X,
-    ),
-    re.compile(
-        r"""
-        ^\s*(?P<start>\d{2,4})-\d{1,2}-\d{1,2}\s*/
-        \s*(?P<stop>\d{2,4})-\d{1,2}-\d{1,2}\s*$""",
-        re.X,
-    ),
-    re.compile(r"^\s*(?P<start>\d{2,4})\s*[/-]\s*(?P<stop>\d{2,4})\s*$"),
-    re.compile(r"^\s*(?P<start>\d{2,4})\s*$"),
-]
-
-
-def parse_normalized_daterange(value):
-    """try to guess {start, stop} date range from a unitdate label
-
-    Known formats are:
-        - yyyy-mm-dd / yyyy-dd-dd
-        - yyyy/mm/dd - yyyy/mm/dd
-        - yyyy - yyyy
-        - yyyy
-
-    If ``start`` is greater than ``stop``, ``stop`` gets lowered back
-    to ``start``.
-
-    If ``start`` or ``stop`` are greater than 2100, they are ignored.
-    If ``stop`` is not defined, it defaults to ``start``.
-    Returns:
-        - None if nothing could be parsed
-        - {'start', 'stop'} mapping on success
-    """
-    start = stop = None
-    if value is not None:
-        for rgx in YEAR_RANGE_RGX:
-            match = rgx.match(value)
-            if match is not None:
-                start = int(match.group("start"))
-                if "stop" in match.groupdict():
-                    stop = int(match.group("stop"))
-                if start and start > 2100:
-                    start = None
-                if stop and stop > 2100:
-                    stop = None
-                if start and stop and start > stop:
-                    stop = None
-                stop = start if stop is None else stop
-                if start and stop:
-                    return {"start": start, "stop": stop}
-    return None
-
-
-def parse_unitdate(unitdate):
-    infos = {
-        "label": None,
-        "start": None,
-        "stop": None,
-    }
-    if unitdate is not None and unitdate.text:
-        infos["label"] = unitdate.text
-        for datelabel in (unitdate.get("normal"), unitdate.text):
-            year_range = parse_normalized_daterange(datelabel)
-            if year_range is not None:
-                infos.update(year_range)
-                break
-    return infos
-
-
 def lang_infos(node, tagname):
     langusage = node.find(tagname)
-    lang_code = None
+    lang_code = []
     if langusage is not None:
-        language = langusage.find("language")
-        if language is not None:
-            lang_code = language.get("langcode")
-    return langusage, lang_code
+        for language in langusage.findall("language"):
+            if language is not None:
+                code = language.get("langcode")
+                if code:
+                    lang_code.append(code)
+    return langusage, " ; ".join(lang_code) or None
 
 
 def component_physdesc(did):
@@ -236,11 +173,12 @@ def component_materialspec(did):
 
 def did_infos(did, log=None):
     if did is None:
-        raise InvalidFindingAid("no DID found in component, ignoring it")
+        raise InvalidFindingAid("No DID found in component, ignoring it")
     component = did.getparent()
     date = did.find("unitdate")
-    date_infos = parse_unitdate(date)
-    unitdate = date_infos.get("label")
+    kwargs = {"text": date.text, "normal": date.get("normal")} if date is not None else {}
+    date_infos = parse_unitdate(kwargs)
+    unitdate = date_infos.get("date")
     langusage, lang_code = lang_infos(did, "langmaterial")
     titles = did.findall("unittitle")
     title = None
@@ -277,7 +215,7 @@ def did_infos(did, log=None):
         "lang_code": lang_code,
     }
     for prop in ("note", "origination", "physloc", "repository", "abstract"):
-        infos[prop] = to_html(did.find(prop))
+        infos[prop] = to_html(did.findall(prop))
     infos["physdesc"] = component_physdesc(did)
     infos["materialspec"] = component_materialspec(did)
     return infos
@@ -300,11 +238,12 @@ def component_description(node):
 
 
 def component_bibliography(node):
-    description = [
-        elt_description(node.find("bibliography")),
-        elt_description(node.find("bibref")),
-    ]
-    return "\n".join(description).strip() or None
+    bibliography = [elt_description(n) for n in node.findall("bibliography")]
+    if bibliography:
+        return "\n".join(bibliography)
+    # A list of <bibref>s may be gathered into a <bibliography>. A single
+    # <bibref> may be part of a Paragraph <p>.
+    return elt_description(node.find("p/bibref")) or None
 
 
 def component_acqinfo(node):
@@ -315,12 +254,12 @@ def component_acqinfo(node):
     return "\n".join(description).strip() or None
 
 
-def file_info(node, relfiles, get_sha1_func):
+def file_info(node, relfiles, get_sha1_func, log):
     """
     :node: XML node
     :relfiles: list of existing RELFILES for the given service
     :get_sha1_func:  function to compute a file sha1 from its filepath
-
+    :log: logger
     :returns: file_info
     :rtype: dict
     """
@@ -334,9 +273,17 @@ def file_info(node, relfiles, get_sha1_func):
                 "title": osp.basename(href),
                 "sha1": get_sha1_func(filepath),
             }
+        else:
+            if osp.splitext(href)[-1].lower() == "pdf":
+                log.error(
+                    "File '%s' referenced in '%s' not found in '%s' directory",
+                    title,
+                    node.tag,
+                    RELFILES_DIR,
+                )
 
 
-def component_additional(node, relfiles, get_sha1_func):
+def component_additional(node, relfiles, get_sha1_func, log):
     description = []
     referenced_files = []
     for tag in ("otherfindaid", "relatedmaterial", "separatedmaterial", "originalsloc"):
@@ -344,7 +291,7 @@ def component_additional(node, relfiles, get_sha1_func):
             if tag != "originalsloc" and relfiles:
                 # index files
                 for archref in child.xpath(".//archref"):
-                    finfo = file_info(archref, relfiles, get_sha1_func)
+                    finfo = file_info(archref, relfiles, get_sha1_func, log)
                     if finfo:
                         archref.set("href", "../file/{}/{}".format(finfo["sha1"], finfo["title"]))
                         if not archref.text:
@@ -356,7 +303,7 @@ def component_additional(node, relfiles, get_sha1_func):
 
 
 def component_scopecontent(node):
-    return elt_description(node.find("scopecontent"))
+    return "\n".join(elt_description(n) for n in node.findall("scopecontent")) or None
 
 
 def component_accessrestrict(node):
@@ -417,34 +364,13 @@ def eadheader_props(eadheader):
     }
 
 
-def cleanup_ns(tree, ns=None):
-    """hack: remove default NS.
-
-    Some EAD files use the 'urn:isbn:1-931666-22-9' namesapce, some don't.
-    To ease XML processing, remove it to access nodes using unqualified
-    names in all cases.
-    """
-    if hasattr(tree, "getroot"):
-        root = tree.getroot()
-    else:
-        root = tree
-    if ns in root.nsmap:
-        for elt in root.getiterator():
-            if not hasattr(elt.tag, "find"):
-                continue
-            ns_idx = elt.tag.find("}")
-            if ns_idx > 0:
-                elt.tag = elt.tag[ns_idx + 1 :]
-    return root
-
-
 def preprocess_ead(data):
     """Preprocesses the EAD xml file to remove ns and internal content
 
     Parameters:
     -----------
 
-    data : the path to the EAD xml file or EAD xml file  Binary file content
+    data : the path to the EAD xml file or EAD xml file Binary file content
 
     Returns:
     --------
@@ -455,7 +381,10 @@ def preprocess_ead(data):
         from io import BytesIO
 
         data = BytesIO(data)
-    tree = etree.parse(data)
+    try:
+        tree = etree.parse(data, parser=XMLParser)
+    except Exception as err:
+        raise InvalidFindingAid(err)
     cleanup_ns(tree)
     for elt in tree.findall('//*[@audience="internal"]'):
         elt.getparent().remove(elt)
@@ -470,10 +399,11 @@ def iter_components(node):
                 yield cnode
 
 
-def index_infos(node, role="index"):
+def index_infos(node, role="index", logger=None):
     if node.text is None:
         return
     index_label = None
+    logger = logger or LOGGER
     #  see https://extranet.logilab.fr/73966141
     if node.tag in ("corpname", "famname", "name", "persname", "geogname", "genreform", "subject"):
         index_label = node.attrib.get("normal")
@@ -485,32 +415,31 @@ def index_infos(node, role="index"):
     if not index_label:
         return None
     if index_label and len(index_label) > 256:
-        LOGGER.warning("truncating index entry of length %s: %r", len(index_label), index_label)
+        logger.warning("truncating index entry of length %s: %r", len(index_label), index_label)
     index_label = index_label[:256].strip()
+    _, authtype = INDEX_AUTHORITY_TYPE_MAP[node.tag]
     return {
         "authfilenumber": node.get("authfilenumber"),
         "type": node.tag,
         "label": index_label,
         "normalized": normalize_entry(index_label),
         "role": role,
+        "authtype": authtype,
     }
 
 
-def unique_indices(entries, keys=("type", "normalized")):
-    done = set()
-    uniques = []
-    for entry in entries:
-        key = tuple(entry[k] for k in keys)
-        if key not in done:
-            done.add(key)
-            uniques.append(entry)
-    return uniques
-
-
 class EADXMLReader(object):
-    def __init__(self, tree, get_sha1_func, relfiles=None, log=None):
+    def __init__(self, tree, get_sha1_func, iiif_ead_policy=None, relfiles=None, log=None):
+        """
+        :param function XMLElement tree: the lxml ead tree object to process
+        :param function get_sha1_func: comput CWFiles sha1
+        :param str iiif_ead_policy: iiif ead policy
+        :param list relfiles: files to link to FindingAid
+        :param Logger log: logger
+        """
         self.tree = tree
         self.relfiles = relfiles
+        self.iiif_ead_policy = iiif_ead_policy
         self.get_sha1_func = get_sha1_func
         self.log = LOGGER if log is None else log
 
@@ -518,24 +447,39 @@ class EADXMLReader(object):
     def archdesc(self):
         archdesc = self.tree.find("archdesc")
         if archdesc is None:
-            raise InvalidFindingAid("no archdesc found")
+            raise InvalidFindingAid("No archdesc found.")
         return archdesc
 
     @cachedproperty
     def fa_maindid(self):
         did = self.archdesc.find("did")
         if did is None:
-            raise InvalidFindingAid("no did found in archdesc")
+            raise InvalidFindingAid("No did found in archdesc.")
         return did
 
+    def check_document_validity(self, service_infos):
+        """Check the EAD XML structure and constraintes"""
+        # calll fa_maindid to check "archdesc" and "archdesc/did" nodes presence
+        self.fa_maindid
+        self.check_c_id_unicity()
+
+    def check_c_id_uniformity(self):
+        c_ids = [x for x in self.tree.xpath(".//c[@id]/@id")]
+        c_all = [x for x in self.tree.xpath(".//c")]
+        return len(c_ids) == len(c_all)
+
+    def check_c_id_unicity(self):
+        """Ensure all c.id value is unique"""
+        c_ids = [x for x in self.tree.xpath(".//c[@id]/@id")]
+        duplicate_ids = [c_id for c_id, count in Counter(c_ids).items() if count > 1 and c_id != ""]
+        if duplicate_ids:
+            raise InvalidFindingAid(f"Duplicate c@id : {', '.join(duplicate_ids)}")
+
     def originators(self):
+        """Used in ES indexation. FindingAid originators are used in both
+        FindingAid and FAcomponents ESdocuments"""
         did = self.fa_maindid
-        originators = []
-        for tag in ("name", "corpname", "famname", "persname"):
-            for node in did.findall("origination/{}".format(tag)):
-                if node.text:
-                    originators.append(node.text.strip())
-        return originators
+        return [originator["label"] for originator in self.origination(did)]
 
     def fa_headerprops(self):
         return eadheader_props(self.tree.find("eadheader"))
@@ -589,18 +533,18 @@ class EADXMLReader(object):
                 yield node
 
     def origination(self, host_node):
+        """Create AgentNames in db"""
         origination = host_node.find("origination")
         if origination is not None:
-            role = origination.get("label", "originator").strip().lower()
-            for tagname in ("persname", "corpname", "geogname", "subject", "famname", "name"):
+            for tagname in ("persname", "corpname", "famname", "name"):
                 for node in origination.findall(tagname):
-                    infos = index_infos(node, role=role)
+                    infos = index_infos(node, role="originator", logger=self.log)
                     if infos is not None:
                         yield infos
 
     def index_entries(self, gen_nodes):
         for node in gen_nodes:
-            infos = index_infos(node)
+            infos = index_infos(node, logger=self.log)
             if infos is not None:
                 yield infos
 
@@ -628,11 +572,10 @@ class EADXMLReader(object):
         """FindingAid properties"""
         archdesc = self.archdesc
         additional_resources, referenced_files = component_additional(
-            archdesc, self.relfiles, self.get_sha1_func
+            archdesc, self.relfiles, self.get_sha1_func, self.log
         )
         did_info = self.did_properties(self.fa_maindid)
         return {
-            "fatype": archdesc.get("type"),
             "description": component_description(archdesc),
             "description_format": "text/html",
             "bibliography": component_bibliography(archdesc),
@@ -649,12 +592,12 @@ class EADXMLReader(object):
             "additional_resources_format": "text/html",
             "scopecontent": component_scopecontent(archdesc),
             "scopecontent_format": "text/html",
-            "notes": to_html(archdesc.find("odd")),
+            "notes": to_html(archdesc.findall("odd")),
             "notes_format": "text/html",
             "index_entries": list(self.index_entries(self.archdesc_indexes())),
             "origination": list(self.origination(self.fa_maindid)),
             "did": did_info,
-            "daos": self.component_daos(archdesc),
+            "daos": self.component_daos(archdesc, did_info),
             "referenced_files": referenced_files,
             "website_url": self.website_url(did_info),
         }
@@ -680,11 +623,12 @@ class EADXMLReader(object):
         did = cnode.find("did")
         c_id = cnode.get("id", None)
         additional_resources, referenced_files = component_additional(
-            cnode, self.relfiles, self.get_sha1_func
+            cnode, self.relfiles, self.get_sha1_func, self.log
         )
+        did_info = self.did_properties(did, parent)
         return {
             "__parent__": parent,
-            "did": self.did_properties(did, parent),
+            "did": did_info,
             "description": component_description(cnode),
             "description_format": "text/html",
             "bibliography": component_bibliography(cnode),
@@ -702,9 +646,9 @@ class EADXMLReader(object):
             "userestrict": component_userestrict(cnode),
             "userestrict_format": "text/html",
             "origination": list(self.origination(did)),
-            "notes": to_html(cnode.find("odd")),
+            "notes": to_html(cnode.findall("odd")),
             "notes_format": "text/html",
-            "daos": self.component_daos(cnode),
+            "daos": self.component_daos(cnode, did_info),
             "path": parent.get("path", ()) + (component_index,),
             # remove exact duplicates but keep variants and let
             # postprocess_ead_index handle them
@@ -720,15 +664,12 @@ class EADXMLReader(object):
         href = dao.get("{http://www.w3.org/1999/xlink}href") or dao.get("href")
         if not href:
             return None
-        role = (
-            dao.get("role")
-            or dao.get("{http://www.w3.org/1999/xlink}role")
-            or dao.get("{http://www.w3.org/1999/xlink}title")
-        )
+        role = dao.get("role") or dao.get("{http://www.w3.org/1999/xlink}role")
+        if not role:
+            title = dao.get("{http://www.w3.org/1999/xlink}title")
+            if title in {"image", "thumbnail"}:
+                role = title
         illustration_url = None
-        ext = osp.splitext(href)[-1].lower()
-        if ext in {".jpg", ".jpeg", ".png", ".jp2"} and role not in {"image", "thumbnail"}:
-            role = "thumbnail"
         if role in ("image", "thumbnail"):
             illustration_url, href = href, None
             # XXX HACK for buggy URLs in FRAN inventories (cf #15142125)
@@ -736,7 +677,88 @@ class EADXMLReader(object):
                 illustration_url = illustration_url.replace(".msp-min.jpg", "-min.jpg")
         return {"role": role, "illustration_url": illustration_url, "url": href}
 
-    def merge_daogrp(self, daogrp):
+    def process_dao(self, ddef, thumbnail, viewver, iiif):
+        """Ensure only one dao of thumbnail, viewver, iiif is added.
+        Ensure viewers URL are absolutes
+        """
+        ddef["url"] = ddef["url"].strip() if ddef["url"] is not None else None
+        if ddef["illustration_url"] is not None:
+            ddef["illustration_url"] = ddef["illustration_url"].strip()
+        if not iiif and ddef["url"]:
+            # always try to find a dao with "iiif_role" whatever the iiif_ead_policy is
+            if ddef["role"] == IIIF_MANIFEST_ROLE:
+                return [ddef], thumbnail, viewver, True
+            if self.iiif_ead_policy == "iiif_bnf":
+                # Pattern standard IIIF pour BNF, Mnesys, et autres
+                res = urlparse(ddef["url"])
+                if res.path.startswith("/ark:/"):
+                    # keep URL containing /manifest
+                    if "/manifest" in res.path.lower() or res.path.endswith(".json"):
+                        return [ddef], thumbnail, viewver, True
+                    # Detect if URL contains a UUID at the end (standard pattern)
+                    # Pattern: /ark:/{service_code}/{record_id}/{uuid}
+                    uuid_pattern = re.compile(
+                        r"/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$"
+                    )
+                    match = uuid_pattern.search(res.path)
+                    if match:
+                        # URL with UUID: extract parent ARK
+                        # /ark:/58483/3kf1z6rt07pb/47498ef1-d5e1-43f5-9e74-9d1dc2a5721a
+                        # → /ark:/58483/3kf1z6rt07pb
+                        ark_path = res.path[: match.start()]
+                        # For archives.somme.fr: use /group/0/manifest.json
+                        if res.netloc == "archives.somme.fr":
+                            manifest_url = (
+                                f"{res.scheme}://{res.netloc}/iiif{ark_path}/group/0/manifest.json"
+                            )
+                        else:
+                            # Other domains: use standard /manifest.json
+                            manifest_url = (
+                                f"{res.scheme}://{res.netloc}/iiif{ark_path}/manifest.json"
+                            )
+                    else:
+                        # No UUID: use standard pattern
+                        manifest_url = f"{res.scheme}://{res.netloc}/iiif{res.path}/manifest.json"
+                    ddefs = [
+                        {
+                            "url": manifest_url,
+                            "role": IIIF_MANIFEST_ROLE,
+                            "illustration_url": ddef.get("illustration_url"),
+                        }
+                    ]
+                    # if a viewer URL has already been added, do not add a new one
+                    if not viewver:
+                        ddefs.append(ddef)
+                    return ddefs, thumbnail, True, True
+                else:
+                    self.log.warning(
+                        "iiif_bnf policy: URL without pattern /ark:/ ignored: %s",
+                        ddef["url"],
+                    )
+            if self.iiif_ead_policy == "iiif_ajlsm":
+                # should we create a viewer dao hier ?
+                res = urlparse(ddef["url"])
+                regx = re.compile(r"(?P<visio>archives-en-ligne/)(?P<notice_id>ark:/.*/)f1")
+                m = regx.search(res.path)
+                if m:
+                    ddefs = [
+                        {
+                            "url": f"{res.scheme}://{res.netloc}/{m.group('visio')}iiif/{m.group('notice_id')}manifest.json",  # noqa
+                            "role": IIIF_MANIFEST_ROLE,
+                            "illustration_url": ddef.get("illustration_url"),
+                        }
+                    ]
+                    # if a viewer URL has already been added, do not add a new one
+                    if not viewver:
+                        ddefs.append(ddef)
+                    return ddefs, thumbnail, True, True
+        if not viewver and ddef["url"] and is_absolute_url(ddef["url"]):
+            return [ddef], thumbnail, True, iiif
+        if not thumbnail and ddef["illustration_url"]:
+            return [ddef], True, viewver, iiif
+        return [], thumbnail, viewver, iiif
+
+    def merge_daogrp(self, daogrp, thumbnail, viewver, iiif):
         dao_defs = []
         by_role = defaultdict(list)
         for tagpath in ("dao", "daoloc"):
@@ -744,48 +766,108 @@ class EADXMLReader(object):
                 ddef = self.daodef(dao)
                 if ddef is None:
                     continue
-                if ddef["illustration_url"] is not None:
-                    dao_defs.append(ddef)
+                _ddefs, thumbnail, viewver, iiif = self.process_dao(ddef, thumbnail, viewver, iiif)
+                dao_defs.extend(_ddefs)
+                if all((thumbnail, viewver, iiif)):
+                    # all dao types are added, stop looking
+                    return dao_defs, thumbnail, viewver, iiif
                 else:
                     by_role[ddef["role"]].append(ddef)
-        folder = by_role.pop("dossier", [None])[0]
-        prefix = by_role.pop("prefixe", [None])[0]
-        ext = by_role.pop("extension", [None])[0]
-        if folder and prefix and ext:
-            first = by_role.pop("premier", [None])[0]
-            if first:
-                illustration_url = "{}/{}{}.{}".format(
-                    folder["url"], prefix["url"], first["url"], ext["url"]
-                )
-                dao_defs.append(
-                    {"role": "thumbnail", "illustration_url": illustration_url, "url": None}
-                )
-            last = by_role.pop("dernier", [None])[0]
-            if last:
-                illustration_url = "{}/{}{}.{}".format(
-                    folder["url"], prefix["url"], last["url"], ext["url"]
-                )
-                dao_defs.append(
-                    {"role": "thumbnail", "illustration_url": illustration_url, "url": None}
-                )
+        # compute illustration_url or thumbnail
+        if not thumbnail:
+            folder = by_role.pop("dossier", [None])[0]
+            prefix = by_role.pop("prefixe", [None])[0]
+            ext = by_role.pop("extension", [None])[0]
+            if folder and prefix and ext:
+                for _role in ("premier", "dernier"):
+                    el = by_role.pop(_role, [None])[0]
+                    if el:
+                        illustration_url = "{}/{}{}.{}".format(
+                            folder["url"], prefix["url"], el["url"], ext["url"]
+                        )
+                        dao_defs.append(
+                            {"role": "thumbnail", "illustration_url": illustration_url, "url": None}
+                        )
+                        thumbnail = True
+                        break
+        if all((thumbnail, viewver, iiif)):
+            # all dao types are added, stop looking
+            return dao_defs, thumbnail, viewver, iiif
         for defs in list(by_role.values()):
-            dao_defs.extend(defs)
-        return dao_defs
+            for ddef in defs:
+                _ddefs, thumbnail, viewver, iiif = self.process_dao(ddef, thumbnail, viewver, iiif)
+                dao_defs.extend(_ddefs)
+                if all((thumbnail, viewver, iiif)):
+                    # all dao types are added, stop looking
+                    return dao_defs, thumbnail, viewver, iiif
+        return dao_defs, thumbnail, viewver, iiif
 
-    def component_daos(self, node):
+    def add_iiif_to_dao_node(self, c, dao_defs):
+        """
+        Add IIIF DAOs for APE-EAD export:
+           - <dao xlink:role="MANIFEST" xlink:href="URL/manifest" xlink:title="manifest"/>
+        """
+        iiif_urls = [dao["url"] for dao in dao_defs if dao["role"] == IIIF_MANIFEST_ROLE]
+        if not iiif_urls:
+            return
+        if iiif_urls:
+            dao = etree.Element("dao")
+            dao.attrib.update(
+                {
+                    "{xlink}title": "manifest",
+                    "{xlink}role": "MANIFEST",
+                    "{xlink}href": iiif_urls[0],
+                }
+            )
+        daos = c.findall("did/dao")
+        if len(daos):
+            daos[0].addnext(dao)
+        else:
+            c.find("did").append(dao)
+
+    def component_daos(self, node, did_info):
+        expect_iiif = self.iiif_ead_policy is not None
+        thumbnail, viewver, iiif = (False, False, not expect_iiif)
         dao_defs = []
+
         for tagpath in ("dao", "daoloc", "did/dao", "did/daoloc"):
             for dao in node.findall(tagpath):
                 ddef = self.daodef(dao)
                 if ddef is not None:
-                    dao_defs.append(ddef)
+                    _ddefs, thumbnail, viewver, iiif = self.process_dao(
+                        ddef, thumbnail, viewver, iiif
+                    )
+                    dao_defs.extend(_ddefs)
+                else:
+                    continue
+                if all((thumbnail, viewver, iiif)):
+                    # all dao types are added, stop looking
+                    if expect_iiif and iiif:
+                        # modify ape_ead
+                        self.add_iiif_to_dao_node(node, dao_defs)
+                    return dao_defs
         for tagpath in ("daogrp", "did/daogrp"):
             for daogrp in node.findall(tagpath):
-                dao_defs.extend(self.merge_daogrp(daogrp))
+                ddef, thumbnail, viewver, iiif = self.merge_daogrp(daogrp, thumbnail, viewver, iiif)
+                dao_defs.extend(ddef)
+                if all((thumbnail, viewver, iiif)):
+                    # all dao types are added, stop looking
+                    if expect_iiif and iiif:
+                        # modify ape_ead
+                        self.add_iiif_to_dao_node(node, dao_defs)
+                    return dao_defs
+        if self.iiif_ead_policy == "iiif_ligeo_extptr":
+            if viewver:
+                extptr = did_info.get("extptr")
+                if extptr and "ark:/" in extptr:
+                    iiif = True
+                    dao_defs.append(
+                        {
+                            "url": f"{extptr.rstrip('/')}/manifest",
+                            "role": IIIF_MANIFEST_ROLE,
+                            "illustration_url": None,
+                        }
+                    )
+        if expect_iiif and iiif:
+            self.add_iiif_to_dao_node(node, dao_defs)
         return dao_defs
-
-    def check_c_id_unicity(self, tree):
-        c_ids = [x for x in tree.xpath(".//c[@id]/@id")]
-        duplicate_ids = [c_id for c_id, count in Counter(c_ids).items() if count > 1 and c_id != ""]
-        if duplicate_ids:
-            raise InvalidFindingAid(f"Duplicate c@id : {', '.join(duplicate_ids)}")

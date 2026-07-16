@@ -65,7 +65,7 @@ class OpenGraphMixin(object):
         ]
         data.extend([("{}:author".format(self.og_type), a) for a in self.authors()])
         data.extend([("image", i) for i in self.images()])
-        return [(name, value) for name, value in data if value]
+        return [(name, xml_escape(value)) for name, value in data if value]
 
 
 class HomePageOpenGrapAdpater(Adapter, OpenGraphMixin):

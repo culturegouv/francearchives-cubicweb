@@ -1,9 +1,12 @@
-<section id="on-frontpage">
-<section class="article-title-container">
-  <h1 class="article-title">{{ _('On the front page') }}</h1>
-</section>
-  <div class="card-columns">
-  {% from "./mixins.jinja2" import on_front_page %}
-  {{ on_front_page(entities, _) }}
+{%- from "./mixins.jinja2" import on_front_page -%}
+<section id="on-frontpage" class="fr-container fr-py-4v fr-mt-4v fr-mt-md-8v">
+  <div class="fr-col-8 fr-mb-8v">
+     <h2>{{ _('On the front page') }}</h2>
+   </div>
+  <div class="fr-grid-row fr-grid-row--gutters">
+    {{ on_front_page(entities, _) }}
+  </div>
+  <div class="fr-btns-group--center fr-my-8v">
+    <a href="{{ base_url }}/actualites" class="fr-btn fr-btn-primary">{{ _('See all news') }}</a>
   </div>
 </section>

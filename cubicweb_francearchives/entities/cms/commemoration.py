@@ -37,7 +37,7 @@ from cubicweb_francearchives.entities.cms import RelatedAutorityIndexableMixin
 class CommemorationItem(RelatedAutorityIndexableMixin, TranslatableCmsObject):
     __regid__ = "CommemorationItem"
     image_rel_name = "commemoration_image"
-    i18nfields = ("title", "subtitle", "content")
+    i18nfields = ("title", "subtitle", "content", "summary")
     fetch_attrs, cw_fetch_order = fetch_config(
         ["title", "subtitle", "content", "commemoration_year", "start_year", "stop_year", "summary"]
     )
@@ -67,9 +67,10 @@ class CommemorationItem(RelatedAutorityIndexableMixin, TranslatableCmsObject):
     def printable_content(self):
         content = self.printable_value("content") or ""
         if self.commemoration_year:
+            label = self._cw._("Source: Commemorations Collection")
             content += f"""
             <p class="commemorationitem-source">
-            {self._cw._("Source: Commemorations Collection")} { self.commemoration_year }
+            {label} { self.commemoration_year }
             </p>"""  # noqa
         return content
 

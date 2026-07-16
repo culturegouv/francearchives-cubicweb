@@ -1,19 +1,11 @@
-<div class="row document-view">
-  <h1>{{ title }}</h1>
-  <p class="d-md-none">
-      {{ mobile_alert }}
-  </p>
-  <aside class="d-none d-md-block services-map">
-    {{ map }}
-  </aside>
-  {% if a11y_alert %}
-     <p class="visually-hidden d-print-none">{{ a11y_alert }}</p>
-  {% endif %}
-  {% if service_directory_content %}
-  <section id="service-listing" class="visually-hidden">
-    {{ service_directory_content }}
-  </section>
-  {% endif %}
+<div class="fr-container">
+  <div class="fr-grid-row fr-grid-row--gutters">
+    <div class="fr-col-12 fr-mb-4v">
+      <h1 class="fr-mb-8v">{{ title }}</h1>
+      {% if a11y_alert %}
+      <p class="fr-col-12 fr-col-lg-8">{{ a11y_alert }}</p>
+      {% endif %}
+      <div class="services-map fr-hidden fr-unhidden-md" aria-hidden="true">{{ map }}</div>
+    </div>
+  </div>
 </div>
-
-

@@ -1,0 +1,32 @@
+{
+    "acquisition_info": "FC1-fc-acquisition_info",
+    "alltext": "FC1-fc-description",
+    "cw_etype": "FAComponent",
+    "dates": {"gte": 2001, "lte": 2011},
+    "did": {"unitid": "FC1-fc-unitid", "unittitle": "FC1-fc-unittitle"},
+    "eid": {{eid}},
+    "escategory": "archives",
+    "fa_stable_id": "FA1",
+    "digitized": true,
+    "digitized_all": ["digitized", "digitized-noniiif"],
+    "index_entries": [
+        {"authfilenumber": null, "authority": {{originator}},
+         "label": "originators", "type":"corpname", "authtype":"AgentAuthority"},
+        {"authfilenumber": null, "authority": {{loutre_agent}},
+         "label": "loutre", "type":"occupation", "authtype":"SubjectAuthority"},
+        {"authfilenumber": null, "authority": {{loutre_subj}},
+         "label": "loutre", "type":"subject", "authtype":"SubjectAuthority"}
+    ],
+    "scopecontent": "FC1-fc-scopecontent",
+    "service": {
+        "code": "FRAD084",
+        "eid": {{service_eid}},
+        "level": "{{service_level}}",
+        "title": "AD Vaucluse"
+    },
+    "sortdate": "2001-01-01",
+    "stable_id": "FC1",
+    "startyear": 2001,
+    "stopyear": 2011,
+    "originators": ["Originators"]
+}

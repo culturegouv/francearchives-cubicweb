@@ -36,13 +36,13 @@ import shutil
 
 # third party imports
 # CubicWeb specific imports
-from cubicweb.devtools.testlib import CubicWebTC
+from cubicweb_web.devtools.testlib import WebCWTC
 
 # library specific imports
 from cubicweb_francearchives.scripts import cleanup
 
 
-class CleanupTest(CubicWebTC):
+class CleanupTest(WebCWTC):
     def setUp(self):
         """Set test cases up."""
         super().setUp()

@@ -1,75 +1,90 @@
-<h1 class="visually-hidden">{{ _('Links') }}</h1>
-<footer id="pagefooter" class="container-fluid d-print-none">
-  <section id="content-connected">
-    <h2 class="content-connected__link">
-      <a class="btn"
-         href="https://twitter.com/FranceArchives"
-         rel="nofollow noopener noreferrer"
-         target="_blank"
-         title="{{ _('Follow us on Twitter') }} {{ _('- New window') }}">
-        {{ _('Follow us on') }} <b>Twitter</b>
-        <span aria-hidden="true" class="twitter-icon connected-icon"></span>
-      </a>
-    </h2>
-    <h2 class="content-connected__link">
-      <a href="{{ base_url}}/lettre-info" class="btn">
-        {{ _('###subscribe to our newsletter###') }}
-        <span aria-hidden="true" class="connected-icon"></span>
-      </a>
-    </h2>
-  </section>
-  <div id="footer-content" class="row">
-    <div class="col-xl-4 footer-content__ministry_links">
-      <div id="footer-signature" class="row"></div>
-      <div class="row">
-         <ul>
-           {% for link in footer.ministries %}
-           <li>
-           {% set label = picklabel(link.labels, lang) %}
-           <a href="{{ link.url | format(base_url=base_url+'/')}}"
-              target="_blank" rel="nofollow noopener noreferrer"
-              title="{{ label }} {{ _('- New window') }}"
-           >{{ label }}</a>
-           </li>
-           {% endfor %}
-         </ul>
-      </div>
-    </div>
-    <div class="col-xl-8 footer-content__falinks">
-      <div class="row">
-        {% for section in footer.sections %}
-        <div class="col-md-3">
-          <h2>{{ picklabel(section.labels, lang) }}</h2>
-          <ul>
-            {% for link in section.links %}
-            <li class="{{ link.css }}">
-            {% set label = picklabel(link.labels, lang) %}
-            <a href="{{ link.url | format(base_url=base_url+'/')}}"
-               {% if not link.url.startswith('%(base_url)s') %}
-               target="_blank" rel="nofollow noopener noreferrer"
-               title="{{ label }} {{ _('- New window') }}"
-               {% endif %}
-            >{{ label }}</a>
+<footer class="fr-footer" role="contentinfo" id="footer">
+ <h2 class="fr-sr-only">{{ _("Footer menu") }}</h2>
+  <div class="fr-footer__top">
+    <div class="fr-container">
+      <div class="fr-grid-row fr-grid-row--start fr-grid-row--gutters">
+        {%- for section in footer.sections -%}
+        <div class="fr-col-12 fr-col-sm-3 fr-col-md-2">
+          <h3 class="fr-footer__top-cat">{{ picklabel(section.labels, lang) }}</h3>
+          <ul class="fr-footer__top-list">
+            {%- for link in section.links -%}
+            {%- set label = picklabel(link.labels, lang) -%}
+            <li {% if link.hide %}class="fr-hidden fr-unhidden-md" {%- endif -%}>
+              <a class="fr-footer__top-link"
+                 {%- if not link.url.startswith('%(base_url)s') %}
+                 title="{{ label }} - {{ _('new window') }}"
+                 target="_blank"
+                 rel="noopener external"
+                 {% endif %}
+                 href="{{ link.url | format(base_url=base_url+'/') }}">{{ label }}</a>
             </li>
-            {% endfor %}
+            {%- endfor -%}
           </ul>
         </div>
-        {% endfor %}
+        {%- endfor -%}
       </div>
     </div>
   </div>
-  <div class="footer-actions">
-    <ul class="footer-actions-container">
-    {% for link in footer.footer_links %}
-    <li>
-      <a href="{{ link.url | format(base_url=base_url+'/')}}">
-         {{ picklabel(link.labels, lang) }}
-      </a>
-    </li>
-    {% endfor %}
-    </ul>
+  <div class="fr-container">
+    <div class="fr-footer__body">
+      <div class="fr-footer__brand fr-enlarge-link">
+        <a href="/" title="République Française - {{ _('back to homepage') }}">
+          <p class="fr-logo">
+            République
+            <br>
+            Française
+          </p>
+        </a>
+      </div>
+      <div class="fr-footer__content">
+        <ul class="fr-footer__content-list">
+          <li class="fr-footer__content-item">
+            <a class="fr-footer__content-link" target="_blank"
+               title="legifrance.gou.fr - {{ _('new window') }}"
+               rel="noopener external"
+               href="https://legifrance.gouv.fr">legifrance.gouv.fr
+            </a>
+          </li>
+          <li class="fr-footer__content-item">
+            <a class="fr-footer__content-link" target="_blank"
+               title="https://www.info.gouv.fr - {{ _('new window') }}"
+               rel="noopener external"
+               href="https://www.info.gouv.fr">info.gouv.fr</a>
+          </li>
+          <li class="fr-footer__content-item">
+            <a class="fr-footer__content-link" target="_blank"
+               title="service-public.fr - {{ _('new window') }}"
+               rel="noopener external"
+               href="https://service-public.fr">service-public.fr</a>
+          </li>
+          <li class="fr-footer__content-item">
+            <a class="fr-footer__content-link" target="_blank"
+               title="data.gouv.fr - {{ _('new window') }}"
+               rel="noopener external"
+               href="https://data.gouv.fr">data.gouv.fr</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="fr-footer__bottom">
+      <ul class="fr-footer__bottom-list">
+        {%- for link in footer.footer_links -%}
+        <li class="fr-footer__bottom-item">
+          <a class="fr-footer__bottom-link" href="{{ link.url | format(base_url=base_url+'/')}}">{{ picklabel(link.labels, lang) }}</a>
+        </li>
+        {%- endfor -%}
+        {%- if tac -%}
+        <li class="fr-footer__bottom-item">
+           <button class="fr-footer__bottom-link" data-fr-opened="false"
+           onclick="javascript:tarteaucitron.userInterface.openPanel();"
+           >{{ _("Cookies management") }}</button>
+        </li>
+        {%- endif -%}
+      </ul>
+      <div class="fr-footer__bottom-copy">
+        <p>{{ _("licence_etalab_text") }}<a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank">{{ _("licence_etalab") }}</a>
+        </p>
+      </div>
+    </div>
   </div>
-  <p id="copyright">
-    {{ _('###site-copyright###') }}
-  </p>
 </footer>

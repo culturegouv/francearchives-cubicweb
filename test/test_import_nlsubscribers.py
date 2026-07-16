@@ -30,7 +30,8 @@
 #
 import unittest
 
-from cubicweb.devtools import testlib
+from cubicweb_web.devtools.testlib import WebCWTC
+
 from cubicweb_francearchives.testutils import PostgresTextMixin
 
 from cubicweb_francearchives.dataimport.newsletter import import_subscribers
@@ -38,7 +39,7 @@ from cubicweb_francearchives.dataimport.newsletter import import_subscribers
 from pgfixtures import setup_module, teardown_module  # noqa
 
 
-class ImportNLSubscribersTC(PostgresTextMixin, testlib.CubicWebTC):
+class ImportNLSubscribersTC(PostgresTextMixin, WebCWTC):
     def test_import(self):
         filepath = self.datapath("subscribers.csv")
         with self.admin_access.cnx() as cnx:

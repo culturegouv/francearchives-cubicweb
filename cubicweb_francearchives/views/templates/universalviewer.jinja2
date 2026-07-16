@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+    <meta name="language" content="{{ lang }}" />
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ data_url }}icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="{{ data_url }}icons/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="{{ data_url }}icons/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="{{ data_url }}icons/manifest.json">
+    <link rel="mask-icon" href="{{ data_url }}icons/safari-pinned-tab.svg">
+    <link rel="shortcut icon" href="{{ data_url }}icons/favicon.ico">
+    <title>{{ pagetitle }}</title>
+  </head>
+  <body>
+    {% from "./mixins.jinja2" import universal_viewer %}
+    {{ universal_viewer(iiif_manifest, data_url, lang) }}
+    <script src="{{ data_url }}bundle-pnia-universalviewer.js"></script>
+  </body>
+</html>

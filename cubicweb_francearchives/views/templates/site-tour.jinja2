@@ -1,3 +1,9 @@
- <div class="help-actions">
-    <button id="start-tour" class="blue-button" data-jsondata="{{ site_tour_url }}">{{ _("Launch the tour") }}</button>
-  </div>
+<button id="fa-start-tour" class="fr-btn fr-btn--sm fr-btn--secondary eulerian-button"
+        data-eulerian-actionname="click_{{ heading_hierarchy }}"
+        data-eulerian-actionlabel="click,{{ eulerian.page_type }},button,lancer_la_visite_guidee,custom_event"
+        data-eulerian-headinghierarchy="{{ heading_hierarchy }}"
+        data-eulerian-componenthierarchy="main_>_section_>_button"
+        data-eulerian-componentlabel="lancer_la_visite_guidee"
+        data-jsondata="{{ site_tour_url }}">
+        {{ _("Launch the tour") }}
+</button>
